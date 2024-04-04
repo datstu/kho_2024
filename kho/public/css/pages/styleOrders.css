@@ -1,0 +1,193 @@
+
+.header {
+    display: none;
+}
+
+/* Dropdown Button */
+.dropbtn {
+    background-color: #04AA6D;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Dropdown button on hover & focus */
+.dropbtn:hover,
+.dropbtn:focus {
+    background-color: #3e8e41;
+}
+
+/* The search field */
+#myInput {
+    box-sizing: border-box;
+    /* background-image: url('searchicon.png'); */
+    background-position: 14px 12px;
+    background-repeat: no-repeat;
+    font-size: 16px;
+    padding: 14px 20px 12px 45px;
+    border: none;
+    border-bottom: 1px solid #ddd;
+}
+
+/* The search field when it gets focus/clicked on */
+#myInput:focus {
+    outline: 3px solid #ddd;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f6f6f6;
+    /* min-width: 230px; */
+    border: 1px solid #ddd;
+    z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: black;
+    padding: 5px;
+    text-decoration: none;
+    display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+    background-color: #f1f1f1
+}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {
+    display: block;
+}
+
+#list-product-choose .product {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-around;
+}
+
+#list-product-choose .product:hover input,
+#list-product-choose .product:hover {
+    background-color: #ddd;
+}
+
+span {
+    cursor: pointer;
+}
+
+.minus,
+.plus,
+.del {
+    width: 20px;
+    /* height:20px; */
+    background: #f2f2f2;
+    border-radius: 4px;
+    /* padding:8px 5px 8px 5px; */
+    border: 1px solid #ddd;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.del {
+    width: 40px;
+}
+
+.qty-input {
+    height: 26px;
+    width: 40px;
+    text-align: center;
+    font-size: 26px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.product .name {
+    /* flex-basis: 80vh; */
+}
+
+#myDropdown,
+#listProvince,
+#listDistrict,
+#listWard {
+    max-height: 315px;
+    overflow: scroll;
+    cursor: pointer;
+    top: 0;
+}
+
+.card-orders,
+.card-orders .form-control,
+.card-orders .dropbtn,
+.qty-input {
+    appearance: auto;
+    font-size: 15px;
+    padding: 0;
+    padding-left: 2px;
+}
+
+.card-orders .form-control {
+    border-radius: 2px;
+}
+
+.card-orders .form-label {
+    margin-bottom: 0.2rem;
+}
+
+.card-orders .dropbtn {
+    padding: 5px;
+}
+
+.text-right {
+    text-align: right;
+}
+
+input {}
+
+#listProvince,
+#listDistrict,
+#listWard {
+    top: 50px;
+    width: 88%;
+}
+
+.error_msg {
+    animation-name: blink;
+    width: 280px;
+    animation-duration: 7s;
+    animation-timing-function: ease-in;
+    animation-iteration-count: Infinite;
+    padding-left: 2px;
+}
+
+@keyframes blink {
+    0% {
+        color: red;
+    }
+
+    50% {
+        color: #ddd;
+    }
+
+    100% {
+        color: red;
+    }
+}
+
+.product-list-order .btn-outline-secondary {
+    width: 127px;
+    display: block;
+    padding: unset;
+}

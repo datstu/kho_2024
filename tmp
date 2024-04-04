@@ -1,0 +1,13 @@
+    echo "<pre>";
+        print_r($post);
+        echo "</pre>";
+        die();
+
+
+        $router->get('/switchinfo/{prisw}/{secsw}',[
+    'uses' => 'SwitchinfoController@switchInfo',
+    'as'   => 'switch'
+]);
+
+
+php artisan make:migration create_category_table --create=category
