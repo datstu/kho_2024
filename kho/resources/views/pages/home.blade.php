@@ -72,14 +72,17 @@
   }
 
   #dateTotal {
-    width: 13%;
+    /* width: 13%;zxc */
+  }
+  #daterange {
+    color: #000;
   }
 </style>
 <div class="body flex-grow-1 px-3">
   <div class="container-lg">
     <div class="row mb-2">
       <div class="col">
-        <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">        
+        <div class="btn-toolbar d-md-block" role="toolbar" aria-label="Toolbar with buttons">        
           <div class="dropdown dropdown-filter mb-3" >
             <button id="filter-type-button" class="filter-type-button btn" type="button" data-toggle="dropdown">
                 Bộ lọc 
