@@ -14,6 +14,7 @@
 $listStatus = Helper::getListStatus();
 ?>
 
+<script src="{{asset('public/js/number-format/cleave.min.js')}}"></script>
 <link href="{{ asset('public/css/pages/styleOrders.css'); }}" rel="stylesheet">
 <div class="body flex-grow-1 px-3">
     <div class="container-lg">
@@ -84,8 +85,9 @@ $listStatus = Helper::getListStatus();
                                                         <div class="col-6">
                                                             <label class="form-label" for="priceFor">Tổng tiền</label>
                                                             <input {{ $order->is_price_sale ? '' : 'disabled' }} value="{{number_format($order->total)}} đ" value="" data-type="currency"
-                                                                class="form-control" name="price"
-                                                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" id="priceFor"
+                                                                class="price_class form-control" name="price"
+                                                                {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
+                                                                id="priceFor"
                                                                 type="text"
                                                                 data-product-price={{$order->total}}>
                                                             <label class="form-label" for="priceSaleFor">
@@ -304,9 +306,10 @@ $listStatus = Helper::getListStatus();
                                         
                                             <div class="col-lg-3 ">
                                                 <label class="form-label" for="priceFor">Tổng tiền:</label>
-                                                <input disabled placeholder="199.000 đ" value="" data-type="currency"
-                                                    class="form-control" name="price"
-                                                    pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" id="priceFor"
+                                                <input disabled placeholder="199.000 đ"
+                                                    class="price_class form-control" name="price"
+                                                    {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
+                                                    id="priceFor"
                                                     type="text"
                                                     data-product-price=0>
                                                 <label class="form-label" for="priceSaleFor">
@@ -383,6 +386,7 @@ $listStatus = Helper::getListStatus();
 </div>
 </div>
 <script type="text/javascript">
+
 function wardClick(name, id) {
     $("#wardFor").val(name);
     $("#listWard").removeClass('show');
@@ -652,10 +656,10 @@ $(document).ready(function() {
 
         var isPriceSale = $("input[name='priceSale']:checked").val();
         var price = $("input[name='price']").val();
+
         if (isPriceSale == 'on') {
             isPriceSale = 1;
-            price       = Number(price.replace(/[^0-9.-]+/g,""));
-            
+            price = price.replace(/[^0-9]+/g, "")
         } else {
             isPriceSale = 0;
             price = $("input[name='price']").attr("data-product-price");
@@ -707,9 +711,9 @@ $(document).ready(function() {
     });
 
     $("input[data-type='currency']").on({
-        keyup: function() {
-            formatCurrency($(this));
-        },
+        // keyup: function() {
+        //     formatCurrency($(this));
+        // },
         // blur: function() { 
         //   formatCurrency($(this), "blur");
         // }
@@ -839,7 +843,7 @@ $(document).ready(function() {
     });
 
     $("#priceSaleFor").click(function() {
-        if ($(this).is(':checked') ) {
+        if ($(this).is(':checked')) {
             $("input[name='price']").prop("disabled", false);
             $("input[name='price']").focus();
             // $("input[name='price']").show();
@@ -862,5 +866,11 @@ $(document).ready(function() {
     //   }, 5000);
 
 });
+
+document.querySelectorAll('.price_class').forEach(inp => new Cleave(inp, {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand'
+    }));
+
 </script>
 @stop
