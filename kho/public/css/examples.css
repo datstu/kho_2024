@@ -80,12 +80,7 @@
   display: flex;
 }
 
-#notifi-box {
-  top: 0;
-  /* display: block; */
-  z-index: 1;
-  position: fixed;
-}
+
 
 @media only screen and (max-width: 600px) {
   .tbl_mobile, .tbl_mobile .container-lg, .tbl_mobile .card-body  {
@@ -94,6 +89,10 @@
   .tool-bar .col-3:first-child {
     width: 48%;
   }
-  
-  
+  #notifi-box {
+    top: 0;
+    /* display: block; */
+    z-index: 1;
+    position: fixed;
+  }
 }

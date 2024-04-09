@@ -38,6 +38,23 @@
     border: 1px solid #fff;
     font-weight: 700;
   }
+  #myModal .modal-dialog {
+    /* margin-top: 5px;
+    width: 1280px; */
+    /* margin: 10px; */
+    height: 90%;
+    /* background: #0f0; */
+  }
+  #myModal .modal-dialog iframe {
+    /* 100% = dialog height, 120px = header + footer */
+    height: 100%;
+    overflow-y: scroll;
+  }
+
+  #myModal .modal-dialog .modal-content {
+    height: 100%;
+    /* overflow: scroll; */
+  }
 
 </style>
 
@@ -52,13 +69,45 @@ $styleStatus = [
 
 
 ?>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <div class="tab-content rounded-bottom">
 <div class="tab-pane p-3 active preview" role="tabpanel" id="preview-1001">
 
     <div class="row ">
       <div class="col col-4">
-        <a class="btn btn-primary" href="{{route('add-orders')}}" role="button">+ Thêm đơn</a>
+        {{-- <a class="btn btn-primary" href="{{route('add-orders')}}" role="button">+ Thêm đơn</a> --}}
+        <a class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm đơn</a>
+        {{-- <form id="myform" class="form-wizard">
+          <h2 class="form-wizard-heading">BootStap Wizard Form</h2>
+          <input type="text" value=""/>
+          <input type="submit"/>
+        </form> --}}
+      
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content ">
+              <div class="modal-header">
+                <h5 class="modal-title">Thêm đơn hàng mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              {{-- <div class="modal-body">
+                <h5>Popover in a modal</h5>
+                <p>This <a href="#" role="button" class="btn btn-secondary popover-test" title="Popover title" data-bs-content="Popover body content is set in this attribute.">button</a> triggers a popover on click.</p>
+                <hr>
+                <h5>Tooltips in a modal</h5>
+                <p><a href="#" class="tooltip-test" title="Tooltip">This link</a> and <a href="#" class="tooltip-test" title="Tooltip">that link</a> have tooltips on hover.</p>
+              </div> --}}
+              <iframe src="{{URL::to('them-don-hang')}}" frameborder="0"></iframe>
+              {{-- <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div> --}}
+            </div>
+          </div>
+        </div>
       </div>
       <div class="col-8 ">
         <form class ="row tool-bar" action="{{route('search-order')}}" method="get">
@@ -105,9 +154,10 @@ $styleStatus = [
             $shippingOrderId  = $shippingOrder->id ?? '';
             ?>
               <tr>
-                <th>{{ $item->id }}</th>
-                <td>  {{ $item->phone }}</td>
-                <td class="mobile-col-tbl">  {{ $item->name }} </td>
+                
+                <th onclick="window.location='{{route('view-order', $item->id)}}';" style='cursor: pointer;'>{{ $item->id }}</th>
+                <td onclick="window.location='{{route('view-order', $item->id)}}';" style='cursor: pointer;'>  {{ $item->phone }}</td>
+                <td onclick="window.location='{{route('view-order', $item->id)}}';" style='cursor: pointer;' class="mobile-col-tbl">  {{ $item->name }} </td>
                 <td class="text-center">  {{ $item->qty }} </td>
                 <td >  {{ number_format($item->total) }}đ</td>
                 <td >  {{ getSexHelper($item->sex) }} </td>
@@ -132,7 +182,7 @@ $styleStatus = [
                 <td >
                   <?php $checkAll = isFullAccess(Auth::user()->role);?>
                   @if ($checkAll)
-                  <a title="xoá" href="{{route('delete-order',['id'=>$item->id])}}" role="button">
+                  <a title="xoá" onclick="return confirm('Bạn muốn xóa đơn này?')" href="{{route('delete-order',['id'=>$item->id])}}" role="button">
                     <svg class="icon me-2">
                       <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-backspace')}}"></use>
                     </svg>

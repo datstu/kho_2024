@@ -1,12 +1,6 @@
 @extends('layouts.default')
 @section('content')
 
-<?php
-    // echo "<pre>";
-    // print_r($product->status);
-    // echo "</pre>";
-    // die();
-?>
 <div class="body flex-grow-1 px-3">
     <div class="container-lg">
         <div class="row">

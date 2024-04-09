@@ -60,7 +60,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/search-order',  [OrdersController::class, 'search'])->name('search-order');
     Route::get('/update-order/{id}',[OrdersController::class,'viewUpdate'])->name('update-order');
     Route::get('/delete-order/{id}',  [OrdersController::class, 'delete'])->name('delete-order');
-
+    Route::get('/chi-tiet-don-hang/{id}',  [OrdersController::class, 'view'])->name('view-order');
     Route::get('/cap-nhat-thanh-vien/{id}',[UserController::class,'viewUpdate'])->name('update-user');
     Route::get('/delete-user/{id}',  [UserController::class, 'delete'])->name('delete-user');
     Route::get('/tim-thanh-vien',  [UserController::class, 'search'])->name('search-user');

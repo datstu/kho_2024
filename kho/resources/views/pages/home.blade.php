@@ -77,6 +77,16 @@
   #daterange {
     color: #000;
   }
+  
+  @media only screen and (max-width: 600px) {
+    .px-3 {
+      padding: 0 !important;
+    }
+
+    .dropdown.dropdown-filter {
+      white-space: nowrap;
+    }
+  }
 </style>
 <div class="body flex-grow-1 px-3">
   <div class="container-lg">
@@ -84,17 +94,17 @@
       <div class="col">
         <div class="btn-toolbar d-md-block" role="toolbar" aria-label="Toolbar with buttons">        
           <div class="dropdown dropdown-filter mb-3" >
-            <button id="filter-type-button" class="filter-type-button btn" type="button" data-toggle="dropdown">
-                Bộ lọc 
-                <span class="caret"></span></button>
+            {{-- <button id="filter-type-button" class="filter-type-button btn" type="button" data-toggle="dropdown">
+              Bộ lọc 
+              <span class="caret"></span></button>
             <ul class="dropdown-menu">
                 <li><a id="type-day">Lọc theo ngày</a></li>
                 <li><a id="type-period">Khoảng thời gian</a></li>
-            </ul>
-            <input class="hidden btn btn-outline-secondary" value="{{date('Y-m-d', time())}}" type="date" id="dateTotal" name="dateTotal">
-            <input id="daterange" class="hidden btn btn-outline-secondary" type="text" name="daterange" value="01/01/2024 - 15/04/2024" />
+            </ul> --}}
+            {{-- <input class="hidden btn btn-outline-secondary" value="{{date('Y-m-d', time())}}" type="date" id="dateTotal" name="dateTotal"> --}}
+            <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" value="01/01/2024 - 15/04/2024" />
 
-            <div id="filter-order" class="mt-3 hidden btn-group btn-group-toggle filter-order" data-coreui-toggle="buttons">
+            {{-- <div id="filter-order" class="mt-3 hidden btn-group btn-group-toggle filter-order" data-coreui-toggle="buttons">
             
               <label class="btn btn-outline-secondary"> Ngày
                 <input class="btn-check" id="total" type="radio" name="filterTotal" value="day" autocomplete="off">
@@ -107,7 +117,7 @@
               <label class="btn btn-outline-secondary"> Năm
                 <input class="btn-check" id="option3" type="radio" name="filterTotal" value="year" autocomplete="off">
               </label>
-            </div>
+            </div> --}}
         </div>
           
           <span class="loader hidden">
@@ -222,16 +232,16 @@
 {{-- <script type="text/javascript" src="{{asset('public/js/dateRangePicker/dateRangePicker-vi.js')}}"></script> --}}
 <script>
   $(document).ready(function() {
-    //  $.daterangepicker.setDefaults( $.daterangepicker.regional[ "" ] );
-    // $('input[name="daterange"]').daterangepicker({
-    //   // timePicker: true,
-    //   // startDate: moment().startDate.format('DD/MM/YYYY'),
-    //   // endDate: moment().startOf('hour').add(32, 'hour'),
-    //   locale: {
-    //     format: 'DD/MM/YYYY'
-    //   }
-    // });
+    
     $('input[name="daterange"]').daterangepicker({
+      ranges: {
+        'Hôm nay': [moment(), moment()],
+        'Hôm qua': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        '7 ngày gần đây': [moment().subtract(6, 'days'), moment()],
+        '30 ngày gần đây': [moment().subtract(29, 'days'), moment()],
+        'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+        'Tháng trước': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+      },
       locale: {
         "format": 'DD/MM/YYYY',
         "applyLabel": "OK",
@@ -247,6 +257,7 @@
         ],
       }
     });
+    $('[data-range-key="Custom Range"]').text('Tuỳ chỉnh');
 
     $('input[name="daterange"]').change(function () {
       let value = $(this).val();

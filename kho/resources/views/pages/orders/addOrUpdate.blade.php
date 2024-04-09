@@ -1,15 +1,6 @@
 @extends('layouts.default')
 @section('content')
 
-<style>
-    .card-header a.btn-warning {
-        color: #fff;
-        float: right;
-    }
-    .Fixed.header-main {
-        display: none;
-    }
-</style>
 <?php 
 $listStatus = Helper::getListStatus();
 ?>
@@ -17,318 +8,93 @@ $listStatus = Helper::getListStatus();
 <script src="{{asset('public/js/number-format/cleave.min.js')}}"></script>
 <link href="{{ asset('public/css/pages/styleOrders.css'); }}" rel="stylesheet">
 <div class="body flex-grow-1 px-3">
-    <div class="container-lg">
-        <div class="row">
-            <div id="notifi-box" class="hidden alert alert-success print-error-msg">
-                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-            </div>
+    <div class="row">
+        <div id="notifi-box" class="hidden alert alert-success print-error-msg">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        </div>
 
-            <div class="mt-1 col-lg-12">
-                <div class="card mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                
+                @if(isset($order))
+                
+                <div class="card-header"><span><strong>Cập nhật đơn hàng #{{$order->id}} - {{date_format($order->created_at,"d-m-Y ")}}</strong></span>
                     
-                    @if(isset($order))
-                  
-                    <div class="card-header"><span><strong>Cập nhật đơn hàng #{{$order->id}} - {{date_format($order->created_at,"d-m-Y ")}}</strong></span>
-                        
-                        <?php $isMappingShip = Helper::isMappingShippByOrderId($order->id);?>
-                        @if (!$isMappingShip)
-                        <a href="{{URL::to('tao-van-don/'. $order->id)}}" class="btn btn-warning ms-1">+ Tạo vận đơn</a>
-                        @else
-                        <a href="{{URL::to('chi-tiet-van-don/'. $isMappingShip->id)}}" class="btn btn-warning ms-1">Xem vận đơn {{$isMappingShip->vendor_ship}} - {{$isMappingShip->order_code}}</a>
-                        @endif
-                    </div>
-                    <div class="card-body card-orders">
-                        <div class="example">
-                            <div class="body flex-grow-1">
-                                <div class="tab-content rounded-bottom">
-                                    <form>
-                                        {{ csrf_field() }}
-                                        <input type="hidden" name="id" value="{{$order->id}}">
-                                        <div class=" p-3">
-                                            <div class="row">
-                                                <div class="col-lg-7">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-sm-12">
-                                                            <label class="form-label" for="phoneFor">Số điện
-                                                                thoại</label>
-                                                            <input value="{{$order->phone}}" class="form-control"
-                                                                name="phone" id="phoneFor" type="text">
-                                                            <p class="error_msg" id="phone"></p>
-                                                        </div>
-                                                        <div class="col-lg-7 col-sm-12">
-                                                            <label class="form-label" for="nameFor">Tên khách
-                                                                hàng</label>
-                                                            <input value="{{$order->name}}" class="form-control"
-                                                                name="name" id="nameFor" type="text">
-                                                            <p class="error_msg" id="name"></p>
-                                                        </div>
-                                                        <div class="col-lg-2 col-sm-12">
-                                                            <label class="form-label" for="sexFor">Giới tính</label>
-                                                            <select name="sex"
-                                                                id="sexFor" class="form-control">
-                                                                <option <?= $order->sex == 0 ? 'selected' : ''; ?> value="0">Nam</option>
-                                                                <option <?= $order->sex == 1 ? 'selected' : ''; ?> value="1">Nữ</option>
-                                                            </select>
-                                                            <p class="error_msg" id="sex"></p>
-                                                        </div>
+                    <?php $isMappingShip = Helper::isMappingShippByOrderId($order->id);?>
+                    @if (!$isMappingShip)
+                    <a href="{{URL::to('tao-van-don/'. $order->id)}}" class="btn btn-warning ms-1">+ Tạo vận đơn</a>
+                    @else
+                    <a href="{{URL::to('chi-tiet-van-don/'. $isMappingShip->id)}}" class="btn btn-warning ms-1">Xem vận đơn {{$isMappingShip->vendor_ship}} - {{$isMappingShip->order_code}}</a>
+                    @endif
+                </div>
+                <div class="card-body card-orders">
+                    <div class="example">
+                        <div class="body flex-grow-1">
+                            <div class="tab-content rounded-bottom">
+                                <form>
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="id" value="{{$order->id}}">
+                                    <div class=" p-3">
+                                        <div class="row">
+                                            <div class="col-lg-7">
+                                                <div class="row">
+                                                    <div class="col-lg-3 col-sm-12">
+                                                        <label class="form-label" for="phoneFor">Số điện
+                                                            thoại</label>
+                                                        <input value="{{$order->phone}}" class="form-control"
+                                                            name="phone" id="phoneFor" type="text">
+                                                        <p class="error_msg" id="phone"></p>
                                                     </div>
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <label class="form-label" for="addressFor">Địa
-                                                                chỉ/đường</label>
-                                                            <input value="{{$order->address}}" class="form-control"
-                                                                name="address" id="addressFor" type="text">
-                                                            <p class="error_msg" id="address"></p>
-                                                        </div>
+                                                    <div class="col-lg-7 col-sm-12">
+                                                        <label class="form-label" for="nameFor">Tên khách
+                                                            hàng</label>
+                                                        <input value="{{$order->name}}" class="form-control"
+                                                            name="name" id="nameFor" type="text">
+                                                        <p class="error_msg" id="name"></p>
                                                     </div>
-                                                    <div class="row">
-                                                        <div class="col-6">
-                                                            <label class="form-label" for="priceFor">Tổng tiền</label>
-                                                            <input {{ $order->is_price_sale ? '' : 'disabled' }} value="{{number_format($order->total)}} đ" value="" data-type="currency"
-                                                                class="price_class form-control" name="price"
-                                                                {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
-                                                                id="priceFor"
-                                                                type="text"
-                                                                data-product-price={{$order->total}}>
-                                                            <label class="form-label" for="priceSaleFor">
-                                                                <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="priceSaleFor"> Giá khuyến mãi
-                                                                
-                                                            </label>
-                                                            <p class="error_msg" id="price"></p>
-                                                        </div>
-                                            <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                                            @if ($checkAll)
-                                                <div class="col-4">
-                                                    <label class="form-label" for="assignSaleFor">Chọn Sale</label>
-                                                    <select class="form-control" name="assign-sale" id="">
-
-                                                    @if (isset($listSale))
-                                                    @foreach ($listSale as $item)
-                                                        <option <?php echo ($item->id == $order->assign_user) ? 'selected' : '';?> value="{{$item->id}}">{{$item->name}}</option>
-                                                    @endforeach
-                                                    @endif
-
-                                                    </select>
-                                                    <p class="error_msg" id="price"></p>
-                                                </div>
-                                            @else 
-                                            <div class="col-6 hidden">
-                                                <label class="form-label" for="assignSaleFor">Chọn Sale</label>
-                                                <select class="form-control" name="assign-sale" id="">
-                                                    <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
-                                                </select>
-                                                <p class="error_msg" id="price"></p>
-                                            </div>
-                                            @endif
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="note" class="form-label">Ghi chú:</label>
-                                                        <textarea name="note" class="form-control" id="note" rows="3">{{$order->note}} </textarea>
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <label class="form-label" for="status">Trạng thái:</label>
-                                                       
-                                                        <select name="status" id="status"
-                                                            class="form-control">
-                                                      
-                                                            @foreach ($listStatus as $k => $val)
-                                                            <option <?= (int)$order->status == (int)$k ? 'selected' : ''; ?> value="{{$k}}">{{$val}}</option>
-                                                            @endforeach
-
+                                                    <div class="col-lg-2 col-sm-12">
+                                                        <label class="form-label" for="sexFor">Giới tính</label>
+                                                        <select name="sex"
+                                                            id="sexFor" class="form-control">
+                                                            <option <?= $order->sex == 0 ? 'selected' : ''; ?> value="0">Nam</option>
+                                                            <option <?= $order->sex == 1 ? 'selected' : ''; ?> value="1">Nữ</option>
                                                         </select>
                                                         <p class="error_msg" id="sex"></p>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-5">
-                                                    <div class="row product-list-order">
-                                                        <div class="position-relative col-8 d-flex align-items-center">
-                                                            <input class="hidden" name="products[]">
-                                                            <button type="button" onclick="myFunction()"
-                                                                class=" btn btn-outline-secondary">Sản phẩm</button>
-                                                            @if(isset($listProduct))
-
-                                                            <div id="myDropdown"
-                                                                class="position-absolute dropdown-content">
-                                                                <input type="text" placeholder="Search.." id="myInput"
-                                                                    onkeyup="filterFunction()">
-                                                                @foreach ($listProduct as $value)
-                                                                <a class="option-product"
-                                                                    data-product-price="{{$value->price}}"
-                                                                    data-product-name="{{$value->name}}"
-                                                                    data-product-id="{{$value->id}}">{{$value->name}}</a>
-
-                                                                @endforeach
-                                                            </div>
-
-                                                            @endif
-
-
-                                                            <p class="error_msg" id="qty"></p>
-                                                        </div>
-
-                                                        <div id="sum-qty" class=" col-4">
-                                                            <label class="form-label" for="qtyFor">Tổng số lượng</label>
-                                                            <input value="{{$order->qty}}" name="sum-qty" class="form-control" disabled
-                                                                type="number">
-                                                            <p class="error_msg" id="qty"></p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <div id="list-product-choose">
-
-                                                                <?php 
-                                                                    foreach (json_decode($order->id_product) as $item) {
-                                                                        $product = getProductByIdHelper($item->id);
-                                                                        if ($product) {
-                                                                ?>
-
-                                                                <div class="row product mb-0">
-                                                                    <div class="col-6 name">{{$product->name}}</div>
-                                                                    <div id="product-{{$product->id}}" class="text-right col-4 number product-4">
-                                                                        <button onclick="minus({{$product->id}}, {{$product->price}})" type="button" class=" minus">-</button>
-                                                                        <input value="{{$item->val}}" class="qty-input" data-product_id="{{$product->id}}" disabled="" type="text" value="1">
-                                                                        <button onclick="plus({{$product->id}}, {{$product->price}})" type="button" class="plus">+</button>
-                                                                    </div>
-                                                                    <button onclick="deleteProduct({{$product->id}}, {{$product->price}})" type="button" class="col-2 del">X</button>
-                                                                </div>
-                                                                <?php
-                                                                           
-                                                                        }
-                                                                       
-                                                                    }
-                                                                ?>
-                                                                
-                                                            </div>
-                                                        </div>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <label class="form-label" for="addressFor">Địa
+                                                            chỉ/đường</label>
+                                                        <input value="{{$order->address}}" class="form-control"
+                                                            name="address" id="addressFor" type="text">
+                                                        <p class="error_msg" id="address"></p>
                                                     </div>
                                                 </div>
-                                            </div>
-
-                                            <div class="row products">
-                                            </div>
-                                            <div class="loader hidden">
-                                                <img src="{{asset('public/images/loader.gif')}}" alt="">
-                                            </div>
-                                            <button id="submit" class="btn btn-primary">Cập nhật </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @else
-            <div class="card-header"><strong>Thêm đơn hàng mới</span></div>
-            <div class="card-body card-orders">
-                <div class="example">
-                    <div class="body flex-grow-1">
-                        <div class="tab-content rounded-bottom">
-                            <form>
-                                {{ csrf_field() }}
-                                <div class=" p-3  ">
-                                    <div class="row">
-                                        <div class="col-sm-12 col-lg-7">
-                                            <div class="row">
-                                                <div class="col-sm-12 col-lg-3 ">
-                                                    <label class="form-label" for="phoneFor">Số điện thoại:</label>
-                                                    <input placeholder="0973409613" class="form-control" name="phone"
-                                                        id="phoneFor" type="text">
-                                                    <p class="error_msg" id="phone"></p>
-                                                </div>
-                                                <div class="col-lg-7 col-sm-12">
-                                                    <label class="form-label" for="nameFor">Tên khách hàng:</label>
-                                                    <input placeholder="Đạt Admin" class="form-control" name="name"
-                                                        id="nameFor" type="text">
-                                                    <p class="error_msg" id="name"></p>
-                                                </div>
-                                                <div class="col-sm-6 col-lg-2 ">
-                                                    <label class="form-label" for="sexFor">Giới tính:</label>
-                                                    <select theme="google" name="sex" id="sexFor"
-                                                        class="form-control">
-                                                        <option value="0">Nam</option>
-                                                        <option value="1">Nữ</option>
-                                                    </select>
-                                                    <p class="error_msg" id="sex"></p>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <label class="form-label" for="addressFor">Địa chỉ/đường:</label>
-                                                    <input placeholder="180 cao lỗ" class="form-control" name="address"
-                                                        id="addressFor" type="text">
-                                                    <p class="error_msg" id="address"></p>
-                                                </div>
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="col-sm-12 col-lg-5 ">
-                                            <div class="row product-list-order">
-                                                <div class="position-relative col-8 d-flex align-items-center">
-                                                    <input class="hidden" name="products[]">
-                                                    <button type="button" onclick="myFunction()" class=" btn btn-outline-secondary">Sản phẩm:</button>
-                                                    @if(isset($listProduct))
-
-                                                    <div id="myDropdown" class="position-absolute dropdown-content">
-                                                        <input type="text" placeholder="Search.." id="myInput"
-                                                            onkeyup="filterFunction()">
-                                                        @foreach ($listProduct as $value)
-                                                        <a class="option-product" data-product-name="{{$value->name}}"
-                                                            data-product-id="{{$value->id}}"
-                                                            data-product-price="{{$value->price}}"
-                                                            >{{$value->name}}</a>
-
-                                                        @endforeach
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <label class="form-label" for="priceFor">Tổng tiền</label>
+                                                        <input {{ $order->is_price_sale ? '' : 'disabled' }} value="{{number_format($order->total)}} đ" value="" data-type="currency"
+                                                            class="price_class form-control" name="price"
+                                                            {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
+                                                            id="priceFor"
+                                                            type="text"
+                                                            data-product-price={{$order->total}}>
+                                                        <label class="form-label" for="priceSaleFor">
+                                                            <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="priceSaleFor"> Giá khuyến mãi
+                                                            
+                                                        </label>
+                                                        <p class="error_msg" id="price"></p>
                                                     </div>
-
-                                                    @endif
-
-
-                                                    <p class="error_msg" id="qty"></p>
-                                                </div>
-
-                                                <div id="sum-qty" class=" col-4 ">
-                                                    <label class="form-label" for="qtyFor">Tổng số lượng:</label>
-                                                    <input value=0 name="sum-qty" class="form-control" disabled
-                                                        type="number">
-                                                    <p class="error_msg" id="qty"></p>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div id="list-product-choose"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-3">
-                                        
-                                            <div class="col-lg-3 ">
-                                                <label class="form-label" for="priceFor">Tổng tiền:</label>
-                                                <input disabled placeholder="199.000 đ"
-                                                    class="price_class form-control" name="price"
-                                                    {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
-                                                    id="priceFor"
-                                                    type="text"
-                                                    data-product-price=0>
-                                                <label class="form-label" for="priceSaleFor">
-                                                    <input name="priceSale" type="checkbox" id="priceSaleFor"> Giá khuyến mãi
-                                                    
-                                                </label>
-                                                <p class="error_msg" id="price"></p>
-                                               
-                                            </div>
-
                                         <?php $checkAll = isFullAccess(Auth::user()->role);?>
                                         @if ($checkAll)
-                                            <div class="col-lg-3">
-                                                <label class="form-label" for="assignSaleFor">Chọn Sale:</label>
+                                            <div class="col-4">
+                                                <label class="form-label" for="assignSaleFor">Chọn Sale</label>
                                                 <select class="form-control" name="assign-sale" id="">
 
                                                 @if (isset($listSale))
                                                 @foreach ($listSale as $item)
-                                                    <option value="{{$item->id}}">{{$item->name}}</option>
+                                                    <option <?php echo ($item->id == $order->assign_user) ? 'selected' : '';?> value="{{$item->id}}">{{$item->name}}</option>
                                                 @endforeach
                                                 @endif
 
@@ -336,7 +102,184 @@ $listStatus = Helper::getListStatus();
                                                 <p class="error_msg" id="price"></p>
                                             </div>
                                         @else 
-                                        <div class="col-lg-4 hidden">
+                                        <div class="col-6 hidden">
+                                            <label class="form-label" for="assignSaleFor">Chọn Sale</label>
+                                            <select class="form-control" name="assign-sale" id="">
+                                                <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
+                                            </select>
+                                            <p class="error_msg" id="price"></p>
+                                        </div>
+                                        @endif
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="note" class="form-label">Ghi chú:</label>
+                                                    <textarea name="note" class="form-control" id="note" rows="3">{{$order->note}} </textarea>
+                                                </div>
+                                                <div class="col-3">
+                                                    <label class="form-label" for="status">Trạng thái:</label>
+                                                    
+                                                    <select name="status" id="status"
+                                                        class="form-control">
+                                                    
+                                                        @foreach ($listStatus as $k => $val)
+                                                        <option <?= (int)$order->status == (int)$k ? 'selected' : ''; ?> value="{{$k}}">{{$val}}</option>
+                                                        @endforeach
+
+                                                    </select>
+                                                    <p class="error_msg" id="sex"></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="row product-list-order">
+                                                    <div class=" col-8 d-flex align-items-center">
+                                                        <input class="hidden" name="products[]">
+                                                        <div type="button" onclick="myFunction()"
+                                                            class=" btn btn-outline-secondary">Sản phẩm</div>
+                                                        @if(isset($listProduct))
+
+                                                        <div id="myDropdown"
+                                                            class="position-absolute dropdown-content">
+                                                            <input type="text" placeholder="Search.." id="myInput"
+                                                                onkeyup="filterFunction()">
+                                                            @foreach ($listProduct as $value)
+                                                            <a class="option-product"
+                                                                data-product-price="{{$value->price}}"
+                                                                data-product-name="{{$value->name}}"
+                                                                data-product-id="{{$value->id}}">{{$value->name}}</a>
+
+                                                            @endforeach
+                                                        </div>
+
+                                                        @endif
+
+
+                                                        <p class="error_msg" id="qty"></p>
+                                                    </div>
+
+                                                    <div id="sum-qty" class=" col-4">
+                                                        <label class="form-label" for="qtyFor">Tổng số lượng</label>
+                                                        <input value="{{$order->qty}}" name="sum-qty" class="form-control" disabled
+                                                            type="number">
+                                                        <p class="error_msg" id="qty"></p>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <div id="list-product-choose">
+
+                                                            <?php 
+                                                                foreach (json_decode($order->id_product) as $item) {
+                                                                    $product = getProductByIdHelper($item->id);
+                                                                    if ($product) {
+                                                            ?>
+
+                                                            <div class="row product mb-0">
+                                                                <div class="col-6 name">{{$product->name}}</div>
+                                                                <div id="product-{{$product->id}}" class="text-right col-4 number product-4">
+                                                                    <button onclick="minus({{$product->id}}, {{$product->price}})" type="button" class=" minus">-</button>
+                                                                    <input value="{{$item->val}}" class="qty-input" data-product_id="{{$product->id}}" disabled="" type="text" value="1">
+                                                                    <button onclick="plus({{$product->id}}, {{$product->price}})" type="button" class="plus">+</button>
+                                                                </div>
+                                                                <button onclick="deleteProduct({{$product->id}}, {{$product->price}})" type="button" class="col-2 del">X</button>
+                                                            </div>
+                                                            <?php
+                                                                        
+                                                                    }
+                                                                    
+                                                                }
+                                                            ?>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row products">
+                                        </div>
+                                        <div class="loader hidden">
+                                            <img src="{{asset('public/images/loader.gif')}}" alt="">
+                                        </div>
+                                        <button id="submit" class="btn btn-primary">Cập nhật </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @else
+        {{-- <div class=""><strong>Thêm đơn hàng mới</strong></div> --}}
+        <div class="card-body card-orders">
+                <div class="body flex-grow-1">
+                    <div class="tab-content rounded-bottom">
+                        <form>
+                            {{ csrf_field() }}
+                            <div class="row">
+                                <div class="col-sm-12 col-lg-5">
+                                    <div class="row">
+                                        <div class="col-sm-12 col-lg-6">
+                                            <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
+                                            <input placeholder="0973409613" class="form-control" name="phone"
+                                                id="phoneFor" type="text">
+                                            <p class="error_msg" id="phone"></p>
+                                        </div>
+                                        <div class="col-sm-12 col-lg-6">
+                                            <label class="form-label" for="nameFor">Tên khách hàng<span class="required-input">(*)</span></label>
+                                            <input placeholder="Họ và tên" class="form-control" name="name"
+                                                id="nameFor" type="text">
+                                            <p class="error_msg" id="name"></p>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <label class="form-label" for="sexFor">Giới tính<span class="required-input">(*)</span></label>
+                                            <select theme="google" name="sex" id="sexFor"
+                                                class="form-control">
+                                                <option value="0">Nam</option>
+                                                <option value="1">Nữ</option>
+                                            </select>
+                                            <p class="error_msg" id="sex"></p>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="addressFor">Địa chỉ/đường<span class="required-input">(*)</span></label>
+                                            <input placeholder="180 cao lỗ" class="form-control" name="address"
+                                                id="addressFor" type="text">
+                                            <p class="error_msg" id="address"></p>
+                                        </div>
+
+                                        <div class="col-lg-6">
+                                            <label class="form-label" for="priceFor">Tổng tiền:</label>
+                                            <input disabled placeholder="199.000 đ"
+                                                class="price_class form-control" name="price"
+                                                {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
+                                                id="priceFor"
+                                                type="text"
+                                                data-product-price=0>
+                                            <label class="form-label" for="priceSaleFor">
+                                                <input name="priceSale" type="checkbox" id="priceSaleFor"> Giá khuyến mãi
+                                                
+                                            </label>
+                                            <p class="error_msg" id="price"></p>
+                                            
+                                        </div>
+        
+                                        <?php $checkAll = isFullAccess(Auth::user()->role);?>
+                                        @if ($checkAll)
+                                            <div class="col-lg-6">
+                                                <label class="form-label" for="assignSaleFor">Chọn Sale:</label>
+                                                <select class="form-control" name="assign-sale" id="">
+        
+                                                @if (isset($listSale))
+                                                @foreach ($listSale as $item)
+                                                    <option value="{{$item->id}}">{{$item->name}}</option>
+                                                @endforeach
+                                                @endif
+        
+                                                </select>
+                                                <p class="error_msg" id="price"></p>
+                                            </div>
+                                        @else 
+                                        <div class="col-lg-6 hidden">
                                             <label class="form-label" for="assignSaleFor">Chọn Sale:</label>
                                             <select class="form-control" name="assign-sale" id="">
                                                 <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
@@ -344,41 +287,83 @@ $listStatus = Helper::getListStatus();
                                             <p class="error_msg" id="price"></p>
                                         </div>
                                         @endif
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6 col-sm-12 mb-3">
+
+                                        <div class="col-12">
                                             <label for="note" class="form-label">Ghi chú:</label>
                                             <textarea name="note" class="form-control" id="note" rows="3"></textarea>
+                                            <p></p>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-3 col-sm-6">
+
+                                        <div class="col-lg-6 col-sm-12">
                                             <label class="form-label" for="sexFor">Trạng thái:</label>
                                             <select name="status" id="sexFor"
                                                 class="form-control">
-
-                                               @foreach ($listStatus as $k => $val)
+        
+                                                @foreach ($listStatus as $k => $val)
                                                     <option value="{{$k}}">{{$val}}</option>
                                                 @endforeach
-
+        
                                             </select>
                                             <p class="error_msg" id="sex"></p>
                                         </div>
-                                        
                                     </div>
-
-                                    <div class="row products">
-                                    </div>
-                                    <div class="loader hidden">
-                                        <img src="{{asset('public/images/loader.gif')}}" alt="">
-                                    </div>
-                                    <button id="submit" class="btn btn-primary">Tạo</button>
+                                    
                                 </div>
-                            </form>
-                        </div>
+                                <div class="col-sm-12 col-lg-7">
+                                    <div class="row product-list-order">
+                                        <div class="col-8 d-flex align-items-center">
+                                            <input class="hidden" name="products[]">
+                                            <div type="button" onclick="myFunction()" class=" btn btn-outline-secondary">--Chọn sản phẩm--<span class="required-input">(*)</span> ⮟</div>
+                                            @if(isset($listProduct))
+
+                                            <div id="myDropdown" class="position-absolute dropdown-content">
+                                                <input type="text" placeholder="--Tìm sản phẩm--" id="myInput"
+                                                    onkeyup="filterFunction()">
+                                                @foreach ($listProduct as $value)
+                                                <a class="option-product" data-product-name="{{$value->name}}"
+                                                    data-product-id="{{$value->id}}"
+                                                    data-product-price="{{$value->price}}"
+                                                    >{{$value->name}}</a>
+
+                                                @endforeach
+                                            </div>
+
+                                            @endif
+
+
+                                            <p class="error_msg" id="qty"></p>
+                                        </div>
+
+                                        <div id="sum-qty" class=" col-4 ">
+                                            <label class="form-label" for="qtyFor">Tổng số lượng</label>
+                                            <input value=0 name="sum-qty" class="form-control" disabled
+                                                type="number">
+                                            <p class="error_msg" id="qty"></p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div id="list-product-choose"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                               
+                                
+                            </div>
+
+                            <div class="row products">
+                            </div>
+                            <div class="loader hidden text-center">
+                                <img src="{{asset('public/images/loader.gif')}}" alt="">
+                            </div>
+                            <button id="submit" class="btn btn-primary">Tạo</button>
+                            
+                        </form>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
     @endif

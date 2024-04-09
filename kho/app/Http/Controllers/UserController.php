@@ -85,20 +85,19 @@ class UserController extends Controller
                 $text = 'Tạo thành viên thành công.';
             }
            
-           
             try {
-                $user->name     = $req->name;
-                $user->email    = $req->email;
-                $user->is_sale  = $req->is_sale;
-                $user->role     = json_encode($req->roles);
+                $user->name         = $req->name;
+                $user->real_name    = $req->real_name;
+                $user->email        = $req->email;
+                $user->is_sale      = $req->is_sale;
+                $user->role         = json_encode($req->roles);
                 $user->save();
-                //dd($user);
             } catch (\Throwable $th) {
                 dd($th);
                 $text = 'Đã có lỗi xảy ra. Vui lòng thử lại sau.';
                 return response()->json(['error'=>$text]);
             }
-            return response()->json(['success'=>$text]);
+            return response()->json(['success'=> $text]);
         }
      
         return response()->json(['errors'=>$validator->errors()]);

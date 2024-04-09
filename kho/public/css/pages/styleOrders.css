@@ -140,10 +140,16 @@ span {
 
 .card-orders .form-control {
     border-radius: 2px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom-color: #ddd;
 }
 
 .card-orders .form-label {
     margin-bottom: 0.2rem;
+    color: #8b8b8b;
+    font-style: italic;
 }
 
 .card-orders .dropbtn {
@@ -187,7 +193,56 @@ input {}
 }
 
 .product-list-order .btn-outline-secondary {
-    width: 127px;
+    width: 100%;
     display: block;
     padding: unset;
+    border-color: #ddd;
+    border-radius: 2px;
 }
+
+
+.card-header a.btn-warning {
+    color: #fff;
+    float: right;
+}
+.Fixed.header-main {
+    display: none;
+}
+#sidebar {
+    display: none;
+}
+#content-right {
+    padding-left: 0;
+}
+.body {
+    padding: 0;
+    margin: 0;
+    background: #fff;
+}
+.required-input {
+    color: #ff0404;
+}
+
+.card-header, .card-body, .card {
+    border: none;
+}
+
+textarea {
+    border: 1px solid #ddd !important;
+}
+
+
+
+@media only screen and (max-width: 600px) {
+    .product-list-order .align-items-center {
+        position: relative;
+        display: block !important;
+    }
+
+    #submit {
+        margin: 20px auto;
+        width: 90%;
+        height: 50px;
+        display: block;
+    }
+  }

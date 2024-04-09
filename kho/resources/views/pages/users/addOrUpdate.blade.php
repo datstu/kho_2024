@@ -28,7 +28,7 @@
                                                 <p class="error_msg" id="email"></p>
                                             </div>
                                             <div class="mb-3 col-4">
-                                                <label class="form-label" for="nameIP">Tên</label>
+                                                <label class="form-label" for="nameIP">Tên đăng nhập</label>
                                                 <input value="{{$user->name}}" class="form-control" name="name" id="nameIP" type="text">
                                                 <p class="error_msg" id="name"></p>
                                             </div>
@@ -46,10 +46,13 @@
                                             
                                         </div>
                                         <div class="row">
+                                            <div class="mb-3 col-4">
+                                                <label class="form-label" for="realNameIP">Tên</label>
+                                                <input value="{{$user->real_name}}" class="form-control" name="real_name" id="realNameIP" type="text">
+                                                <p class="error_msg" id="real_name"></p>
+                                            </div>
                                         <div class="mb-3 col-4">
                                             <label class="form-label" for="qtyIP">Quyền truy cập</label>
-                    
-                                        
                                             <div class="form-check">
                                                 <label class="form-check-label">
                     <?php 
@@ -246,6 +249,7 @@ $(document).ready(function() {
 
         var _token      = $("input[name='_token']").val();
         var name        = $("input[name='name']").val();
+        var real_name   = $("input[name='real_name']").val();
         var email       = $("input[name='email']").val();
         var password    = $("input[name='password']").val();
         var rePassword  = $("input[name='rePassword']").val();
@@ -277,7 +281,8 @@ $(document).ready(function() {
                     id,
                     roles,
                     status,
-                    is_sale
+                    is_sale,
+                    real_name
                 },
                 success: function(data) {
                     console.log(data);
@@ -288,8 +293,7 @@ $(document).ready(function() {
                         $("#notifi-box").show();
                         $("#notifi-box").html(data.error);
                         $("#notifi-box").slideDown('fast').delay(5000).hide(0);
-                    }
-                    else if ($.isEmptyObject(data.errors)) {
+                    } else if ($.isEmptyObject(data.errors)) {
                         $("#notifi-box").addClass('alert-success'); 
                         $("#notifi-box").removeClass('alert-danger');
                         $(".error_msg").html('');

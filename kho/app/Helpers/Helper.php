@@ -6,6 +6,7 @@ use App\CategoryProduct;
 use Illuminate\Support\Facades\Http;
 use App\Models\Product;
 use App\Models\ShippingOrder;
+use App\Models\User;
 setlocale(LC_TIME, 'vi_VN.utf8');
 
 class Helper
@@ -240,5 +241,9 @@ class Helper
     public static function getDateFromStringGHN($dateString) {
         $dateToTime = strtotime($dateString);
         return date('d/m/Y', $dateToTime);
+    }
+
+    public static function getUserByID($id) {
+        return User::find($id);
     }
 }

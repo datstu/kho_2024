@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\AddressController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\Helper;
+
 
 class OrdersController extends Controller
 {
@@ -150,12 +152,12 @@ class OrdersController extends Controller
         ]);
        
         if ($validator->passes()) {
-            if(isset($request->id)){
+            if (isset($request->id)) {
                 $order = Orders::find($request->id);
                 $text = 'Cập nhật đơn hàng thành công.';
             } else {
                 $order = new Orders();
-                $text = 'Tạo đơn hàng thành công.';
+                $text = 'đã tạo đơn hàng.';
             }
             // dd($request->products);
             $order->id_product      = $request->products;
@@ -172,18 +174,42 @@ class OrdersController extends Controller
             $order->is_price_sale   = $request->isPriceSale;
             $order->note            = $request->note;
             $order->status          = $request->status;
-            
-            
-        //    dd($order);
+
             $order->save();
             // dd(json_decode($order->id_product));
+            $listProductName = "";
             foreach (json_decode($order->id_product) as $item) {
-                $product = Product::find($item->id);
-                // dd($item->id);
-                $product->qty = $product->qty - $item->val;
+                $product            = Product::find($item->id);
+                $product->qty       = $product->qty - $item->val;
+
+                if ($listProductName != "") {
+                    $listProductName    .= ' + ';
+                }
+                $listProductName    .= $product->name;
                 $product->save();
             }
-            // dd($order->get());
+
+            //gửi thông báo qua telegram
+            $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
+            $chatId         = '-4140296352';
+            $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+            $client         = new \GuzzleHttp\Client();
+
+            $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
+            $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
+
+            $notiText       = "\n- $order->qty sản phẩm: $listProductName : tổng " . number_format($order->total) . " miễn phí Ship"
+                . "\nGửi về địa chỉ: $nameUserOrder $order->name - $order->phone - $order->address"
+                . "\nTầm 3-5 ngày $nameUserOrder nhận được hàng ạ"
+                . "\nLưu ý: $order->note";
+
+            if (!isset($request->id)) {
+                $response = $client->request('GET', $endpoint, ['query' => [
+                    'chat_id' => $chatId, 
+                    'text' => $userAssign . ' ' . $text . $notiText,
+                ]]);
+            }
+
             return response()->json(['success'=>$text]);
         }
      
@@ -199,17 +225,11 @@ class OrdersController extends Controller
     {
         $order          = Orders::find($id);
         if($order){
-            // $provinces      = $this->getProvince();
             $listProduct    =  Product::all();
-            // $listDistrict   =  $this->getListDistrictByProvinceId($order->province);
-            // $listWard       =  $this->getListWardByDistrictId($order->district);
             $listSale       = $this->getListSale()->get();
 
             return view('pages.orders.addOrUpdate')->with('order', $order)
                 ->with('listSale', $listSale)
-                // ->with('provinces', $provinces)
-                // ->with('listDistrict', $listDistrict)
-                // ->with('listWard', $listWard)
                 ->with('listProduct', $listProduct);
         } 
 
@@ -284,5 +304,13 @@ class OrdersController extends Controller
 
     public function createShipping($id) {
         return view('pages.orders.shipping'); 
+    }
+
+    public function view($id) {
+        $order = Orders::find($id);
+        if($order){
+            return view('pages.orders.detail')->with('order', $order); 
+        } 
+        return redirect('/don-hang') ->with('error', 'Đã xảy ra lỗi hoặc đơn hàng không tồn tại!');
     }
 }

@@ -29,7 +29,8 @@ class ProductController extends Controller
     public function addProduct()
     {
         $listCategory =  Category::all();
-        return view('pages.product.addOrUpdate')->with('listCategory', $listCategory);
+        return view('pages.product.addOrUpdate')->with('listCategory', $listCategory)
+            ->with('user', Auth::user());
     }
 
     /**

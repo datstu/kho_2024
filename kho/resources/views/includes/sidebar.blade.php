@@ -28,15 +28,15 @@
 
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
             <svg class="nav-icon">
-                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-cursor')}}"></use>
-            </svg>Quản lý kho</a>
+                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-grid')}}"></use>
+            </svg>Kho</a>
         <ul class="nav-group-items">
             <li class="nav-item"><a class="nav-link" href="{{route('order')}}"><span class="nav-icon"></span> Đơn
                     hàng</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{route('product')}}"><span class="nav-icon"></span> Danh
-                    sách sản phẩm</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{route('product')}}">
+                <span class="nav-icon"></span> Sản phẩm</a></li>
             <li class="nav-item"><a class="nav-link" href="{{route('category')}}"><span class="nav-icon"></span> Danh
-                    mục sản phẩm</a></li>
+                    mục</a></li>
         </ul>
     </li>
     
