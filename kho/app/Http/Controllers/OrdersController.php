@@ -199,9 +199,11 @@ class OrdersController extends Controller
             $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
 
             $notiText       = "\n- $order->qty sản phẩm: $listProductName : tổng " . number_format($order->total) . " miễn phí Ship"
-                . "\nGửi về địa chỉ: $nameUserOrder $order->name - $order->phone - $order->address"
-                . "\nTầm 3-5 ngày $nameUserOrder nhận được hàng ạ"
-                . "\nLưu ý: $order->note";
+                . "\nGửi về địa chỉ: $nameUserOrder $order->name - $order->phone - $order->address";
+            
+            if ($order->note) {
+                $notiText . "\nLưu ý: $order->note";
+            }
 
             if (!isset($request->id)) {
                 $response = $client->request('GET', $endpoint, ['query' => [
