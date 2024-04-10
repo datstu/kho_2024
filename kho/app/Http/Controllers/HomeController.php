@@ -78,14 +78,22 @@ class HomeController extends Controller
         switch ($type) {
             case "day":
                 $percentAvg         = $avgOrders = $percentCountDay = $percentTotalDay = 0;
-                $ordersSum          = Orders::whereDate('created_at', '=', $date)->where('status', 3)->get()->sum('total');
+                $ordersSum          = Orders::whereDate('created_at', '=', $date)
+                    // ->where('status', 3)
+                    ->get()->sum('total');
                 $yesterday          = date('Y-m-d',strtotime("$date -1 days"));
-                $ordersYesterdaySum = Orders::whereDate('created_at', '=', $yesterday)->where('status', 3)->get()->sum('total');
+                $ordersYesterdaySum = Orders::whereDate('created_at', '=', $yesterday)
+                // ->where('status', 3)
+                    ->get()->sum('total');
                 
                 $totalDay           = $ordersSum + $ordersYesterdaySum;
 
-                $countOrders        = Orders::whereDate('created_at', '=', $date)->where('status', 3)->get()->count();
-                $countOrdersYes     =  Orders::whereDate('created_at', '=', $yesterday)->where('status', 3)->get()->count();
+                $countOrders        = Orders::whereDate('created_at', '=', $date)
+                    // ->where('status', 3)
+                    ->get()->count();
+                $countOrdersYes     =  Orders::whereDate('created_at', '=', $yesterday)
+                    // ->where('status', 3)
+                    ->get()->count();
                 $countOrdersDay     = $countOrders + $countOrdersYes;
 
                 if ($ordersSum) {
@@ -116,12 +124,14 @@ class HomeController extends Controller
                 //lấy tháng trong chuỗi '2024/03/24' => 03
                 $month      = date('m', strtotime($date));
                 $ordersMonthSum  = Orders::whereMonth('created_at', '=', $month)
-                    ->where('status', 3)->get()->sum('total');
+                    // ->where('status', 3)
+                    ->get()->sum('total');
                 
                 //lấy tháng trước của tháng được chọn => 02
                 $lastMonth          = date('m',strtotime("$date -1 month"));
                 $ordersLastMonthSum = Orders::whereMonth('created_at', '=', $lastMonth)
-                    ->where('status', 3)->get()->sum('total');
+                    // ->where('status', 3)
+                    ->get()->sum('total');
                 
                 /* tính phần trăm tăng giảm của tháng được chọn so với tháng trước dựa trên 'total'
                     round() : chỉ lấy và làm tròn 2 chữ số thập phân
@@ -135,8 +145,12 @@ class HomeController extends Controller
                 /* tính phần trăm tăng giảm của tháng được chọn so với tháng trước dựa trên số lượng
                     round() : chỉ lấy và làm tròn 2 chữ số thập phân
                 */
-                $countOrders            = Orders::whereMonth('created_at', '=', $month)->where('status', 3)->get()->count();
-                $countOrdersLast        =  Orders::whereMonth('created_at', '=', $lastMonth)->where('status', 3)->get()->count();
+                $countOrders            = Orders::whereMonth('created_at', '=', $month)
+                    // ->where('status', 3)
+                    ->get()->count();
+                $countOrdersLast        =  Orders::whereMonth('created_at', '=', $lastMonth)
+                    // ->where('status', 3)
+                    ->get()->count();
                 $countOrdersMonth       = $countOrders + $countOrdersLast;
                 if ($countOrdersMonth > 0) {
                     $percentCountMonth      = round(($countOrders - $countOrdersLast) * 100 / $countOrdersMonth, 2);
@@ -170,11 +184,15 @@ class HomeController extends Controller
             case "year":
                     //lấy năm trong chuỗi '2024/03/24' => 2024
                     $year      = date('Y', strtotime($date));
-                    $ordersYearSum  = Orders::whereYear('created_at', '=', $year)->where('status', 3)->get()->sum('total');
+                    $ordersYearSum  = Orders::whereYear('created_at', '=', $year)
+                        // ->where('status', 3)
+                        ->get()->sum('total');
                    
                     //lấy năm trước của date được chọn => 2023
                     $lastYear          = date('Y',strtotime("$year -1 year"));
-                    $ordersLastYearSum = Orders::whereYear('created_at', '=', $lastYear)->where('status', 3)->get()->sum('total');
+                    $ordersLastYearSum = Orders::whereYear('created_at', '=', $lastYear)
+                        // ->where('status', 3)
+                        ->get()->sum('total');
                     
                     /* tính phần trăm tăng giảm của năm được chọn so với năm trước dựa trên 'total' */
                     $totalYear        = $ordersYearSum + $ordersLastYearSum;
@@ -186,8 +204,12 @@ class HomeController extends Controller
                     /* tính phần trăm tăng giảm của năm được chọn so với năm trước dựa trên số lượng
                         round() : chỉ lấy và làm tròn 2 chữ số thập phân
                     */
-                    $countOrders            = Orders::whereYear('created_at', '=', $year)->where('status', 3)->get()->count();
-                    $countOrdersLast        =  Orders::whereYear('created_at', '=', $lastYear)->where('status', 3)->get()->count();
+                    $countOrders            = Orders::whereYear('created_at', '=', $year)
+                        // ->where('status', 3)
+                        ->get()->count();
+                    $countOrdersLast        =  Orders::whereYear('created_at', '=', $lastYear)
+                        // ->where('status', 3)
+                        ->get()->count();
                     $countOrdersYear       = $countOrders + $countOrdersLast;
                     if ($countOrdersYear > 0) {
                         $percentCountYear      = round(($countOrders - $countOrdersLast) * 100 / $countOrdersYear, 2);
@@ -224,8 +246,8 @@ class HomeController extends Controller
                 $endString      = str_replace('/', '-', $date[1]);
                 $endDate        = date('Y-m-d', strtotime($endString));
                 $queryOrder     = Orders::whereDate('created_at', '<=', $endDate)
-                    ->whereDate('created_at', '>=', $startDate)
-                    ->where('status', 3);
+                    ->whereDate('created_at', '>=', $startDate);
+                    // ->where('status', 3);
                 $totalSum       = $queryOrder->get()->sum('total');
                 
                 $countOrders    = $queryOrder->get()->count();
