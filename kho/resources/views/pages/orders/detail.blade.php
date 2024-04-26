@@ -62,7 +62,9 @@
                     <td>
 
                         <?php $isMappingShip = Helper::isMappingShippByOrderId($order->id);?>
-                        @if ($isMappingShip)
+                        @if (!$isMappingShip)
+                        <a href="{{URL::to('tao-van-don/'. $order->id)}}" class="btn btn-warning ms-1">+ Tạo vận đơn</a>
+                        @else
                         <a href="{{URL::to('chi-tiet-van-don/'. $isMappingShip->id)}}" class="btn btn-warning ms-1">Xem vận đơn {{$isMappingShip->vendor_ship}} - {{$isMappingShip->order_code}}</a>
                         @endif
 
@@ -105,7 +107,7 @@
                 </tr>
                 <tr>
                     <td class="first-col">Người tạo</td>
-                    <td>{{Helper::getUserByID($order->assign_user)->name}}</td>
+                    <td>{{Helper::getUserByID($order->assign_user)->real_name}}</td>
                 </tr>
                 </tbody>
             </table>

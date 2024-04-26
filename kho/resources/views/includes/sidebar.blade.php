@@ -39,6 +39,16 @@
                     mục</a></li>
         </ul>
     </li>
+
+    <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
+        <svg class="nav-icon">
+            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-voice-over-record')}}"></use>
+        </svg>TeleSale</a>
+        <ul class="nav-group-items">
+            <li class="nav-item"><a class="nav-link" href="{{route('sale-index')}}"><span class="nav-icon"></span>Tác nghiệp Sale</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{route('call-index')}}"><span class="nav-icon"></span>QL Call</a></li>
+        </ul>
+    </li>
     
     @if ($checkAll)
 

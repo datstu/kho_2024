@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ShippingOrder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\hasOne;
 
 class Orders extends Model
 {
@@ -22,8 +22,8 @@ class Orders extends Model
      /**
      * Get the shippingOrder for the Orders.
      */
-    public function shippingOrder(): HasMany
+    public function shippingOrder(): hasOne
     {
-        return $this->HasMany(ShippingOrder::class, 'order_id');
+        return $this->hasOne(ShippingOrder::class, 'order_id');
     }
 }

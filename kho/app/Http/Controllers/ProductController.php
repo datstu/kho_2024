@@ -56,7 +56,6 @@ class ProductController extends Controller
             if(isset($request->id)){
                 $product        = Product::find($request->id);
                 $product->status  = $request->status;
-               
                 $text = 'Cập nhật sản phẩm thành công.';
             } else {
                 $product = new Product();
@@ -117,9 +116,8 @@ class ProductController extends Controller
      */
     public function search(Request $request)
     {
-        $list = $this->getListProductByPermisson(Auth::user()->role);
-        //->paginate(15);
-        $product = $list->where('name', 'like', '%' . $request->search . '%')->orderBy('id', 'desc')->paginate(5);
+        $list       = $this->getListProductByPermisson(Auth::user()->role);
+        $product    = $list->where('name', 'like', '%' . $request->search . '%')->orderBy('id', 'desc')->paginate(5);
         if($product){
             return view('pages.product.index')->with('list', $product);           
         } 
@@ -151,13 +149,12 @@ class ProductController extends Controller
         return view('pages.product.index')->with('list', $list);
     }
 
-    public function getListProductByPermisson($roles) {
+    public  function getListProductByPermisson($roles) {
         $list       = Product::orderBy('id', 'desc');
         $checkAll   = false;
         $listRole   = [];
-        // $roles      = json_decode(Auth::user()->role);
-        // dd($roles);
         $roles      = json_decode($roles);
+
         if ($roles) {
             foreach ($roles as $key => $value) {
                 if ($value == 1) {
@@ -169,10 +166,12 @@ class ProductController extends Controller
             }
         }
 
+       
         if (!$checkAll) {
-            $list = $list->where('roles', $listRole);
+            // $list = $list->where('roles', $listRole);
+            $list = $list->whereIn('roles', $listRole);
         }
-
+        // dd($list->get());
         return $list;
     }
 }

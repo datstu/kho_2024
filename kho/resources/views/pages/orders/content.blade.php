@@ -76,13 +76,7 @@ $styleStatus = [
     <div class="row ">
       <div class="col col-4">
         {{-- <a class="btn btn-primary" href="{{route('add-orders')}}" role="button">+ Thêm đơn</a> --}}
-        <a class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm đơn</a>
-        {{-- <form id="myform" class="form-wizard">
-          <h2 class="form-wizard-heading">BootStap Wizard Form</h2>
-          <input type="text" value=""/>
-          <input type="submit"/>
-        </form> --}}
-      
+        <a href="{{route('add-orders')}}" class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm đơn</a>   
         <!-- Modal -->
         <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog modal-xl" role="document">
@@ -93,18 +87,9 @@ $styleStatus = [
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              {{-- <div class="modal-body">
-                <h5>Popover in a modal</h5>
-                <p>This <a href="#" role="button" class="btn btn-secondary popover-test" title="Popover title" data-bs-content="Popover body content is set in this attribute.">button</a> triggers a popover on click.</p>
-                <hr>
-                <h5>Tooltips in a modal</h5>
-                <p><a href="#" class="tooltip-test" title="Tooltip">This link</a> and <a href="#" class="tooltip-test" title="Tooltip">that link</a> have tooltips on hover.</p>
-              </div> --}}
-              <iframe src="{{URL::to('them-don-hang')}}" frameborder="0"></iframe>
-              {{-- <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Save changes</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              </div> --}}
+             
+              <iframe src="{{route('add-orders')}}" frameborder="0"></iframe>
+
             </div>
           </div>
         </div>
@@ -195,7 +180,7 @@ $styleStatus = [
               
             </tbody>
           </table>
-          {!! $list->links() !!}
+          {{$list->links('pagination::bootstrap-5')}}
         </div>
       </div>
     </div>

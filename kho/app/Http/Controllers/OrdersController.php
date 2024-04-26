@@ -12,7 +12,7 @@ use App\Http\Controllers\AddressController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
-
+use App\Http\Controllers\SaleController;
 
 class OrdersController extends Controller
 {
@@ -23,7 +23,7 @@ class OrdersController extends Controller
      */
     public function index()
     {
-        $list = $this->getListOrderByPermisson(Auth::user())->paginate(15);
+        $list = $this->getListOrderByPermisson(Auth::user())->paginate(50);
         return view('pages.orders.index')->with('list', $list);
     }
 
@@ -61,8 +61,7 @@ class OrdersController extends Controller
     public function add()
     { 
         $provinces      = $this->getProvince();
-       // $listProduct    =  Product::all()->where('qty', '>', 0)->where('status', '=', 1);
-        $listProduct    = $this->getListProductByPermisson(Auth::user()->role)->get();
+        $listProduct    = Helper::getListProductByPermisson(Auth::user()->role)->get();
         $listSale       = $this->getListSale()->get();
 
         return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct)
@@ -71,12 +70,8 @@ class OrdersController extends Controller
 
     public function getListProductByPermisson($roles) {
         $list       = Product::orderBy('id', 'desc')->where('status', '=', 1);
-
-        
         $checkAll   = false;
         $listRole   = [];
-        // $roles      = json_decode(Auth::user()->role);
-        // dd($roles);
         $roles      = json_decode($roles);
         if ($roles) {
             foreach ($roles as $key => $value) {
@@ -206,10 +201,36 @@ class OrdersController extends Controller
             }
 
             if (!isset($request->id)) {
+                //tạo mới order
                 $response = $client->request('GET', $endpoint, ['query' => [
                     'chat_id' => $chatId, 
                     'text' => $userAssign . ' ' . $text . $notiText,
                 ]]);
+            } else {
+                //câp nhật order
+                //chỉ áp dụng cho đơn phân bón
+                $isFertilizer = Helper::checkFertilizer($order->assign_user);
+
+                //check đơn này đã có data chưa
+                $issetOrder = Helper::checkOrderSaleCare($order->id);
+                // status = 'hoàn tất', tạo data tác nghiệp sale
+                // dd($issetOrder);
+                if ($order->status == 3 && $isFertilizer && !$issetOrder) {
+                    $sale = new SaleController();
+                    $data = [
+                        'id_order' => $order->id,
+                        'sex' => $order->sex,
+                        'name' => $order->name,
+                        'phone' => $order->phone,
+                        'address' => $order->address,
+                        'assign_user' => $order->assign_user,
+                    ];
+                    $request = new \Illuminate\Http\Request();
+                    $request->replace($data);
+
+                    $sale->save($request);
+                }
+                // die();
             }
 
             return response()->json(['success'=>$text]);

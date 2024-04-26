@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Product;
 use App\Models\ShippingOrder;
 use App\Models\User;
+use App\Models\Call;
+use App\Http\Controllers\ProductController;
+use App\Models\SaleCare;
+
 setlocale(LC_TIME, 'vi_VN.utf8');
 
 class Helper
@@ -245,5 +249,52 @@ class Helper
 
     public static function getUserByID($id) {
         return User::find($id);
+    }
+
+    public static function getListSale() {
+        return User::where('status', 1)->where('is_sale', 1);
+    }
+
+    public static function getListCall() {
+        return Call::where('status', 1);
+    }
+
+    public static function getListProductByPermisson($role) {
+        $a = new ProductController();
+        return $a->getListProductByPermisson($role);
+    }
+
+    public static function checkFertilizer($userId) {
+        $result = false;
+        $user   = User::find($userId);
+        if ($user) {
+            $role = json_decode($user->role);
+
+            //toàn quyền admin hoặc phân bon
+            if (in_array(1, $role) || in_array(3, $role)) {
+                $result = true;
+            }
+                
+        }
+
+        return $result;
+    }
+
+    public static function checkOrderSaleCare($id) {
+        $saleCare = SaleCare::where('id_order', $id)->get()->first();
+
+        if ($saleCare) {
+            return true;
+        }
+        return false;
+    }
+
+    public static function getStatusGHNtoKho($id) {
+        $arr = [];
+        $arr = [
+            'delivered' => 3,
+            
+        ];
+        return $arr;
     }
 }

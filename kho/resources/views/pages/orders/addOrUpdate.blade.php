@@ -89,12 +89,12 @@ $listStatus = Helper::getListStatus();
                                         <?php $checkAll = isFullAccess(Auth::user()->role);?>
                                         @if ($checkAll)
                                             <div class="col-4">
-                                                <label class="form-label" for="assignSaleFor">Chọn Sale</label>
-                                                <select class="form-control" name="assign-sale" id="">
+                                                <label class="form-label" >Chọn Sale</label>
+                                                <select class="form-control" name="assign-sale">
 
                                                 @if (isset($listSale))
                                                 @foreach ($listSale as $item)
-                                                    <option <?php echo ($item->id == $order->assign_user) ? 'selected' : '';?> value="{{$item->id}}">{{$item->name}}</option>
+                                                    <option <?php echo ($item->id == $order->assign_user) ? 'selected' : '';?> value="{{$item->id}}">{{$item->real_name}}</option>
                                                 @endforeach
                                                 @endif
 
@@ -103,9 +103,9 @@ $listStatus = Helper::getListStatus();
                                             </div>
                                         @else 
                                         <div class="col-6 hidden">
-                                            <label class="form-label" for="assignSaleFor">Chọn Sale</label>
-                                            <select class="form-control" name="assign-sale" id="">
-                                                <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
+                                            <label class="form-label" >Chọn Sale</label>
+                                            <select class="form-control" name="assign-sale">
+                                                <option value="{{Auth::user()->id}}">{{Auth::user()->real_name}}</option>
                                             </select>
                                             <p class="error_msg" id="price"></p>
                                         </div>
@@ -157,7 +157,7 @@ $listStatus = Helper::getListStatus();
                                                     </div>
 
                                                     <div id="sum-qty" class=" col-4">
-                                                        <label class="form-label" for="qtyFor">Tổng số lượng</label>
+                                                        <label class="form-label">Tổng số lượng</label>
                                                         <input value="{{$order->qty}}" name="sum-qty" class="form-control" disabled
                                                             type="number">
                                                         <p class="error_msg" id="qty"></p>
@@ -255,8 +255,9 @@ $listStatus = Helper::getListStatus();
                                                 id="priceFor"
                                                 type="text"
                                                 data-product-price=0>
+                                            <input name="priceSale" type="checkbox" id="priceSaleFor">
                                             <label class="form-label" for="priceSaleFor">
-                                                <input name="priceSale" type="checkbox" id="priceSaleFor"> Giá khuyến mãi
+                                                 Giá khuyến mãi
                                                 
                                             </label>
                                             <p class="error_msg" id="price"></p>
@@ -266,12 +267,12 @@ $listStatus = Helper::getListStatus();
                                         <?php $checkAll = isFullAccess(Auth::user()->role);?>
                                         @if ($checkAll)
                                             <div class="col-lg-6">
-                                                <label class="form-label" for="assignSaleFor">Chọn Sale:</label>
-                                                <select class="form-control" name="assign-sale" id="">
+                                                <label class="form-label">Chọn Sale:</label>
+                                                <select class="form-control" name="assign-sale" >
         
                                                 @if (isset($listSale))
                                                 @foreach ($listSale as $item)
-                                                    <option value="{{$item->id}}">{{$item->name}}</option>
+                                                    <option value="{{$item->id}}">{{$item->real_name}}</option>
                                                 @endforeach
                                                 @endif
         
@@ -280,9 +281,9 @@ $listStatus = Helper::getListStatus();
                                             </div>
                                         @else 
                                         <div class="col-lg-6 hidden">
-                                            <label class="form-label" for="assignSaleFor">Chọn Sale:</label>
-                                            <select class="form-control" name="assign-sale" id="">
-                                                <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
+                                            <label class="form-label">Chọn Sale:</label>
+                                            <select class="form-control" name="assign-sale">
+                                                <option value="{{Auth::user()->id}}">{{Auth::user()->real_name}}</option>
                                             </select>
                                             <p class="error_msg" id="price"></p>
                                         </div>
@@ -295,8 +296,8 @@ $listStatus = Helper::getListStatus();
                                         </div>
 
                                         <div class="col-lg-6 col-sm-12">
-                                            <label class="form-label" for="sexFor">Trạng thái:</label>
-                                            <select name="status" id="sexFor"
+                                            <label class="form-label" for="statusFor">Trạng thái:</label>
+                                            <select name="status" id="statusFor"
                                                 class="form-control">
         
                                                 @foreach ($listStatus as $k => $val)
@@ -347,11 +348,6 @@ $listStatus = Helper::getListStatus();
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
-                               
-                                
                             </div>
 
                             <div class="row products">
@@ -520,7 +516,6 @@ $(".option-product-province").click(function() {
 toggle between hiding and showing the dropdown content */
 function myFunction() {
     document.getElementById("myDropdown").classList.toggle("show");
-
 }
 
 
@@ -695,15 +690,6 @@ $(document).ready(function() {
 
     });
 
-    $("input[data-type='currency']").on({
-        // keyup: function() {
-        //     formatCurrency($(this));
-        // },
-        // blur: function() { 
-        //   formatCurrency($(this), "blur");
-        // }
-    });
-
     function formatNumber(n) {
         // format number 1000000 to 1,234,567
         return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -788,24 +774,17 @@ $(document).ready(function() {
         $("#myDropdown").removeClass('show');
         $("#myDropdown").addClass('hidden');
 
-
-        let priceOld = +$("input[name='price']").attr("data-product-price");
-       
+        priceOld = +$("input[name='price']").attr("data-product-price");
         newPrice = priceOld + price;
-        console.log('newPrice', newPrice);
-
         newPriceFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
             .format(newPrice,);
         $("input[name='price']").val(newPriceFormat);
         $("input[name='price']").attr('data-product-price', newPrice);
     
-    
         if ($('#product-' + id).length > 0) {
             var $input = $('#product-' + id).find('input');
             $input.val(parseInt($input.val()) + 1);
             $input.change();
-
-
         } else {
             let str = '<div id="product-' + id + '" class="text-right col-4 number product-' + id +
                 '"><button onclick="minus(' + id +
@@ -831,10 +810,6 @@ $(document).ready(function() {
         if ($(this).is(':checked')) {
             $("input[name='price']").prop("disabled", false);
             $("input[name='price']").focus();
-            // $("input[name='price']").show();
-            // let price =  $("input[name='price']").val();
-            // console.log(price);
-            // $("input[name='promotion']").attr("placeholder", price).blur();
         } else {
             // $("input[name='promotion']").hide();
             $("input[name='price']").prop("disabled", true);

@@ -53,6 +53,7 @@ class UserController extends Controller
     }
 
     public function save(Request $req) {
+        // dd($req->all());
         $validator = Validator::make($req->all(), [
             'name' => 'required',
             'password' => 'required',
@@ -80,7 +81,6 @@ class UserController extends Controller
                 // $user->status = 1;
                 $pass = Hash::make($req->password);
                 $user->password =  $pass;
-                
                 
                 $text = 'Tạo thành viên thành công.';
             }
@@ -117,5 +117,16 @@ class UserController extends Controller
 
         return redirect('/');
       
+    }
+
+    public function delete($id)  
+    {
+        $product = User::find($id);
+        if($product){
+            $product->delete();
+            return redirect('/quan-ly-thanh-vien')->with('success', 'Thành viên xoá thành công!');            
+        } 
+
+        return redirect('/danh-sach-san-pham') ->with('error', 'Đã xảy ra lỗi khi xoá thành viên!');
     }
 }

@@ -84,7 +84,7 @@
                                   
                                 </tbody>
                               </table>
-                              {!! $list->links() !!}
+                              {{$list->links('pagination::bootstrap-5')}}
                             </div>
                           </div>
                         </div>

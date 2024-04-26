@@ -60,19 +60,23 @@
                     $roles = json_decode($user->role, true);
                         // dd($user->role);
                     if ( is_array($roles)) {
+                        // dd($roles);
                         foreach ($roles as $key => $value) {
                             if ($value == 1) {
                                 $checkAll = $checkPaulo = $checkFertilizer = $checkOther = 'checked';
                                 break;
-                            } else if ($value == 2) {
+                            } 
+                            if ($value == 2) {
                                 $checkPaulo = 'checked';
-                                break;
-                            } else if ($value == 3) {
+                                // break;
+                            } 
+                            if ($value == 3) {
                                 $checkFertilizer = 'checked';
-                                break;
-                            } else if ($value == 4) {
+                                // break;
+                            } 
+                            if ($value == 4) {
                                 $checkOther = 'checked';
-                                break;
+                                // break;
                             }
                         }   
                     }
@@ -263,7 +267,7 @@ $(document).ready(function() {
             roles.push($(this).val());
         });
 
-
+        console.log(roles);
         
         if (password != rePassword) {
             var err = 'Mật khẩu không khớp';

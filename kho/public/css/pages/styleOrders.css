@@ -114,10 +114,6 @@ span {
     vertical-align: middle;
 }
 
-.product .name {
-    /* flex-basis: 80vh; */
-}
-
 #myDropdown,
 #listProvince,
 #listDistrict,
@@ -159,8 +155,6 @@ span {
 .text-right {
     text-align: right;
 }
-
-input {}
 
 #listProvince,
 #listDistrict,
@@ -208,12 +202,6 @@ input {}
 .Fixed.header-main {
     display: none;
 }
-#sidebar {
-    display: none;
-}
-#content-right {
-    padding-left: 0;
-}
 .body {
     padding: 0;
     margin: 0;
@@ -232,7 +220,28 @@ textarea {
 }
 
 
+#sideBar {
+    /* display: none; */
 
+    margin-left: calc(-1* var(--cui-sidebar-width));
+}
+#content-right {
+    padding-left: 0;
+}
+
+button.add-call-again  {
+    border-radius: 15px;
+    height: 29px;
+    background: #e59ee5a8;
+    border: 1px;
+    color: #857b7b;
+    cursor: pointer;
+}
+
+button.add-call-again:hover {
+    color:#fff;
+    background-color: #857b7b;
+}
 @media only screen and (max-width: 600px) {
     .product-list-order .align-items-center {
         position: relative;
@@ -246,3 +255,5 @@ textarea {
         display: block;
     }
   }
+
+  

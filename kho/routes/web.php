@@ -8,6 +8,9 @@ use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ShippingOrderController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\CallController;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +74,18 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/tao-van-don/{id}',  [ShippingOrderController::class, 'createShipping'])->name('create-shipping');
     Route::post('/save-shipping-has',  [ShippingOrderController::class, 'createShippingHas'])->name('create-shipping-has');
     Route::get('/chi-tiet-van-don/{id}',  [ShippingOrderController::class, 'detailShippingOrder'])->name('detai-shipping-order');
+
+    Route::get('/tac-nghiep-sale',  [SaleController::class, 'index'])->name('sale-index');
+    Route::get('/tao-tac-nghiep-sale',  [SaleController::class, 'add'])->name('sale-add');
+    Route::post('/tao-tac-nghiep-sale',  [SaleController::class, 'save'])->name('sale-care-save');
+    Route::get('/cap-nhat-tac-nghiep-sale/{id}',  [SaleController::class, 'update'])->name('sale-care-update');
+    Route::post('/cap-nhat-sale-ajax',  [SaleController::class, 'saveAjax'])->name('sale-save-ajax');
+    
+    Route::get('/call',  [CallController::class, 'index'])->name('call-index');
+    Route::get('/tao-call',  [CallController::class, 'add'])->name('call-add');
+    Route::post('/luu-call',  [CallController::class, 'save'])->name('call-save');
+    Route::get('/cap-nhat-call/{id}',  [CallController::class, 'update'])->name('call-update');
+    
 });
 
 Route::get('/login',  [UserController::class, 'login'])->name('login');
@@ -80,3 +95,4 @@ Route::get('/log-out',  [UserController::class, 'logOut'])->name('log-out');
 Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filter-total');
 Route::get('/filter-total-sales',  [HomeController::class, 'filterTotalSales'])->name('filter-total-sales');
 
+Route::get('/test',  [TestController::class, 'test2'])->name('test');
