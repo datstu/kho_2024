@@ -74,7 +74,7 @@ $listStatus = Helper::getListStatus();
                                                 <div class="row">
                                                     <div class="col-6">
                                                         <label class="form-label" for="priceFor">Tổng tiền</label>
-                                                        <input {{ $order->is_price_sale ? '' : 'disabled' }} value="{{number_format($order->total)}} đ" value="" data-type="currency"
+                                                        <input {{ $order->is_price_sale ? '' : 'readonly' }} value="{{number_format($order->total)}} đ" value="" data-type="currency"
                                                             class="price_class form-control" name="price"
                                                             {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
                                                             id="priceFor"
@@ -158,7 +158,7 @@ $listStatus = Helper::getListStatus();
 
                                                     <div id="sum-qty" class=" col-4">
                                                         <label class="form-label">Tổng số lượng</label>
-                                                        <input value="{{$order->qty}}" name="sum-qty" class="form-control" disabled
+                                                        <input value="{{$order->qty}}" name="sum-qty" class="form-control" readonly
                                                             type="number">
                                                         <p class="error_msg" id="qty"></p>
                                                     </div>
@@ -177,7 +177,7 @@ $listStatus = Helper::getListStatus();
                                                                 <div class="col-6 name">{{$product->name}}</div>
                                                                 <div id="product-{{$product->id}}" class="text-right col-4 number product-4">
                                                                     <button onclick="minus({{$product->id}}, {{$product->price}})" type="button" class=" minus">-</button>
-                                                                    <input value="{{$item->val}}" class="qty-input" data-product_id="{{$product->id}}" disabled="" type="text" value="1">
+                                                                    <input value="{{$item->val}}" class="qty-input" data-product_id="{{$product->id}}" readonly="" type="text" value="1">
                                                                     <button onclick="plus({{$product->id}}, {{$product->price}})" type="button" class="plus">+</button>
                                                                 </div>
                                                                 <button onclick="deleteProduct({{$product->id}}, {{$product->price}})" type="button" class="col-2 del">X</button>
@@ -249,14 +249,15 @@ $listStatus = Helper::getListStatus();
 
                                         <div class="col-lg-6">
                                             <label class="form-label" for="priceFor">Tổng tiền:</label>
-                                            <input disabled placeholder="199.000 đ"
+                                            <input readonly placeholder="199.000 đ"
                                                 class="price_class form-control" name="price"
                                                 {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
                                                 id="priceFor"
                                                 type="text"
                                                 data-product-price=0>
-                                            <input name="priceSale" type="checkbox" id="priceSaleFor">
-                                            <label class="form-label" for="priceSaleFor">
+                                            
+                                            <label class="form-label" >
+                                                <input name="priceSale" type="checkbox" id="priceSaleFor">
                                                  Giá khuyến mãi
                                                 
                                             </label>
@@ -337,7 +338,7 @@ $listStatus = Helper::getListStatus();
 
                                         <div id="sum-qty" class=" col-4 ">
                                             <label class="form-label" for="qtyFor">Tổng số lượng</label>
-                                            <input value=0 name="sum-qty" class="form-control" disabled
+                                            <input value=0 name="sum-qty" class="form-control" readonly
                                                 type="number">
                                             <p class="error_msg" id="qty"></p>
                                         </div>
@@ -610,6 +611,8 @@ $(document).ready(function() {
         e.preventDefault();
 
         $('.loader').show();
+        $('.body').css("opacity", '0.5');
+
         var _token      = $("input[name='_token']").val();
         var phone       = $("input[name='phone']").val();
         var name        = $("input[name='name']").val();
@@ -645,6 +648,7 @@ $(document).ready(function() {
             price = $("input[name='price']").attr("data-product-price");
         }
 
+        console.log(assignSale)
         $.ajax({
             url: "{{ route('save-orders') }}",
             type: 'POST',
@@ -675,6 +679,7 @@ $(document).ready(function() {
                     $("#notifi-box").show();
                     $("#notifi-box").html(data.success);
                     $("#notifi-box").slideDown('fast').delay(5000).hide(0);
+                    
                 } else {
                     $('.error_msg').text('');
                     let resp = data.errors;
@@ -684,6 +689,8 @@ $(document).ready(function() {
                         $("#" + index).html(resp[index]);
                     }
                 }
+
+                $('.body').css("opacity", '1');
                 $('.loader').hide();
             }
         });
@@ -790,7 +797,7 @@ $(document).ready(function() {
                 '"><button onclick="minus(' + id +
                 ', ' + price +
                 ')" type="button" class=" minus">-</button><input class="qty-input" data-product_id="' +
-                id + '" disabled type="text" value="1"/><button onclick="plus(' + id +
+                id + '" readonly type="text" value="1"/><button onclick="plus(' + id +
                 ', ' + price +
                 ')" type="button" class="plus">+</button></div>';
             str += '<button onclick="deleteProduct(' + id +
@@ -806,13 +813,16 @@ $(document).ready(function() {
         $inputQty.change();
     });
 
-    $("#priceSaleFor").click(function() {
+    // $("priceSaleFor").click(function() {
+        $("input[name='priceSale']").click(function() {
+        
+        console.log('is clicked')
         if ($(this).is(':checked')) {
-            $("input[name='price']").prop("disabled", false);
+            $("input[name='price']").prop("readonly", false);
             $("input[name='price']").focus();
         } else {
             // $("input[name='promotion']").hide();
-            $("input[name='price']").prop("disabled", true);
+            $("input[name='price']").prop("readonly", true);
             let price           = $("input[name='price']").attr("data-product-price");
             console.log(price);
             let newPriceFormat  = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })

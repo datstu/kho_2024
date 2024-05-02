@@ -64,6 +64,8 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/update-order/{id}',[OrdersController::class,'viewUpdate'])->name('update-order');
     Route::get('/delete-order/{id}',  [OrdersController::class, 'delete'])->name('delete-order');
     Route::get('/chi-tiet-don-hang/{id}',  [OrdersController::class, 'view'])->name('view-order');
+    Route::get('/loc-don-hang',  [OrdersController::class, 'filterOrderByDate'])->name('filter-order');
+
     Route::get('/cap-nhat-thanh-vien/{id}',[UserController::class,'viewUpdate'])->name('update-user');
     Route::get('/delete-user/{id}',  [UserController::class, 'delete'])->name('delete-user');
     Route::get('/tim-thanh-vien',  [UserController::class, 'search'])->name('search-user');
@@ -95,4 +97,4 @@ Route::get('/log-out',  [UserController::class, 'logOut'])->name('log-out');
 Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filter-total');
 Route::get('/filter-total-sales',  [HomeController::class, 'filterTotalSales'])->name('filter-total-sales');
 
-Route::get('/test',  [TestController::class, 'test2'])->name('test');
+Route::get('/test',  [TestController::class, 'test3'])->name('test');

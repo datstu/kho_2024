@@ -30,7 +30,7 @@ class UserController extends Controller
 
     public function postLogin(Request $r) {
         // dd($r->all());
-        if (Auth::attempt(['name' => $r->name, 'password' => $r->password])) {
+        if (Auth::attempt(['name' => $r->name, 'password' => $r->password, 'status' => 1])) {
             return redirect()->route('home');
         } 
 

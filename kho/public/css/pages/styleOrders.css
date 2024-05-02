@@ -220,7 +220,7 @@ textarea {
 }
 
 
-#sideBar {
+#sidebar {
     /* display: none; */
 
     margin-left: calc(-1* var(--cui-sidebar-width));
@@ -242,6 +242,12 @@ button.add-call-again:hover {
     color:#fff;
     background-color: #857b7b;
 }
+
+#laravel-notify .notify {
+    z-index: 1;
+}
+
+
 @media only screen and (max-width: 600px) {
     .product-list-order .align-items-center {
         position: relative;

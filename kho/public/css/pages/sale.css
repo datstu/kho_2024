@@ -1,6 +1,6 @@
 .tableFixHead {
     overflow-y: auto;
-    height: 600px;
+    /* height: 600px; */
     z-index: 99 !important;
 }
 /* .dragscroll1 {
@@ -291,6 +291,7 @@ tr.contact-row:has(> td div.select-dropdown-show) {
      /* styles to apply to the li tag */
     background-color: #ddd;
 }
+
 @media only screen and (min-width: 1200px) {
     .modal-xl {
         width: 1140px !important;

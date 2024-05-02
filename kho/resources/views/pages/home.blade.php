@@ -4,8 +4,9 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="{{asset('public/js/moment.js')}}"></script>
+<link rel="stylesheet" type="text/css" href="{{asset('public/css/daterangepicker.css')}}" /> 
+
 <style>
     .fs-5 {
         font-size: 2.0736rem !important;
@@ -172,14 +173,14 @@
             <div>
               <div class="fs-4 fw-semibold">2.49% <span class="fs-6 fw-normal">(84.7%
                   <svg class="icon">
-                    <use xlink:href="node_modules/@coreui/icons/sprites/free.svg#cil-arrow-top"></use>
+                    {{-- <use xlink:href="node_modules/@coreui/icons/sprites/free.svg#cil-arrow-top"></use> --}}
                   </svg>)</span></div>
               <div>Tỉ lệ chốt</div>
             </div>
             <div class="dropdown">
               <button class="btn btn-transparent text-white p-0" type="button" data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <svg class="icon">
-                  <use xlink:href="node_modules/@coreui/icons/sprites/free.svg#cil-options"></use>
+                  {{-- <use xlink:href="node_modules/@coreui/icons/sprites/free.svg#cil-options"></use> --}}
                 </svg>
               </button>
               <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item" href="#">Action</a><a class="dropdown-item" href="#">Another action</a><a class="dropdown-item" href="#">Something else here</a></div>
@@ -202,7 +203,7 @@
             <div class="dropdown">
               <button class="btn btn-transparent text-white p-0" type="button" data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <svg class="icon">
-                  <use xlink:href="node_modules/@coreui/icons/sprites/free.svg#cil-options"></use>
+                  {{-- <use xlink:href="node_modules/@coreui/icons/sprites/free.svg#cil-options"></use> --}}
                 </svg>
               </button>
               <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item" href="#">Action</a><a class="dropdown-item" href="#">Another action</a><a class="dropdown-item" href="#">Something else here</a></div>
@@ -261,7 +262,7 @@
 
     $('input[name="daterange"]').change(function () {
       let value = $(this).val();
-      console.log(value);
+      // console.log(value);
       let arr = value.split("-");
       // console.log(arr);
       var _token  = $("input[name='_token']").val();

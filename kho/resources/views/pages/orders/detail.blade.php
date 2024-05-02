@@ -14,6 +14,7 @@
   }
 
   .red span {
+    text-align: center;
     width: 80px;
     display: inline-block; 
     color: #ff0000;
@@ -25,7 +26,7 @@
   }
 
   .orange span {
-    width: 80px;
+    /* width: 80px; */
     display: inline-block;
     color: #fff;
     background: #ffbe08;

@@ -27,9 +27,26 @@ class OrdersController extends Controller
         return view('pages.orders.index')->with('list', $list);
     }
 
-    public function getListOrderByPermisson($user) {
+    public function getListOrderByPermisson($user, $dataFilter = null) {
         $roles      = $user->role;
         $list       = Orders::orderBy('id', 'desc');
+
+        if ($dataFilter) {
+            $time       = $dataFilter['daterange'];
+            $timeBegin  = str_replace('/', '-', $time[0]);
+            $timeEnd    = str_replace('/', '-', $time[1]);
+
+            $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+            $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+
+            $list->whereDate('created_at', '>=', $dateBegin)
+                ->whereDate('created_at', '<=', $dateEnd);
+            
+            if (isset($dataFilter['status'])) {
+                $list->whereStatus($dataFilter['status']);
+            }
+
+        }
         $checkAll   = false;
         $listRole   = [];
         // $roles      = json_decode(Auth::user()->role);
@@ -145,7 +162,7 @@ class OrdersController extends Controller
             'phone.required' => 'Nhập số lượng',
             'qty.min' => 'Vui lòng chọn sản phẩm',
         ]);
-       
+
         if ($validator->passes()) {
             if (isset($request->id)) {
                 $order = Orders::find($request->id);
@@ -169,13 +186,18 @@ class OrdersController extends Controller
             $order->is_price_sale   = $request->isPriceSale;
             $order->note            = $request->note;
             $order->status          = $request->status;
-
+      
             $order->save();
             // dd(json_decode($order->id_product));
-            $listProductName = "";
+            $listProductName = $tProduct = '';
+            
             foreach (json_decode($order->id_product) as $item) {
-                $product            = Product::find($item->id);
-                $product->qty       = $product->qty - $item->val;
+                if ($tProduct != '') {
+                    $tProduct .= ', ';
+                }
+                $product        = Product::find($item->id);
+                $tProduct       .= "\n$product->name: $item->val";
+                $product->qty   = $product->qty - $item->val;
 
                 if ($listProductName != "") {
                     $listProductName    .= ' + ';
@@ -193,7 +215,7 @@ class OrdersController extends Controller
             $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
             $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
 
-            $notiText       = "\n- $order->qty sản phẩm: $listProductName : tổng " . number_format($order->total) . " miễn phí Ship"
+            $notiText       = "\nĐơn mua: $order->qty sản phẩm: $tProduct \nTổng: " . number_format($order->total) . "đ miễn phí Ship."
                 . "\nGửi về địa chỉ: $nameUserOrder $order->name - $order->phone - $order->address";
             
             if ($order->note) {
@@ -209,7 +231,7 @@ class OrdersController extends Controller
             } else {
                 //câp nhật order
                 //chỉ áp dụng cho đơn phân bón
-                $isFertilizer = Helper::checkFertilizer($order->assign_user);
+                $isFertilizer = Helper::checkFertilizer($order->id_product);
 
                 //check đơn này đã có data chưa
                 $issetOrder = Helper::checkOrderSaleCare($order->id);
@@ -335,5 +357,26 @@ class OrdersController extends Controller
             return view('pages.orders.detail')->with('order', $order); 
         } 
         return redirect('/don-hang') ->with('error', 'Đã xảy ra lỗi hoặc đơn hàng không tồn tại!');
+    }
+
+    public function filterOrderByDate(Request $req) {
+        $dataFilter = [];
+        // dd($req->all());
+        $time           = $req->daterange;
+        $arrTime        = explode("-",$time); 
+
+        $dataFilter['daterange']    = $arrTime;
+        // $dataFilter['status']       = 1; //chưa giao vận
+        if ($req->status != 999) {
+            $dataFilter['status'] = $req->status;
+        }
+
+        // $dataFilter['status']  = 3;
+        // $tmp = Orders::orderBy('id', 'desc')->whereStatus($dataFilter['status'] );
+
+        // dd($tmp->get());
+        $list   = $this->getListOrderByPermisson(Auth::user(), $dataFilter)->paginate(50);
+        
+        return view('pages.orders.index')->with('list', $list);
     }
 }

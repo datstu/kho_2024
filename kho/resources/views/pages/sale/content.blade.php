@@ -30,7 +30,7 @@
 
 
 <div class="box-body">
-    <div class="dragscroll1 tableFixHead" style="height: 507px;">
+    <div class="dragscroll1 tableFixHead">
         <div>
             <!-- Trigger the modal with a button -->
             <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
@@ -88,7 +88,7 @@
                             <span class="chk-item"><input id="" type="checkbox" name=""><label for="">{{$item->id}}</label></span>
                         </td>
                         <td class="text-center">
-                            <a href="#">{{$item->id_order}}</a>
+                            <a href="{{route('view-order', ['id' => $item->id_order])}}">{{$item->id_order}}</a>
                         </td>
                         <td class="text-center">
                             {{date_format($item->created_at,"d-m-Y ")}}
@@ -146,7 +146,7 @@
                 </tbody>
             </table>
 
-            {!! $saleCare->links() !!}
+            {{$saleCare->links('pagination::bootstrap-5')}}
             @endif
         </div>
     </div>
@@ -206,19 +206,23 @@
                 name
             },
             success: function(data) {
-                $('#notify-modal').modal('show');
-                if ($('.modal-backdrop-notify').length === 0) {
-                    $('.modal-backdrop').addClass('modal-backdrop-notify');
+                if (!data.error) {
+                    $('#notify-modal').modal('show');
+                    if ($('.modal-backdrop-notify').length === 0) {
+                        $('.modal-backdrop').addClass('modal-backdrop-notify');
+                    }
+
+                    str         = 'span.list-call-' + itemId;
+                    strNextStep = 'td.next-step-' + itemId;
+                    $(str).text(name);
+                    $(strNextStep).text('Gọi lần ' + data.data.next_step);
+
+                    setTimeout(function() { 
+                        $('#notify-modal').modal("hide");
+                    }, 3000);
+                } else {
+                    alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
                 }
-
-                str         = 'span.list-call-' + itemId;
-                strNextStep = 'td.next-step-' + itemId;
-                $(str).text(name);
-                $(strNextStep).text('Gọi lần ' + data.data.next_step);
-
-                setTimeout(function() { 
-                    $('#notify-modal').modal("hide");
-                }, 3000);
             }
         });
     });

@@ -15,6 +15,10 @@ use DateTime;
 // setlocale(LC_TIME, "vi_VN");
 class TestController extends Controller
 {
+  public function test3() {
+    $str = Helper::getListProductByOrderId(285);
+    echo($str);
+  }
   public function test() {
     $listSc = SaleCare::whereNotNull('next_step')->get();
     foreach ($listSc as $sc) {
@@ -73,8 +77,10 @@ class TestController extends Controller
             #hoàn tât
             $order->status = 3;
             break;
-
+          case 'return':
+            $order->status = 0;
           case 'cancel':
+            $order->status = 0;
           case 'returned':
             #hoàn/huỷ
             $order->status = 0;
@@ -87,8 +93,9 @@ class TestController extends Controller
         }
         
         $order->save();
+        
         //chỉ áp dụng cho đơn phân bón
-        $isFertilizer = Helper::checkFertilizer($order->assign_user);
+        $isFertilizer = Helper::checkFertilizer($order->id_product);
 
         //check đơn này đã có data chưa
         $issetOrder = Helper::checkOrderSaleCare($order->id);

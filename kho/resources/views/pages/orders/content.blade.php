@@ -55,7 +55,19 @@
     height: 100%;
     /* overflow: scroll; */
   }
+  .filter-order .daterange {
+    min-width: 230px;
+  }
 
+  .add-order {
+    position: fixed;
+    right: 0;
+    bottom: 10px;
+  }
+
+  input#daterange {
+    color: #000;
+  }
 </style>
 
 <?php 
@@ -67,16 +79,40 @@ $styleStatus = [
   3 => 'green',
 ];
 
-
 ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="{{asset('public/js/moment.js')}}"></script>
+<link rel="stylesheet" type="text/css" href="{{asset('public/css/daterangepicker.css')}}" /> 
+
 <div class="tab-content rounded-bottom">
 <div class="tab-pane p-3 active preview" role="tabpanel" id="preview-1001">
 
+  <form action="{{route('filter-order')}}" class="mb-1">
+    <div class="row mb-1 filter-order">
+   
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group daterange mb-1">
+        <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <select name="status" id="status-filter" class="form-select" aria-label="Default select example">
+          <option value="999">--Trạng Thái (Tất cả)--</option>
+          <option value="1">Chưa giao vận</option>
+          <option value="2">Đang giao</option>
+          <option value="3">Hoàn tất</option>
+          <option value="0">Huỷ</option>
+        </select>
+      </div>
+      
+    
+    </div>
+    <button type="submit" class="btn btn-outline-primary">Lọc</button>
+  </form>
+
     <div class="row ">
       <div class="col col-4">
-        {{-- <a class="btn btn-primary" href="{{route('add-orders')}}" role="button">+ Thêm đơn</a> --}}
-        <a href="{{route('add-orders')}}" class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm đơn</a>   
+        
+        <a class="add-order btn btn-primary" href="{{route('add-orders')}}" role="button">+ Thêm đơn</a>
+        {{-- <a href="{{route('add-orders')}}" class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm đơn</a>    --}}
         <!-- Modal -->
         <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog modal-xl" role="document">
@@ -186,3 +222,95 @@ $styleStatus = [
     </div>
 </div>
   
+
+<script> /*
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+
+  todate = dd + '/' + mm + '/' + yyyy;
+  // console.log(todate);
+
+  const oldDate = new Date();
+  oldDate.setDate(oldDate.getDate() - 15);
+
+  var dd = String(oldDate.getDate()).padStart(2, '0');
+  var mm = String(oldDate.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = oldDate.getFullYear();
+  zzz = dd + '/' + mm + '/' + yyyy;
+  // console.log(zzz);
+
+  str = zzz + ' - ' + todate;
+  console.log(str)
+  // $('input[name="daterange"]').val(str)
+  */</script>
+<script>
+  // console.log(decodeURI(window.location.href))
+  $.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    return results[1] || 0;
+  }
+
+  let time = $.urlParam('daterange') 
+  if (time) {
+    time = decodeURIComponent(time)
+    time = time.replace('+-+', ' - ') //loại bỏ khoảng trắng
+    $('input[name="daterange"]').val(time)
+  }
+
+  let status = $.urlParam('status') 
+  if (status) {
+    $('#status-filter option[value=' + status +']').attr('selected','selected');
+    // switch(status) {
+    //   case 1:
+    //     // code block
+    //     break;
+    //   case y:
+    //     // code block
+    //     break;
+    //   default:
+    //     // code block
+    // }
+  }
+
+</script>
+<script type="text/javascript" src="{{asset('public/js/dateRangePicker/daterangepicker.min.js')}}"></script>
+<script>
+$(document).ready(function() {
+  $('input[name="daterange"]').daterangepicker({
+      ranges: {
+        'Hôm nay': [moment(), moment()],
+        'Hôm qua': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        '7 ngày gần đây': [moment().subtract(6, 'days'), moment()],
+        '30 ngày gần đây': [moment().subtract(29, 'days'), moment()],
+        'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+        'Tháng trước': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+      },
+      locale: {
+        "format": 'DD/MM/YYYY',
+        "applyLabel": "OK",
+        "cancelLabel": "Huỷ",
+        "fromLabel": "Từ",
+        "toLabel": "Đến",
+        "daysOfWeek": [
+          "CN", "Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy" 
+        ],
+        "monthNames": [
+          "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+	        "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12" 
+        ],
+      }
+    });
+    $('[data-range-key="Custom Range"]').text('Tuỳ chỉnh');
+    // $('input[name="daterange"]').change(function () {
+    //   value = $(this).val();
+    //   value = value.replace(/\s/g, '')
+    //   console.log(value)
+    //   // value = value.replace(/\s/g, '').replace('-', 'to').replace(/\//g, "-"); //loại bỏ khoảng trắng
+    //   url   = "<?php echo URL::to('loc-don-hang-theo-thoi-gian?time="+ value +"'); ?>";
+    //   // console.log(url);
+    //   // location.href = url;
+    // });
+});
+</script>

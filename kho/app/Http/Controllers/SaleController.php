@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use App\Models\SaleCare;
 use App\Helpers\Helper;
-
+use PHPUnit\TextUI\Help;
 
 class SaleController extends Controller
 {
@@ -24,7 +24,7 @@ class SaleController extends Controller
     {
         $helper     = new Helper();
         $listCall   = $helper->getListCall()->get();
-        $saleCare   = SaleCare::orderBy('id', 'desc')->paginate(15);
+        $saleCare   = SaleCare::orderBy('id', 'desc')->paginate(50);
 
         return view('pages.sale.index')->with('saleCare', $saleCare)->with('listCall', $listCall);
     }
@@ -75,21 +75,26 @@ class SaleController extends Controller
             $saleCare->assign_user          = $req->assign_sale;
             // $saleCare->number_of_call       = json_encode($req->call);
 
-            $saleCare->save();
-            // dd(json_decode($order->id_product));
-            // $listProductName = "";
+            // $saleCare->save();
             
-            //gửi thông báo qua telegram
-            $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
-            $chatId         = '-4140296352';
-            $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
-            $client         = new \GuzzleHttp\Client();
-
-            // $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
-            // $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
-
-            $notiText       = "\n Tác nghiệp sale đã được tạo thành công.";
             if (!isset($req->id)) {
+                $tProduct = Helper::getListProductByOrderId( $saleCare->id_order);
+                //gửi thông báo qua telegram
+                $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
+                // $chatId         = '-4140296352';
+                // $chatId         = '-4126333554';
+                $chatId         = '-4128471334';
+                $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+                $client         = new \GuzzleHttp\Client();
+
+                // $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
+                // $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
+
+                $notiText       = "\n Tác nghiệp sale đã được tạo thành công.";
+                $notiText       = "Khách hàng: $saleCare->full_name"
+                . "\nSố điện thoại: $saleCare->phone"
+                . "\nĐã nhận được hàng."
+                . "\nĐơn mua: " . $tProduct; 
                 $response = $client->request('GET', $endpoint, ['query' => [
                     'chat_id' => $chatId, 
                     'text' => $notiText,
@@ -153,8 +158,7 @@ class SaleController extends Controller
             $saleCare->save();
             return response()->json(['data' => $saleCare]);
         }
-        
-        // notify()->success('Laravel Notify is awesome!');
-        return 'hi';
+
+        return response()->json(['error' => true]);
     }
 }

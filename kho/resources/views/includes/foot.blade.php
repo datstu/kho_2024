@@ -6,3 +6,6 @@
     <script src="{{asset('public/vendors/@coreui/chartjs/js/coreui-chartjs.js')}}"></script>
     <script src="{{asset('public/vendors/@coreui/utils/js/coreui-utils.js')}}"></script>
    <script src="{{asset('public/js/main.js')}}"></script> --}}
+
+
+   {{-- <script type="text/javascript" src="{{ asset('public/js/notify.js'); }}"></script> --}}

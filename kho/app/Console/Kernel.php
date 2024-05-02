@@ -9,7 +9,7 @@ use App\Models\Orders;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\Helper;
 use App\Http\Controllers\SaleController;
-
+use Illuminate\Support\Facades\Log;
 class Kernel extends ConsoleKernel
 {
     /**
@@ -19,8 +19,9 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->call(function() {
-            $this->wakeUp();
-            $this->updateStatusOrderGHN();
+        // $this->wakeUp();
+        $this->updateStatusOrderGHN();
+        Log::channel('new')->info('your_message');
         })->everyMinute();
     }
 
@@ -53,7 +54,8 @@ class Kernel extends ConsoleKernel
 
                 //gửi thông báo qua telegram
                 $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
-                $chatId         = '-4140296352';
+                // $chatId         = '-4140296352';
+                $chatId         = '-4128471334';
                 $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
                 $client         = new \GuzzleHttp\Client();
 
@@ -76,61 +78,72 @@ class Kernel extends ConsoleKernel
 
     private function updateStatusOrderGHN() 
     {
-        $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
-        foreach ($orders as $order) {
-          $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;
-          $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])
-            ->post($endpoint, [
-              'order_code' => 'G8PU4H68',
-              'token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55',
-            ]);
-       
-          if ($response->status() == 200) {
-            $content  = json_decode($response->body());
-            $data     = $content->data;
-    
-            switch ($data->status) {
-              case 'delivered':
-                #hoàn tât
-                $order->status = 3;
-                break;
-    
-              case 'cancel':
-              case 'returned':
-                #hoàn/huỷ
-                $order->status = 0;
-                break;
+      $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
+      foreach ($orders as $order) {
+        $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;
+        $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])
+          ->post($endpoint, [
+            'order_code' => $order->shippingOrder->order_code,
+            'token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55',
+          ]);
+     
+        if ($response->status() == 200) {
+          $content  = json_decode($response->body());
+          $data     = $content->data;
+  
+          switch ($data->status) {
+            case 'ready_to_pick':
+              $order->status = 1;
+            case 'picking':
+              #chờ lây hàng
+              $order->status = 1;
+              break;
               
-              default:
-                # đang giao
-                $order->status = 2;
-                break;
-            }
+            case 'delivered':
+              #hoàn tât
+              $order->status = 3;
+              break;
+  
+            case 'return':
+              $order->status = 0;
+            case 'cancel':
+              $order->status = 0;
+            case 'returned':
+              #hoàn/huỷ
+              $order->status = 0;
+              break;
             
-            $order->save();
-            //chỉ áp dụng cho đơn phân bón
-            $isFertilizer = Helper::checkFertilizer($order->assign_user);
-    
-            //check đơn này đã có data chưa
-            $issetOrder = Helper::checkOrderSaleCare($order->id);
-            
-            // status = 'hoàn tất', tạo data tác nghiệp sale
-            if ($order->status == 3 && $isFertilizer && !$issetOrder) {
-                $sale = new SaleController();
-                $data = [
-                    'id_order' => $order->id,
-                    'sex' => $order->sex,
-                    'name' => $order->name,
-                    'phone' => $order->phone,
-                    'address' => $order->address,
-                    'assign_user' => $order->assign_user,
-                ];
-    
-                $request = new \Illuminate\Http\Request();
-                $request->replace($data);
-                $sale->save($request);
-            }
+            default:
+              # đang giao
+              $order->status = 2;
+              break;
+          }
+          
+          $order->save();
+          
+          //chỉ áp dụng cho đơn phân bón
+          $isFertilizer = Helper::checkFertilizer($order->id_product);
+  
+          //check đơn này đã có data chưa
+          $issetOrder = Helper::checkOrderSaleCare($order->id);
+          
+          // status = 'hoàn tất', tạo data tác nghiệp sale
+          if ($order->status == 3 && $isFertilizer && !$issetOrder) {
+              $sale = new SaleController();
+              $data = [
+                  'id_order' => $order->id,
+                  'sex' => $order->sex,
+                  'name' => $order->name,
+                  'phone' => $order->phone,
+                  'address' => $order->address,
+                  'assign_user' => $order->assign_user,
+              ];
+  
+              $request = new \Illuminate\Http\Request();
+              $request->replace($data);
+              $sale->save($request);
           }
         }
+      }
     }
 }

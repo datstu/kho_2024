@@ -2,7 +2,8 @@
 <html lang="en">
   <head> @include('includes.head')  </head>
   <body>
-    <div class="sidebar sidebar-dark sidebar-fixed" id="sideBar">
+    @include('notify::components.notify')
+    <div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
         @include('includes.sidebar')
     </div>
     <div id="content-right" class="wrapper d-flex flex-column min-vh-100 bg-light">
