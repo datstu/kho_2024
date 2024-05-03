@@ -75,7 +75,7 @@ class SaleController extends Controller
             $saleCare->assign_user          = $req->assign_sale;
             // $saleCare->number_of_call       = json_encode($req->call);
 
-            // $saleCare->save();
+            $saleCare->save();
             
             if (!isset($req->id)) {
                 $tProduct = Helper::getListProductByOrderId( $saleCare->id_order);
