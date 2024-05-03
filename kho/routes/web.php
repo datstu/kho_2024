@@ -11,6 +11,8 @@ use App\Http\Controllers\ShippingOrderController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\CallController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\SettingController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +89,10 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/tao-call',  [CallController::class, 'add'])->name('call-add');
     Route::post('/luu-call',  [CallController::class, 'save'])->name('call-save');
     Route::get('/cap-nhat-call/{id}',  [CallController::class, 'update'])->name('call-update');
+
+    Route::get('/cai-dat-chung',  [SettingController::class, 'index'])->name('setting-general');
+    Route::post('/telegram-save',  [SettingController::class, 'telegramSave'])->name('telegram-save');
+   
     
 });
 

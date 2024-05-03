@@ -53,9 +53,19 @@
     @if ($checkAll)
 
     <li class="nav-item"><a class="nav-link" href="{{route('manage-user')}}">
-            <svg class="nav-icon">
-                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-chart-pie')}}"></use>
-            </svg> Thành viên</a></li>
+        <svg class="nav-icon">
+            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-chart-pie')}}"></use>
+        </svg> Thành viên</a>
+    </li>
+
+    <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
+        <svg class="nav-icon">
+            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-settings')}}"></use>
+        </svg>Cài đặt</a>
+        <ul class="nav-group-items">
+            <li class="nav-item"><a class="nav-link" href="{{route('setting-general')}}"><span class="nav-icon"></span>Chung</a></li>
+        </ul>
+    </li>
     @endif
 </ul>
 <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>

@@ -206,28 +206,32 @@ class OrdersController extends Controller
                 $product->save();
             }
 
-            //gửi thông báo qua telegram
-            $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
-            $chatId         = '-4140296352';
-            $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
-            $client         = new \GuzzleHttp\Client();
-
-            $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
-            $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
-
-            $notiText       = "\nĐơn mua: $order->qty sản phẩm: $tProduct \nTổng: " . number_format($order->total) . "đ miễn phí Ship."
-                . "\nGửi về địa chỉ: $nameUserOrder $order->name - $order->phone - $order->address";
-            
-            if ($order->note) {
-                $notiText . "\nLưu ý: $order->note";
-            }
-
             if (!isset($request->id)) {
-                //tạo mới order
-                $response = $client->request('GET', $endpoint, ['query' => [
-                    'chat_id' => $chatId, 
-                    'text' => $userAssign . ' ' . $text . $notiText,
-                ]]);
+                //gửi thông báo qua telegram
+                $telegram = Helper::getConfigTelegram();
+                if ($telegram) {
+                    $tokenGroupChat = $telegram->token;
+                    $chatId         = $telegram->id_NVTR;
+                    $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+                    $client         = new \GuzzleHttp\Client();
+
+                    $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
+                    $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
+
+                    $notiText       = "\nĐơn mua: $order->qty sản phẩm: $tProduct \nTổng: " . number_format($order->total) . "đ miễn phí Ship."
+                        . "\nGửi về địa chỉ: $nameUserOrder $order->name - $order->phone - $order->address";
+                    
+                    if ($order->note) {
+                        $notiText . "\nLưu ý: $order->note";
+                    }
+
+                    //tạo mới order
+                    $response = $client->request('GET', $endpoint, ['query' => [
+                        'chat_id' => $chatId, 
+                        'text' => $userAssign . ' ' . $text . $notiText,
+                    ]]);
+                }
+                
             } else {
                 //câp nhật order
                 //chỉ áp dụng cho đơn phân bón

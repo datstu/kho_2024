@@ -55,7 +55,13 @@
     <li class="nav-item"><a class="nav-link" href="{{route('manage-user')}}">
             <svg class="nav-icon">
                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-chart-pie')}}"></use>
-            </svg> Thành viên</a></li>
+            </svg> Thành viên</a>
+    </li>
+    <li class="nav-item"><a class="nav-link" href="{{route('manage-user')}}">
+        <svg class="nav-icon">
+            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-chart-pie')}}"></use>
+        </svg> Cài đặt</a>
+    </li>
     @endif
 </ul>
 <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>

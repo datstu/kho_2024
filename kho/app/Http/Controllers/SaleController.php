@@ -80,25 +80,26 @@ class SaleController extends Controller
             if (!isset($req->id)) {
                 $tProduct = Helper::getListProductByOrderId( $saleCare->id_order);
                 //gửi thông báo qua telegram
-                $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
-                // $chatId         = '-4140296352';
-                // $chatId         = '-4126333554';
-                $chatId         = '-4128471334';
-                $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
-                $client         = new \GuzzleHttp\Client();
+                $telegram = Helper::getConfigTelegram();
+                if ($telegram) {
+                    $tokenGroupChat = $telegram->token;
+                    $chatId         = $telegram->id_CSKH;
+                    $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+                    $client         = new \GuzzleHttp\Client();
 
-                // $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
-                // $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
+                    // $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
+                    // $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
 
-                $notiText       = "\n Tác nghiệp sale đã được tạo thành công.";
-                $notiText       = "Khách hàng: $saleCare->full_name"
-                . "\nSố điện thoại: $saleCare->phone"
-                . "\nĐã nhận được hàng."
-                . "\nĐơn mua: " . $tProduct; 
-                $response = $client->request('GET', $endpoint, ['query' => [
-                    'chat_id' => $chatId, 
-                    'text' => $notiText,
-                ]]);
+                    $notiText       = "\n Tác nghiệp sale đã được tạo thành công.";
+                    $notiText       = "Khách hàng: $saleCare->full_name"
+                    . "\nSố điện thoại: $saleCare->phone"
+                    . "\nĐã nhận được hàng."
+                    . "\nĐơn mua: " . $tProduct; 
+                    $response = $client->request('GET', $endpoint, ['query' => [
+                        'chat_id' => $chatId, 
+                        'text' => $notiText,
+                    ]]);
+                }
             }
 
             // return response()->json(['success'=>$text]);

@@ -61,7 +61,7 @@
 
   .add-order {
     position: fixed;
-    right: 0;
+    right: 10px;
     bottom: 10px;
   }
 

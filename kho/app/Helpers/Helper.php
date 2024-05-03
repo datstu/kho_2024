@@ -12,6 +12,7 @@ use App\Http\Controllers\ProductController;
 use App\Models\Orders;
 use App\Models\SaleCare;
 use Illuminate\Support\Facades\Log;
+use App\Models\Telegram;
 
 setlocale(LC_TIME, 'vi_VN.utf8');
 
@@ -239,5 +240,9 @@ class Helper
         }
             
         return $text;
+    }
+
+    public static function getConfigTelegram() {
+        return Telegram::first();
     }
 }
