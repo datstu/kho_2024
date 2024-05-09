@@ -81,7 +81,7 @@ class SaleController extends Controller
                 $tProduct = Helper::getListProductByOrderId( $saleCare->id_order);
                 //gửi thông báo qua telegram
                 $telegram = Helper::getConfigTelegram();
-                if ($telegram) {
+                if ($telegram && $telegram->status == 1) {
                     $tokenGroupChat = $telegram->token;
                     $chatId         = $telegram->id_CSKH;
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";

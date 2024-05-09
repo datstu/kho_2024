@@ -147,17 +147,13 @@ class OrdersController extends Controller
             'price'     => 'required',
             'qty'       => 'required|numeric|min:1',
             'address'   => 'required',
-            // 'products'  => 'required',
             'sex'       => 'required',
             'phone'     => 'required',
         ],[
             'name.required' => 'Nhập tên khách hàng',
             'price.required' => 'Nhập tổng tiền',
-            // 'price.numeric' => 'Chỉ được nhập số',
             'qty.required' => 'Nhập số lượng',
-            // 'qty.numeric' => 'Chỉ được nhập số',
             'address.required' => 'Nhập địa chỉ',
-            // 'products.required' => 'Chọn sản phẩm',
             'sex.required' => 'Chọn giới tính',
             'phone.required' => 'Nhập số lượng',
             'qty.min' => 'Vui lòng chọn sản phẩm',
@@ -167,11 +163,62 @@ class OrdersController extends Controller
             if (isset($request->id)) {
                 $order = Orders::find($request->id);
                 $text = 'Cập nhật đơn hàng thành công.';
+                
+                $oldPro = json_decode($order->id_product);
+                $newPro = json_decode($request->products);
+
+                foreach ($oldPro as $oldItem) {
+                    $flag = false;
+                    foreach ($newPro as $key => $newItem) {
+                        if ($newItem->id == $oldItem->id) {
+                            $flag = true;
+                            unset($newPro[$key]);
+                            break;
+                        }
+                    }
+                    
+                    if ($flag) {
+                        $oldItem->val = (int)$newItem->val - (int)$oldItem->val;
+                    } else {
+                        $oldItem->val = -(int)$oldItem->val;
+                    }
+                }
+              
+                /** cập nhật số lượng khi old nhiều hơn new */
+                foreach ($oldPro as $item) {
+                    $product        = Product::find($item->id);
+                    $product->qty   = (int)$product->qty - (int)$item->val;
+                    $product->save();
+                }
+
+                /** cập nhật số lượng khi new nhiều hơn old: new đã trừ, còn lại chưa update  */
+                foreach ($newPro as $item) {
+                    $product        = Product::find($item->id);
+                    $product->qty   = (int)$product->qty - (int)$item->val;
+                    $product->save();
+                }
+
             } else {
                 $order = new Orders();
                 $text = 'đã tạo đơn hàng.';
+
+                $listProductName = $tProduct = '';
+                foreach (json_decode($request->products) as $item) {
+                    if ($tProduct != '') {
+                        $tProduct .= ', ';
+                    }
+                    $product        = Product::find($item->id);
+                    $tProduct       .= "\n$product->name: $item->val";
+                    $product->qty   = (int)$product->qty - (int)$item->val;
+    
+                    if ($listProductName != "") {
+                        $listProductName    .= ' + ';
+                    }
+                    $listProductName    .= $product->name;
+                    $product->save();
+                }
             }
-            // dd($request->products);
+
             $order->id_product      = $request->products;
             $order->phone           = $request->phone;
             $order->address         = $request->address;
@@ -186,30 +233,12 @@ class OrdersController extends Controller
             $order->is_price_sale   = $request->isPriceSale;
             $order->note            = $request->note;
             $order->status          = $request->status;
-      
+
             $order->save();
-            // dd(json_decode($order->id_product));
-            $listProductName = $tProduct = '';
-            
-            foreach (json_decode($order->id_product) as $item) {
-                if ($tProduct != '') {
-                    $tProduct .= ', ';
-                }
-                $product        = Product::find($item->id);
-                $tProduct       .= "\n$product->name: $item->val";
-                $product->qty   = $product->qty - $item->val;
-
-                if ($listProductName != "") {
-                    $listProductName    .= ' + ';
-                }
-                $listProductName    .= $product->name;
-                $product->save();
-            }
-
             if (!isset($request->id)) {
                 //gửi thông báo qua telegram
                 $telegram = Helper::getConfigTelegram();
-                if ($telegram) {
+                if ($telegram && $telegram->status == 1) {
                     $tokenGroupChat = $telegram->token;
                     $chatId         = $telegram->id_NVTR;
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";

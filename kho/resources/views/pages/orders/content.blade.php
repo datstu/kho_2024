@@ -216,7 +216,9 @@ $styleStatus = [
               
             </tbody>
           </table>
-          {{$list->links('pagination::bootstrap-5')}}
+          {{-- {{$list->links('pagination::bootstrap-5')}} --}}
+          {{ $list->appends(request()->input())->links('pagination::bootstrap-5') }}
+         
         </div>
       </div>
     </div>
