@@ -73,7 +73,6 @@ class OrdersController extends Controller
             }
 
             if (isset($dataFilter['product'])) {
-
                 $ids = [];
                 
                 foreach ($list->get() as $order) {
@@ -402,16 +401,23 @@ class OrdersController extends Controller
      */
     public function search(Request $request)
     {
-        // $list = $this->getListOrderByPermisson(Auth::user());
-       
-        $orders = Orders::select('orders.*')->join('shipping_order', 'shipping_order.order_id','=', 'orders.id')
+        $orders = Orders::select('orders.*')
             ->where('orders.name', 'like', '%' . $request->search . '%')
             ->orWhere('orders.phone', 'like', '%' . $request->search . '%')
-            ->orWhere('shipping_order.order_code', 'like', '%' . $request->search . '%')
-            ->orderBy('orders.id', 'desc')->paginate(10);
+            ->orderBy('orders.id', 'desc');
 
-        if($orders){
-            return view('pages.orders.index')->with('list', $orders)->with('search', $request->search);           
+        if ($orders->count() == 0) {
+            $orders = Orders::select('orders.*')->join('shipping_order', 'shipping_order.order_id','=', 'orders.id')
+            ->where('shipping_order.order_code', 'like', '%' . $request->search . '%')
+            ->orderBy('orders.id', 'desc');
+        }
+
+        if ($orders) {
+            $totalOrder = $orders->count();
+            $list       = $orders->paginate(50);
+            $sumProduct = $orders->sum('qty');
+            return view('pages.orders.index')->with('list', $list)->with('search', $request->search)
+                ->with('totalOrder', $totalOrder)->with('sumProduct', $sumProduct);           
         } 
 
         return redirect('/');

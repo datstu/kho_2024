@@ -115,8 +115,10 @@ $styleStatus = [
       </div>
     
     </div>
+    
     <button type="submit" class="btn btn-outline-primary">Lọc</button>
     <a  class="btn btn-outline-danger" href="{{route('order')}}"><strong>X</strong></a>
+
   </form>
 
     <div class="row ">
