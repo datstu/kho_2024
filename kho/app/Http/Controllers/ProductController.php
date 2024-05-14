@@ -28,7 +28,7 @@ class ProductController extends Controller
      */
     public function addProduct()
     {
-        $listCategory =  Category::all();
+        $listCategory =  Category::all()->where('status', 1);
         return view('pages.product.addOrUpdate')->with('listCategory', $listCategory)
             ->with('user', Auth::user());
     }
@@ -173,5 +173,12 @@ class ProductController extends Controller
         }
         // dd($list->get());
         return $list;
+    }
+
+    public function getProductsByCategoryId(Request $req) 
+    {
+        $id = $req->categoryId;
+        $products = Product::where('category_id', $id)->where('status', 1);
+        return $products->get();
     }
 }

@@ -76,8 +76,6 @@
                                             
                                                 <div class="mb-3 col-4">
                                                     <label class="form-label" for="qtyIP">Quyền truy cập</label>
-                            
-                                                
                                                     <div class="form-check">
                                                         <label class="form-check-label">
                             

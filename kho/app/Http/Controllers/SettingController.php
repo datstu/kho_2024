@@ -12,6 +12,8 @@ use Validator;
 use App\Models\Call;
 use App\Helpers\Helper;
 use App\Models\Telegram;
+use App\Models\Pancake;
+
 
 class SettingController extends Controller
 {
@@ -22,10 +24,11 @@ class SettingController extends Controller
      */
     public function index()
     {
-    
-        $telegram = Telegram::first();
+        // die();
+        $pancake    = Pancake::first();
+        $telegram   = Telegram::first();
         // return view('pages.call.index')->with('call', $calls);
-        return view('pages.setting.index')->with('telegram', $telegram);
+        return view('pages.setting.index')->with('telegram', $telegram)->with('pancake', $pancake);
     }
 
     public function add()
@@ -56,6 +59,26 @@ class SettingController extends Controller
         return back();
     }
 
+    public function pancakeSave(Request $req) {
+        // dd($req->all());
+        if (isset($req->id)) {
+            $pancake = Pancake::find($req->id);
+            // $call->status  = $req->status;
+        } else {
+            // dd($req->all());
+            $pancake = new Pancake();
+        }
+
+        $pancake->token = $req->token_pancake;
+        $pancake->page_id = $req->page_id;
+        $pancake->status = $req->status;
+        $pancake->save();
+        notify()->success('Cập nhật thông tin Pancake thành công.', 'Thành công!');
+        
+
+        return back();
+    }
+    
     public function update($id) {;
         $call = Call::find($id);
         if($call){

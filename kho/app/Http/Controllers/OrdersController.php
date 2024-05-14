@@ -21,10 +21,23 @@ class OrdersController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(Request $req)
     {
-        $list = $this->getListOrderByPermisson(Auth::user())->paginate(50);
-        return view('pages.orders.index')->with('list', $list);
+        // dd($req->all());
+        if (count($req->all())) {
+            return $this->filterOrderByDate($req);
+        }
+        $category = Category::where('status', 1)->get();
+        // $list = $this->getListOrderByPermisson(Auth::user())->paginate(50);
+
+        $data       = $this->getListOrderByPermisson(Auth::user());
+        $sumProduct = $data->sum('qty');
+        $totalOrder = $data->count();
+        // dd($totalOrder);
+        $list       = $data->paginate(50);
+       
+
+        return view('pages.orders.index')->with('totalOrder', $totalOrder)->with('sumProduct', $sumProduct)->with('list', $list)->with('category', $category);
     }
 
     public function getListOrderByPermisson($user, $dataFilter = null) {
@@ -46,11 +59,39 @@ class OrdersController extends Controller
                 $list->whereStatus($dataFilter['status']);
             }
 
+            if (isset($dataFilter['category'])) {
+                $ids = [];
+                foreach ($list->get() as $order) {
+                    $products = json_decode($order->id_product);
+                    $isProductOfCategory = Helper::checkProductsOfCategory($products, $dataFilter['category']);
+                    if ($isProductOfCategory) {
+                        $ids[] = $order->id;
+                    }
+                }
+
+                $list       = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
+            }
+
+            if (isset($dataFilter['product'])) {
+
+                $ids = [];
+                
+                foreach ($list->get() as $order) {
+                    $products = json_decode($order->id_product);
+                    foreach ($products as $product) {
+                        if ($product->id == $dataFilter['product']) {
+                            $ids[] = $order->id;
+                            break;
+                        }
+                    }
+                }
+
+                $list       = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
+            }
         }
+
         $checkAll   = false;
         $listRole   = [];
-        // $roles      = json_decode(Auth::user()->role);
-        // dd($roles);
         $roles      = json_decode($roles);
         if ($roles) {
             foreach ($roles as $key => $value) {
@@ -394,9 +435,8 @@ class OrdersController extends Controller
 
     public function filterOrderByDate(Request $req) {
         $dataFilter = [];
-        // dd($req->all());
-        $time           = $req->daterange;
-        $arrTime        = explode("-",$time); 
+        $time       = $req->daterange;
+        $arrTime    = explode("-",$time); 
 
         $dataFilter['daterange']    = $arrTime;
         // $dataFilter['status']       = 1; //chưa giao vận
@@ -404,12 +444,28 @@ class OrdersController extends Controller
             $dataFilter['status'] = $req->status;
         }
 
-        // $dataFilter['status']  = 3;
-        // $tmp = Orders::orderBy('id', 'desc')->whereStatus($dataFilter['status'] );
+        $category = $req->category;
+        if ($category != 999) {
+            $dataFilter['category'] = $category;
+        }
 
-        // dd($tmp->get());
-        $list   = $this->getListOrderByPermisson(Auth::user(), $dataFilter)->paginate(50);
+        $product = $req->product;
+        if ($product != 999) {
+            $dataFilter['product'] = $product;
+        }
+
+        try {
+            $data       = $this->getListOrderByPermisson(Auth::user(), $dataFilter);
+            $totalOrder = $data->count();
+            $list       = $data->paginate(50);
+            $sumProduct = $data->sum('qty');
+            // dd($sumProduct);
+            $category   = Category::where('status', 1)->get();
+            return view('pages.orders.index')->with('list', $list)->with('category', $category)
+                ->with('sumProduct', $sumProduct)->with('totalOrder', $totalOrder);
+        } catch (\Exception $e) {
+            return redirect()->route('home');
+        }
         
-        return view('pages.orders.index')->with('list', $list);
     }
 }

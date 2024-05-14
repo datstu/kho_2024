@@ -87,7 +87,7 @@ $styleStatus = [
 <div class="tab-content rounded-bottom">
 <div class="tab-pane p-3 active preview" role="tabpanel" id="preview-1001">
 
-  <form action="{{route('filter-order')}}" class="mb-1">
+  <form action="{{route('order')}}" class="mb-1">
     <div class="row mb-1 filter-order">
    
       <div class="col-xs-12 col-sm-6 col-md-2 form-group daterange mb-1">
@@ -103,12 +103,32 @@ $styleStatus = [
         </select>
       </div>
       
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <select name="category" id="category-filter" class="form-select" aria-label="Default select example">
+          <option value="999">--Danh mục (Tất cả)--</option>
+          @if (isset($category))
+            @foreach($category as $cate)
+            <option value="{{$cate->id}}">{{$cate->name}}</option>
+            @endforeach
+          @endif
+        </select>
+      </div>
     
     </div>
     <button type="submit" class="btn btn-outline-primary">Lọc</button>
+    <a  class="btn btn-outline-danger" href="{{route('order')}}"><strong>X</strong></a>
   </form>
 
     <div class="row ">
+      <div class="col-12">
+        
+        @if (isset($list))
+        <hr>
+        <button type="button" class="btn">Tổng đơn: {{$totalOrder}}</button>
+        <button type="button" class="btn">Tổng sản phẩm: {{$sumProduct}}</button>
+        @endif
+      
+      </div>
       <div class="col col-4">
         
         <a class="add-order btn btn-primary" href="{{route('add-orders')}}" role="button">+ Thêm đơn</a>
@@ -224,29 +244,6 @@ $styleStatus = [
     </div>
 </div>
   
-
-<script> /*
-  var today = new Date();
-  var dd = String(today.getDate()).padStart(2, '0');
-  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-  var yyyy = today.getFullYear();
-
-  todate = dd + '/' + mm + '/' + yyyy;
-  // console.log(todate);
-
-  const oldDate = new Date();
-  oldDate.setDate(oldDate.getDate() - 15);
-
-  var dd = String(oldDate.getDate()).padStart(2, '0');
-  var mm = String(oldDate.getMonth() + 1).padStart(2, '0'); //January is 0!
-  var yyyy = oldDate.getFullYear();
-  zzz = dd + '/' + mm + '/' + yyyy;
-  // console.log(zzz);
-
-  str = zzz + ' - ' + todate;
-  console.log(str)
-  // $('input[name="daterange"]').val(str)
-  */</script>
 <script>
   // console.log(decodeURI(window.location.href))
   $.urlParam = function(name){
@@ -264,16 +261,42 @@ $styleStatus = [
   let status = $.urlParam('status') 
   if (status) {
     $('#status-filter option[value=' + status +']').attr('selected','selected');
-    // switch(status) {
-    //   case 1:
-    //     // code block
-    //     break;
-    //   case y:
-    //     // code block
-    //     break;
-    //   default:
-    //     // code block
-    // }
+  }
+
+  let category = $.urlParam('category') 
+  if (category) {
+    $('#category-filter option[value=' + category +']').attr('selected','selected');
+  }
+
+  let product = $.urlParam('product') 
+  console.log(product)
+  if (product) {
+    var _token      = $("input[name='_token']").val();
+      $.ajax({
+            url: "{{ route('get-products-by-category-id') }}",
+            type: 'GET',
+            data: {
+                _token: _token,
+                categoryId: category
+            },
+            success: function(data) {
+             
+              let str = '';
+              str += '<div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">'
+                + '<select name="product" id="product-filter" class="form-select" aria-label="Default select example">'
+                + '<option value="999">--Sản phẩm (Tất cả)--</option>';
+                data.forEach(item => {
+                  // console.log(item['id'])
+                  selected = item['id'] == product ? 'selected' : '';
+                  str += '<option ' +  selected +' value="' + item['id'] + '">' + item['name'] + '</option>';
+                  });
+              str  += '</select>'
+                + '</div>';
+
+                $(str).appendTo(".filter-order");
+            }
+        });
+    $('#product-filter option[value=' + product +']').attr('selected','selected');
   }
 
 </script>
@@ -305,14 +328,45 @@ $(document).ready(function() {
       }
     });
     $('[data-range-key="Custom Range"]').text('Tuỳ chỉnh');
-    // $('input[name="daterange"]').change(function () {
-    //   value = $(this).val();
-    //   value = value.replace(/\s/g, '')
-    //   console.log(value)
-    //   // value = value.replace(/\s/g, '').replace('-', 'to').replace(/\//g, "-"); //loại bỏ khoảng trắng
-    //   url   = "<?php echo URL::to('loc-don-hang-theo-thoi-gian?time="+ value +"'); ?>";
-    //   // console.log(url);
-    //   // location.href = url;
-    // });
+
+    $("#category-filter").change(function() {
+      var selectedVal = $(this).find(':selected').val();
+      var selectedText = $(this).find(':selected').text();
+      
+      if (selectedVal == 9) {
+        var _token      = $("input[name='_token']").val();
+        $.ajax({
+              url: "{{ route('get-products-by-category-id') }}",
+              type: 'GET',
+              data: {
+                  _token: _token,
+                  categoryId: selectedVal
+              },
+              success: function(data) {
+              
+                let str = '';
+                str += '<div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">'
+                  + '<select name="product" id="product-filter" class="form-select" aria-label="Default select example">'
+                  + '<option value="999">--Sản phẩm (Tất cả)--</option>';
+                  data.forEach(item => {
+                    // console.log(item['id'])
+                    str += '<option value="' + item['id'] + '">' + item['name'] + '</option>';
+                    });
+                str  += '</select>'
+                  + '</div>';
+
+                  $(str).appendTo(".filter-order");
+              }
+          });
+      } else {
+        if ($('#product-filter').length > 0) {
+          $('#product-filter').parent().remove();
+        }
+       
+      }
+  });
+
 });
+
+
 </script>

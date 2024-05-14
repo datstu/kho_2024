@@ -48,6 +48,7 @@ class CategoryController extends Controller
             if(isset($request->id)){
                 $category = Category::find($request->id);
                 $text = 'Cập nhật danh mục thành công.';
+                $category->status = $request->status;
             } else {
                 $category = new Category();
                 $text = 'Tạo danh mục thành công.';

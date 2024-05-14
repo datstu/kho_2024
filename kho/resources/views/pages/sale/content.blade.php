@@ -61,7 +61,10 @@
                             <span class="chk-all"><input id="dnn_ctr1441_Main_SaleTacNghiep_chkItem" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
                         </th>
                         <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Mã đơn hàng</span></th>
-                        <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Ngày </span></th>
+                        <th style="top: 0.5px;">
+                            <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Page/Ngày
+                            </span>
+                        </th>
                         <th class="text-center" style="top: 0.5px;">
                         <span class="span-col" style="display: inline-block; width: 50px;">Giới tính</span></th> 
                         <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;">
@@ -88,10 +91,14 @@
                             <span class="chk-item"><input id="" type="checkbox" name=""><label for="">{{$item->id}}</label></span>
                         </td>
                         <td class="text-center">
+
+                            @if (isset($item->id_order))
                             <a href="{{route('view-order', ['id' => $item->id_order])}}">{{$item->id_order}}</a>
+                            @endif
+                        
                         </td>
                         <td class="text-center">
-                            {{date_format($item->created_at,"d-m-Y ")}}
+                            {{$item->page_name}} {{date_format($item->created_at,"d-m-Y ")}}
                         </td>
                         <td class="text-center">Nam</td>
                         <td class="text-center area5 hidden-xs">

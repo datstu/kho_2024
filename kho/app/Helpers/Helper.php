@@ -13,6 +13,7 @@ use App\Models\Orders;
 use App\Models\SaleCare;
 use Illuminate\Support\Facades\Log;
 use App\Models\Telegram;
+use App\Models\Pancake;
 
 setlocale(LC_TIME, 'vi_VN.utf8');
 
@@ -213,6 +214,18 @@ class Helper
         return false;
     }
 
+    
+    public static function checkOrderSaleCarebyPhonePage($phone, $pageId) {
+        $saleCare = SaleCare::where('phone', $phone)->where('page_id', $pageId)->get()->first();
+        
+        $str = json_encode($saleCare);
+        Log::channel('new')->info('phone: '. $phone . ', $saleCare: ' . $str );
+        if ($saleCare) {
+            return true;
+        }
+        return false;
+    }
+
     public static function getStatusGHNtoKho($id) {
         $arr = [];
         $arr = [
@@ -244,5 +257,21 @@ class Helper
 
     public static function getConfigTelegram() {
         return Telegram::first();
+    }
+
+    public static function getConfigPanCake() {
+        return Pancake::first();
+    }
+
+    
+    public static function checkProductsOfCategory($products, $idCategory) {
+        foreach ($products as $product) {
+            $productModel = Product::find($product->id);
+            // dd($productModel->category_id);
+            if ($productModel && $productModel->category_id == $idCategory) {
+                return true;
+            }
+        }
+        return false;
     }
 }

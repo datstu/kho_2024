@@ -25,6 +25,24 @@
                             <input class="form-control" value="{{$category->name}}" name="name" id="nameIP" type="text">
                             <p class="error_msg" id="name"></p>
                           </div>
+                          <div class="row">
+                            <div class="mb-3 col-2">
+                                <label class="form-label" for="qtyIP">Trạng Thái</label>
+                                <div class="form-check">
+                                    <input <?=  $category->status == 1 ? 'checked' : '' ?> class="form-check-input" type="radio" name="status" value="1"
+                                        id="flexRadioDefault1">
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                        Bật
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input <?=  $category->status == 0 ? 'checked' : '' ?> class="form-check-input" type="radio" name="status" value="0"
+                                        id="flexRadioDefault2" >
+                                    <label  class="form-check-label" for="flexRadioDefault2">
+                                        Tắt
+                                    </label>
+                                </div>
+                            </div>
                           </div>
                           <button id="submit" class="btn btn-primary">Cập nhật</button>
                         </div>
@@ -70,7 +88,7 @@ $(document).ready(function() {
   
       var _token = $("input[name='_token']").val();
       var name = $("input[name='name']").val();
-      // var price = $("input[name='price']").val();
+      var status = $("input[name='status']:checked").val();
       // var qty = $("input[name='qty']").val();
       var id = $("input[name='id']").val();
       if (name == '') {
@@ -79,7 +97,7 @@ $(document).ready(function() {
         $.ajax({
             url: "{{ route('save-category') }}",
             type:'POST',
-            data: {_token:_token, name:name, id},
+            data: {_token:_token, name:name, id, status},
             success: function(data) {
               console.log(data);
                 if($.isEmptyObject(data.errors)){

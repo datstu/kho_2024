@@ -80,6 +80,7 @@
                                     <th scope="col">#</th>
                                     
                                     <th scope="col" style="width:30%">Tên danh muc</th>
+                                    <th scope="col" style="width:30%">Trạng thái</th>
                                     <th scope="col"></th>
                                     <th scope="col"></th>
                                   </tr>
@@ -92,6 +93,7 @@
                                   <tr>
                                     <th scope="row col-1">{{ $item->id }}</th>
                                     <td scope="col-7" >  {{ $item->name }}</td>
+                                    <td scope="col-1">  {{ ($item->status == 1) ? 'Bật' : 'Tắt'; }}</td>
                                     <td scope="col-1">
 
                                       <?php $checkAll = isFullAccess(Auth::user()->role);?>

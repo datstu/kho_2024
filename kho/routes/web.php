@@ -67,6 +67,8 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/delete-order/{id}',  [OrdersController::class, 'delete'])->name('delete-order');
     Route::get('/chi-tiet-don-hang/{id}',  [OrdersController::class, 'view'])->name('view-order');
     Route::get('/loc-don-hang',  [OrdersController::class, 'filterOrderByDate'])->name('filter-order');
+    Route::get('/get-products-by-category-id',  [ProductController::class, 'getProductsByCategoryId'])->name('get-products-by-category-id');
+    
 
     Route::get('/cap-nhat-thanh-vien/{id}',[UserController::class,'viewUpdate'])->name('update-user');
     Route::get('/delete-user/{id}',  [UserController::class, 'delete'])->name('delete-user');
@@ -92,7 +94,7 @@ Route::middleware('admin-auth')->group(function () {
 
     Route::get('/cai-dat-chung',  [SettingController::class, 'index'])->name('setting-general');
     Route::post('/telegram-save',  [SettingController::class, 'telegramSave'])->name('telegram-save');
-   
+    Route::post('/pancake-save',  [SettingController::class, 'pancakeSave'])->name('pancake-save');
     
 });
 
@@ -103,4 +105,4 @@ Route::get('/log-out',  [UserController::class, 'logOut'])->name('log-out');
 Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filter-total');
 Route::get('/filter-total-sales',  [HomeController::class, 'filterTotalSales'])->name('filter-total-sales');
 
-Route::get('/test',  [TestController::class, 'test3'])->name('test');
+Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');

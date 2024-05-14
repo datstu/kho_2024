@@ -73,6 +73,8 @@ class SaleController extends Controller
             $saleCare->reason_not_buy       = $req->reason_not_buy;
             $saleCare->note_info_customer   = $req->note_info_customer;
             $saleCare->assign_user          = $req->assign_sale;
+            $saleCare->page_name            = $req->page_name;
+            $saleCare->page_id              = $req->page_id;
             // $saleCare->number_of_call       = json_encode($req->call);
 
             $saleCare->save();
@@ -90,11 +92,19 @@ class SaleController extends Controller
                     // $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
                     // $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
 
-                    $notiText       = "\n Tác nghiệp sale đã được tạo thành công.";
                     $notiText       = "Khách hàng: $saleCare->full_name"
-                    . "\nSố điện thoại: $saleCare->phone"
-                    . "\nĐã nhận được hàng."
-                    . "\nĐơn mua: " . $tProduct; 
+                        . "\nSố điện thoại: $saleCare->phone";
+                       
+                    if ($req->text) {
+                        $notiText .= "\n" . $req->text;
+                    } else {
+                        $notiText .= "\nĐã nhận được hàng."  . "\nĐơn mua: " . $tProduct; 
+                    }
+                    // dd ($notiText);
+                    // . ($req->text) ? $req->text : "\nĐã nhận được hàng."
+                  
+
+                   
                     $response = $client->request('GET', $endpoint, ['query' => [
                         'chat_id' => $chatId, 
                         'text' => $notiText,
