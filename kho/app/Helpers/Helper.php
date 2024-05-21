@@ -274,4 +274,41 @@ class Helper
         }
         return false;
     }
+
+    /**
+     * next_assign chỉ định sale
+     *  = 0 sẵn sàn chỉ định
+     *  = 1 chỉ định -> người được chọn
+     *  = 2 người chỉ định vừa gọi
+     */
+    public static function getAssignSale()
+    {
+        /**lấy user chỉ định bằng 1 */
+        $sale = User::where('status', 1)->where('is_sale', 1)->where('next_assign', 1)->first();
+
+        /**ko có user nào đc chỉ định thì lấy user đầu tiên, điều kiện tất cả user đều = 0 */
+        if (!$sale) {
+            $sale = User::where('status', 1)->where('is_sale', 1)->orderBy('id', 'DESC')->first();
+        }
+
+        /**set user chỉ định đã được lấy, set = 2 = đã dùng trong lần gọi này*/
+        $sale->next_assign = 2;
+        $sale->save();
+
+        /** chỉ định người tiếp theo: lấy toàn bộ những người hợp lệ trừ user vừa set = 2 ở trên (hợp lệ = 0)
+         * và lấy user đầu tiên trong danh sách
+         * trường hợp ko tìm đc ai (tất cả đều bằng 2) -> reset all về bằng 0 - sẵn sàng assign lần tiếp
+         */
+        $nextAssign = User::where('status', 1)->where('is_sale', 1)->where('id', '!=', $sale->id)
+            ->where('next_assign', 0)->orderBy('id', 'DESC')->first();
+                    
+        if ($nextAssign) {
+            $nextAssign->next_assign = 1;
+            $nextAssign->save();
+        } else {
+            User::where('status', 1)->update(['next_assign' => 0]);
+        }
+
+        return $sale;
+    }
 }

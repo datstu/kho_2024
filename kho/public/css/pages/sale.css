@@ -100,8 +100,8 @@ div.txt-mof {
 .table-bordered td {
     padding: 5px 5px !important;
     border: none;
-    border-right: 1px solid #e0e0e0 !important;
-    border-left: 1px solid #e0e0e0 !important;
+    border-right: 1px solid #e0e0e0;
+    border-left: 1px solid #e0e0e0;
     border: 1px solid #e0e0e0 !important;
     vertical-align: middle !important;
     -moz-transition: ease 0.5s all;
@@ -157,20 +157,20 @@ input[type=radio]:checked + label:before, input[type=checkbox]:checked + label:b
 }
 
 
-#myModal .modal-dialog {
+#myModal .modal-dialog, #createOrder .modal-dialog {
     /* margin-top: 5px;
     width: 1280px; */
     /* margin: 10px; */
     height: 90%;
     /* background: #0f0; */
   }
-#myModal .modal-dialog iframe {
-/* 100% = dialog height, 120px = header + footer */
-height: 100%;
-overflow-y: scroll;
+#myModal .modal-dialog iframe, #createOrder .modal-dialog iframe {
+    /* 100% = dialog height, 120px = header + footer */
+    height: 100%;
+    overflow-y: scroll;
 }
 
-#myModal .modal-dialog .modal-content {
+#myModal .modal-dialog .modal-content, #createOrder .modal-dialog .modal-content {
 height: 100%;
 /* overflow: scroll; */
 }
@@ -291,6 +291,44 @@ tr.contact-row:has(> td div.select-dropdown-show) {
      /* styles to apply to the li tag */
     background-color: #ddd;
 }
+
+td a.btn-icon {
+    color: #007bff;
+}
+a.btn-icon {
+    padding: 3px 6px 2px;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    text-align: center;
+    display: inline-block;
+    color: #007bff;
+}
+a.btn-icon i {
+    font-size: 14px;
+}
+.fa {
+    line-height: 20px;
+}
+
+.aoh {
+    opacity: 0.1;
+    -moz-transition: ease 0.3s;
+    -o-transition: ease 0.3s;
+    -webkit-transition: ease 0.3s;
+    transition: ease 0.3s;
+}
+.table-sale tr:hover {
+    background-color: #deedff;
+    
+}
+.table-sale tr:hover .aoh {
+    opacity: 1;
+}
+.table-sale tr td:hover {
+    background-color: #dfd;
+    opacity: 1;
+}
+
 
 @media only screen and (min-width: 1200px) {
     .modal-xl {

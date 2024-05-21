@@ -19,16 +19,16 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->call(function() {
-        // $this->wakeUp();
-        $this->updateStatusOrderGHN();
-        Log::channel('new')->info('your_message');
+          // $this->wakeUp();
+          $this->updateStatusOrderGHN();
+          Log::channel('new')->info('your_message');
         })->everyMinute();
 
-        // $schedule->call(function() {
-        //   // $this->wakeUp();
-        //   $this->crawlerPancake();
-        //   Log::channel('new')->info('your_message');
-        // })->everyMinute();
+        $schedule->call(function() {
+          // $this->wakeUp();
+          $this->crawlerPancake();
+          Log::channel('new')->info('run craw pancake');
+        })->everyMinute();
     }
 
   /**
@@ -82,7 +82,7 @@ class Kernel extends ConsoleKernel
       }
   }
 
-  private function updateStatusOrderGHN() 
+  public function updateStatusOrderGHN() 
   {
     $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
     foreach ($orders as $order) {
@@ -134,7 +134,8 @@ class Kernel extends ConsoleKernel
         $issetOrder = Helper::checkOrderSaleCare($order->id);
         
         // status = 'hoàn tất', tạo data tác nghiệp sale
-        if ($order->status == 3 && $isFertilizer && !$issetOrder) {
+        // dd()
+        if ($order->status == 3 && $isFertilizer) {
             $sale = new SaleController();
             $data = [
                 'id_order' => $order->id,
@@ -142,8 +143,12 @@ class Kernel extends ConsoleKernel
                 'name' => $order->name,
                 'phone' => $order->phone,
                 'address' => $order->address,
-                'assign_user' => $order->assign_user,
+                'assgin' => $order->assign_user,
             ];
+
+            if ($issetOrder || $order->id) {
+              $data['old_customer'] = 1;
+            }
 
             $request = new \Illuminate\Http\Request();
             $request->replace($data);
@@ -165,8 +170,10 @@ class Kernel extends ConsoleKernel
       if (count($pages) > 0) {
         foreach ($pages as $key => $val) {
           $endpoint = "https://pancake.vn/api/v1/pages/$val/conversations";
-          $today    = strtotime(date("Y/m/d H:i "));
-          $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 days')));
+          $today    = strtotime(date("Y/m/d H:i"));
+          // $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 days')));
+          $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 hour')));
+
           $response = Http::withHeaders(['token' => $token])
             ->get($endpoint, [
               'type' => "PHONE,DATE:$today+-+$before",
@@ -177,25 +184,38 @@ class Kernel extends ConsoleKernel
             $content  = json_decode($response->body());
             $data     = $content->conversations;
 
-            $i = 0;
+            // dd($data);
+            // $i = 0;
             foreach ($data as $item) {
-              if ($i > 10) break;
-              $i++;
+              // if ($i > 5) break;
+              // $i++;
     
-              $phone = isset($item->recent_phone_numbers[0]) ? $item->recent_phone_numbers[0]->phone_number : '';
+              $length = count($item->recent_phone_numbers);
+             
+              $recentPhoneNumbers = $item->recent_phone_numbers[$length-1];
+              $phone = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
               $name = isset($item->customers[0]) ? $item->customers[0]->name : '';
-
-              if ($phone && $name && !Helper::checkOrderSaleCarebyPhonePage($phone, $val)) {
+              $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
+              if ($phone && $name && !Helper::checkOrderSaleCarebyPhonePage($phone, $val)) {            
                 $sale = new SaleController();
                 $data = [
                     'page_name' => $key,
                     'sex'       => 0,
                     'address'   => '...',
+                    'messages'  => $messages,
                     'name'      => $name,
                     'phone'     => $phone,
                     'page_id'   => $val,
+                    'text'      => 'Page ' .$key,
+                    'chat_id'   => 'id_VUI'
                 ];
     
+                $assignSale = Helper::getAssignSale();
+                if ($assignSale) {
+                  // $idSale = $assignSale->id;
+                  $data['assgin'] = $assignSale->id;
+                }
+
                 $request = new \Illuminate\Http\Request();
                 $request->replace($data);
                 $sale->save($request);

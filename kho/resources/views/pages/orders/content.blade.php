@@ -116,7 +116,9 @@ $styleStatus = [
     
     </div>
     
-    <button type="submit" class="btn btn-outline-primary">Lọc</button>
+    <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
+      <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
+    </svg>Lọc</button>
     <a  class="btn btn-outline-danger" href="{{route('order')}}"><strong>X</strong></a>
 
   </form>
@@ -338,33 +340,30 @@ $(document).ready(function() {
       if (selectedVal == 9) {
         var _token      = $("input[name='_token']").val();
         $.ajax({
-              url: "{{ route('get-products-by-category-id') }}",
-              type: 'GET',
-              data: {
-                  _token: _token,
-                  categoryId: selectedVal
-              },
-              success: function(data) {
-              
-                let str = '';
-                str += '<div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">'
-                  + '<select name="product" id="product-filter" class="form-select" aria-label="Default select example">'
-                  + '<option value="999">--Sản phẩm (Tất cả)--</option>';
-                  data.forEach(item => {
-                    // console.log(item['id'])
-                    str += '<option value="' + item['id'] + '">' + item['name'] + '</option>';
-                    });
-                str  += '</select>'
-                  + '</div>';
+          url: "{{ route('get-products-by-category-id') }}",
+          type: 'GET',
+          data: {
+              _token: _token,
+              categoryId: selectedVal
+          },
+          success: function(data) {
+          
+            let str = '';
+            str += '<div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">'
+              + '<select name="product" id="product-filter" class="form-select" aria-label="Default select example">'
+              + '<option value="999">--Sản phẩm (Tất cả)--</option>';
+              data.forEach(item => {
+                // console.log(item['id'])
+                str += '<option value="' + item['id'] + '">' + item['name'] + '</option>';
+                });
+            str  += '</select>'
+              + '</div>';
 
-                  $(str).appendTo(".filter-order");
-              }
-          });
-      } else {
-        if ($('#product-filter').length > 0) {
+              $(str).appendTo(".filter-order");
+          }
+        });
+      } else if ($('#product-filter').length > 0) {
           $('#product-filter').parent().remove();
-        }
-       
       }
   });
 

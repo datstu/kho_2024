@@ -62,7 +62,8 @@ class SaleController extends Controller
                 $saleCare = new SaleCare();
                 $text = 'Tạo tác nghiệp thành công.';
             }
-            // dd($req->all());
+
+            
             $saleCare->id_order             = $req->id_order;
             $saleCare->sex                  = $req->sex;
             $saleCare->full_name            = $req->name;
@@ -72,20 +73,29 @@ class SaleController extends Controller
             $saleCare->product_request      = $req->product_request;
             $saleCare->reason_not_buy       = $req->reason_not_buy;
             $saleCare->note_info_customer   = $req->note_info_customer;
-            $saleCare->assign_user          = $req->assign_sale;
+            $saleCare->assign_user          = $req->assgin;
             $saleCare->page_name            = $req->page_name;
             $saleCare->page_id              = $req->page_id;
-            // $saleCare->number_of_call       = json_encode($req->call);
-
-            $saleCare->save();
+            $saleCare->messages             = $req->messages;
+            $saleCare->old_customer         = $req->old_customer;
             
+            $saleCare->save();
+
             if (!isset($req->id)) {
                 $tProduct = Helper::getListProductByOrderId( $saleCare->id_order);
                 //gửi thông báo qua telegram
                 $telegram = Helper::getConfigTelegram();
                 if ($telegram && $telegram->status == 1) {
                     $tokenGroupChat = $telegram->token;
-                    $chatId         = $telegram->id_CSKH;
+                    $chatId = $req->chat_id;
+
+                    if ($chatId &&  $chatId == 'id_VUI') {
+                        $chatId = $telegram->id_VUI;
+                    } else {
+                        $chatId = $telegram->id_CSKH;
+                    }
+                    // echo 'chat id: ' . $chatId;
+                    
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
                     $client         = new \GuzzleHttp\Client();
 
@@ -93,17 +103,22 @@ class SaleController extends Controller
                     // $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
 
                     $notiText       = "Khách hàng: $saleCare->full_name"
-                        . "\nSố điện thoại: $saleCare->phone";
+                        . "\nSố điện thoại: $saleCare->phone"
+                        . "\nNội dung: $saleCare->messages";
                        
-                    if ($req->text) {
-                        $notiText .= "\n" . $req->text;
+                       
+                    if ($saleCare->old_customer) {
+                        $notiText .= "Đã nhận được hàng."  . "\nĐơn mua: " . $tProduct;     
                     } else {
-                        $notiText .= "\nĐã nhận được hàng."  . "\nĐơn mua: " . $tProduct; 
+                        $notiText .= "\nNguồn data: " . $req->text;
                     }
-                    // dd ($notiText);
+                    // dd($notiText);
+                    $name =  $saleCare->user->real_name ?: $saleCare->user->name;
+                    
+                    $notiText .= "\nSale nhận data: " . $name;
+                    
+                    // dd ($chatId);
                     // . ($req->text) ? $req->text : "\nĐã nhận được hàng."
-                  
-
                    
                     $response = $client->request('GET', $endpoint, ['query' => [
                         'chat_id' => $chatId, 
@@ -111,10 +126,15 @@ class SaleController extends Controller
                     ]]);
                 }
             }
+            $routeName = \Request::route();
 
             // return response()->json(['success'=>$text]);
             // $req->session()->put('success', 'Tạo tác nghiệp sale thành công.');
-            notify()->success($text, 'Thành công!');
+
+            if ($routeName && $routeName->getName() == 'sale-care-save') {
+                notify()->success($text, 'Thành công!');
+            }
+           
            
         } else {
             // dd($validator->errors()->getMessages());

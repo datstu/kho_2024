@@ -79,6 +79,17 @@
     color: #000;
   }
   
+  
+  .filter-order .daterange {
+    min-width: 230px;
+  }
+
+  .loader img {
+    position: relative;
+    top: unset;
+    right: unset;
+  }
+
   @media only screen and (max-width: 600px) {
     .px-3 {
       padding: 0 !important;
@@ -91,40 +102,40 @@
 </style>
 <div class="body flex-grow-1 px-3">
   <div class="container-lg">
-    <div class="row mb-2">
-      <div class="col">
-        <div class="btn-toolbar d-md-block" role="toolbar" aria-label="Toolbar with buttons">        
-          <div class="dropdown dropdown-filter mb-3" >
-            {{-- <button id="filter-type-button" class="filter-type-button btn" type="button" data-toggle="dropdown">
-              Bộ lọc 
-              <span class="caret"></span></button>
-            <ul class="dropdown-menu">
-                <li><a id="type-day">Lọc theo ngày</a></li>
-                <li><a id="type-period">Khoảng thời gian</a></li>
-            </ul> --}}
-            {{-- <input class="hidden btn btn-outline-secondary" value="{{date('Y-m-d', time())}}" type="date" id="dateTotal" name="dateTotal"> --}}
-            <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" value="01/01/2024 - 15/04/2024" />
-
-            {{-- <div id="filter-order" class="mt-3 hidden btn-group btn-group-toggle filter-order" data-coreui-toggle="buttons">
-            
-              <label class="btn btn-outline-secondary"> Ngày
-                <input class="btn-check" id="total" type="radio" name="filterTotal" value="day" autocomplete="off">
-              </label>
-            
-              <label class="btn btn-outline-secondary active"> Tháng
-                <input class="btn-check" id="option2" type="radio" name="filterTotal" value="month" autocomplete="off" checked="">
-              </label>
-              
-              <label class="btn btn-outline-secondary"> Năm
-                <input class="btn-check" id="option3" type="radio" name="filterTotal" value="year" autocomplete="off">
-              </label>
-            </div> --}}
-        </div>
-          
-          <span class="loader hidden">
-            <img src="{{asset('public/images/loader-home.gif')}}" alt="">
-          </span>
-        </div>
+    <div class="row mb-1 filter-order">
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group daterange mb-1">
+        <input id="daterange" class=" btn btn-outline-secondary" type="text" name="daterange"/>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <select name="status" id="status-filter" class="form-select" aria-label="Default select example">
+          <option value="999">--Trạng Thái (Tất cả)--</option>
+          <option value="1">Chưa giao vận</option>
+          <option value="2">Đang giao</option>
+          <option value="3">Hoàn tất</option>
+          <option value="0">Huỷ</option>
+        </select>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <select name="category" id="category-filter" class="form-select" aria-label="Default select example">
+          <option value="999">--Danh mục (Tất cả)--</option>
+          @if (isset($category))
+            @foreach($category as $cate)
+            <option value="{{$cate->id}}">{{$cate->name}}</option>
+            @endforeach
+          @endif
+        </select>
+      </div>
+     
+    </div>
+    <div class="row mb-1">
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <button type="button" id="btn-filter"  class="btn btn-outline-primary"><svg class="icon me-2">
+          <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
+        </svg>Lọc</button>
+        <a  class="btn btn-outline-danger" href="{{route('order')}}"><strong>X</strong></a>
+        <span class="loader hidden">
+          <img src="https://kho.phanboncanada.online/public/images/loader-home.gif" alt="">
+        </span>
       </div>
     </div>
     <div class="row total-sales">
@@ -150,7 +161,8 @@
             <div>
               <div class="fs-4 fw-semibold "><span class="countOrders">{{$item['countOrders']}}</span> 
                 <span class="percentCountDay fs-6 fw-normal ">{{$item['percentCount']}}</span></div>
-              <div>Số đơn</div>
+              <div>Số đơn <span class="sumProduct"> <?php (isset($sumProduct) && $sumProduct > 0) ?: '(30 sản phẩm)'; ?></span></div>
+             
             </div>
             <div class="dropdown">
               <button class="btn btn-transparent text-white p-0" type="button" data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -225,7 +237,6 @@
     <!-- /.row-->
   </div>
 </div>
-</div>
 
 
 
@@ -261,32 +272,33 @@
     $('[data-range-key="Custom Range"]').text('Tuỳ chỉnh');
 
     $('input[name="daterange"]').change(function () {
-      let value = $(this).val();
-      // console.log(value);
-      let arr = value.split("-");
-      // console.log(arr);
-      var _token  = $("input[name='_token']").val();
-      $.ajax({
-            url: "{{ route('filter-total-sales') }}",
-            type: 'GET',
-            data: {
-              _token: _token,
-              type: 'daterange',
-              date: arr
-            },
-            success: function(data) {
-              console.log(data);
-              if (!$.isEmptyObject(data.totalSum)) {
-                $("#totalSum").text(data.totalSum);
-                $(".percentTotalDay").text(data.percentTotal);
-                $(".countOrders").text(data.countOrders);
-                $(".percentCountDay").text(data.percentCount);
-                $(".avgOrders").text(data.avgOrders);
-                $(".percentAvg").text(data.percentAvg);
-              }
-              $('.loader').hide();
-            }
-        });
+      // alert( "Handler for `click` called." );
+      // let value = $(this).val();
+      // // console.log(value);
+      // let arr = value.split("-");
+      // // console.log(arr);
+      // var _token  = $("input[name='_token']").val();
+      // $.ajax({
+      //       url: "{{ route('filter-total-sales') }}",
+      //       type: 'GET',
+      //       data: {
+      //         _token: _token,
+      //         type: 'daterange',
+      //         date: arr
+      //       },
+      //       success: function(data) {
+      //         console.log(data);
+      //         if (!$.isEmptyObject(data.totalSum)) {
+      //           $("#totalSum").text(data.totalSum);
+      //           $(".percentTotalDay").text(data.percentTotal);
+      //           $(".countOrders").text(data.countOrders);
+      //           $(".percentCountDay").text(data.percentCount);
+      //           $(".avgOrders").text(data.avgOrders);
+      //           $(".percentAvg").text(data.percentAvg);
+      //         }
+      //         $('.loader').hide();
+      //       }
+      //   });
     });
   
     $("#type-period").click(function () {
@@ -336,6 +348,42 @@
         });
     });
 
+    $("#btn-filter").on( "click", function() {
+      let value =  $("input[name='daterange']").val();
+      let arr = value.split("-");
+
+      var _token    = $("input[name='_token']").val();
+      var status    = $("select[name='status']").val();
+      var category  = $("select[name='category']").val();
+      var product   = $("select[name='product']").val();
+      
+      $('.loader').show();
+      $.ajax({
+            url: "{{ route('filter-total-sales') }}",
+            type: 'GET',
+            data: {
+              _token: _token,
+              type: 'daterange',
+              date: arr,
+              status,
+              category,
+              product
+            },
+            success: function(data) {
+              console.log(data);
+              if (!$.isEmptyObject(data.totalSum)) {
+                $("#totalSum").text(data.totalSum);
+                $(".percentTotalDay").text(data.percentTotal);
+                $(".countOrders").text(data.countOrders);
+                $(".percentCountDay").text(data.percentCount);
+                $(".avgOrders").text(data.avgOrders);
+                $(".percentAvg").text(data.percentAvg);
+                $(".sumProduct").text(data.sumProduct);
+              }
+              $('.loader').hide();
+            }
+        });
+    } );
     
     $("input[name='dateTotal']").change(function () {
       // console.log($(this).val());
@@ -367,6 +415,39 @@
         });
     });
 
+    $("#category-filter").change(function() {
+      var selectedVal = $(this).find(':selected').val();
+      var selectedText = $(this).find(':selected').text();
+      
+      if (selectedVal == 9) {
+        var _token      = $("input[name='_token']").val();
+        $.ajax({
+          url: "{{ route('get-products-by-category-id') }}",
+          type: 'GET',
+          data: {
+              _token: _token,
+              categoryId: selectedVal
+          },
+          success: function(data) {
+          
+            let str = '';
+            str += '<div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">'
+              + '<select name="product" id="product-filter" class="form-select" aria-label="Default select example">'
+              + '<option value="999">--Sản phẩm (Tất cả)--</option>';
+              data.forEach(item => {
+                // console.log(item['id'])
+                str += '<option value="' + item['id'] + '">' + item['name'] + '</option>';
+                });
+            str  += '</select>'
+              + '</div>';
+
+              $(str).appendTo(".filter-order");
+          }
+        });
+      } else if ($('#product-filter').length > 0) {
+          $('#product-filter').parent().remove();
+      }
+  });
   });
 </script>
 

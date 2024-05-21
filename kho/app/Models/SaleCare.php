@@ -31,4 +31,9 @@ class SaleCare extends Model
     {
         return $this->belongsTo(Call::class, 'result_call', 'id');
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assign_user', 'id');
+    }
 }

@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
 use App\Http\Controllers\SaleController;
+use App\Models\SaleCare;
 
 class OrdersController extends Controller
 {
@@ -36,24 +37,27 @@ class OrdersController extends Controller
         // dd($totalOrder);
         $list       = $data->paginate(50);
        
-
+        // $list = $this->getListOrderByPermisson(Auth::user())->paginate(50);
         return view('pages.orders.index')->with('totalOrder', $totalOrder)->with('sumProduct', $sumProduct)->with('list', $list)->with('category', $category);
     }
 
-    public function getListOrderByPermisson($user, $dataFilter = null) {
+    public function getListOrderByPermisson($user, $dataFilter = null) 
+    {
         $roles      = $user->role;
         $list       = Orders::orderBy('id', 'desc');
 
         if ($dataFilter) {
-            $time       = $dataFilter['daterange'];
-            $timeBegin  = str_replace('/', '-', $time[0]);
-            $timeEnd    = str_replace('/', '-', $time[1]);
+            if (isset($dataFilter['daterange'])) {
+                $time       = $dataFilter['daterange'];
+                $timeBegin  = str_replace('/', '-', $time[0]);
+                $timeEnd    = str_replace('/', '-', $time[1]);
 
-            $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
-            $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+                $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+                $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
 
-            $list->whereDate('created_at', '>=', $dateBegin)
-                ->whereDate('created_at', '<=', $dateEnd);
+                $list->whereDate('created_at', '>=', $dateBegin)
+                    ->whereDate('created_at', '<=', $dateEnd);
+            }
             
             if (isset($dataFilter['status'])) {
                 $list->whereStatus($dataFilter['status']);
@@ -117,12 +121,16 @@ class OrdersController extends Controller
      */
     public function add()
     { 
-        $provinces      = $this->getProvince();
+        // $provinces      = $this->getProvince();
         $listProduct    = Helper::getListProductByPermisson(Auth::user()->role)->get();
         $listSale       = $this->getListSale()->get();
+        $saleCareId     = request()->get('saleCareId');
+        // dd($saleCareId);
 
         return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct)
-            ->with('provinces', $provinces)->with('listSale', $listSale);
+            // ->with('provinces', $provinces)
+            ->with('saleCareId', $saleCareId)
+            ->with('listSale', $listSale);
     }
 
     public function getListProductByPermisson($roles) {
@@ -273,8 +281,17 @@ class OrdersController extends Controller
             $order->is_price_sale   = $request->isPriceSale;
             $order->note            = $request->note;
             $order->status          = $request->status;
+            $order->sale_care       = $request->saleCareId;
 
             $order->save();
+
+            /**cập nhật mã đơn hàng được tạo vào record sale_care */
+            $saleCare = SaleCare::find($order->sale_care);
+            if ($saleCare) {
+                $saleCare->id_order = $order->id;
+                $saleCare->save();
+            }
+
             if (!isset($request->id)) {
                 //gửi thông báo qua telegram
                 $telegram = Helper::getConfigTelegram();
@@ -441,10 +458,14 @@ class OrdersController extends Controller
 
     public function filterOrderByDate(Request $req) {
         $dataFilter = [];
-        $time       = $req->daterange;
-        $arrTime    = explode("-",$time); 
 
-        $dataFilter['daterange']    = $arrTime;
+        // dd($req->daterange);
+        if ($req->daterange) {
+            $time       = $req->daterange;
+            $arrTime    = explode("-",$time); 
+            $dataFilter['daterange'] = $arrTime;
+        }
+        
         // $dataFilter['status']       = 1; //chưa giao vận
         if ($req->status != 999) {
             $dataFilter['status'] = $req->status;
@@ -463,13 +484,16 @@ class OrdersController extends Controller
         try {
             $data       = $this->getListOrderByPermisson(Auth::user(), $dataFilter);
             $totalOrder = $data->count();
-            $list       = $data->paginate(50);
+          
             $sumProduct = $data->sum('qty');
             // dd($sumProduct);
             $category   = Category::where('status', 1)->get();
+            $list       = $data->paginate(50);
             return view('pages.orders.index')->with('list', $list)->with('category', $category)
                 ->with('sumProduct', $sumProduct)->with('totalOrder', $totalOrder);
         } catch (\Exception $e) {
+            // return $e;
+            dd($e);
             return redirect()->route('home');
         }
         

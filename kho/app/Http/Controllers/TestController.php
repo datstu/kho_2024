@@ -17,6 +17,87 @@ use PHPUnit\TextUI\Help;
 // setlocale(LC_TIME, "vi_VN");
 class TestController extends Controller
 {
+  public function updateStatusOrderGHN() 
+  {
+    $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
+    foreach ($orders as $order) {
+      $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;
+      $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])
+        ->post($endpoint, [
+          'order_code' => $order->shippingOrder->order_code,
+          'token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55',
+        ]);
+    
+      if ($response->status() == 200) {
+        $content  = json_decode($response->body());
+        $data     = $content->data;
+
+        switch ($data->status) {
+          case 'ready_to_pick':
+            $order->status = 1;
+          case 'picking':
+            #chờ lây hàng
+            $order->status = 1;
+            break;
+            
+          case 'delivered':
+            #hoàn tât
+            $order->status = 3;
+            break;
+
+          case 'return':
+            $order->status = 0;
+          case 'cancel':
+            $order->status = 0;
+          case 'returned':
+            #hoàn/huỷ
+            $order->status = 0;
+            break;
+          
+          default:
+            # đang giao
+            $order->status = 2;
+            break;
+        }
+        
+        $order->save();
+        
+        //chỉ áp dụng cho đơn phân bón
+        $isFertilizer = Helper::checkFertilizer($order->id_product);
+
+        //check đơn này đã có data chưa
+        $issetOrder = Helper::checkOrderSaleCare($order->id);
+        
+        // status = 'hoàn tất', tạo data tác nghiệp sale
+        // dd()
+        if ($order->status == 3 && $isFertilizer) {
+            $sale = new SaleController();
+            $data = [
+                'id_order' => $order->id,
+                'sex' => $order->sex,
+                'name' => $order->name,
+                'phone' => $order->phone,
+                'address' => $order->address,
+                'assgin' => $order->assign_user,
+            ];
+
+            if ($issetOrder || $order->id) {
+              $data['old_customer'] = 1;
+            }
+
+            $request = new \Illuminate\Http\Request();
+            $request->replace($data);
+            $sale->save($request);
+        }
+      }
+    }
+  }
+
+  public function t() {
+    $t = 6500 + 12000 +8800 + 29500 + 24000;
+    return $t;
+  }
+
   public function crawlerPancake()
   {
     $panCake = Helper::getConfigPanCake();
@@ -29,8 +110,10 @@ class TestController extends Controller
       if (count($pages) > 0) {
         foreach ($pages as $key => $val) {
           $endpoint = "https://pancake.vn/api/v1/pages/$val/conversations";
-          $today    = strtotime(date("Y/m/d H:i "));
-          $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 days')));
+          $today    = strtotime(date("Y/m/d H:i"));
+          // $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 days')));
+          $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 hour')));
+
           $response = Http::withHeaders(['token' => $token])
             ->get($endpoint, [
               'type' => "PHONE,DATE:$today+-+$before",
@@ -41,26 +124,38 @@ class TestController extends Controller
             $content  = json_decode($response->body());
             $data     = $content->conversations;
 
-            $i = 0;
+            // dd($data);
+            // $i = 0;
             foreach ($data as $item) {
-              if ($i > 5) break;
-              $i++;
+              // if ($i > 5) break;
+              // $i++;
     
-              $phone = isset($item->recent_phone_numbers[0]) ? $item->recent_phone_numbers[0]->phone_number : '';
+              $length = count($item->recent_phone_numbers);
+             
+              $recentPhoneNumbers = $item->recent_phone_numbers[$length-1];
+              $phone = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
               $name = isset($item->customers[0]) ? $item->customers[0]->name : '';
-
-              if ($phone && $name && !Helper::checkOrderSaleCarebyPhonePage($phone, $val)) {
+              $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
+              if ($phone && $name && !Helper::checkOrderSaleCarebyPhonePage($phone, $val)) {            
                 $sale = new SaleController();
                 $data = [
                     'page_name' => $key,
                     'sex'       => 0,
                     'address'   => '...',
+                    'messages'  => $messages,
                     'name'      => $name,
                     'phone'     => $phone,
                     'page_id'   => $val,
-                    'text'      => 'Page ' .$key
+                    'text'      => 'Page ' .$key,
+                    'chat_id'   => 'id_VUI'
                 ];
     
+                $assignSale = Helper::getAssignSale();
+                if ($assignSale) {
+                  // $idSale = $assignSale->id;
+                  $data['assgin'] = $assignSale->id;
+                }
+
                 $request = new \Illuminate\Http\Request();
                 $request->replace($data);
                 $sale->save($request);

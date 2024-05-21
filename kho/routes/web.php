@@ -12,7 +12,7 @@ use App\Http\Controllers\SaleController;
 use App\Http\Controllers\CallController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\SettingController;
-
+use App\Http\Controllers\FbWebHookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,7 +57,7 @@ Route::middleware('admin-auth')->group(function () {
     
     /** đơn hàng */
     Route::get('/don-hang',  [OrdersController::class, 'index'])->name('order');
-    Route::get('/them-don-hang',  [OrdersController::class, 'add'])->name('add-orders');
+    Route::get('/them-don-hang/{saleId?}',  [OrdersController::class, 'add'])->name('add-orders');
     Route::post('/save-orders',[OrdersController::class,'save'])->name('save-orders');
     Route::get('/get-ward-by-id',[AddressController::class,'getWardById'])->name('get-ward-by-id');
     Route::get('/get-district-by-id',[AddressController::class,'getDistrictById'])->name('get-district-by-id');
@@ -103,6 +103,8 @@ Route::post('/login',  [UserController::class, 'postLogin'])->name('login-post')
 Route::get('/log-out',  [UserController::class, 'logOut'])->name('log-out');
 
 Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filter-total');
-Route::get('/filter-total-sales',  [HomeController::class, 'filterTotalSales'])->name('filter-total-sales');
+// Route::get('/filter-total-sales',  [HomeController::class, 'filterTotalSales'])->name('filter-total-sales');
+Route::get('/filter-total-sales',  [HomeController::class, 'filterDashboard'])->name('filter-total-sales');
+Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');
 
-Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
+Route::get('/webhook', [FbWebHookController::class, 'webhook'])->name('webhook');

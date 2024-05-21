@@ -34,7 +34,8 @@ $listStatus = Helper::getListStatus();
                                 <form>
                                     {{ csrf_field() }}
                                     <input type="hidden" name="id" value="{{$order->id}}">
-                                    <div class=" p-3">
+                                    <input value="{{$order->sale_care}}" class="hidden form-control" name="sale-care">
+                                    <div class="p-3">
                                         <div class="row">
                                             <div class="col-lg-7">
                                                 <div class="row">
@@ -80,8 +81,8 @@ $listStatus = Helper::getListStatus();
                                                             id="priceFor"
                                                             type="text"
                                                             data-product-price={{$order->total}}>
-                                                        <label class="form-label" for="priceSaleFor">
-                                                            <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="priceSaleFor"> Giá khuyến mãi
+                                                        <label class="form-label" for="xxx">
+                                                            <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="xxx"> Giá khuyến mãi
                                                             
                                                         </label>
                                                         <p class="error_msg" id="price"></p>
@@ -212,158 +213,164 @@ $listStatus = Helper::getListStatus();
         @else
         {{-- <div class=""><strong>Thêm đơn hàng mới</strong></div> --}}
         <div class="card-body card-orders">
-                <div class="body flex-grow-1">
-                    <div class="tab-content rounded-bottom">
-                        <form>
-                            {{ csrf_field() }}
-                            <div class="row">
-                                <div class="col-sm-12 col-lg-5">
-                                    <div class="row">
-                                        <div class="col-sm-12 col-lg-6">
-                                            <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
-                                            <input placeholder="0973409613" class="form-control" name="phone"
-                                                id="phoneFor" type="text">
-                                            <p class="error_msg" id="phone"></p>
-                                        </div>
-                                        <div class="col-sm-12 col-lg-6">
-                                            <label class="form-label" for="nameFor">Tên khách hàng<span class="required-input">(*)</span></label>
-                                            <input placeholder="Họ và tên" class="form-control" name="name"
-                                                id="nameFor" type="text">
-                                            <p class="error_msg" id="name"></p>
-                                        </div>
-                                        <div class="col-sm-6 col-lg-3">
-                                            <label class="form-label" for="sexFor">Giới tính<span class="required-input">(*)</span></label>
-                                            <select theme="google" name="sex" id="sexFor"
-                                                class="form-control">
-                                                <option value="0">Nam</option>
-                                                <option value="1">Nữ</option>
+            <div class="body flex-grow-1">
+                <div class="tab-content rounded-bottom">
+                    <form>
+                        {{ csrf_field() }}
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-5">
+                                <div class="row">
+                                    <?php $saleCareId = request()->get('saleCareId');?>
+                                    
+                                    <input value="<?= ($saleCareId) ?: $saleCareId ?>" class="hidden form-control" name="sale-care">
+                                    <div class="col-sm-12 col-lg-6">
+                                        <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
+                                        <input placeholder="0973409613" class="form-control" name="phone"
+                                            id="phoneFor" type="text">
+                                        <p class="error_msg" id="phone"></p>
+                                    </div>
+                                    <div class="col-sm-12 col-lg-6">
+                                        <label class="form-label" for="nameFor">Tên khách hàng<span class="required-input">(*)</span></label>
+                                        <input placeholder="Họ và tên" class="form-control" name="name"
+                                            id="nameFor" type="text">
+                                        <p class="error_msg" id="name"></p>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-3">
+                                        <label class="form-label" for="sexFor">Giới tính<span class="required-input">(*)</span></label>
+                                        <select theme="google" name="sex" id="sexFor"
+                                            class="form-control">
+                                            <option value="0">Nam</option>
+                                            <option value="1">Nữ</option>
+                                        </select>
+                                        <p class="error_msg" id="sex"></p>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="addressFor">Địa chỉ/đường<span class="required-input">(*)</span></label>
+                                        <input placeholder="180 cao lỗ" class="form-control" name="address"
+                                            id="addressFor" type="text">
+                                        <p class="error_msg" id="address"></p>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label class="form-label" for="priceFor">Tổng tiền:</label>
+                                        <input readonly placeholder="199.000 đ"
+                                            class="price_class form-control" name="price"
+                                            {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
+                                            id="priceFor"
+                                            type="text"
+                                            data-product-price=0>
+                        
+                                            <input name="priceSale" type="checkbox" id="xxx" class="form-check-input">
+                                            <label class="form-label" for="xxx">Giá khuyến mãi</label>
+                                                    
+                                        {{-- <label class="form-label" >
+                                            <input name="priceSale" type="checkbox" id="priceSaleFor">
+                                                Giá khuyến mãi
+                                            
+                                        </label> --}}
+                                        <p class="error_msg" id="price"></p>
+                                        
+                                    </div>
+    
+                                    <?php $checkAll = isFullAccess(Auth::user()->role);?>
+                                    @if ($checkAll)
+                                        <div class="col-lg-6">
+                                            <label class="form-label">Chọn Sale:</label>
+                                            <select class="form-control" name="assign-sale" >
+    
+                                            @if (isset($listSale))
+                                            @foreach ($listSale as $item)
+                                                <option value="{{$item->id}}">{{$item->real_name}}</option>
+                                            @endforeach
+                                            @endif
+    
                                             </select>
-                                            <p class="error_msg" id="sex"></p>
+                                            <p class="error_msg" id="price"></p>
                                         </div>
-                                        <div class="col-12">
-                                            <label class="form-label" for="addressFor">Địa chỉ/đường<span class="required-input">(*)</span></label>
-                                            <input placeholder="180 cao lỗ" class="form-control" name="address"
-                                                id="addressFor" type="text">
-                                            <p class="error_msg" id="address"></p>
+                                    @else 
+                                    <div class="col-lg-6 hidden">
+                                        <label class="form-label">Chọn Sale:</label>
+                                        <select class="form-control" name="assign-sale">
+                                            <option value="{{Auth::user()->id}}">{{Auth::user()->real_name}}</option>
+                                        </select>
+                                        <p class="error_msg" id="price"></p>
+                                    </div>
+                                    @endif
+
+                                    <div class="col-12">
+                                        <label for="note" class="form-label">Ghi chú:</label>
+                                        <textarea name="note" class="form-control" id="note" rows="3"></textarea>
+                                        <p></p>
+                                    </div>
+
+                                    <div class="col-lg-6 col-sm-12">
+                                        <label class="form-label" for="statusFor">Trạng thái:</label>
+                                        <select name="status" id="statusFor"
+                                            class="form-control">
+    
+                                            @foreach ($listStatus as $k => $val)
+                                                <option value="{{$k}}">{{$val}}</option>
+                                            @endforeach
+    
+                                        </select>
+                                        <p class="error_msg" id="sex"></p>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div class="col-sm-12 col-lg-7">
+                                <div class="row product-list-order">
+                                    <div class="col-8 d-flex align-items-center">
+                                        <input class="hidden" name="products[]">
+                                        <div type="button" onclick="myFunction()" class=" btn btn-outline-secondary">--Chọn sản phẩm--<span class="required-input">(*)</span> ⮟</div>
+                                        @if(isset($listProduct))
+
+                                        <div id="myDropdown" class="position-absolute dropdown-content">
+                                            <input type="text" placeholder="--Tìm sản phẩm--" id="myInput"
+                                                onkeyup="filterFunction()">
+                                            @foreach ($listProduct as $value)
+                                            <a class="option-product" data-product-name="{{$value->name}}"
+                                                data-product-id="{{$value->id}}"
+                                                data-product-price="{{$value->price}}"
+                                                >{{$value->name}}</a>
+
+                                            @endforeach
                                         </div>
 
-                                        <div class="col-lg-6">
-                                            <label class="form-label" for="priceFor">Tổng tiền:</label>
-                                            <input readonly placeholder="199.000 đ"
-                                                class="price_class form-control" name="price"
-                                                {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
-                                                id="priceFor"
-                                                type="text"
-                                                data-product-price=0>
-                                            
-                                            <label class="form-label" >
-                                                <input name="priceSale" type="checkbox" id="priceSaleFor">
-                                                 Giá khuyến mãi
-                                                
-                                            </label>
-                                            <p class="error_msg" id="price"></p>
-                                            
-                                        </div>
-        
-                                        <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                                        @if ($checkAll)
-                                            <div class="col-lg-6">
-                                                <label class="form-label">Chọn Sale:</label>
-                                                <select class="form-control" name="assign-sale" >
-        
-                                                @if (isset($listSale))
-                                                @foreach ($listSale as $item)
-                                                    <option value="{{$item->id}}">{{$item->real_name}}</option>
-                                                @endforeach
-                                                @endif
-        
-                                                </select>
-                                                <p class="error_msg" id="price"></p>
-                                            </div>
-                                        @else 
-                                        <div class="col-lg-6 hidden">
-                                            <label class="form-label">Chọn Sale:</label>
-                                            <select class="form-control" name="assign-sale">
-                                                <option value="{{Auth::user()->id}}">{{Auth::user()->real_name}}</option>
-                                            </select>
-                                            <p class="error_msg" id="price"></p>
-                                        </div>
                                         @endif
 
-                                        <div class="col-12">
-                                            <label for="note" class="form-label">Ghi chú:</label>
-                                            <textarea name="note" class="form-control" id="note" rows="3"></textarea>
-                                            <p></p>
-                                        </div>
 
-                                        <div class="col-lg-6 col-sm-12">
-                                            <label class="form-label" for="statusFor">Trạng thái:</label>
-                                            <select name="status" id="statusFor"
-                                                class="form-control">
-        
-                                                @foreach ($listStatus as $k => $val)
-                                                    <option value="{{$k}}">{{$val}}</option>
-                                                @endforeach
-        
-                                            </select>
-                                            <p class="error_msg" id="sex"></p>
-                                        </div>
+                                        <p class="error_msg" id="qty"></p>
                                     </div>
-                                    
+
+                                    <div id="sum-qty" class=" col-4 ">
+                                        <label class="form-label" for="qtyFor">Tổng số lượng</label>
+                                        <input value=0 name="sum-qty" class="form-control" readonly
+                                            type="number">
+                                        <p class="error_msg" id="qty"></p>
+                                    </div>
                                 </div>
-                                <div class="col-sm-12 col-lg-7">
-                                    <div class="row product-list-order">
-                                        <div class="col-8 d-flex align-items-center">
-                                            <input class="hidden" name="products[]">
-                                            <div type="button" onclick="myFunction()" class=" btn btn-outline-secondary">--Chọn sản phẩm--<span class="required-input">(*)</span> ⮟</div>
-                                            @if(isset($listProduct))
-
-                                            <div id="myDropdown" class="position-absolute dropdown-content">
-                                                <input type="text" placeholder="--Tìm sản phẩm--" id="myInput"
-                                                    onkeyup="filterFunction()">
-                                                @foreach ($listProduct as $value)
-                                                <a class="option-product" data-product-name="{{$value->name}}"
-                                                    data-product-id="{{$value->id}}"
-                                                    data-product-price="{{$value->price}}"
-                                                    >{{$value->name}}</a>
-
-                                                @endforeach
-                                            </div>
-
-                                            @endif
-
-
-                                            <p class="error_msg" id="qty"></p>
-                                        </div>
-
-                                        <div id="sum-qty" class=" col-4 ">
-                                            <label class="form-label" for="qtyFor">Tổng số lượng</label>
-                                            <input value=0 name="sum-qty" class="form-control" readonly
-                                                type="number">
-                                            <p class="error_msg" id="qty"></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div id="list-product-choose"></div>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div id="list-product-choose"></div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="row products">
-                            </div>
-                            <div class="loader hidden text-center">
-                                <img src="{{asset('public/images/loader.gif')}}" alt="">
-                            </div>
-                            <button id="submit" class="btn btn-primary">Tạo</button>
-                            
-                        </form>
-                    </div>
+                        <div class="row products">
+                        </div>
+                        <div class="loader hidden text-center">
+                            <img src="{{asset('public/images/loader.gif')}}" alt="">
+                        </div>
+                        <button id="submit" class="btn btn-primary">Chốt đơn</button>
+                    </form>
                 </div>
+            </div>
         </div>
     </div>
     @endif
+    
 </div>
 </div>
 </div>
@@ -626,7 +633,8 @@ $(document).ready(function() {
         var note        = $("#note").val();
         var id          = $("input[name='id']").val();
         var status      = $("select[name='status']").val();
-        
+        var saleCareId  = $("input[name='sale-care']").val();
+
         let listProduct = [];
         $(".number input").each(function(index) {
             let productId = $(this).data("product_id");
@@ -648,12 +656,15 @@ $(document).ready(function() {
             price = $("input[name='price']").attr("data-product-price");
         }
 
+        // saleCare  = saleCare ? saleCare : 0;
+        // var url = "<?php echo URL::to('/save-orders/" + saleCare + "'); ?>";
         console.log(assignSale)
         $.ajax({
-            url: "{{ route('save-orders') }}",
+            url: "{{route('save-orders')}}",
             type: 'POST',
             data: {
                 _token: _token,
+                saleCareId,
                 phone,
                 name: name,
                 price: price,

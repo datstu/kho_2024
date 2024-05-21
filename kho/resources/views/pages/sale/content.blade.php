@@ -54,25 +54,39 @@
                     </div>
                 </div>
             </div>
+            <div id="createOrder" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content ">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Thao tác đơn hàng</h5>
+                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <iframe src="{{route('add-orders')}}" frameborder="0"></iframe>
+
+                    </div>
+                </div>
+            </div>
             <table class="table table-bordered table-multi-select table-sale">
                 <thead>
                     <tr class="drags-area">
                         <th style="top: 0.5px;">
-                            <span class="chk-all"><input id="dnn_ctr1441_Main_SaleTacNghiep_chkItem" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
+                            <span class="chk-all"><input id="" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
                         </th>
                         <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Mã đơn hàng</span></th>
                         <th style="top: 0.5px;">
-                            <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Page/Ngày
+                            <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Nguồn data <br>Ngày nhận
                             </span>
                         </th>
-                        <th class="text-center" style="top: 0.5px;">
-                        <span class="span-col" style="display: inline-block; width: 50px;">Giới tính</span></th> 
+                        <th class="text-center no-wrap area2" style="top: 0.5px;"> <span style="display: inline-block; min-width: 150px; max-width: 150px;">Sale</span></th>
                         <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;">
                             <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Họ tên<br>
                                 <span class="span-col">Số điện thoại</span><br>
                                 <span class="span-col">Địa chỉ</span>
                             </span></th> 
-                            
+                            <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Tin nhắn</span></th>    
                         <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Kết quả gọi</span></th>
                         <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">TN Tiếp</span></th>
                         <th class="text-center no-wrap area1  hidden-xs" style="top: 0.5px;"><span style="display: inline-block; width: 120px;" class="span-col">Cây trồng</span></th>
@@ -98,15 +112,31 @@
                         
                         </td>
                         <td class="text-center">
-                            {{$item->page_name}} {{date_format($item->created_at,"d-m-Y ")}}
+                            {{$item->page_name}} <br> {{date_format($item->created_at,"d-m-Y ")}}
                         </td>
-                        <td class="text-center">Nam</td>
+                        <td class="text-center">{{($item->user) ? $item->user->real_name : ''}}</td>
                         <td class="text-center area5 hidden-xs">
+                            <div class="text-right">
+
+                                @if ($item->id_order)
+                                <a data-target="#createOrder" data-toggle="modal" data-id="{{$item->id_order}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                                @else
+                                <a data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                                @endif
+
+                                @if ($item->old_customer)
+                                <a title="Khách cũ, khách cũ" class="btn-icon">
+                                    <i class="fa fa-heart" style="color:red;"></i>
+                                </a>
+                                @endif
+
+                            </div>
                             {{-- <a class="btn-icon aoh"><i class="fa fa-edit"></i> </a> --}}
                             <span class="span-col span-col-width cancel-col">{{$item->full_name}}</span><br>
                             <span class="small-tip"><a href="tel:0987609812">{{$item->phone}}</a></span><br>
                             <span class="small-tip">{{$item->address}}</span>
                         </td>
+                        <td>{{$item->messages}}</td>
                         <td class="area2 no-wrap fix_brower_continue_let_off">
                             <div class="select2-container txt-dotted ddlpb chosen dis_val">
                                 <a class="select2-choice" tabindex="-1" data-id="{{$item->id}}">  
@@ -173,6 +203,22 @@
       </div>
   </div>
 <script>
+    $('.orderModal').on('click', function () {
+        var myBookId = $(this).data('id');
+        var saleId = $(this).data('sale-id');
+        if (saleId) {
+            var link = "{{URL::to('/them-don-hang/')}}";
+            $("#createOrder iframe").attr("src", link + '?saleCareId=' + saleId);
+        } else {
+            console.log('myBookId')
+            
+            var link = "{{URL::to('/update-order/')}}";
+            $("#createOrder iframe").attr("src", link + '/' + myBookId);
+        }
+        // var link = "{{URL::to('/update-order')}}";
+        // $("#createOrder iframe").attr("src", link + '/' + myBookId);
+    });
+
     $('.updateModal').on('click', function () {
         var myBookId = $(this).data('id');
         var link = "{{URL::to('/cap-nhat-tac-nghiep-sale')}}";

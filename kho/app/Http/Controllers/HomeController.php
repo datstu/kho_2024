@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\AddressController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Category;
 
 class HomeController extends Controller
 {
@@ -20,11 +21,9 @@ class HomeController extends Controller
     {
         $toMonth      = date('Y-m-d', time());
         $item = $this->filterByDate('day', $toMonth);
-        //  dd($item);
+        $category   = Category::where('status', 1)->get();
 
-        return view('pages.home')->with('item', $item);
-        // return view('pages.home')->with('sumTotal',  $sumTotal)->with('countOrders',  $countOrders)
-        //     ->with('avgOrder',  $avgOrder);
+        return view('pages.home')->with('item', $item)->with('category', $category);
     }
     
       /**
@@ -34,7 +33,6 @@ class HomeController extends Controller
      */
     public function filterTotal(Request $req)
     {
-        // dd(Carbon::today()->toDateString());
         if ($req->type == 'day') {
             $today      = date('Y-m-d', time());
             $ordersSum  = Orders::where('created_at', '>=', $today)->get()->sum('total');
@@ -281,5 +279,56 @@ class HomeController extends Controller
     public function filterTotalSales(Request $req) {
         // dd($this->filterByDate($req->type, $req->date));
         return response()->json($this->filterByDate($req->type, $req->date));
+    }
+
+    public function filterDashboard(Request $req) {
+        // dd($req->all());
+        $ordersController = new OrdersController();
+
+        $dataFilter['daterange']    = $req->date;
+
+        if ($req->status != 999) {
+            $dataFilter['status'] = $req->status;
+        }
+
+        $category = $req->category;
+        if ($category != 999) {
+            $dataFilter['category'] = $category;
+        }
+
+        // dd($dataFilter);
+        $product = $req->product;
+        if ($product != 999) {
+            $dataFilter['product'] = $product;
+        }
+            $data = [
+                'daterange' => $req->date,
+                'status' => $req->status,
+                'category' => $req->category,
+                'product' => $req->product,
+            ];
+
+            $data = $ordersController->getListOrderByPermisson(Auth::user(), $dataFilter);
+            $countOrders = $data->count();
+            // $list       = $data->paginate(50);
+            $sumProduct = $data->sum('qty');
+            // dd($sumProduct);
+
+            $totalSum  = $data->sum('total');
+            $avgOrders = 0;
+            if ($totalSum > 0) {
+                $avgOrders = $totalSum / $countOrders;
+            }
+            
+            $result = [
+                'totalSum'      => number_format($totalSum) . 'đ',
+                'percentTotal'  => '',
+                'countOrders'   => $countOrders,
+                'percentCount'  => '',
+                'avgOrders'     => number_format($avgOrders) . 'đ',
+                'percentAvg'    => '',
+                'sumProduct'    => '(' . $sumProduct . ' sản phẩm)',
+            ];
+            return $result;
     }
 }
