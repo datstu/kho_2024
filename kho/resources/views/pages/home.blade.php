@@ -106,9 +106,24 @@
       <div class="col-xs-12 col-sm-6 col-md-2 form-group daterange mb-1">
         <input id="daterange" class=" btn btn-outline-secondary" type="text" name="daterange"/>
       </div>
+
+      <?php $checkAll = isFullAccess(Auth::user()->role);?>
+      @if ($checkAll)
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
+          <option value="999">-- Sale (Tất cả)--</option>
+          @if (isset($sales))
+            @foreach($sales as $sale)
+            <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
+            @endforeach
+          @endif
+        </select>
+      </div>
+      @endif
+
       <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <select name="status" id="status-filter" class="form-select" aria-label="Default select example">
-          <option value="999">--Trạng Thái (Tất cả)--</option>
+          <option value="999">-- Trạng Thái (Tất cả)--</option>
           <option value="1">Chưa giao vận</option>
           <option value="2">Đang giao</option>
           <option value="3">Hoàn tất</option>
@@ -117,7 +132,7 @@
       </div>
       <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <select name="category" id="category-filter" class="form-select" aria-label="Default select example">
-          <option value="999">--Danh mục (Tất cả)--</option>
+          <option value="999">-- Danh mục (Tất cả)--</option>
           @if (isset($category))
             @foreach($category as $cate)
             <option value="{{$cate->id}}">{{$cate->name}}</option>
@@ -125,14 +140,13 @@
           @endif
         </select>
       </div>
-     
     </div>
     <div class="row mb-1">
       <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <button type="button" id="btn-filter"  class="btn btn-outline-primary"><svg class="icon me-2">
           <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
         </svg>Lọc</button>
-        <a  class="btn btn-outline-danger" href="{{route('order')}}"><strong>X</strong></a>
+        <a  class="btn btn-outline-danger" href="{{route('home')}}"><strong>X</strong></a>
         <span class="loader hidden">
           <img src="https://kho.phanboncanada.online/public/images/loader-home.gif" alt="">
         </span>
@@ -164,14 +178,6 @@
               <div>Số đơn <span class="sumProduct"> <?php (isset($sumProduct) && $sumProduct > 0) ?: '(30 sản phẩm)'; ?></span></div>
              
             </div>
-            <div class="dropdown">
-              <button class="btn btn-transparent text-white p-0" type="button" data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <svg class="icon">
-                  <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-options')}}"></use>
-                </svg>
-              </button>
-              <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item" href="#">Action</a><a class="dropdown-item" href="#">Another action</a><a class="dropdown-item" href="#">Something else here</a></div>
-            </div>
           </div>
           <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
             <canvas class="chart" id="card-chart2" height="70"></canvas>
@@ -183,10 +189,7 @@
         <div class="card mb-4 text-white bg-warning">
           <div class="card-body pb-0 d-flex justify-content-between align-items-start">
             <div>
-              <div class="fs-4 fw-semibold">2.49% <span class="fs-6 fw-normal">(84.7%
-                  <svg class="icon">
-                    {{-- <use xlink:href="node_modules/@coreui/icons/sprites/free.svg#cil-arrow-top"></use> --}}
-                  </svg>)</span></div>
+              <div class="rateSuccess fs-4 fw-semibold">{{$item['rateSuccess']}} </div>
               <div>Tỉ lệ chốt</div>
             </div>
             <div class="dropdown">
@@ -356,7 +359,9 @@
       var status    = $("select[name='status']").val();
       var category  = $("select[name='category']").val();
       var product   = $("select[name='product']").val();
+      var sale      = $("select[name='sale']").val();
       
+      console.log('sale', sale)
       $('.loader').show();
       $.ajax({
             url: "{{ route('filter-total-sales') }}",
@@ -367,7 +372,8 @@
               date: arr,
               status,
               category,
-              product
+              product,
+              sale
             },
             success: function(data) {
               console.log(data);
@@ -379,6 +385,7 @@
                 $(".avgOrders").text(data.avgOrders);
                 $(".percentAvg").text(data.percentAvg);
                 $(".sumProduct").text(data.sumProduct);
+                $(".rateSuccess").text(data.rateSuccess);
               }
               $('.loader').hide();
             }

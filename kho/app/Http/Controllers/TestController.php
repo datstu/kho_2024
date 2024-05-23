@@ -12,11 +12,12 @@ use App\Models\User;
 use App\Helpers\Helper;
 use DateTime;
 use PHPUnit\TextUI\Help;
-
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 // setlocale(LC_TIME, 'vi_VN.utf8');
 // setlocale(LC_TIME, "vi_VN");
 class TestController extends Controller
 {
+  use WithoutMiddleware;
   public function updateStatusOrderGHN() 
   {
     $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
@@ -31,7 +32,7 @@ class TestController extends Controller
       if ($response->status() == 200) {
         $content  = json_decode($response->body());
         $data     = $content->data;
-
+        dd($data );
         switch ($data->status) {
           case 'ready_to_pick':
             $order->status = 1;
@@ -101,18 +102,21 @@ class TestController extends Controller
   public function crawlerPancake()
   {
     $panCake = Helper::getConfigPanCake();
-    
     if($panCake->status == 1 && $panCake->page_id != '' && $panCake->token != '') {
       $pageId = $panCake->page_id;
       $pages  = json_decode($pageId,1);
+
       $token  = $panCake->token;
 
       if (count($pages) > 0) {
         foreach ($pages as $key => $val) {
-          $endpoint = "https://pancake.vn/api/v1/pages/$val/conversations";
+          $pIdPan   = $val['id'];
+          $namePage = $val['name'];
+          $linkPage = $val['link'];
+          $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
           $today    = strtotime(date("Y/m/d H:i"));
           // $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 days')));
-          $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 hour')));
+          $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 days')));
 
           $response = Http::withHeaders(['token' => $token])
             ->get($endpoint, [
@@ -136,18 +140,19 @@ class TestController extends Controller
               $phone = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
               $name = isset($item->customers[0]) ? $item->customers[0]->name : '';
               $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-              if ($phone && $name && !Helper::checkOrderSaleCarebyPhonePage($phone, $val)) {            
+              if ($phone && $name && !Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'])) {            
                 $sale = new SaleController();
                 $data = [
-                    'page_name' => $key,
-                    'sex'       => 0,
-                    'address'   => '...',
-                    'messages'  => $messages,
-                    'name'      => $name,
-                    'phone'     => $phone,
-                    'page_id'   => $val,
-                    'text'      => 'Page ' .$key,
-                    'chat_id'   => 'id_VUI'
+                  'page_link' => $linkPage,
+                  'page_name' => $namePage,
+                  'sex'       => 0,
+                  'address'   => '...',
+                  'messages'  => $messages,
+                  'name'      => $name,
+                  'phone'     => $phone,
+                  'page_id'   => $pIdPan,
+                  'text'      => 'Page ' . $namePage,
+                  'chat_id'   => 'id_VUI'
                 ];
     
                 $assignSale = Helper::getAssignSale();

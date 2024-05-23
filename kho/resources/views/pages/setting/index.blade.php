@@ -129,7 +129,7 @@
                                         <label for="inputPassword" class="col-sm-2 col-form-label">Page Id</label>
                                         <div class="col-lg-6  col-sm-10">
                                           {{-- <input value="<?= ($pancake) ? $pancake->page_id : ''; ?>" required type="text" name="page_id" class="form-control"> --}}
-                                            <textarea required name="page_id" id="" cols="30" rows="3">{{($pancake) ? $pancake->page_id : '';}}</textarea>
+                                            <textarea required name="page_id" id="" cols="100" rows="8">{{($pancake) ? $pancake->page_id : '';}}</textarea>
                                           </div>
                                       </div>
                                         <div class="mb-3 row">

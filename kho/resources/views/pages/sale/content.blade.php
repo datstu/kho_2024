@@ -22,6 +22,24 @@
         width: 300px;
     }
     
+    .loader img {
+        position: fixed;
+        right: 39%;
+        top: 50%;
+        height: 80px;
+        border-radius: 50px;
+    }
+
+    /* .filter-order .daterange {
+    min-width: 230px;
+  } */
+    input#daterange {
+        color: #000;
+        border: 1px solid var(--cui-form-select-border-color, #b1b7c1);
+        border-radius: 0.375rem;
+        width: 100%;
+  }
+
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -30,162 +48,213 @@
 
 
 <div class="box-body">
+    <div class="loader hidden">
+        <img src="{{asset('public/images/new-loader.gif')}}" alt="">
+    </div>
     <div class="dragscroll1 tableFixHead">
-        <div>
-            <!-- Trigger the modal with a button -->
-            <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
-                <i class="fa fa-edit"></i>
-                <div class="text">Tạo mới</div>
-            </a>
-            {{-- <a href="{{route('add-orders')}}" class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm đơn</a>   --}}
-             <!-- Modal -->
-            <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-xl" role="document">
-                    <div class="modal-content ">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Tạo tác nghiệp sale</h5>
-                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
 
-                    <iframe src="{{route('sale-add')}}" frameborder="0"></iframe>
+        <!-- Trigger the modal with a button -->
+        <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
+            <i class="fa fa-edit"></i>
+            <div class="text">Tạo mới</div>
+        </a>
+        {{-- <a href="{{route('add-orders')}}" class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm đơn</a>   --}}
+            <!-- Modal -->
+        <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content ">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tạo tác nghiệp sale</h5>
+                    <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
 
-                    </div>
+                <iframe src="{{route('sale-add')}}" frameborder="0"></iframe>
+
                 </div>
             </div>
-            <div id="createOrder" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-xl" role="document">
-                    <div class="modal-content ">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Thao tác đơn hàng</h5>
-                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                    <iframe src="{{route('add-orders')}}" frameborder="0"></iframe>
-
-                    </div>
-                </div>
-            </div>
-            <table class="table table-bordered table-multi-select table-sale">
-                <thead>
-                    <tr class="drags-area">
-                        <th style="top: 0.5px;">
-                            <span class="chk-all"><input id="" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
-                        </th>
-                        <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Mã đơn hàng</span></th>
-                        <th style="top: 0.5px;">
-                            <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Nguồn data <br>Ngày nhận
-                            </span>
-                        </th>
-                        <th class="text-center no-wrap area2" style="top: 0.5px;"> <span style="display: inline-block; min-width: 150px; max-width: 150px;">Sale</span></th>
-                        <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;">
-                            <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Họ tên<br>
-                                <span class="span-col">Số điện thoại</span><br>
-                                <span class="span-col">Địa chỉ</span>
-                            </span></th> 
-                            <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Tin nhắn</span></th>    
-                        <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Kết quả gọi</span></th>
-                        <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">TN Tiếp</span></th>
-                        <th class="text-center no-wrap area1  hidden-xs" style="top: 0.5px;"><span style="display: inline-block; width: 120px;" class="span-col">Cây trồng</span></th>
-                        <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span style="display: inline-block; width: 120px;" class="span-col" style="">Nhu cầu dòng sản phẩm</span></th>
-                        <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="width: 150px; display: inline-block;">Lý do không mua hàng</span></th>
-                        <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 120px;">Ghi chú thông tin khách hàng</span></th>
-                        <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Thao tác</span></th>
-                    </tr>
-                </thead>    
-                <tbody>
-                    {{ csrf_field() }}
-                    @if (isset($saleCare))
-                        @foreach ($saleCare as $item)
-                    <tr class="contact-row">
-                        <td class="text-center">
-                            <span class="chk-item"><input id="" type="checkbox" name=""><label for="">{{$item->id}}</label></span>
-                        </td>
-                        <td class="text-center">
-
-                            @if (isset($item->id_order))
-                            <a href="{{route('view-order', ['id' => $item->id_order])}}">{{$item->id_order}}</a>
-                            @endif
-                        
-                        </td>
-                        <td class="text-center">
-                            {{$item->page_name}} <br> {{date_format($item->created_at,"d-m-Y ")}}
-                        </td>
-                        <td class="text-center">{{($item->user) ? $item->user->real_name : ''}}</td>
-                        <td class="text-center area5 hidden-xs">
-                            <div class="text-right">
-
-                                @if ($item->id_order)
-                                <a data-target="#createOrder" data-toggle="modal" data-id="{{$item->id_order}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
-                                @else
-                                <a data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
-                                @endif
-
-                                @if ($item->old_customer)
-                                <a title="Khách cũ, khách cũ" class="btn-icon">
-                                    <i class="fa fa-heart" style="color:red;"></i>
-                                </a>
-                                @endif
-
-                            </div>
-                            {{-- <a class="btn-icon aoh"><i class="fa fa-edit"></i> </a> --}}
-                            <span class="span-col span-col-width cancel-col">{{$item->full_name}}</span><br>
-                            <span class="small-tip"><a href="tel:0987609812">{{$item->phone}}</a></span><br>
-                            <span class="small-tip">{{$item->address}}</span>
-                        </td>
-                        <td>{{$item->messages}}</td>
-                        <td class="area2 no-wrap fix_brower_continue_let_off">
-                            <div class="select2-container txt-dotted ddlpb chosen dis_val">
-                                <a class="select2-choice" tabindex="-1" data-id="{{$item->id}}">  
-                                    <span class="select2-chosen list-call-{{$item->id}}" > {{$item->result_call ? $item->call->name : '--Chọn--' }}</span>
-                                    <span class="select2-arrow" role="presentation"><b role="presentation"></b></span>
-                                </a>
-                               
-                                <div id="list-call-{{$item->id}}" class="hidden list-call position-absolute dropdown-content">
-                                    <input type="text" placeholder="tìm.." id="myInput" onkeyup="filterFunction('list-call-{{$item->id}}')">
-
-                                    @if(isset($listCall))
-                                    @foreach ($listCall as $value)
-                                    <a class="option-product"
-                                        data-call-item-id="{{$item->id}}"
-                                        data-call-name="{{$value->name}}"
-                                        data-call-id="{{$value->id}}">{{$value->name}}
-                                    </a>
-                                    @endforeach
-                                    @endif
-
-                                </div>
-                            </div>
-                        </td>
-                        <td class="text-center next-step-{{$item->id}}">{{ ($item->next_step) ? 'Gọi lần ' . $item->next_step : ''}}</td>
-                        <td class="text-center area5 hidden-xs">
-                            {{$item->type_tree}}
-                        </td>
-                        <td class="area1">
-                            {{$item->product_request}}
-                        </td>
-                        <td class="area1 hidden-xs">
-                            <div class="mof-container">
-                                <div class="form-control txt-mof txt-dotted">
-                                    {{$item->reason_not_buy}}
-                                </div>
-                            </div>
-                        </td>
-                        <td class="area2 hidden-xs">{{$item->note_info_customer}}</td>
-                        <td class="text-center"> <a data-toggle="modal" data-id="{{$item->id}}" data-target="#myModal" class="updateModal btn-icon aoh"><i class="fa fa-edit"></i>Cập nhật</a></td>
-                    </tr>
-            
-                    @endforeach
-                   
-                </tbody>
-            </table>
-
-            {{$saleCare->links('pagination::bootstrap-5')}}
-            @endif
         </div>
+      
+        <?php $checkAll = isFullAccess(Auth::user()->role);?>
+        @if ($checkAll)
+        <form action="{{route('sale-index')}}" class="mb-1">
+            <div class="row mb-1 filter-order">
+                @csrf
+                <script type="text/javascript" src="{{asset('public/js/moment.js')}}"></script>
+                <link rel="stylesheet" type="text/css" href="{{asset('public/css/daterangepicker.css')}}" /> 
+                <div class=" col-sm-2 form-group daterange mb-1">
+                    <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
+                </div>
+                <div class="col-sm-2 form-group mb-1">
+                    <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
+                    <option value="999">--Tất cả Sale--</option>
+                    @if (isset($sales))
+                        @foreach($sales as $sale)
+                        <option <?php  ?> value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
+                        @endforeach
+                    @endif
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
+                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
+            </svg>Lọc</button>
+            <a  class="btn btn-outline-danger" href="{{route('sale-index')}}"><strong>X</strong></a>
+            
+        </form>
+        @endif
+       
+        <div class="row">
+            <div class="mb-1 mt-1">Tổng data: <span>{{$count}}</span></div>
+        </div>
+        <div class="row ">
+            <div class="col-4"></div>
+            <div class="col-8 mb-1">
+                <form class ="row tool-bar" action="{{route('search-sale-care')}}" method="get">
+                    <div class="col-3">
+                      <input class="form-control" value="{{ isset($search) ? $search : null}}" name="search" placeholder="Tìm sđt/ tên khách hàng..." type="text">
+                    </div>
+                    <div class="col-3 " style="padding-left:0;">
+                      <button type="submit" class="btn btn-primary"><svg class="icon me-2">
+                        <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-search')}}"></use>
+                      </svg>Tìm</button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+        <div id="createOrder" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content ">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thao tác đơn hàng</h5>
+                    <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <iframe src="{{route('add-orders')}}" frameborder="0"></iframe>
+
+                </div>
+            </div>
+        </div>
+        <table class="table table-bordered table-multi-select table-sale">
+            <thead>
+                <tr class="drags-area">
+                    <th style="top: 0.5px;">
+                        <span class="chk-all"><input id="" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
+                    </th>
+                    <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Mã đơn hàng</span></th>
+                    <th style="top: 0.5px;">
+                        <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Nguồn data <br>Ngày nhận
+                        </span>
+                    </th>
+                    <th class="text-center no-wrap area2" style="top: 0.5px;"> <span style="display: inline-block; min-width: 150px; max-width: 150px;">Sale</span></th>
+                    <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;">
+                        <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Họ tên<br>
+                            <span class="span-col">Số điện thoại</span><br>
+                            <span class="span-col">Địa chỉ</span>
+                        </span></th> 
+                        <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Tin nhắn</span></th>    
+                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Kết quả gọi</span></th>
+                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">TN Tiếp</span></th>
+                    <th class="text-center no-wrap area1  hidden-xs" style="top: 0.5px;"><span style="display: inline-block; width: 120px;" class="span-col">Cây trồng</span></th>
+                    <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span style="display: inline-block; width: 120px;" class="span-col" style="">Nhu cầu dòng sản phẩm</span></th>
+                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="width: 150px; display: inline-block;">Lý do không mua hàng</span></th>
+                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 120px;">Ghi chú thông tin khách hàng</span></th>
+                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Thao tác</span></th>
+                </tr>
+            </thead>    
+            <tbody>
+                {{ csrf_field() }}
+                @if (isset($saleCare))
+                    @foreach ($saleCare as $item)
+                <tr class="contact-row">
+                    <td class="text-center">
+                        <span class="chk-item"><input id="" type="checkbox" name=""><label for="">{{$item->id}}</label></span>
+                    </td>
+                    <td class="text-center">
+
+                        @if (isset($item->id_order))
+                        <a href="{{route('view-order', ['id' => $item->id_order])}}">{{$item->id_order}}</a>
+                        @endif
+                    
+                    </td>
+                    <td class="text-center">
+                    <a target="blank" href="{{$item->page_link}}">{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"d-m-Y ")}}
+                    </td>
+                    <td class="text-center">{{($item->user) ? $item->user->real_name : ''}}</td>
+                    <td class="text-center area5 hidden-xs">
+                        <div class="text-right">
+
+                            @if ($item->id_order)
+                            <a data-target="#createOrder" data-toggle="modal" data-id="{{$item->id_order}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                            @else
+                            <a data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                            @endif
+
+                            @if ($item->old_customer)
+                            <a title="Khách cũ, khách cũ" class="btn-icon">
+                                <i class="fa fa-heart" style="color:red;"></i>
+                            </a>
+                            @endif
+
+                        </div>
+                        {{-- <a class="btn-icon aoh"><i class="fa fa-edit"></i> </a> --}}
+                        <span class="span-col span-col-width cancel-col">{{$item->full_name}}</span><br>
+                        <span class="small-tip"><a href="tel:0987609812">{{$item->phone}}</a></span><br>
+                        <span class="small-tip">{{$item->address}}</span>
+                    </td>
+                    <td>{{$item->messages}}</td>
+                    <td class="area2 no-wrap fix_brower_continue_let_off">
+                        <div class="select2-container txt-dotted ddlpb chosen dis_val">
+                            <a class="select2-choice" tabindex="-1" data-id="{{$item->id}}">  
+                                <span class="select2-chosen list-call-{{$item->id}}" > {{$item->result_call ? $item->call->name : '--Chọn--' }}</span>
+                                <span class="select2-arrow" role="presentation"><b role="presentation"></b></span>
+                            </a>
+                            
+                            <div id="list-call-{{$item->id}}" class="hidden list-call position-absolute dropdown-content">
+                                <input type="text" placeholder="tìm.." id="myInput" onkeyup="filterFunction('list-call-{{$item->id}}')">
+
+                                @if(isset($listCall))
+                                @foreach ($listCall as $value)
+                                <a class="option-product"
+                                    data-call-item-id="{{$item->id}}"
+                                    data-call-name="{{$value->name}}"
+                                    data-call-id="{{$value->id}}">{{$value->name}}
+                                </a>
+                                @endforeach
+                                @endif
+
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center next-step-{{$item->id}}">{{ ($item->next_step) ? 'Gọi lần ' . $item->next_step : ''}}</td>
+                    <td class="text-center area5 hidden-xs">
+                        {{$item->type_tree}}
+                    </td>
+                    <td class="area1">
+                        {{$item->product_request}}
+                    </td>
+                    <td class="area1 hidden-xs">
+                        <div class="mof-container">
+                            <div class="form-control txt-mof txt-dotted">
+                                {{$item->reason_not_buy}}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="area2 hidden-xs">{{$item->note_info_customer}}</td>
+                    <td class="text-center"> <a data-toggle="modal" data-id="{{$item->id}}" data-target="#myModal" class="updateModal btn-icon aoh"><i class="fa fa-edit"></i>Cập nhật</a></td>
+                </tr>
+        
+                @endforeach
+                
+            </tbody>
+        </table>
+        {{ $saleCare->appends(request()->input())->links('pagination::bootstrap-5') }}
+        @endif
+
     </div>
 </div>
 
@@ -282,6 +351,34 @@
  
 </script>
 
+<script type="text/javascript" src="{{asset('public/js/dateRangePicker/daterangepicker.min.js')}}"></script>
+<script>
+    $('input[name="daterange"]').daterangepicker({
+      ranges: {
+        'Hôm nay': [moment(), moment()],
+        'Hôm qua': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        '7 ngày gần đây': [moment().subtract(6, 'days'), moment()],
+        '30 ngày gần đây': [moment().subtract(29, 'days'), moment()],
+        'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+        'Tháng trước': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+      },
+      locale: {
+        "format": 'DD/MM/YYYY',
+        "applyLabel": "OK",
+        "cancelLabel": "Huỷ",
+        "fromLabel": "Từ",
+        "toLabel": "Đến",
+        "daysOfWeek": [
+          "CN", "Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy" 
+        ],
+        "monthNames": [
+          "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+	        "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12" 
+        ],
+      }
+    });
+    $('[data-range-key="Custom Range"]').text('Tuỳ chỉnh');
+</script>
 <script>
     function filterFunction(id) {
         var input, filter, ul, li, a, i;
@@ -298,6 +395,24 @@
             }
         }
     }
+</script>
+
+<script>
+$.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    return results[1] || 0;
+}
+let sale = $.urlParam('sale') 
+if (sale) {
+    $('#sale-filter option[value=' + sale +']').attr('selected','selected');
+}
+
+let time = $.urlParam('daterange') 
+if (time) {
+    time = decodeURIComponent(time)
+    time = time.replace('+-+', ' - ') //loại bỏ khoảng trắng
+    $('input[name="daterange"]').val(time)
+}
 </script>
 
 

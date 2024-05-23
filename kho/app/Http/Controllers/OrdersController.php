@@ -36,9 +36,9 @@ class OrdersController extends Controller
         $totalOrder = $data->count();
         // dd($totalOrder);
         $list       = $data->paginate(50);
-       
+        $sales      = User::where('status', 1)->where('is_sale', 1)->get();
         // $list = $this->getListOrderByPermisson(Auth::user())->paginate(50);
-        return view('pages.orders.index')->with('totalOrder', $totalOrder)->with('sumProduct', $sumProduct)->with('list', $list)->with('category', $category);
+        return view('pages.orders.index')->with('sales', $sales)->with('totalOrder', $totalOrder)->with('sumProduct', $sumProduct)->with('list', $list)->with('category', $category);
     }
 
     public function getListOrderByPermisson($user, $dataFilter = null) 
@@ -54,6 +54,10 @@ class OrdersController extends Controller
 
                 $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
                 $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+
+                // dd($dataFilter['daterange']);
+                // $dateBegin  = $dataFilter['daterange']['dateBegin']; 
+                // $dateEnd    = $dataFilter['daterange']['dateEnd']; 
 
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
@@ -109,6 +113,9 @@ class OrdersController extends Controller
 
         if (!$checkAll) {
             $list = $list->where('assign_user', $user->id);
+        } else if (isset($dataFilter['sale'])) {
+            /** user đang login = full quyền và đang lọc 1 sale */
+            $list = $list->where('assign_user', $dataFilter['sale']);
         }
 
         return $list;
@@ -481,6 +488,11 @@ class OrdersController extends Controller
             $dataFilter['product'] = $product;
         }
 
+        $sale = $req->sale;
+        if ($sale != 999) {
+            $dataFilter['sale'] = $sale;
+        }
+
         try {
             $data       = $this->getListOrderByPermisson(Auth::user(), $dataFilter);
             $totalOrder = $data->count();
@@ -489,8 +501,10 @@ class OrdersController extends Controller
             // dd($sumProduct);
             $category   = Category::where('status', 1)->get();
             $list       = $data->paginate(50);
+            $sales      = User::where('status', 1)->where('is_sale', 1)->get();
+
             return view('pages.orders.index')->with('list', $list)->with('category', $category)
-                ->with('sumProduct', $sumProduct)->with('totalOrder', $totalOrder);
+                ->with('sumProduct', $sumProduct)->with('sales', $sales)->with('totalOrder', $totalOrder);
         } catch (\Exception $e) {
             // return $e;
             dd($e);

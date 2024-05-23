@@ -86,7 +86,8 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/tao-tac-nghiep-sale',  [SaleController::class, 'save'])->name('sale-care-save');
     Route::get('/cap-nhat-tac-nghiep-sale/{id}',  [SaleController::class, 'update'])->name('sale-care-update');
     Route::post('/cap-nhat-sale-ajax',  [SaleController::class, 'saveAjax'])->name('sale-save-ajax');
-    
+    Route::get('/tim-tac-nghiep-sale',  [SaleController::class, 'search'])->name('search-sale-care');
+
     Route::get('/call',  [CallController::class, 'index'])->name('call-index');
     Route::get('/tao-call',  [CallController::class, 'add'])->name('call-add');
     Route::post('/luu-call',  [CallController::class, 'save'])->name('call-save');

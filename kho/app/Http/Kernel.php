@@ -37,12 +37,13 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
-
+        'throttle' => ['throttle:99,1'],
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            'throttle:60,1',
+            // \Illuminate\Routing\Middleware\ThrottleRequests::class,
+            // \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            'throttle:2,1', //These values did not change the throttle limit.
+            // 'throttle' => ['throttle:2,1'],
             'bindings',
         ],
     ];

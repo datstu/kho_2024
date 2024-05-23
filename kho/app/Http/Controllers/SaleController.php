@@ -20,13 +20,45 @@ class SaleController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(Request $r)
     {
         $helper     = new Helper();
         $listCall   = $helper->getListCall()->get();
-        $saleCare   = SaleCare::orderBy('id', 'desc')->paginate(50);
+        $sales      = User::where('status', 1)->where('is_sale', 1)->get();
+        $saleCare   = $this->getListSalesByPermisson(Auth::user())->paginate(50);
+        $count      = $this->getListSalesByPermisson(Auth::user())->count();
+        if ($r->sale) {
+            // dd( $r->sale);
+            $saleCare = SaleCare::orderBy('id', 'desc');
+            if ($r->sale != 999) {
+                $saleCare = SaleCare::where('assign_user', $r->sale)->orderBy('id', 'desc');
+            }
+            // $dataFilter['daterange'] = $arrTime;
+            if ($r->daterange) {
+                $time       = $r->daterange;
+                $arrTime    = explode("-",$time); 
+                $time       = $arrTime;
+                $timeBegin  = str_replace('/', '-', $time[0]);
+                $timeEnd    = str_replace('/', '-', $time[1]);
 
-        return view('pages.sale.index')->with('saleCare', $saleCare)->with('listCall', $listCall);
+                $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+                $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+
+                // dd($dataFilter['daterange']);
+                // $dateBegin  = $dataFilter['daterange']['dateBegin']; 
+                // $dateEnd    = $dataFilter['daterange']['dateEnd']; 
+
+                $saleCare->whereDate('created_at', '>=', $dateBegin)
+                    ->whereDate('created_at', '<=', $dateEnd);
+            }
+            // dd($saleCare->get());
+            $count    = $saleCare->count();
+            $saleCare = $saleCare->paginate(10);
+        }
+        // $saleCare   = SaleCare::orderBy('id', 'desc')->where('assign_user', $id)->paginate(50);
+
+        // dd($saleCare);
+        return view('pages.sale.index')->with('count', $count)->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
     }
 
     public function add()
@@ -78,7 +110,7 @@ class SaleController extends Controller
             $saleCare->page_id              = $req->page_id;
             $saleCare->messages             = $req->messages;
             $saleCare->old_customer         = $req->old_customer;
-            
+            $saleCare->page_link            = $req->page_link;
             $saleCare->save();
 
             if (!isset($req->id)) {
@@ -191,5 +223,104 @@ class SaleController extends Controller
         }
 
         return response()->json(['error' => true]);
+    }
+
+    public function getListSalesByPermisson($user, $dataFilter = null) 
+    {
+        $roles      = $user->role;
+        $list       = SaleCare::orderBy('id', 'desc');
+
+        if ($dataFilter) {
+            if (isset($dataFilter['daterange'])) {
+                $time       = $dataFilter['daterange'];
+                $timeBegin  = str_replace('/', '-', $time[0]);
+                $timeEnd    = str_replace('/', '-', $time[1]);
+
+                $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+                $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+
+                // dd($dataFilter['daterange']);
+                // $dateBegin  = $dataFilter['daterange']['dateBegin']; 
+                // $dateEnd    = $dataFilter['daterange']['dateEnd']; 
+
+                $list->whereDate('created_at', '>=', $dateBegin)
+                    ->whereDate('created_at', '<=', $dateEnd);
+            }
+            
+            if (isset($dataFilter['status'])) {
+                $list->whereStatus($dataFilter['status']);
+            }
+
+            if (isset($dataFilter['category'])) {
+                $ids = [];
+                foreach ($list->get() as $order) {
+                    $products = json_decode($order->id_product);
+                    $isProductOfCategory = Helper::checkProductsOfCategory($products, $dataFilter['category']);
+                    if ($isProductOfCategory) {
+                        $ids[] = $order->id;
+                    }
+                }
+
+                $list       = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
+            }
+
+            if (isset($dataFilter['product'])) {
+                $ids = [];
+                
+                foreach ($list->get() as $order) {
+                    $products = json_decode($order->id_product);
+                    foreach ($products as $product) {
+                        if ($product->id == $dataFilter['product']) {
+                            $ids[] = $order->id;
+                            break;
+                        }
+                    }
+                }
+
+                $list       = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
+            }
+        }
+
+        $checkAll   = false;
+        $listRole   = [];
+        $roles      = json_decode($roles);
+        if ($roles) {
+            foreach ($roles as $key => $value) {
+                if ($value == 1) {
+                    $checkAll = true;
+                    break;
+                } else {
+                    $listRole[] = $value;
+                }
+            }
+        }
+
+        if (!$checkAll) {
+            $list = $list->where('assign_user', $user->id);
+        } else if (isset($dataFilter['sale'])) {
+            /** user đang login = full quyền và đang lọc 1 sale */
+            $list = $list->where('assign_user', $dataFilter['sale']);
+        }
+
+        return $list;
+    }
+
+    public function search(Request $req)
+    {
+        if ($req->search) {
+            $helper     = new Helper();
+            $sales      = User::where('status', 1)->where('is_sale', 1)->get();
+            $listCall   = $helper->getListCall()->get();
+            $saleCare = SaleCare::where('full_name', 'like', '%' . $req->search . '%')
+                ->orWhere('phone', 'like', '%' . $req->search . '%')
+                ->orderBy('id', 'desc');
+            $count      = $saleCare->count();
+            $saleCare   = $saleCare->paginate(10);
+            return view('pages.sale.index')->with('count', $count)->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
+        } else {
+            return redirect()->route('sale-index');
+        }
+        
+        
     }
 }

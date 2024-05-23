@@ -68,6 +68,8 @@
   input#daterange {
     color: #000;
   }
+
+ 
 </style>
 
 <?php 
@@ -93,6 +95,21 @@ $styleStatus = [
       <div class="col-xs-12 col-sm-6 col-md-2 form-group daterange mb-1">
         <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
       </div>
+
+      <?php $checkAll = isFullAccess(Auth::user()->role);?>
+      @if ($checkAll)
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
+          <option value="999">-- Sale (Tất cả)--</option>
+          @if (isset($sales))
+            @foreach($sales as $sale)
+            <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
+            @endforeach
+          @endif
+        </select>
+      </div>
+      @endif
+
       <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <select name="status" id="status-filter" class="form-select" aria-label="Default select example">
           <option value="999">--Trạng Thái (Tất cả)--</option>
@@ -182,7 +199,7 @@ $styleStatus = [
                 <th scope="col">Tổng tiền</th>
                 <th scope="col">Giới tính</th>
                 <th class="mobile-col-tbl" scope="col">Ngày lên đơn</th>
-                <th scope="col">Trạng thái</th>
+                <th class="text-center" scope="col">Trạng thái</th>
                 <th scope="col">Mã vận đơn</th>
                 <th scope="col"></th>
                 <th scope="col"></th>
@@ -260,6 +277,11 @@ $styleStatus = [
     time = decodeURIComponent(time)
     time = time.replace('+-+', ' - ') //loại bỏ khoảng trắng
     $('input[name="daterange"]').val(time)
+  }
+
+  let sale = $.urlParam('sale') 
+  if (sale) {
+    $('#sale-filter option[value=' + sale +']').attr('selected','selected');
   }
 
   let status = $.urlParam('status') 

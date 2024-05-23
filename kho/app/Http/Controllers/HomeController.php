@@ -9,6 +9,7 @@ use App\Http\Controllers\AddressController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
+use App\Models\SaleCare;
 
 class HomeController extends Controller
 {
@@ -22,8 +23,9 @@ class HomeController extends Controller
         $toMonth      = date('Y-m-d', time());
         $item = $this->filterByDate('day', $toMonth);
         $category   = Category::where('status', 1)->get();
+        $sales   = User::where('status', 1)->where('is_sale', 1)->get();
 
-        return view('pages.home')->with('item', $item)->with('category', $category);
+        return view('pages.home')->with('item', $item)->with('category', $category)->with('sales', $sales);
     }
     
       /**
@@ -108,16 +110,30 @@ class HomeController extends Controller
                     $totalAvgDay    = $ordersSum + $ordersYesterdaySum;
                     $percentAvg     = round(($avgOrders - $avgOrdersYes) * 100 / $totalAvgDay, 2);
                 }
-               
+
+                $countSaleCare = SaleCare::whereDate('created_at', '>=', $date)
+                ->whereDate('created_at', '<=', $yesterday)->count();
+
+                
+                /** tỷ lệ chốt = số đơn/số data */
+                if ($countSaleCare == 0) {
+                    $rateSuccess = $countOrders * 100;
+                } else {
+                    $rateSuccess = $countOrders / $countSaleCare * 100;
+                }
+
+                $rateSuccess = round($rateSuccess, 2);
+
                 $result = [
-                        'totalSum'      => number_format($ordersSum) . 'đ',
-                        'percentTotal'  => '(' . (($percentTotalDay > 0) ? '+' : '' ) . $percentTotalDay  .'%)',
-                        'countOrders'   => $countOrders,
-                        'percentCount'  => '(' . (($percentCountDay > 0) ? '+' : '' ) . $percentCountDay .'%)',
-                        'avgOrders'     => number_format($avgOrders) . 'đ',
-                        'percentAvg'    => '(' . (($percentAvg > 0) ? '+' : '' ) . $percentAvg  .'%)',
+                    'totalSum'      => number_format($ordersSum) . 'đ',
+                    'percentTotal'  => '(' . (($percentTotalDay > 0) ? '+' : '' ) . $percentTotalDay  .'%)',
+                    'countOrders'   => $countOrders,
+                    'percentCount'  => '(' . (($percentCountDay > 0) ? '+' : '' ) . $percentCountDay .'%)',
+                    'avgOrders'     => number_format($avgOrders) . 'đ',
+                    'percentAvg'    => '(' . (($percentAvg > 0) ? '+' : '' ) . $percentAvg  .'%)',
+                    'rateSuccess'   =>  $rateSuccess . '%',
                     ];
-              break;
+                break;
             case "month":
                 //lấy tháng trong chuỗi '2024/03/24' => 03
                 $month      = date('m', strtotime($date));
@@ -285,8 +301,19 @@ class HomeController extends Controller
         // dd($req->all());
         $ordersController = new OrdersController();
 
-        $dataFilter['daterange']    = $req->date;
+        $time = $dataFilter['daterange']    = $req->date;
 
+        // $time       = $req->date;
+        $timeBegin  = str_replace('/', '-', $time[0]);
+        $timeEnd    = str_replace('/', '-', $time[1]);
+
+        $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+        $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+        // $dataFilter['daterange']['dateBegin']   = $dateBegin;
+        // $dataFilter['daterange']['dateEnd']     = $dateEnd;
+
+        // $list->whereDate('created_at', '>=', $dateBegin)
+        //     ->whereDate('created_at', '<=', $dateEnd);
         if ($req->status != 999) {
             $dataFilter['status'] = $req->status;
         }
@@ -301,34 +328,53 @@ class HomeController extends Controller
         if ($product != 999) {
             $dataFilter['product'] = $product;
         }
-            $data = [
-                'daterange' => $req->date,
-                'status' => $req->status,
-                'category' => $req->category,
-                'product' => $req->product,
-            ];
 
-            $data = $ordersController->getListOrderByPermisson(Auth::user(), $dataFilter);
-            $countOrders = $data->count();
-            // $list       = $data->paginate(50);
-            $sumProduct = $data->sum('qty');
-            // dd($sumProduct);
+        $countSaleCare = SaleCare::whereDate('created_at', '>=', $dateBegin)
+            ->whereDate('created_at', '<=', $dateEnd)->count();
+        if ($req->sale != 999) {
+            $dataFilter['sale'] = $req->sale;
+            $countSaleCare = SaleCare::whereDate('created_at', '>=', $dateBegin)
+            ->whereDate('created_at', '<=', $dateEnd)->where('assign_user', $req->sale)->count();
+        }
 
-            $totalSum  = $data->sum('total');
-            $avgOrders = 0;
-            if ($totalSum > 0) {
-                $avgOrders = $totalSum / $countOrders;
-            }
-            
-            $result = [
-                'totalSum'      => number_format($totalSum) . 'đ',
-                'percentTotal'  => '',
-                'countOrders'   => $countOrders,
-                'percentCount'  => '',
-                'avgOrders'     => number_format($avgOrders) . 'đ',
-                'percentAvg'    => '',
-                'sumProduct'    => '(' . $sumProduct . ' sản phẩm)',
-            ];
-            return $result;
+        $data = [
+            'daterange' => $req->date,
+            'status' => $req->status,
+            'category' => $req->category,
+            'product' => $req->product
+        ];
+
+        $data = $ordersController->getListOrderByPermisson(Auth::user(), $dataFilter);
+        $countOrders = $data->count();
+        // $list       = $data->paginate(50);
+        $sumProduct = $data->sum('qty');
+        // dd($sumProduct);
+
+        $totalSum  = $data->sum('total');
+        $avgOrders = 0;
+        if ($totalSum > 0) {
+            $avgOrders = $totalSum / $countOrders;
+        }
+        
+        /** tỷ lệ chốt: số đơn/ số data */
+        if ($countSaleCare == 0) {
+            $rateSuccess = $countOrders * 100;
+        } else {
+            $rateSuccess = $countOrders / $countSaleCare * 100;
+        }
+       
+        $rateSuccess = round($rateSuccess, 2);
+    //    dd($rateSuccess);
+        $result = [
+            'totalSum'      => number_format($totalSum) . 'đ',
+            'percentTotal'  => '',
+            'countOrders'   => $countOrders,
+            'percentCount'  => '',
+            'avgOrders'     => number_format($avgOrders) . 'đ',
+            'percentAvg'    => '',
+            'sumProduct'    => '(' . $sumProduct . ' sản phẩm)',
+            'rateSuccess'   =>  $rateSuccess . '%',
+        ];
+        return $result;
     }
 }
