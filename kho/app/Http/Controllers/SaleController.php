@@ -47,13 +47,14 @@ class SaleController extends Controller
                 // dd($dataFilter['daterange']);
                 // $dateBegin  = $dataFilter['daterange']['dateBegin']; 
                 // $dateEnd    = $dataFilter['daterange']['dateEnd']; 
-
+                
                 $saleCare->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
             }
             // dd($saleCare->get());
             $count    = $saleCare->count();
-            $saleCare = $saleCare->paginate(10);
+            $saleCare = $saleCare->paginate(50);
+
         }
         // $saleCare   = SaleCare::orderBy('id', 'desc')->where('assign_user', $id)->paginate(50);
 
@@ -320,7 +321,5 @@ class SaleController extends Controller
         } else {
             return redirect()->route('sale-index');
         }
-        
-        
     }
 }

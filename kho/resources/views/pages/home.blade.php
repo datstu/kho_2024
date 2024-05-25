@@ -190,16 +190,10 @@
           <div class="card-body pb-0 d-flex justify-content-between align-items-start">
             <div>
               <div class="rateSuccess fs-4 fw-semibold">{{$item['rateSuccess']}} </div>
-              <div>Tỉ lệ chốt</div>
+                <div>Tỉ lệ chốt (Data nhận: <span class="countSaleCare">{{$item['countSaleCare']}}</span>)</div>
+
             </div>
-            <div class="dropdown">
-              <button class="btn btn-transparent text-white p-0" type="button" data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <svg class="icon">
-                  {{-- <use xlink:href="node_modules/@coreui/icons/sprites/free.svg#cil-options"></use> --}}
-                </svg>
-              </button>
-              <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item" href="#">Action</a><a class="dropdown-item" href="#">Another action</a><a class="dropdown-item" href="#">Something else here</a></div>
-            </div>
+            
           </div>
           <div class="c-chart-wrapper mt-3" style="height:70px;">
             <canvas class="chart" id="card-chart3" height="70"></canvas>
@@ -386,6 +380,7 @@
                 $(".percentAvg").text(data.percentAvg);
                 $(".sumProduct").text(data.sumProduct);
                 $(".rateSuccess").text(data.rateSuccess);
+                $(".countSaleCare").text(data.countSaleCare);
               }
               $('.loader').hide();
             }

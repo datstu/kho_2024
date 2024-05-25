@@ -111,10 +111,18 @@ class HomeController extends Controller
                     $percentAvg     = round(($avgOrders - $avgOrdersYes) * 100 / $totalAvgDay, 2);
                 }
 
-                $countSaleCare = SaleCare::whereDate('created_at', '>=', $date)
-                ->whereDate('created_at', '<=', $yesterday)->count();
+              
+                // $countSaleCare = SaleCare::whereDate('created_at', '>=', $date)
+                //     ->whereDate('created_at', '<=', $yesterday)->count();
+                // $countSaleCare = SaleCare::->whereDate('created_at', '>', $yesterday)     
+                // ->whereDate('created_at', '<=', $date)->count();
 
-                
+                // dd($yesterday);
+                $countSaleCare = SaleCare::whereDate('created_at', '>=', $date)     
+                    ->whereDate('created_at', '<=',  $date)
+                    ->where('old_customer', 0)
+                    ->count();
+
                 /** tỷ lệ chốt = số đơn/số data */
                 if ($countSaleCare == 0) {
                     $rateSuccess = $countOrders * 100;
@@ -123,7 +131,6 @@ class HomeController extends Controller
                 }
 
                 $rateSuccess = round($rateSuccess, 2);
-
                 $result = [
                     'totalSum'      => number_format($ordersSum) . 'đ',
                     'percentTotal'  => '(' . (($percentTotalDay > 0) ? '+' : '' ) . $percentTotalDay  .'%)',
@@ -132,6 +139,7 @@ class HomeController extends Controller
                     'avgOrders'     => number_format($avgOrders) . 'đ',
                     'percentAvg'    => '(' . (($percentAvg > 0) ? '+' : '' ) . $percentAvg  .'%)',
                     'rateSuccess'   =>  $rateSuccess . '%',
+                    'countSaleCare' =>  $countSaleCare,
                     ];
                 break;
             case "month":
@@ -307,8 +315,8 @@ class HomeController extends Controller
         $timeBegin  = str_replace('/', '-', $time[0]);
         $timeEnd    = str_replace('/', '-', $time[1]);
 
-        $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
-        $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+        $dateBegin  = date('Y-m-d', strtotime("$timeBegin"));
+        $dateEnd    = date('Y-m-d', strtotime("$timeEnd"));
         // $dataFilter['daterange']['dateBegin']   = $dateBegin;
         // $dataFilter['daterange']['dateEnd']     = $dateEnd;
 
@@ -330,11 +338,14 @@ class HomeController extends Controller
         }
 
         $countSaleCare = SaleCare::whereDate('created_at', '>=', $dateBegin)
-            ->whereDate('created_at', '<=', $dateEnd)->count();
+            ->whereDate('created_at', '<=', $dateEnd)
+            ->where('old_customer', 0)
+            ->count();
         if ($req->sale != 999) {
             $dataFilter['sale'] = $req->sale;
             $countSaleCare = SaleCare::whereDate('created_at', '>=', $dateBegin)
-            ->whereDate('created_at', '<=', $dateEnd)->where('assign_user', $req->sale)->count();
+            ->whereDate('created_at', '<=', $dateEnd)->where('assign_user', $req->sale)
+            ->where('old_customer', 0)->count();
         }
 
         $data = [
@@ -357,10 +368,14 @@ class HomeController extends Controller
         }
         
         /** tỷ lệ chốt: số đơn/ số data */
+        $newFilter['daterange'] =  $req->date;
+        $newFilter['sale'] = $req->sale;
+        $countOrdersRate = $ordersController->getListOrderByPermisson(Auth::user(), $newFilter)->count();
+        // dd($countOrdersRate);
         if ($countSaleCare == 0) {
-            $rateSuccess = $countOrders * 100;
+            $rateSuccess = $countOrdersRate * 100;
         } else {
-            $rateSuccess = $countOrders / $countSaleCare * 100;
+            $rateSuccess = $countOrdersRate / $countSaleCare * 100;
         }
        
         $rateSuccess = round($rateSuccess, 2);
@@ -374,6 +389,7 @@ class HomeController extends Controller
             'percentAvg'    => '',
             'sumProduct'    => '(' . $sumProduct . ' sản phẩm)',
             'rateSuccess'   =>  $rateSuccess . '%',
+            'countSaleCare' =>  $countSaleCare
         ];
         return $result;
     }

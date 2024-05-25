@@ -205,6 +205,7 @@ class Kernel extends ConsoleKernel
                   'page_link' => $linkPage,
                   'page_name' => $namePage,
                   'sex'       => 0,
+                  'old_customer' => 0,
                   'address'   => '...',
                   'messages'  => $messages,
                   'name'      => $name,

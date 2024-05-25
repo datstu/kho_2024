@@ -32,7 +32,6 @@ class TestController extends Controller
       if ($response->status() == 200) {
         $content  = json_decode($response->body());
         $data     = $content->data;
-        dd($data );
         switch ($data->status) {
           case 'ready_to_pick':
             $order->status = 1;

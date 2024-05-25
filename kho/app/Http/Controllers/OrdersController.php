@@ -111,12 +111,18 @@ class OrdersController extends Controller
             }
         }
 
-        if (!$checkAll) {
-            $list = $list->where('assign_user', $user->id);
-        } else if (isset($dataFilter['sale'])) {
+        // if (!$checkAll) {
+        //     $list = $list->where('assign_user', $user->id);
+        // } else if (isset($dataFilter['sale'])) {
+        //     /** user đang login = full quyền và đang lọc 1 sale */
+        //     $list = $list->where('assign_user', $dataFilter['sale']);
+        // }
+        if (isset($dataFilter['sale']) && $dataFilter['sale'] != 999) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
-        }
+        } else if (!$checkAll) {
+            $list = $list->where('assign_user', $user->id);
+        }  
 
         return $list;
     }

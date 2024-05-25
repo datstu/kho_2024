@@ -76,16 +76,17 @@
             </div>
         </div>
       
+        <form action="{{route('sale-index')}}" class="mb-1">
+            @csrf
+            
+        <script type="text/javascript" src="{{asset('public/js/moment.js')}}"></script>
+        <link rel="stylesheet" type="text/css" href="{{asset('public/css/daterangepicker.css')}}" /> 
+        <div class=" col-sm-2 form-group daterange mb-1">
+            <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
+        </div>
         <?php $checkAll = isFullAccess(Auth::user()->role);?>
         @if ($checkAll)
-        <form action="{{route('sale-index')}}" class="mb-1">
             <div class="row mb-1 filter-order">
-                @csrf
-                <script type="text/javascript" src="{{asset('public/js/moment.js')}}"></script>
-                <link rel="stylesheet" type="text/css" href="{{asset('public/css/daterangepicker.css')}}" /> 
-                <div class=" col-sm-2 form-group daterange mb-1">
-                    <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
-                </div>
                 <div class="col-sm-2 form-group mb-1">
                     <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
                     <option value="999">--Tất cả Sale--</option>
@@ -97,13 +98,14 @@
                     </select>
                 </div>
             </div>
-            <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
-                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
-            </svg>Lọc</button>
-            <a  class="btn btn-outline-danger" href="{{route('sale-index')}}"><strong>X</strong></a>
-            
-        </form>
         @endif
+
+        <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
+            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
+        </svg>Lọc</button>
+        <a class="btn btn-outline-danger" href="{{route('sale-index')}}"><strong>X</strong></a>
+        </form>
+       
        
         <div class="row">
             <div class="mb-1 mt-1">Tổng data: <span>{{$count}}</span></div>
