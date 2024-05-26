@@ -29,6 +29,9 @@
         height: 80px;
         border-radius: 50px;
     }
+    .form-select {
+        font-size: 14px;
+    }
 
     /* .filter-order .daterange {
     min-width: 230px;
@@ -38,6 +41,7 @@
         border: 1px solid var(--cui-form-select-border-color, #b1b7c1);
         border-radius: 0.375rem;
         width: 100%;
+       
   }
 
 </style>
@@ -402,7 +406,10 @@
 <script>
 $.urlParam = function(name){
     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    return results[1] || 0;
+    if (results) {
+        return results[1];
+    }
+    return 0;
 }
 let sale = $.urlParam('sale') 
 if (sale) {

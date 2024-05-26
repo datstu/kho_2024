@@ -158,8 +158,7 @@
           <div class="card-body pb-0 d-flex justify-content-between align-items-start">
             {{ csrf_field() }}
             <div>
-              <div class="fs-4 fw-semibold"><span id="totalSum">{{$item['totalSum']}}</span>
-                <span class="percentTotalDay fs-6 fw-normal">{{$item['percentTotal']}}</span></div>
+              <div class="fs-4 fw-semibold"><span id="totalSum">{{$item['totalSum']}}</span></div>
               <div class="name-total">Doanh thu</div>
             </div>
           </div>
@@ -173,8 +172,7 @@
         <div class="card mb-4 text-white bg-info">
           <div class="card-body pb-0 d-flex justify-content-between align-items-start">
             <div>
-              <div class="fs-4 fw-semibold "><span class="countOrders">{{$item['countOrders']}}</span> 
-                <span class="percentCountDay fs-6 fw-normal ">{{$item['percentCount']}}</span></div>
+              <div class="fs-4 fw-semibold "><span class="countOrders">{{$item['countOrders']}}</span></div>
               <div>Số đơn <span class="sumProduct"> <?php (isset($sumProduct) && $sumProduct > 0) ?: '(30 sản phẩm)'; ?></span></div>
              
             </div>
@@ -205,8 +203,7 @@
         <div class="card mb-4 text-white bg-danger">
           <div class="card-body pb-0 d-flex justify-content-between align-items-start">
             <div>
-              <div class="fs-4 fw-semibold"><span class="avgOrders">{{$item['avgOrders']}}</span>
-                <span class="fs-6 fw-normal percentAvg">{{$item['percentAvg']}}</span></div>
+              <div class="fs-4 fw-semibold"><span class="avgOrders">{{$item['avgOrders']}}</span></div>
               <div>Trung bình đơn</div>
             </div>
             <div class="dropdown">

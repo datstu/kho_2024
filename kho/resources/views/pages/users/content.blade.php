@@ -40,7 +40,7 @@
                           
                                   <tr>
                                     <th scope="row col-1">{{ $item->id }}</th>
-                                    <td scope="col-7" >  {{ $item->name }}</td>
+                                    <td scope="col-7" >  {{ ($item->real_name) ? $item->real_name : $item->name }}</td>
                                     <td scope="col-1">  {{ $item->email }}</td>
                                     <td scope="col-1">  {{ $item->role }}</td>
                                     <td scope="col-1">  {{ date_format($item->created_at,"d-m-Y ")}}</td>

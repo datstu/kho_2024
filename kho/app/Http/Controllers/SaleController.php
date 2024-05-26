@@ -22,40 +22,18 @@ class SaleController extends Controller
      */
     public function index(Request $r)
     {
+       
+        if (count($r->all())) {
+            return $this->filterSalesByDate($r);
+        }
+
         $helper     = new Helper();
         $listCall   = $helper->getListCall()->get();
         $sales      = User::where('status', 1)->where('is_sale', 1)->get();
-        $saleCare   = $this->getListSalesByPermisson(Auth::user())->paginate(50);
-        $count      = $this->getListSalesByPermisson(Auth::user())->count();
-        if ($r->sale) {
-            // dd( $r->sale);
-            $saleCare = SaleCare::orderBy('id', 'desc');
-            if ($r->sale != 999) {
-                $saleCare = SaleCare::where('assign_user', $r->sale)->orderBy('id', 'desc');
-            }
-            // $dataFilter['daterange'] = $arrTime;
-            if ($r->daterange) {
-                $time       = $r->daterange;
-                $arrTime    = explode("-",$time); 
-                $time       = $arrTime;
-                $timeBegin  = str_replace('/', '-', $time[0]);
-                $timeEnd    = str_replace('/', '-', $time[1]);
-
-                $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
-                $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
-
-                // dd($dataFilter['daterange']);
-                // $dateBegin  = $dataFilter['daterange']['dateBegin']; 
-                // $dateEnd    = $dataFilter['daterange']['dateEnd']; 
-                
-                $saleCare->whereDate('created_at', '>=', $dateBegin)
-                    ->whereDate('created_at', '<=', $dateEnd);
-            }
-            // dd($saleCare->get());
-            $count    = $saleCare->count();
-            $saleCare = $saleCare->paginate(50);
-
-        }
+       
+        $saleCare   = $this->getListSalesByPermisson(Auth::user());
+        $count      = $saleCare->count();
+        $saleCare   = $saleCare->paginate(50);
         // $saleCare   = SaleCare::orderBy('id', 'desc')->where('assign_user', $id)->paginate(50);
 
         // dd($saleCare);
@@ -228,58 +206,29 @@ class SaleController extends Controller
 
     public function getListSalesByPermisson($user, $dataFilter = null) 
     {
-        $roles      = $user->role;
-        $list       = SaleCare::orderBy('id', 'desc');
+        $roles  = $user->role;
+        $list   = SaleCare::orderBy('id', 'desc');
 
         if ($dataFilter) {
             if (isset($dataFilter['daterange'])) {
                 $time       = $dataFilter['daterange'];
                 $timeBegin  = str_replace('/', '-', $time[0]);
                 $timeEnd    = str_replace('/', '-', $time[1]);
-
                 $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
                 $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
 
                 // dd($dataFilter['daterange']);
-                // $dateBegin  = $dataFilter['daterange']['dateBegin']; 
-                // $dateEnd    = $dataFilter['daterange']['dateEnd']; 
-
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
             }
             
-            if (isset($dataFilter['status'])) {
-                $list->whereStatus($dataFilter['status']);
-            }
+            // if (isset($dataFilter['status'])) {
+            //     $list->whereStatus($dataFilter['status']);
+            // }
 
-            if (isset($dataFilter['category'])) {
-                $ids = [];
-                foreach ($list->get() as $order) {
-                    $products = json_decode($order->id_product);
-                    $isProductOfCategory = Helper::checkProductsOfCategory($products, $dataFilter['category']);
-                    if ($isProductOfCategory) {
-                        $ids[] = $order->id;
-                    }
-                }
-
-                $list       = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
-            }
-
-            if (isset($dataFilter['product'])) {
-                $ids = [];
-                
-                foreach ($list->get() as $order) {
-                    $products = json_decode($order->id_product);
-                    foreach ($products as $product) {
-                        if ($product->id == $dataFilter['product']) {
-                            $ids[] = $order->id;
-                            break;
-                        }
-                    }
-                }
-
-                $list       = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
-            }
+            // if (isset($dataFilter['status'])) {
+            //     $list->whereStatus($dataFilter['status']);
+            // }
         }
 
         $checkAll   = false;
@@ -296,12 +245,12 @@ class SaleController extends Controller
             }
         }
 
-        if (!$checkAll) {
-            $list = $list->where('assign_user', $user->id);
-        } else if (isset($dataFilter['sale'])) {
+        if (isset($dataFilter['sale']) && $dataFilter['sale'] != 999 && $checkAll) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
-        }
+        } else if (!$checkAll) {
+            $list = $list->where('assign_user', $user->id);
+        }  
 
         return $list;
     }
@@ -320,6 +269,40 @@ class SaleController extends Controller
             return view('pages.sale.index')->with('count', $count)->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
         } else {
             return redirect()->route('sale-index');
+        }
+    }
+
+    public function filterSalesByDate(Request $req) {
+        $dataFilter = [];
+
+        // dd($req->daterange);
+        if ($req->daterange) {
+            $time       = $req->daterange;
+            $arrTime    = explode("-",$time); 
+            $dataFilter['daterange'] = $arrTime;
+        }
+
+        $sale = $req->sale;
+        if ($req->sale && $sale != 999) {
+            $dataFilter['sale'] = $sale;
+        }
+
+        try {
+            // dd($dataFilter);
+            $data       = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
+            $count      = $data->count();
+            $saleCare   = $data->paginate(50);
+            $sales      = User::where('status', 1)->where('is_sale', 1)->get();
+
+            $helper     = new Helper();
+            $listCall   = $helper->getListCall()->get();
+
+            return view('pages.sale.index')->with('count', $count)->with('sales', $sales)
+                ->with('saleCare', $saleCare)->with('listCall', $listCall);
+        } catch (\Exception $e) {
+            // return $e;
+            dd($e);
+            return redirect()->route('home');
         }
     }
 }
