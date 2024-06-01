@@ -16,4 +16,6 @@ class ShippingOrder extends Model
      * @var string
      */
     protected $table = 'shipping_order';
+
+    
 }

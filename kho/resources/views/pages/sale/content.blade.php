@@ -41,15 +41,52 @@
         border: 1px solid var(--cui-form-select-border-color, #b1b7c1);
         border-radius: 0.375rem;
         width: 100%;
-       
-  }
+    }
+    .mof-container, .txt-mof {
+        background-color: transparent;
+        height: 45px;
+    }
+        textarea.txt-mof {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        height: 30px;
+        overflow-y: hidden;
+        transition: ease 0.2s all;
+        line-height: 20px;
+        font-size: 11px;
+        padding-top: 4px;
+        border: none;
+    }
 
+    .mof-container {
+        position: relative;
+        height: 30px;
+        width: 100%;
+        float: left;
+        background-color: white;
+    }
+    .ttgh6, .ttgh7 {
+        width: 40px;
+        color: #ff0000;
+    }
+
+    .fb {
+        font-weight: bold;
+    }
+    tbody tr.error{
+        border: 3px solid #ff0000 !important;
+    }
+    tbody tr.success{
+        border: 3px solid #08a322 !important;
+    }
+    
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <link href="{{ asset('public/css/pages/sale.css'); }}" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+@csrf
 
 <div class="box-body">
     <div class="loader hidden">
@@ -152,22 +189,19 @@
                         <span class="chk-all"><input id="" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
                     </th>
                     <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Mã đơn hàng</span></th>
-                    <th style="top: 0.5px;">
-                        <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Nguồn data <br>Ngày nhận
-                        </span>
-                    </th>
-                    <th class="text-center no-wrap area2" style="top: 0.5px;"> <span style="display: inline-block; min-width: 150px; max-width: 150px;">Sale</span></th>
+
+                    <th style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 150px;">Nguồn data <br>Ngày nhận</span></th>
+                    <th style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 150px;">Sale</span></th>
                     <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;">
-                        <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Họ tên<br>
+                        <span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 200px;">Họ tên<br>
                             <span class="span-col">Số điện thoại</span><br>
                             <span class="span-col">Địa chỉ</span>
-                        </span></th> 
-                        <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Tin nhắn</span></th>    
+                        </span>
+                    </th> 
+                    <th style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 150px;">Tin nhắn</span></th>
+                    <th class="text-center no-wrap area2" style="top: 0.5px;"> <span style="display: inline-block; min-width: 220px; max-width: 150px;">Tác nghiệp cần</span></th>
                     <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Kết quả gọi</span></th>
                     <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">TN Tiếp</span></th>
-                    <th class="text-center no-wrap area1  hidden-xs" style="top: 0.5px;"><span style="display: inline-block; width: 120px;" class="span-col">Cây trồng</span></th>
-                    <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span style="display: inline-block; width: 120px;" class="span-col" style="">Nhu cầu dòng sản phẩm</span></th>
-                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="width: 150px; display: inline-block;">Lý do không mua hàng</span></th>
                     <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 120px;">Ghi chú thông tin khách hàng</span></th>
                     <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Thao tác</span></th>
                 </tr>
@@ -176,7 +210,7 @@
                 {{ csrf_field() }}
                 @if (isset($saleCare))
                     @foreach ($saleCare as $item)
-                <tr class="contact-row">
+                <tr class="contact-row tr_{{$item->id}}">
                     <td class="text-center">
                         <span class="chk-item"><input id="" type="checkbox" name=""><label for="">{{$item->id}}</label></span>
                     </td>
@@ -188,7 +222,7 @@
                     
                     </td>
                     <td class="text-center">
-                    <a target="blank" href="{{$item->page_link}}">{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"d-m-Y ")}}
+                    <a target="blank" href="{{$item->page_link}}">{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"H:i d-m-Y ")}}
                     </td>
                     <td class="text-center">{{($item->user) ? $item->user->real_name : ''}}</td>
                     <td class="text-center area5 hidden-xs">
@@ -213,6 +247,24 @@
                         <span class="small-tip">{{$item->address}}</span>
                     </td>
                     <td>{{$item->messages}}</td>
+                    <td class="area2 hidden-xs">
+                        <span class="fb span-col ttgh7" style="cursor: pointer;">Data nóng</span> 
+
+                        {{-- <a class="btn-icon aoh hidden" href="/ld/sale/sale-tac-nghiep/id/0" title="Xem bản ghi chốt đơn" target="_blank">
+                            <i style="font-size:14px;" class="fa fa-arrow-circle-o-left"></i>
+                        </a>  --}}
+
+                        <a title="Lưu ghi chú" data-id="{{$item->id}}" class="update-TN-sale btn-icon aoh">
+                            <i class="fa fa-save"></i>
+                        </a>
+                        <a href="#" title="Tin nhắn nội bộ" class="btn-icon aoh"><i class="fa fa-commenting-o"></i></a>
+                        <div class="mof-container">
+                            <textarea id="TNSale_{{$item->id}}" rows="2" cols="20" class="form-control txt-mof txt-dotted" data-length="500"
+                                 data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" data-original-title="" title="">{{$item->TN_can}}</textarea>
+                        </div>
+                        <div style="clear: both;"></div>
+                        <span class="item-noidung-other"></span>
+                    </td>
                     <td class="area2 no-wrap fix_brower_continue_let_off">
                         <div class="select2-container txt-dotted ddlpb chosen dis_val">
                             <a class="select2-choice" tabindex="-1" data-id="{{$item->id}}">  
@@ -227,8 +279,8 @@
                                 @foreach ($listCall as $value)
                                 <a class="option-product"
                                     data-call-item-id="{{$item->id}}"
-                                    data-call-name="{{$value->name}}"
-                                    data-call-id="{{$value->id}}">{{$value->name}}
+                                    data-call-name="{{$value->result_call}}"
+                                    data-call-id="{{$value->id}}">{{$value->result_call}}
                                 </a>
                                 @endforeach
                                 @endif
@@ -237,19 +289,19 @@
                         </div>
                     </td>
                     <td class="text-center next-step-{{$item->id}}">{{ ($item->next_step) ? 'Gọi lần ' . $item->next_step : ''}}</td>
-                    <td class="text-center area5 hidden-xs">
+                    {{-- <td class="text-center area5 hidden-xs">
                         {{$item->type_tree}}
-                    </td>
-                    <td class="area1">
+                    </td> --}}
+                    {{-- <td class="area1">
                         {{$item->product_request}}
-                    </td>
-                    <td class="area1 hidden-xs">
+                    </td> --}}
+                    {{-- <td class="area1 hidden-xs">
                         <div class="mof-container">
                             <div class="form-control txt-mof txt-dotted">
                                 {{$item->reason_not_buy}}
                             </div>
                         </div>
-                    </td>
+                    </td> --}}
                     <td class="area2 hidden-xs">{{$item->note_info_customer}}</td>
                     <td class="text-center"> <a data-toggle="modal" data-id="{{$item->id}}" data-target="#myModal" class="updateModal btn-icon aoh"><i class="fa fa-edit"></i>Cập nhật</a></td>
                 </tr>
@@ -317,6 +369,8 @@
         $('#notify-modal').modal("hide");
     });
     $(".option-product").click(function() {
+        $('.body').css("opacity", '0.5');
+        $('.loader').show();
         let id      = $(this).data("call-id");
         let name    = $(this).data("call-name");
         var _token  = $("input[name='_token']").val();
@@ -334,6 +388,7 @@
                 name
             },
             success: function(data) {
+                $('.body').css("opacity", '1');
                 if (!data.error) {
                     $('#notify-modal').modal('show');
                     if ($('.modal-backdrop-notify').length === 0) {
@@ -347,10 +402,11 @@
 
                     setTimeout(function() { 
                         $('#notify-modal').modal("hide");
-                    }, 3000);
+                    }, 2000);
                 } else {
                     alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
                 }
+                $('.loader').hide();
             }
         });
     });
@@ -422,6 +478,51 @@ if (time) {
     time = time.replace('+-+', ' - ') //loại bỏ khoảng trắng
     $('input[name="daterange"]').val(time)
 }
+</script>
+
+<script>
+    $('.update-TN-sale').click(function(){
+        $('.body').css("opacity", '0.5');
+        $('.loader').show();
+        var id = $(this).data("id");
+        var textArea = '#TNSale_' + id;
+        var textTN   = $(textArea).val();
+        var _token   = $("input[name='_token']").val();
+        // console.log('koko', id);
+        // return;
+        $.ajax({
+            url: "{{route('update-salecare-TNcan')}}",
+            type: 'POST',
+            data: {
+                _token: _token,
+                id,
+                textTN
+            },
+            success: function(data) {
+                $('.body').css("opacity", '1');
+                var tr = '.tr_' + id;
+                if (!data.error) {
+                    $('#notify-modal').modal('show');
+                    if ($('.modal-backdrop-notify').length === 0) {
+                        $('.modal-backdrop').addClass('modal-backdrop-notify');
+                    }
+
+                    $(tr).addClass('success');
+                    setTimeout(function() { 
+                        $('#notify-modal').modal("hide");
+                        $(tr).removeClass('success');
+                    }, 2000);
+                } else {
+                    alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
+                    $(tr).addClass('error');
+                    setTimeout(function() { 
+                        $(tr).removeClass('error');
+                    }, 3000);
+                }
+                $('.loader').hide();
+            }
+        });
+    });
 </script>
 
 

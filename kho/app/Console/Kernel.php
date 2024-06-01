@@ -174,32 +174,31 @@ class Kernel extends ConsoleKernel
           $linkPage = $val['link'];
           $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
           $today    = strtotime(date("Y/m/d H:i"));
-          // $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 1 days')));
-          $before   = strtotime(date('Y-m-d H:i', strtotime($today. ' - 3 hour')));
+          $before = strtotime ( '-7 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+          $before = date ( 'Y/m/d H:i' , $before );
+          $before = strtotime($before);
 
-          $response = Http::withHeaders(['token' => $token])
-            ->get($endpoint, [
-              'type' => "PHONE,DATE:$today+-+$before",
-              'access_token' => $token,
-          ]);
+          $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
+          $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
     
           if ($response->status() == 200) {
             $content  = json_decode($response->body());
             $data     = $content->conversations;
 
-            // dd($data);
-            // $i = 0;
             foreach ($data as $item) {
-              // if ($i > 5) break;
-              // $i++;
-    
-              $length = count($item->recent_phone_numbers);
-             
-              $recentPhoneNumbers = $item->recent_phone_numbers[$length-1];
-              $phone = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
-              $name = isset($item->customers[0]) ? $item->customers[0]->name : '';
+              $recentPhoneNumbers = $item->recent_phone_numbers[0];
+              $mId      = $recentPhoneNumbers->m_id;
+              $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
+              $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
               $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-              if ($phone && $name && !Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'])) {            
+
+              /** gán cho sale đang ready trước, sau đó check sale cũ */
+              $assignSale = Helper::getAssignSale();
+              $assgin_user = $assignSale->id;
+
+              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user);
+
+              if ($name && $checkSaleCareOld) {             
                 $sale = new SaleController();
                 $data = [
                   'page_link' => $linkPage,
@@ -212,14 +211,10 @@ class Kernel extends ConsoleKernel
                   'phone'     => $phone,
                   'page_id'   => $pIdPan,
                   'text'      => 'Page ' . $namePage,
-                  'chat_id'   => 'id_VUI'
+                  'chat_id'   => 'id_VUI',
+                  'm_id'      => $mId,
+                  'assgin'    => $assgin_user
                 ];
-    
-                $assignSale = Helper::getAssignSale();
-                if ($assignSale) {
-                  // $idSale = $assignSale->id;
-                  $data['assgin'] = $assignSale->id;
-                }
 
                 $request = new \Illuminate\Http\Request();
                 $request->replace($data);

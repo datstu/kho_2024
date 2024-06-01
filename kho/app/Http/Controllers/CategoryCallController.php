@@ -11,9 +11,11 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use App\Models\Call;
 use App\Helpers\Helper;
-use App\Models\Categorycall;
+use App\Models\CategoryCall;
 
-class CallController extends Controller
+
+
+class CategoryCallController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,46 +24,36 @@ class CallController extends Controller
      */
     public function index()
     {
-        $calls = Call::orderBy('id', 'desc')->paginate(15);
-        // dd($calls);
-        return view('pages.call.index')->with('call', $calls);
+        $calls = CategoryCall::orderBy('id', 'desc')->paginate(15);
+        return view('pages.call.category.index')->with('categoryCall', $calls);
     }
 
     public function add()
     { 
-        $categoryCall = Categorycall::where('status', 1)->get();
-        return view('pages.call.add')->with('categoryCall', $categoryCall);
+        // $helper = new Helper();
+        // $listSale = $helper->getListSale()->get();
+        return view('pages.call.category.add');
     }
 
     public function save(Request $req) {
-        // dd($req->all());
+    
         $validator      = Validator::make($req->all(), [
-            'if_call'       => 'required',
-            'result_call'   => 'required',
-            'then_call'     => 'required',
-            'time'          => 'numeric|nullable',
+            'name'       => 'required',
         ],[
-            'if_call.required' => 'Nhập Input Nếu',
-            'result_call.required' => 'Nhập Kết quả',
-            'then_call.required' => 'Nhập Input Thì',
-            'time.numeric' => 'Thời gian chỉ nhập số',
+            'name.required' => 'Vui lòng nhập loại TN',
         ]);
 
         if ($validator->passes()) {
             if (isset($req->id)) {
-                $call = Call::find($req->id);
+                $call = categoryCall::find($req->id);
                 $call->status  = $req->status;
                 $text = 'Cập nhật call thành công.';
             } else {
-                $call = new Call();
-                $text = 'Tạo call thành công.';
+                $call = new categoryCall();
+                $text = 'Tạo loại TN thành công.';
             }
-
-            $call->if_call = $req->if_call;
-            $call->result_call = $req->result_call;
-            $call->then_call = $req->then_call;
+            // dd($request->products);
             $call->name = $req->name;
-            $call->time = $req->time;
             $call->save();
             
             notify()->success($text, 'Thành công!');
@@ -84,15 +76,13 @@ class CallController extends Controller
            return back();
         }
 
-        return redirect()->route('call-index');
+        return redirect()->route('category-call');
     }
 
-    public function update($id) 
-    {
-        $call = Call::find($id);
+    public function update($id) {
+        $call = CategoryCall::find($id);
         if($call){
-            $categoryCall = Categorycall::where('status', 1)->get();
-            return view('pages.call.add')->with('call', $call)->with('categoryCall', $categoryCall);
+            return view('pages.call.category.add')->with('categoryCall', $call);
         } 
 
         return redirect('/');
@@ -100,13 +90,13 @@ class CallController extends Controller
 
     public function delete($id)
     {
-        $call = Call::find($id);
-        if($call){
-            $call->delete();
-            notify()->success('Xoá TN thành công.', 'Thành công!');
+        $category = Categorycall::find($id);
+        if($category){
+            $category->delete();
+            notify()->success('Xoá loại TN thành công.', 'Thành công!');
             return back();            
         } 
-        notify()->error('Xoá TN thất bại!', 'Thất bại!');
+        notify()->error('Xoá loại TN thất bại!', 'Thất bại!');
         return back();
     }
 }

@@ -13,6 +13,8 @@ use App\Http\Controllers\CallController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\FbWebHookController;
+use App\Http\Controllers\CategoryCallController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +27,7 @@ use App\Http\Controllers\FbWebHookController;
 |
 */
 Route::middleware('admin-auth')->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('product');
+    Route::get('/', [HomeController::class, 'index'])->name('home');
 
     Route::get('/home',  [HomeController::class, 'index'])->name('home');
     
@@ -87,15 +89,24 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/cap-nhat-tac-nghiep-sale/{id}',  [SaleController::class, 'update'])->name('sale-care-update');
     Route::post('/cap-nhat-sale-ajax',  [SaleController::class, 'saveAjax'])->name('sale-save-ajax');
     Route::get('/tim-tac-nghiep-sale',  [SaleController::class, 'search'])->name('search-sale-care');
+    Route::post('/cap-nhat-TNcan',  [SaleController::class, 'updateTNcan'])->name('update-salecare-TNcan');
 
+    Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
+    Route::get('/tao-loai-TN-sale',  [CategoryCallController::class, 'add'])->name('category-call-add');
+    Route::post('/save-loai-TN-sale',  [CategoryCallController::class, 'save'])->name('category-call-save');
+    Route::get('/cap-nhat-loai-TN-sale/{id}',  [CategoryCallController::class, 'update'])->name('category-call-update');
+    Route::get('/delete-category-call/{id}',  [CategoryCallController::class, 'delete'])->name('category-call-delete');
+    
     Route::get('/call',  [CallController::class, 'index'])->name('call-index');
     Route::get('/tao-call',  [CallController::class, 'add'])->name('call-add');
     Route::post('/luu-call',  [CallController::class, 'save'])->name('call-save');
     Route::get('/cap-nhat-call/{id}',  [CallController::class, 'update'])->name('call-update');
+    Route::get('/call-delete/{id}',  [CallController::class, 'delete'])->name('call-delete');
 
     Route::get('/cai-dat-chung',  [SettingController::class, 'index'])->name('setting-general');
     Route::post('/telegram-save',  [SettingController::class, 'telegramSave'])->name('telegram-save');
     Route::post('/pancake-save',  [SettingController::class, 'pancakeSave'])->name('pancake-save');
+    Route::post('/ladi-save',  [SettingController::class, 'ladiSave'])->name('ladi-save');
     
 });
 
@@ -106,6 +117,6 @@ Route::get('/log-out',  [UserController::class, 'logOut'])->name('log-out');
 Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filter-total');
 // Route::get('/filter-total-sales',  [HomeController::class, 'filterTotalSales'])->name('filter-total-sales');
 Route::get('/filter-total-sales',  [HomeController::class, 'filterDashboard'])->name('filter-total-sales');
-Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');
+Route::get('/test',  [TestController::class, 'tele'])->name('test');
 
 Route::get('/webhook', [FbWebHookController::class, 'webhook'])->name('webhook');

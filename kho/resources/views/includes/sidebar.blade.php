@@ -7,7 +7,6 @@
 
     <li class="nav-title">Development</li>
 
-
  <?php $checkAll = isFullAccess(Auth::user()->role);?>
 
     @if ($checkAll)
@@ -46,7 +45,6 @@
         </svg>TeleSale</a>
         <ul class="nav-group-items">
             <li class="nav-item"><a class="nav-link" href="{{route('sale-index')}}"><span class="nav-icon"></span>Tác nghiệp Sale</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{route('call-index')}}"><span class="nav-icon"></span>QL Call</a></li>
         </ul>
     </li>
     
@@ -64,6 +62,12 @@
         </svg>Cài đặt</a>
         <ul class="nav-group-items">
             <li class="nav-item"><a class="nav-link" href="{{route('setting-general')}}"><span class="nav-icon"></span>Chung</a></li>
+            <li class="nav-group"><a class="nav-link nav-group-toggle">QL TN Sale</a>
+                <ul class="nav-group-items">
+                    <li class="nav-item"><a class="nav-link" href="{{route('category-call')}}"><span class="nav-icon"></span>Loại TN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{route('call-index')}}"><span class="nav-icon"></span>Thiết lập TN Sale</a></li>
+                </ul>
+            </li>
         </ul>
     </li>
     @endif

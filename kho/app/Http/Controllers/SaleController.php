@@ -56,12 +56,12 @@ class SaleController extends Controller
             'name'      => 'required',
             'address'   => 'required',
             'phone'     => 'required',
-            'id_order'  => 'numeric',
+            // 'id_order'  => 'numeric',
         ],[
             'name.required' => 'Nhập tên khách hàng',
             'address.required' => 'Nhập địa chỉ',
             'phone.required' => 'Nhập số điện thoại',
-            'id_order.numeric' => 'Chỉ được nhập số',
+            // 'id_order.numeric' => 'Chỉ được nhập số',
         ]);
 
         // dd($validator->errors());
@@ -73,8 +73,8 @@ class SaleController extends Controller
                 $saleCare = new SaleCare();
                 $text = 'Tạo tác nghiệp thành công.';
             }
-
-            
+            // $req->old_customer = 9;
+            // dd($req->all());
             $saleCare->id_order             = $req->id_order;
             $saleCare->sex                  = $req->sex;
             $saleCare->full_name            = $req->name;
@@ -88,8 +88,10 @@ class SaleController extends Controller
             $saleCare->page_name            = $req->page_name;
             $saleCare->page_id              = $req->page_id;
             $saleCare->messages             = $req->messages;
-            $saleCare->old_customer         = $req->old_customer;
+            $saleCare->old_customer         = ($req->old_customer) ?: 0;
             $saleCare->page_link            = $req->page_link;
+            $saleCare->m_id                 = $req->m_id;
+
             $saleCare->save();
 
             if (!isset($req->id)) {
@@ -304,5 +306,18 @@ class SaleController extends Controller
             dd($e);
             return redirect()->route('home');
         }
+    }
+
+    public function updateTNcan(Request $r) {
+        // dd($r->all());
+        $saleCare = SaleCare::find($r->id);
+        // dd( $saleCare);
+        if ($saleCare) {
+            $saleCare->TN_can = $r->textTN;
+            $saleCare->save();
+            return response()->json(['success' => 'Cập nhật TN thành công!']);
+        }
+
+        return response()->json(['error'=>'Đã có lỗi xảy ra trong quá trình cập nhật']);
     }
 }

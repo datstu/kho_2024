@@ -127,7 +127,7 @@
 
                                         <div class="col-6 hidden">
                                             <label class="form-label" >Chọn Sale</label>
-                                            <select class="form-control" name="assign-sale">
+                                            <select class="form-control" name="assign">
                                                 <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
                                             </select>
                                             <p class="error_msg" id="price"></p>
@@ -220,7 +220,7 @@
                                         @if ($checkAll)
                                         <div class="col-lg-3">
                                             <label class="form-label">Chọn Sale:</label>
-                                            <select class="form-control" name="assign-sale" >
+                                            <select class="form-control" name="assgin" >
 
                                             @if (isset($listSale))
                                             @foreach ($listSale as $item)
@@ -234,7 +234,7 @@
                                         @else 
                                         <div class="col-lg-3 hidden">
                                             <label class="form-label">Chọn Sale:</label>
-                                            <select class="form-control" name="assign-sale">
+                                            <select class="form-control" name="assgin">
                                                 <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
                                             </select>
                                             <p class="error_msg" id="price"></p>

@@ -13,6 +13,7 @@ use App\Models\Call;
 use App\Helpers\Helper;
 use App\Models\Telegram;
 use App\Models\Pancake;
+use App\Models\LadiPage;
 
 
 class SettingController extends Controller
@@ -26,7 +27,9 @@ class SettingController extends Controller
     {
         $pancake    = Pancake::first();
         $telegram   = Telegram::first();
-        return view('pages.setting.index')->with('telegram', $telegram)->with('pancake', $pancake);
+        $ladiPage   = LadiPage::first();
+
+        return view('pages.setting.index')->with('telegram', $telegram)->with('pancake', $pancake)->with('ladiPage', $ladiPage);
     }
 
     public function add()
@@ -76,5 +79,20 @@ class SettingController extends Controller
         } 
 
         return redirect('/');
+    }
+
+    public function ladiSave(Request $r) 
+    {
+        if (isset($r->id)) {
+            $ladi = LadiPage::find($r->id);
+        } else {
+            $ladi = new LadiPage();
+        }
+
+        $ladi->status = $r->status;
+        $ladi->save();
+        notify()->success('Cập nhật thông tin Ladipage thành công.', 'Thành công!');
+
+        return back();
     }
 }

@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\SaleCare;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\belongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Call extends Model
+class CategoryCall extends Model
 {
     use HasFactory;
     protected $primaryKey = 'id';
@@ -18,7 +18,7 @@ class Call extends Model
      *
      * @var string
      */
-    protected $table = 'list_call';
+    protected $table = 'category_call';
 
     // /**
     //  * Get the author of the post.
@@ -27,12 +27,4 @@ class Call extends Model
     // {
     //     return $this->belongsTo(SaleCare::class,'result_call');
     // }
-
-    /**
-     * Get the shippingOrder for the Orders.
-     */
-    public function categoryCall(): belongsTo
-    {
-        return $this->belongsTo(CategoryCall::class, 'if_call');
-    }
 }

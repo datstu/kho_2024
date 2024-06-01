@@ -225,7 +225,7 @@ $listStatus = Helper::getListStatus();
                                     <input value="<?= ($saleCareId) ?: $saleCareId ?>" class="hidden form-control" name="sale-care">
                                     <div class="col-sm-12 col-lg-6">
                                         <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
-                                        <input placeholder="0973409613" class="form-control" name="phone"
+                                        <input autofocus placeholder="0973409613" class="form-control" name="phone"
                                             id="phoneFor" type="text">
                                         <p class="error_msg" id="phone"></p>
                                     </div>

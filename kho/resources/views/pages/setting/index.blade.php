@@ -92,8 +92,8 @@
                                 <p>&ensp; Gửi thông báo khi khách hàng nhận được hàng đến 'nhóm CSKH': -4128471334</p>
                                 <p>&ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm VUI': -4195890963</p>
                             <p><strong>Dev/Local:</strong></p>
-                            <p> &ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm Testbot': -4140296352</p>
-                            <p>&ensp;  Gửi thông báo khi khách hàng nhận được hàng đến 'nhóm Testbot': -4140296352</p>
+                            <p> &ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm Testbot': -4286962864</p>
+                            <p>&ensp;  Gửi thông báo khi khách hàng nhận được hàng đến 'nhóm Testbot': -4286962864</p>
                         </pre></div>
                     </div>
                   </div>
@@ -172,6 +172,57 @@
                                     </div>
                                 </pre></div>
                             </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-coreui-toggle="collapse" data-coreui-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+              Tích hợp Ladipage
+            </button>
+          </h2>
+          <div id="collapse3" class="accordion-collapse collapse">
+            <div class="accordion-body">
+                <div class="card-body">
+                    <div class="body flex-grow-1">
+                        <div class="tab-content rounded-bottom">
+
+                          <form action="{{route('ladi-save')}}" method="POST">
+                              {{ csrf_field() }}
+                              <input value="<?= isset($ladiPage) ? $ladiPage->id : ''; ?>" name="id" type="hidden">
+                              <div class="tab-pane p-3 active preview" role="tabpanel">
+                                
+                                <div class="mb-3 row">
+                                  <label class="form-label col-sm-2 " for="qtyIP">Trạng Thái</label>
+                                  <div class="col-lg-6  col-sm-10">
+                                      <div class="form-check ">
+                                        <input  <?= (isset($ladiPage) && $ladiPage->status == 1) ? 'checked' : ''; ?> checked class="form-check-input" type="radio" name="status" value="1"
+                                            id="radioLadipage">
+                                        <label class="form-check-label" for="radioLadipage">
+                                            Bật
+                                        </label>
+                                      </div>
+                                      <div class="form-check">
+                                        <input <?= (isset($ladiPage) && $ladiPage->status == 0) ? 'checked' : ''; ?> class="form-check-input" type="radio" name="status" value="0"
+                                          id="radioLadipage2" >
+                                        <label  class="form-check-label" for="radioLadipage2">Tắt</label>
+                                      </div>
+                                  </div>
+                                    
+                                </div>
+                                  <button type="submit" id="submit" class="btn btn-primary">Lưu</button>
+                              </div>
+                          </form>
+
+                          <div class="row p-3 ">
+                            <div class="col-12 tele-desc">
+                              <p>API: domain_url/api/ladipage</p>
+                            </div>
+                          </div>
                         </div>
                         
                     </div>

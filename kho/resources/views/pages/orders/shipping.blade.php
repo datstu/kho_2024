@@ -60,7 +60,7 @@
                                             {{ csrf_field() }}
                                             <input type="hidden" name="vendor_ship">
                                             <input type="hidden" name="order_id" value="{{$orderId}}">
-                                            <input required type="text" name="id_shipping_has" class="form-control" placeholder="Nhập mã vận đơn..." aria-label="Username" aria-describedby="basic-addon1">
+                                            <input autofocus required type="text" name="id_shipping_has" class="form-control" placeholder="Nhập mã vận đơn..." aria-label="Username" aria-describedby="basic-addon1">
                                             <button type="submit" class="mt-2 btn btn-primary">Áp dụng</button>
                                         </form>
                                     </div>

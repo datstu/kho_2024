@@ -57,6 +57,15 @@
         console.log($(window ).width());
         $('.tool-bar button').text('Tìm');
     }
+
+    if ($('.flex.items-start').length) {
+        console.log('tadada')
+        
+        setTimeout(function() { 
+            $('.notify.fixed').hide();
+        }, 3000);
+    }
+
   });
 </script>
 @stop

@@ -9,6 +9,7 @@ use App\Models\ShippingOrder;
 use App\Models\User;
 use App\Models\Call;
 use App\Http\Controllers\ProductController;
+use App\Models\LadiPage;
 use App\Models\Orders;
 use App\Models\SaleCare;
 use Illuminate\Support\Facades\Log;
@@ -215,16 +216,30 @@ class Helper
     }
 
     
-    public static function checkOrderSaleCarebyPhonePage($phone, $pageId) {
-        $saleCare = SaleCare::where('phone', $phone)->where('page_id', $pageId)->get()->first();
-        
-        $str = json_encode($saleCare);
-        Log::channel('new')->info('phone: '. $phone . ', $saleCare: ' . $str );
-        if ($saleCare) {
+    public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, &$assign) 
+    {
+        if (!$mId || !$phone || $phone == '0961161760') {
+            return false;
+        } 
+       
+        $saleCares = SaleCare::where('old_customer', 0)->where('phone', $phone)
+            ->where('page_id', $pageId)->orderBy('id', 'desc')->get();
+            
+        if ($saleCares->count() == 0) {
             return true;
         }
-        return false;
+
+        foreach ($saleCares as $item) {
+            if ($item->m_id == $mId) {
+                return false;
+            }
+        }
+        
+        $assign = $saleCares[0]->assign_user;
+
+        return true;
     }
+    
 
     public static function getStatusGHNtoKho($id) {
         $arr = [];
@@ -310,5 +325,10 @@ class Helper
         }
 
         return $sale;
+    }
+
+    public static function getConfigLadiPage() 
+    {
+        return LadiPage::first();
     }
 }
