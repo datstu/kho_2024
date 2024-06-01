@@ -14,7 +14,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\FbWebHookController;
 use App\Http\Controllers\CategoryCallController;
-
+use App\Http\Controllers\LadipageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +27,7 @@ use App\Http\Controllers\CategoryCallController;
 |
 */
 Route::middleware('admin-auth')->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/', [HomeController::class, 'index'])->name('product');
 
     Route::get('/home',  [HomeController::class, 'index'])->name('home');
     
@@ -90,6 +90,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/cap-nhat-sale-ajax',  [SaleController::class, 'saveAjax'])->name('sale-save-ajax');
     Route::get('/tim-tac-nghiep-sale',  [SaleController::class, 'search'])->name('search-sale-care');
     Route::post('/cap-nhat-TNcan',  [SaleController::class, 'updateTNcan'])->name('update-salecare-TNcan');
+    Route::get('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
 
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
     Route::get('/tao-loai-TN-sale',  [CategoryCallController::class, 'add'])->name('category-call-add');

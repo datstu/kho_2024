@@ -136,6 +136,23 @@
                                                 </label>
                                             </div>
                                         </div>
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label">Chia data</label>
+                                            <div class="form-check">
+                                                <input <?=  $user->is_receive_data == 1 ? 'checked' : '' ?>  class="form-check-input" type="radio" name="is_receive_data" value="1"
+                                                    id="isReceiveTrueIP">
+                                                <label class="form-check-label" for="isReceiveTrueIP">
+                                                    Có
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input <?=  $user->is_receive_data == 0 ? 'checked' : '' ?> class="form-check-input" type="radio" name="is_receive_data" value="0"
+                                                    id="isReceiveFalseIP" >
+                                                <label  class="form-check-label" for="isReceiveFalseIP">
+                                                    Không
+                                                </label>
+                                            </div>
+                                        </div>
                                         </div>
                                         
                                         <div class="loader hidden">
@@ -260,6 +277,7 @@ $(document).ready(function() {
         var id          = $("input[name='id']").val();
         var status      = $("input[name='status']:checked").val();
         var is_sale     = $("input[name='is_sale']:checked").val();
+        var is_receive_data     = $("input[name='is_receive_data']:checked").val();
 
         console.log('is sale',is_sale);
         let roles = [];
@@ -286,7 +304,8 @@ $(document).ready(function() {
                     roles,
                     status,
                     is_sale,
-                    real_name
+                    real_name,
+                    is_receive_data
                 },
                 success: function(data) {
                     console.log(data);

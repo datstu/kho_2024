@@ -9,12 +9,12 @@ use App\Models\ShippingOrder;
 use App\Models\User;
 use App\Models\Call;
 use App\Http\Controllers\ProductController;
-use App\Models\LadiPage;
 use App\Models\Orders;
 use App\Models\SaleCare;
 use Illuminate\Support\Facades\Log;
 use App\Models\Telegram;
 use App\Models\Pancake;
+use App\Models\LadiPage;
 
 setlocale(LC_TIME, 'vi_VN.utf8');
 
@@ -216,7 +216,7 @@ class Helper
     }
 
     
-    public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, &$assign) 
+    public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId) 
     {
         if (!$mId || !$phone || $phone == '0961161760') {
             return false;
@@ -228,7 +228,7 @@ class Helper
         if ($saleCares->count() == 0) {
             return true;
         }
-
+    
         foreach ($saleCares as $item) {
             if ($item->m_id == $mId) {
                 return false;
@@ -236,7 +236,7 @@ class Helper
         }
         
         $assign = $saleCares[0]->assign_user;
-
+    
         return true;
     }
     
@@ -299,11 +299,11 @@ class Helper
     public static function getAssignSale()
     {
         /**lấy user chỉ định bằng 1 */
-        $sale = User::where('status', 1)->where('is_sale', 1)->where('next_assign', 1)->first();
+        $sale = User::where('status', 1)->where('is_sale', 1)->where('is_receive_data', 1)->where('next_assign', 1)->first();
 
         /**ko có user nào đc chỉ định thì lấy user đầu tiên, điều kiện tất cả user đều = 0 */
         if (!$sale) {
-            $sale = User::where('status', 1)->where('is_sale', 1)->orderBy('id', 'DESC')->first();
+            $sale = User::where('status', 1)->where('is_sale', 1)->where('is_receive_data', 1)->orderBy('id', 'DESC')->first();
         }
 
         /**set user chỉ định đã được lấy, set = 2 = đã dùng trong lần gọi này*/
@@ -314,7 +314,7 @@ class Helper
          * và lấy user đầu tiên trong danh sách
          * trường hợp ko tìm đc ai (tất cả đều bằng 2) -> reset all về bằng 0 - sẵn sàng assign lần tiếp
          */
-        $nextAssign = User::where('status', 1)->where('is_sale', 1)->where('id', '!=', $sale->id)
+        $nextAssign = User::where('status', 1)->where('is_receive_data', 1)->where('is_sale', 1)->where('id', '!=', $sale->id)
             ->where('next_assign', 0)->orderBy('id', 'DESC')->first();
                     
         if ($nextAssign) {
@@ -326,7 +326,7 @@ class Helper
 
         return $sale;
     }
-
+    
     public static function getConfigLadiPage() 
     {
         return LadiPage::first();

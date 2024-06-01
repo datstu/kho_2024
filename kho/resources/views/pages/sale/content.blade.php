@@ -263,7 +263,7 @@
                                  data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" data-original-title="" title="">{{$item->TN_can}}</textarea>
                         </div>
                         <div style="clear: both;"></div>
-                        <span class="item-noidung-other"></span>
+                        <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__LastMessage_0" class="item-noidung-other"></span>
                     </td>
                     <td class="area2 no-wrap fix_brower_continue_let_off">
                         <div class="select2-container txt-dotted ddlpb chosen dis_val">
@@ -303,7 +303,18 @@
                         </div>
                     </td> --}}
                     <td class="area2 hidden-xs">{{$item->note_info_customer}}</td>
-                    <td class="text-center"> <a data-toggle="modal" data-id="{{$item->id}}" data-target="#myModal" class="updateModal btn-icon aoh"><i class="fa fa-edit"></i>Cập nhật</a></td>
+                     <td class="text-center"> 
+                        <a data-toggle="modal" data-id="{{$item->id}}" data-target="#myModal" class="updateModal btn-icon aoh"><i class="fa fa-edit"></i>Cập nhật</a>
+                    
+                        <?php $checkAll = isFullAccess(Auth::user()->role);?>
+                        @if ($checkAll)
+                        <a title="xoá" onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" role="button">
+                            <svg class="icon me-2">
+                            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-backspace')}}"></use>
+                            </svg>
+                        </a>
+                        @endif
+                    </td>
                 </tr>
         
                 @endforeach

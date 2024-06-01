@@ -320,4 +320,17 @@ class SaleController extends Controller
 
         return response()->json(['error'=>'Đã có lỗi xảy ra trong quá trình cập nhật']);
     }
+    
+    public function delete($id)
+    {
+        $saleCare = SaleCare::find($id);
+        if($saleCare){
+            $saleCare->delete();
+            notify()->success('Xoá data thành công.', 'Thành công!');            
+        } else {
+            notify()->error('Xoá loại TN thất bại!', 'Thất bại!');
+        }
+        
+        return back();
+    }
 }
