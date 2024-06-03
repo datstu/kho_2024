@@ -216,7 +216,7 @@ class Helper
     }
 
     
-    public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId) 
+    public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, &$assign) 
     {
         if (!$mId || !$phone || $phone == '0961161760') {
             return false;
@@ -234,12 +234,11 @@ class Helper
                 return false;
             }
         }
-        
+       
         $assign = $saleCares[0]->assign_user;
-    
+      
         return true;
     }
-    
 
     public static function getStatusGHNtoKho($id) {
         $arr = [];
@@ -310,6 +309,7 @@ class Helper
         $sale->next_assign = 2;
         $sale->save();
 
+        echo 'thằng ss trước' .$sale->id;
         /** chỉ định người tiếp theo: lấy toàn bộ những người hợp lệ trừ user vừa set = 2 ở trên (hợp lệ = 0)
          * và lấy user đầu tiên trong danh sách
          * trường hợp ko tìm đc ai (tất cả đều bằng 2) -> reset all về bằng 0 - sẵn sàng assign lần tiếp

@@ -161,10 +161,9 @@ class Kernel extends ConsoleKernel
   public function crawlerPancake()
   {
     $panCake = Helper::getConfigPanCake();
-    if($panCake->status == 1 && $panCake->page_id != '' && $panCake->token != '') {
+    if ($panCake->status == 1 && $panCake->page_id != '' && $panCake->token != '') {
       $pageId = $panCake->page_id;
       $pages  = json_decode($pageId,1);
-
       $token  = $panCake->token;
 
       if (count($pages) > 0) {
@@ -174,7 +173,7 @@ class Kernel extends ConsoleKernel
           $linkPage = $val['link'];
           $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
           $today    = strtotime(date("Y/m/d H:i"));
-          $before = strtotime ( '-7 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+          $before = strtotime ( '-6 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
           $before = date ( 'Y/m/d H:i' , $before );
           $before = strtotime($before);
 
@@ -192,13 +191,16 @@ class Kernel extends ConsoleKernel
               $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
               $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
 
-              /** gán cho sale đang ready trước, sau đó check sale cũ */
-              $assignSale = Helper::getAssignSale();
-              $assgin_user = $assignSale->id;
-
+              $assgin_user = 0;
               $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user);
 
-              if ($name && $checkSaleCareOld) {             
+              if ($name && $checkSaleCareOld) {  
+                
+                if ($assgin_user == 0) {
+                  $assignSale = Helper::getAssignSale();
+                  $assgin_user = $assignSale->id;
+                }
+
                 $sale = new SaleController();
                 $data = [
                   'page_link' => $linkPage,

@@ -118,6 +118,6 @@ Route::get('/log-out',  [UserController::class, 'logOut'])->name('log-out');
 Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filter-total');
 // Route::get('/filter-total-sales',  [HomeController::class, 'filterTotalSales'])->name('filter-total-sales');
 Route::get('/filter-total-sales',  [HomeController::class, 'filterDashboard'])->name('filter-total-sales');
-Route::get('/test',  [TestController::class, 'tele'])->name('test');
+Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
 
 Route::get('/webhook', [FbWebHookController::class, 'webhook'])->name('webhook');
