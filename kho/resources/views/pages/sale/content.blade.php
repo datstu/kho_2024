@@ -122,24 +122,66 @@
             
         <script type="text/javascript" src="{{asset('public/js/moment.js')}}"></script>
         <link rel="stylesheet" type="text/css" href="{{asset('public/css/daterangepicker.css')}}" /> 
-        <div class=" col-sm-2 form-group daterange mb-1">
-            <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
-        </div>
-        <?php $checkAll = isFullAccess(Auth::user()->role);?>
-        @if ($checkAll)
-            <div class="row mb-1 filter-order">
+        <div class="row mb-1 filter-order">
+            <div class=" col-sm-3 form-group daterange mb-1">
+                <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
+            </div>
+
+            <?php $checkAll = isFullAccess(Auth::user()->role);?>
+                @if ($checkAll)
+                <div class="col-sm-4 form-group mb-1">
+                    <select name="src" id="src-filter" class="form-select" aria-label="Default select example">
+                    <option value="999">--Tất cả Nguồn--</option>
+
+                <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
+                    if ($pagePanCake) {
+                        $pages = json_decode($pagePanCake);
+                        // dd($pages);
+                        foreach ($pages as $page) {
+                ?>
+                            <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
+                <?php   }
+                    }   
+
+                    $ladiPages = [
+                        [
+                            'name' => 'Ladipage mua4tang2',
+                            'id' => 'mua4tang2',
+                            // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                        ],
+                        [
+                            'name' => 'Ladipage mua4-tang2 Tiễn',
+                            'id' => 'mua4-tang2',
+                            // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+                        ],
+                        [
+                            'name' => 'Ladipage giamgia45',
+                            'id' => 'giamgia45',
+                            // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
+                        ],
+
+                    ];
+                    foreach ($ladiPages as $page) {
+                ?>
+                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+                <?php   
+                    }
+                ?>
+
+                    </select>
+                </div>
                 <div class="col-sm-2 form-group mb-1">
                     <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
                     <option value="999">--Tất cả Sale--</option>
                     @if (isset($sales))
                         @foreach($sales as $sale)
-                        <option <?php  ?> value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
+                        <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
                         @endforeach
                     @endif
                     </select>
                 </div>
-            </div>
-        @endif
+                @endif
+        </div>
 
         <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
@@ -481,6 +523,11 @@ $.urlParam = function(name){
 let sale = $.urlParam('sale') 
 if (sale) {
     $('#sale-filter option[value=' + sale +']').attr('selected','selected');
+}
+
+let src = $.urlParam('src') 
+if (src) {
+    $('#src-filter option[value=' + src +']').attr('selected','selected');
 }
 
 let time = $.urlParam('daterange') 

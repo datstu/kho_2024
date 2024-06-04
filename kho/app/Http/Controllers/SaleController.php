@@ -223,14 +223,14 @@ class SaleController extends Controller
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
             }
-            
-            // if (isset($dataFilter['status'])) {
-            //     $list->whereStatus($dataFilter['status']);
-            // }
 
-            // if (isset($dataFilter['status'])) {
-            //     $list->whereStatus($dataFilter['status']);
-            // }
+            if (isset($dataFilter['src'])) {
+                if (is_numeric($dataFilter['src'])) {
+                    $list->where('page_id', 'like', '%' . $dataFilter['src'] . '%');
+                } else {
+                    $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
+                }   
+            }
         }
 
         $checkAll   = false;
@@ -274,10 +274,11 @@ class SaleController extends Controller
         }
     }
 
-    public function filterSalesByDate(Request $req) {
+    public function filterSalesByDate(Request $req) 
+    {
         $dataFilter = [];
 
-        // dd($req->daterange);
+        // dd($req->all());
         if ($req->daterange) {
             $time       = $req->daterange;
             $arrTime    = explode("-",$time); 
@@ -288,9 +289,13 @@ class SaleController extends Controller
         if ($req->sale && $sale != 999) {
             $dataFilter['sale'] = $sale;
         }
+        
+        $src = $req->src;
+        if ($req->src && $src != 999) {
+            $dataFilter['src'] = $src;
+        }
 
         try {
-            // dd($dataFilter);
             $data       = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
             $count      = $data->count();
             $saleCare   = $data->paginate(50);
@@ -299,6 +304,7 @@ class SaleController extends Controller
             $helper     = new Helper();
             $listCall   = $helper->getListCall()->get();
 
+            // dd($data->get());
             return view('pages.sale.index')->with('count', $count)->with('sales', $sales)
                 ->with('saleCare', $saleCare)->with('listCall', $listCall);
         } catch (\Exception $e) {
