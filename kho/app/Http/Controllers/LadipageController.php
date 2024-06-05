@@ -14,6 +14,7 @@ class LadipageController  extends Controller
     {
         // Log::info('run api ladipage');
 
+        // dd($r->all());
         $phone = $r->phone;
         $name = $r->name;
         // $email = $r->email;
@@ -26,20 +27,19 @@ class LadipageController  extends Controller
             $messages .= "\n" . $address;
         }
         $all = json_encode($r->all());
-// print_r($r->all());
-Log::info($all);
-        // $phone = '01225429494';
-        // $name = 'test';
-        // $email = $r->email;
-        // $message = 'this is a text mês';
-        // $linkPage = 'https://linl.com';
+
+        Log::info($all);
 
         $ladiPage = Helper::getConfigLadiPage();
         $namePage = 'Ladi Page';
         
-        /** gán cho sale đang ready trước, sau đó check sale cũ */
-        $assignSale = Helper::getAssignSale();
-        $assgin_user = $assignSale->id;
+        $assgin_user = 0;
+        $isOldDataLadi = Helper::isOldDataLadi($phone, $linkPage, $assgin_user);
+        if (!$isOldDataLadi) {
+            $assignSale = Helper::getAssignSale();
+            $assgin_user = $assignSale->id;
+        }
+
         if($ladiPage->status == 1) {
             $sale = new SaleController();
                 $data = [

@@ -309,7 +309,6 @@ class Helper
         $sale->next_assign = 2;
         $sale->save();
 
-        echo 'thằng ss trước' .$sale->id;
         /** chỉ định người tiếp theo: lấy toàn bộ những người hợp lệ trừ user vừa set = 2 ở trên (hợp lệ = 0)
          * và lấy user đầu tiên trong danh sách
          * trường hợp ko tìm đc ai (tất cả đều bằng 2) -> reset all về bằng 0 - sẵn sàng assign lần tiếp
@@ -330,5 +329,18 @@ class Helper
     public static function getConfigLadiPage() 
     {
         return LadiPage::first();
+    }
+
+    public static function isOldDataLadi($phone, $link, &$assign) 
+    {
+        $phone = trim($phone);
+        $saleCare = SaleCare::where('phone', $phone)->where('page_link', 'like', '%' . $link . '%')->first();
+
+        if ($saleCare) {
+            $assign = $saleCare->assign_user;
+            return true;
+        }
+       
+        return false;
     }
 }
