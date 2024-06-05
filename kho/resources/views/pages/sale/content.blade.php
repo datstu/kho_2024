@@ -230,12 +230,12 @@
                     <th style="top: 0.5px;">
                         <span class="chk-all"><input id="" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
                     </th>
-                    <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 80px; max-width: 100px;">Mã đơn hàng</span></th>
+                    <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 80px;">Mã đơn hàng</span></th>
 
                     <th style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 150px;">Nguồn data <br>Ngày nhận</span></th>
-                    <th style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 150px;">Sale</span></th>
+                    <th style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 100px;">Sale</span></th>
                     <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;">
-                        <span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 200px;">Họ tên<br>
+                        <span class="span-col text-center" style="display: inline-block; min-width: 200px; max-width: 200px;">Họ tên<br>
                             <span class="span-col">Số điện thoại</span><br>
                             <span class="span-col">Địa chỉ</span>
                         </span>
