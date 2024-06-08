@@ -86,11 +86,15 @@ class UserController extends Controller
             }
            
             try {
+                // dd($req->all());
                 $user->name         = $req->name;
                 $user->real_name    = $req->real_name;
                 $user->email        = $req->email;
                 $user->is_sale      = $req->is_sale;
-                $user->is_receive_data = $req->is_receive_data;
+                $user->is_digital   = $req->is_digital;
+                $user->is_CSKH      = $req->is_CSKH;
+                
+                $user->is_receive_data = ($req->is_receive_data) ? $req->is_receive_data : 0 ;
                 $user->role         = json_encode($req->roles);
                 $user->save();
             } catch (\Throwable $th) {

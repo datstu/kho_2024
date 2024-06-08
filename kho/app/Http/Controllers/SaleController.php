@@ -107,6 +107,10 @@ class SaleController extends Controller
                     } else {
                         $chatId = $telegram->id_CSKH;
                     }
+
+                    if ($req->phone == '0973409613') {
+                        $chatId = '-4286962864';
+                    }
                     // echo 'chat id: ' . $chatId;
                     
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
@@ -120,15 +124,18 @@ class SaleController extends Controller
                         . "\nNội dung: $saleCare->messages";
                        
                        
+                    $name =  $saleCare->user->real_name ?: $saleCare->user->name;
                     if ($saleCare->old_customer) {
-                        $notiText .= "Đã nhận được hàng."  . "\nĐơn mua: " . $tProduct;     
+                        $notiText .= "Đã nhận được hàng."  . "\nĐơn mua: " . $tProduct; 
+                        $notiText .= "\nCSKH nhận data: " . $name;    
                     } else {
                         $notiText .= "\nNguồn data: " . $req->text;
+                        $notiText .= "\nSale nhận data: " . $name;
                     }
                     // dd($notiText);
-                    $name =  $saleCare->user->real_name ?: $saleCare->user->name;
+                    // $name =  $saleCare->user->real_name ?: $saleCare->user->name;
                     
-                    $notiText .= "\nSale nhận data: " . $name;
+                    // $notiText .= "\nCSKH nhận data: " . $name;
                     
                     // dd ($chatId);
                     // . ($req->text) ? $req->text : "\nĐã nhận được hàng."
@@ -236,6 +243,7 @@ class SaleController extends Controller
         $checkAll   = false;
         $listRole   = [];
         $roles      = json_decode($roles);
+
         if ($roles) {
             foreach ($roles as $key => $value) {
                 if ($value == 1) {
@@ -247,12 +255,33 @@ class SaleController extends Controller
             }
         }
 
-        if (isset($dataFilter['sale']) && $dataFilter['sale'] != 999 && $checkAll) {
+         // dd($user);
+         if ($user->is_digital) {
+            // dd($list);
+            $list =  $list->where('page_link', 'like', '%' . 'mua4-tang2' . '%');
+                // ->orWhere(function ($query) {
+                //     if (isset($dataFilter['daterange'])) {
+                //         $time       = $dataFilter['daterange'];
+                //         $timeBegin  = str_replace('/', '-', $time[0]);
+                //         $timeEnd    = str_replace('/', '-', $time[1]);
+                //         $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+                //         $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+                //         $query->whereDate('created_at', '>=', $dateBegin)
+                //         ->whereDate('created_at', '<=', $dateEnd);
+                //     }
+                 
+                //     $query->where('page_id', 'like', '%' . '341850232325526' . '%');
+                // });
+
+                // dd($list);
+        } else if (isset($dataFilter['sale']) && $dataFilter['sale'] != 999 && $checkAll) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
         } else if (!$checkAll) {
             $list = $list->where('assign_user', $user->id);
         }  
+
+       
 
         return $list;
     }

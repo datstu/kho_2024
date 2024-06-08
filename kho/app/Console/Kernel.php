@@ -96,7 +96,6 @@ class Kernel extends ConsoleKernel
       if ($response->status() == 200) {
         $content  = json_decode($response->body());
         $data     = $content->data;
-
         switch ($data->status) {
           case 'ready_to_pick':
             $order->status = 1;
@@ -134,25 +133,27 @@ class Kernel extends ConsoleKernel
         $issetOrder = Helper::checkOrderSaleCare($order->id);
         
         // status = 'hoàn tất', tạo data tác nghiệp sale
-        // dd()
         if ($order->status == 3 && $isFertilizer) {
-            $sale = new SaleController();
-            $data = [
-                'id_order' => $order->id,
-                'sex' => $order->sex,
-                'name' => $order->name,
-                'phone' => $order->phone,
-                'address' => $order->address,
-                'assgin' => $order->assign_user,
-            ];
 
-            if ($issetOrder || $order->id) {
-              $data['old_customer'] = 1;
-            }
+          $assignCSKH = Helper::getAssignCSKH();
+          $assgin_user = $assignCSKH->id;
+          $sale = new SaleController();
+          $data = [
+              'id_order' => $order->id,
+              'sex' => $order->sex,
+              'name' => $order->name,
+              'phone' => $order->phone,
+              'address' => $order->address,
+              'assgin' => $assgin_user,
+          ];
 
-            $request = new \Illuminate\Http\Request();
-            $request->replace($data);
-            $sale->save($request);
+          if ($issetOrder || $order->id) {
+            $data['old_customer'] = 1;
+          }
+
+          $request = new \Illuminate\Http\Request();
+          $request->replace($data);
+          $sale->save($request);
         }
       }
     }

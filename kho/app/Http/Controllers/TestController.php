@@ -102,6 +102,7 @@ class TestController extends Controller
       echo "<br>";
     }
   }
+
   public function updateStatusOrderGHN() 
   {
     $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
@@ -153,25 +154,27 @@ class TestController extends Controller
         $issetOrder = Helper::checkOrderSaleCare($order->id);
         
         // status = 'hoàn tất', tạo data tác nghiệp sale
-        // dd()
         if ($order->status == 3 && $isFertilizer) {
-            $sale = new SaleController();
-            $data = [
-                'id_order' => $order->id,
-                'sex' => $order->sex,
-                'name' => $order->name,
-                'phone' => $order->phone,
-                'address' => $order->address,
-                'assgin' => $order->assign_user,
-            ];
 
-            if ($issetOrder || $order->id) {
-              $data['old_customer'] = 1;
-            }
+          $assignCSKH = Helper::getAssignCSKH();
+          $assgin_user = $assignCSKH->id;
+          $sale = new SaleController();
+          $data = [
+              'id_order' => $order->id,
+              'sex' => $order->sex,
+              'name' => $order->name,
+              'phone' => $order->phone,
+              'address' => $order->address,
+              'assgin' => $assgin_user,
+          ];
 
-            $request = new \Illuminate\Http\Request();
-            $request->replace($data);
-            $sale->save($request);
+          if ($issetOrder || $order->id) {
+            $data['old_customer'] = 1;
+          }
+
+          $request = new \Illuminate\Http\Request();
+          $request->replace($data);
+          $sale->save($request);
         }
       }
     }
@@ -249,6 +252,7 @@ class TestController extends Controller
 
   public function crawlerPancake()
   {
+    /*
     $panCake = Helper::getConfigPanCake();
     if($panCake->status == 1 && $panCake->page_id != '' && $panCake->token != '') {
       $pageId = $panCake->page_id;
@@ -317,6 +321,81 @@ class TestController extends Controller
         }
       }
     }
+    */
+    /** trường hợp tạm thời get data pancake a Tiễn  */
+    // $pageId = '$panCake->page_id';
+    $pages  = [
+      [
+        'id' => '276249088907368',
+        'name' => 'Organic Rice Siêu Rước Đòng - Bí Quyết Nhân 3 Năng Suất Mùa Vụ',
+        'link' => 'https://www.facebook.com/profile.php?id=61558178285883'
+      ]
+    ];
+
+    $token  = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOiIzNTVhOGIyYi03ZGZkLTQxOWQtODgxMS1jZTRjMmQ1ZGUxYWEiLCJzZXNzaW9uX2lkIjoiZG1DTTJUNXJvVldzeUdWeXZxVzZHNUQyT2p3WG1zMlI2Mm1td1UyeENnOCIsIm5hbWUiOiJOZ3V54buFbiBDw7RuZyBUaeG7hW4iLCJsb2dpbl9zZXNzaW9uIjpudWxsLCJpYXQiOjE3MTc1NjcxMTksImZiX25hbWUiOiJOZ3V54buFbiBDw7RuZyBUaeG7hW4iLCJmYl9pZCI6IjEzODI1Mjg3OTExNzk2OSIsImV4cCI6MTcyNTM0MzExOSwiYXBwbGljYXRpb24iOjF9.rRVC5YSdFU0ipLLhfAe2JjrWDP_9OcD8YmlaFVAFgNs';
+    if (count($pages) > 0) {
+      foreach ($pages as $key => $val) {
+        $pIdPan   = $val['id'];
+        $namePage = $val['name'];
+        $linkPage = $val['link'];
+        $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
+        $today    = strtotime(date("Y/m/d H:i"));
+        $before = strtotime ( '-6 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+        $before = date ( 'Y/m/d H:i' , $before );
+        $before = strtotime($before);
+
+        $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
+        $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
+  
+        if ($response->status() == 200) {
+          $content  = json_decode($response->body());
+          dd($content);
+          $data     = $content->conversations;
+
+         
+          foreach ($data as $item) {
+            $recentPhoneNumbers = $item->recent_phone_numbers[0];
+            $mId      = $recentPhoneNumbers->m_id;
+            $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
+            $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
+            $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
+
+            $assgin_user = 0;
+            $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user);
+
+            if ($name && $checkSaleCareOld) {  
+              
+              if ($assgin_user == 0) {
+                $assignSale = Helper::getAssignSale();
+                $assgin_user = $assignSale->id;
+              }
+
+              $sale = new SaleController();
+              $data = [
+                'page_link' => $linkPage,
+                'page_name' => $namePage,
+                'sex'       => 0,
+                'old_customer' => 0,
+                'address'   => '...',
+                'messages'  => $messages,
+                'name'      => $name,
+                'phone'     => $phone,
+                'page_id'   => $pIdPan,
+                'text'      => 'Page ' . $namePage,
+                'chat_id'   => 'id_VUI',
+                'm_id'      => $mId,
+                'assgin'    => $assgin_user
+              ];
+
+              $request = new \Illuminate\Http\Request();
+              $request->replace($data);
+              $sale->save($request);
+            }
+          }
+        }
+      }
+    }
+
   }
 
   public function test3() {

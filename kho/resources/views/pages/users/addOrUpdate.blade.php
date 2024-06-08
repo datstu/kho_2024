@@ -153,6 +153,41 @@
                                                 </label>
                                             </div>
                                         </div>
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label">CSKH</label>
+                                            <div class="form-check">
+                                                <input <?=  $user->is_CSKH == 1 ? 'checked' : '' ?>  class="form-check-input" type="radio" name="is_CSKH" value="1"
+                                                    id="is_CSKHTrueIP">
+                                                <label class="form-check-label" for="is_CSKHTrueIP">
+                                                    Có
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input <?=  $user->is_CSKH == 0 ? 'checked' : '' ?> class="form-check-input" type="radio" name="is_CSKH" value="0"
+                                                    id="is_CSKHFalseIP" >
+                                                <label  class="form-check-label" for="is_CSKHFalseIP">
+                                                    Không
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label">Digital</label>
+                                            <div class="form-check">
+                                                <input <?=  $user->is_digital == 1 ? 'checked' : '' ?>  class="form-check-input" type="radio" name="is_digital" value="1"
+                                                    id="is_digitalTrueIP">
+                                                <label class="form-check-label" for="is_digitalTrueIP">
+                                                    Có
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input <?=  $user->is_digital == 0 ? 'checked' : '' ?> class="form-check-input" type="radio" name="is_digital" value="0"
+                                                    id="is_digitalFalseIP" >
+                                                <label  class="form-check-label" for="is_digitalFalseIP">
+                                                    Không
+                                                </label>
+                                            </div>
+                                        </div>
                                         </div>
                                         
                                         <div class="loader hidden">
@@ -170,91 +205,138 @@
             @else
             <div class="card-header"><strong>Thêm thành viên mới </span></div>
             <div class="card-body">
-                <div class="example">
-                    <div class="body flex-grow-1">
-                        <div class="tab-content rounded-bottom">
-                            <form>
-                                {{ csrf_field() }}
-                                <div class="tab-pane p-3 active preview" role="tabpanel" id="preview-1000">
-                                    <div class="row">
-                                        <div class="mb-3 col-4">
-                                            <label class="form-label" for="emailIP">Email</label>
-                                            <input class="form-control" name="email" id="emailIP" type="email">
-                                            <p class="error_msg" id="email"></p>
-                                        </div>
-                                        <div class="mb-3 col-4">
-                                            <label class="form-label" for="nameIP">Tên</label>
-                                            <input class="form-control" name="name" id="nameIP" type="text">
-                                            <p class="error_msg" id="name"></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="mb-3 col-4">
-                                            <label class="form-label" for="passwwordlIP">Mật khẩu</label>
-                                            <input class="form-control" name="password" id="passwwordlIP" type="password">
-                                            <p class="error_msg" id="password"></p>
-                                        </div>
-                                        <div class="mb-3 col-4">
-                                            <label class="form-label" for="rePasswwordIP">Nhập lại Mật khẩu</label>
-                                            <input class="form-control" name="rePassword" id="rePasswwordIP" type="password">
-                                        </div>
-                                        
-                                    </div>
-                                    
+                <div class="body flex-grow-1">
+                    <div class="tab-content rounded-bottom">
+                        <form>
+                            {{ csrf_field() }}
+                            <div class="tab-pane p-3 active preview" role="tabpanel" id="preview-1000">
                                 <div class="row">
                                     <div class="mb-3 col-4">
-                                        <label class="form-label" for="qtyIP">Quyền truy cập</label>
-                
-                                   
+                                        <label class="form-label" for="emailIP">Email</label>
+                                        <input class="form-control" name="email" id="emailIP" type="email">
+                                        <p class="error_msg" id="email"></p>
+                                    </div>
+                                    <div class="mb-3 col-4">
+                                        <label class="form-label" for="nameIP">Tên đăng nhập</label>
+                                        <input class="form-control" name="name" id="nameIP" type="text">
+                                        <p class="error_msg" id="name"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="mb-3 col-4">
+                                        <label class="form-label" for="passwwordlIP">Mật khẩu</label>
+                                        <input class="form-control" name="password" id="passwwordlIP" type="password">
+                                        <p class="error_msg" id="password"></p>
+                                    </div>
+                                    <div class="mb-3 col-4">
+                                        <label class="form-label" for="rePasswwordIP">Nhập lại Mật khẩu</label>
+                                        <input class="form-control" name="rePassword" id="rePasswwordIP" type="password">
+                                    </div>
+                                    
+                                </div>
+                                
+                            <div class="row">
+                                <div class="mb-3 col-4">
+                                    <label class="form-label" for="realNameIP">Tên</label>
+                                    <input class="form-control" name="real_name" id="realNameIP" type="text">
+                                    <p class="error_msg" id="real_name"></p>
+                                </div>
+                                <div class="mb-3 col-4">
+                                    <label class="form-label" for="qtyIP">Quyền truy cập</label>
+                                
                                     <div class="form-check">
                                         <label class="form-check-label">
-                                          <input id="role-all" name="roles[]" type="checkbox" class="form-check-input" value="1">Tất cả
+                                            <input id="role-all" name="roles[]" type="checkbox" class="form-check-input" value="1">Tất cả
                                         </label>
-                                      </div>
-                                      <div class="form-check">
-                                        <label class="form-check-label">
-                                          <input name="roles[]" type="checkbox" class="form-check-input" value="2">Paulo
-                                        </label>
-                                      </div>
-                                      <div class="form-check">
-                                        <label class="form-check-label">
-                                          <input name="roles[]" type="checkbox" class="form-check-input" value="3">Phân bón
-                                        </label>
-                                      </div>
-                                      <div class="form-check">
-                                        <label class="form-check-label">
-                                          <input name="roles[]" type="checkbox" class="form-check-input" value="4">Khác
-                                        </label>
-                                      </div>
                                     </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input name="roles[]" type="checkbox" class="form-check-input" value="2">Paulo
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input name="roles[]" type="checkbox" class="form-check-input" value="3">Phân bón
+                                        </label>
+                                    </div>
+                                    {{-- <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input name="roles[]" type="checkbox" class="form-check-input" value="4">Khác
+                                            </label>
+                                    </div> --}}
+                                    <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input name="roles[]" type="checkbox" class="form-check-input" value="4">Lead Sale
+                                            </label>
+                                    </div>
+                                    {{-- <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input name="roles[]" type="checkbox" class="form-check-input" value="4">
+                                            </label>
+                                    </div> --}}
+                                </div>
 
-                                    <div class="mb-3 col-4">
-                                        <label class="form-label" for="qtyIP">Sale</label>
-                                        <div class="form-check">
-                                            <input checked  class="form-check-input" type="radio" name="is_sale" value="1"
-                                                id="flexRadioDefault1">
-                                            <label class="form-check-label" for="flexRadioDefault1">
-                                                Có
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="is_sale" value="0"
-                                                id="flexRadioDefault2" >
-                                            <label  class="form-check-label" for="flexRadioDefault2">
-                                                Không
-                                            </label>
-                                        </div>
+                                <div class="mb-3 col-4">
+                                    <label class="form-label">Sale</label>
+                                    <div class="form-check">
+                                        <input checked  class="form-check-input" type="radio" name="is_sale" value="1"
+                                            id="flexRadioDefault1">
+                                        <label class="form-check-label" for="flexRadioDefault1">
+                                            Có
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="is_sale" value="0"
+                                            id="flexRadioDefault2" >
+                                        <label  class="form-check-label" for="flexRadioDefault2">
+                                            Không
+                                        </label>
                                     </div>
                                 </div>
-                                    <div class="loader hidden">
-                                        <img src="{{asset('public/images/loader.gif')}}" alt="">
+                                
+                                <div class="mb-3 col-4">
+                                    <label class="form-label">CSKH</label>
+                                    <div class="form-check">
+                                        <input checked  class="form-check-input" type="radio" name="is_CSKH" value="1"
+                                            id="is_CSKHTrueIP">
+                                        <label class="form-check-label" for="is_CSKHTrueIP">
+                                            Có
+                                        </label>
                                     </div>
-                                    <button id="submit" class="btn btn-primary">Tạo</button>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="is_CSKH" value="0"
+                                            id="is_CSKHFalseIP" >
+                                        <label  class="form-check-label" for="is_CSKHFalseIP">
+                                            Không
+                                        </label>
+                                    </div>
                                 </div>
-                            </form>
-                        </div>
+                                <div class="mb-3 col-4">
+                                    <label class="form-label">Digital</label>
+                                    <div class="form-check">
+                                        <input checked  class="form-check-input" type="radio" name="is_digital" value="1"
+                                            id="is_digitalRadioDefault1">
+                                        <label class="form-check-label" for="is_digitalRadioDefault1">
+                                            Có
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="is_digital" value="0"
+                                            id="is_digitalRadioDefault2" >
+                                        <label  class="form-check-label" for="is_digitalRadioDefault2">
+                                            Không
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="loader hidden">
+                                    <img src="{{asset('public/images/loader.gif')}}" alt="">
+                                </div>
+                                <button id="submit" class="btn btn-primary">Tạo</button>
+                            </div>
+                        </form>
                     </div>
-                </div>
+                </div>           
             </div>
         </div>
     </div>
@@ -278,7 +360,9 @@ $(document).ready(function() {
         var status      = $("input[name='status']:checked").val();
         var is_sale     = $("input[name='is_sale']:checked").val();
         var is_receive_data     = $("input[name='is_receive_data']:checked").val();
-
+        var is_digital  = $("input[name='is_digital']:checked").val();
+        var is_CSKH     = $("input[name='is_CSKH']:checked").val();
+        
         console.log('is sale',is_sale);
         let roles = [];
         $("input[name='roles[]']:checked").each(function() {
@@ -305,7 +389,9 @@ $(document).ready(function() {
                     status,
                     is_sale,
                     real_name,
-                    is_receive_data
+                    is_receive_data,
+                    is_digital,
+                    is_CSKH
                 },
                 success: function(data) {
                     console.log(data);

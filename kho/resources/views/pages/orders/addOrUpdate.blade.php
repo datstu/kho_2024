@@ -235,6 +235,13 @@ $listStatus = Helper::getListStatus();
                                             id="nameFor" type="text">
                                         <p class="error_msg" id="name"></p>
                                     </div>
+                                    
+                                    <div class="col-8">
+                                        <label class="form-label" for="addressFor">Địa chỉ/đường<span class="required-input">(*)</span></label>
+                                        <input placeholder="180 cao lỗ" class="form-control" name="address"
+                                            id="addressFor" type="text">
+                                        <p class="error_msg" id="address"></p>
+                                    </div>
                                     <div class="col-sm-6 col-lg-3">
                                         <label class="form-label" for="sexFor">Giới tính<span class="required-input">(*)</span></label>
                                         <select theme="google" name="sex" id="sexFor"
@@ -244,13 +251,6 @@ $listStatus = Helper::getListStatus();
                                         </select>
                                         <p class="error_msg" id="sex"></p>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label" for="addressFor">Địa chỉ/đường<span class="required-input">(*)</span></label>
-                                        <input placeholder="180 cao lỗ" class="form-control" name="address"
-                                            id="addressFor" type="text">
-                                        <p class="error_msg" id="address"></p>
-                                    </div>
-
                                     <div class="col-lg-6">
                                         <label class="form-label" for="priceFor">Tổng tiền:</label>
                                         <input readonly placeholder="199.000 đ"
@@ -363,13 +363,16 @@ $listStatus = Helper::getListStatus();
                         <div class="loader hidden text-center">
                             <img src="{{asset('public/images/loader.gif')}}" alt="">
                         </div>
-                        <button id="submit" class="btn btn-primary">Chốt đơn</button>
+                        <button id="submit" class="mb-1 btn btn-primary">Chốt đơn</button>
                     </form>
                 </div>
             </div>
         </div>
+        @endif
     </div>
-    @endif
+    <div class="row text-right">
+        <div><button class="refresh btn btn-info">Refresh</button></div>
+    </div>
     
 </div>
 </div>
@@ -842,9 +845,9 @@ $(document).ready(function() {
         }
     });
 
-    //  setTimeout(function() { 
-    //       $('.error_msg').text('');
-    //   }, 5000);
+    $('.refresh').click(function() {
+        location.reload(true)
+    });
 
 });
 
@@ -854,4 +857,5 @@ document.querySelectorAll('.price_class').forEach(inp => new Cleave(inp, {
     }));
 
 </script>
+
 @stop

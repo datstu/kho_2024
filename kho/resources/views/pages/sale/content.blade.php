@@ -6,6 +6,11 @@
         cursor: pointer;
     }
     
+    .modal-backdrop.fade.show {
+        width: 100%;
+        height: 100%;
+    }
+
     #laravel-notify .notify {
         z-index: 1030;
     }
@@ -81,6 +86,7 @@
         border: 3px solid #08a322 !important;
     }
     
+    
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -95,10 +101,10 @@
     <div class="dragscroll1 tableFixHead">
 
         <!-- Trigger the modal with a button -->
-        <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
+        {{-- <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
             <i class="fa fa-edit"></i>
             <div class="text">Tạo mới</div>
-        </a>
+        </a> --}}
         {{-- <a href="{{route('add-orders')}}" class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm đơn</a>   --}}
             <!-- Modal -->
         <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
@@ -583,4 +589,18 @@ if (time) {
     });
 </script>
 
-
+<script type="text/javascript">
+    function setZoom() {
+      if (window.matchMedia('(min-width: 1180px) and (max-width: 2000px)').matches) {
+        document.body.style.zoom = "90%";
+      } else {
+        document.body.style.zoom = "100%";
+      }
+    }
+   
+    // Call the function to set the zoom on page load
+    setZoom();
+   
+    // Handle the window resize event
+    window.addEventListener('resize', setZoom);
+  </script>

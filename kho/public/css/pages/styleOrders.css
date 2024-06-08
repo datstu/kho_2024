@@ -247,6 +247,9 @@ button.add-call-again:hover {
     z-index: 1;
 }
 
+button.refresh {
+    position: fixed;bottom: 10px;right: 10px; color:#fff;
+}
 
 @media only screen and (max-width: 600px) {
     .product-list-order .align-items-center {
@@ -255,6 +258,14 @@ button.add-call-again:hover {
     }
 
     #submit {
+        margin: 20px auto;
+        width: 90%;
+        height: 50px;
+        display: block;
+    }
+
+    button.refresh {
+        position: unset;
         margin: 20px auto;
         width: 90%;
         height: 50px;
