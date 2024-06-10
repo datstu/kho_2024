@@ -90,6 +90,8 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/cap-nhat-sale-ajax',  [SaleController::class, 'saveAjax'])->name('sale-save-ajax');
     Route::get('/tim-tac-nghiep-sale',  [SaleController::class, 'search'])->name('search-sale-care');
     Route::post('/cap-nhat-TNcan',  [SaleController::class, 'updateTNcan'])->name('update-salecare-TNcan');
+    Route::post('/cap-nhat-assign-TNcan',  [SaleController::class, 'updateAssignTNSale'])->name('update-salecare-assign');
+    
     Route::get('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
 
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 

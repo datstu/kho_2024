@@ -136,7 +136,13 @@ class Kernel extends ConsoleKernel
         if ($order->status == 3 && $isFertilizer) {
 
           $assignCSKH = Helper::getAssignCSKH();
-          $assgin_user = $assignCSKH->id;
+
+          if ($assignCSKH) {
+            $assgin_user = $assignCSKH->id;
+          } else {
+            $assgin_user = $order->assign_user;
+          }
+
           $sale = new SaleController();
           $data = [
               'id_order' => $order->id,

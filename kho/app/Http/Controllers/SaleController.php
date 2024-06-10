@@ -29,7 +29,8 @@ class SaleController extends Controller
 
         $helper     = new Helper();
         $listCall   = $helper->getListCall()->get();
-        $sales      = User::where('status', 1)->where('is_sale', 1)->get();
+        $sales      = User::where('status', 1)->where('is_sale', 1)
+            ->orWhere('is_cskh', 1)->get();
        
         $saleCare   = $this->getListSalesByPermisson(Auth::user());
         $count      = $saleCare->count();
@@ -328,7 +329,8 @@ class SaleController extends Controller
             $data       = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
             $count      = $data->count();
             $saleCare   = $data->paginate(50);
-            $sales      = User::where('status', 1)->where('is_sale', 1)->get();
+            $sales      = User::where('status', 1)->where('is_sale', 1)
+            ->orWhere('is_cskh', 1)->get();
 
             $helper     = new Helper();
             $listCall   = $helper->getListCall()->get();
@@ -368,4 +370,19 @@ class SaleController extends Controller
         
         return back();
     }
+
+    public function updateAssignTNSale(Request $r) {
+        // dd($r->all());
+        $saleCare = SaleCare::find($r->id);
+        // dd( $saleCare);
+        if ($saleCare) {
+            $saleCare->assign_user = $r->assignSale;
+            $saleCare->save();
+            return response()->json(['success' => 'Cập nhật TN thành công!']);
+        }
+
+        return response()->json(['error'=>'Đã có lỗi xảy ra trong quá trình cập nhật']);
+    }
+
+    
 }

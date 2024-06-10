@@ -163,7 +163,8 @@ class Helper
     }
 
     public static function getListSale() {
-        return User::where('status', 1)->where('is_sale', 1);
+        return User::where('status', 1)->where('is_sale', 1)
+            ->orWhere('is_cskh', 1);
     }
 
     public static function getListCall() {
@@ -354,6 +355,10 @@ class Helper
             $sale = User::where('status', 1)->where('is_CSKH', 1)->where('is_receive_data', 1)->orderBy('id', 'DESC')->first();
         }
 
+        if (!$sale) {
+            return ;
+        }
+        
         /**set user chỉ định đã được lấy, set = 2 = đã dùng trong lần gọi này*/
         $sale->next_assign = 2;
         $sale->save();

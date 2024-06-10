@@ -86,8 +86,18 @@
         border: 3px solid #08a322 !important;
     }
     
-    
-</style>
+</style>        
+
+<?php $listSale = Helper::getListSale(); 
+    $checkAll = isFullAccess(Auth::user()->role);
+    $flag = false;
+
+    if ($listSale->count() > 0 &&  $checkAll) {
+        $flag = true;
+    }
+?>
+                           
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <link href="{{ asset('public/css/pages/sale.css'); }}" rel="stylesheet">
@@ -272,9 +282,35 @@
                     <td class="text-center">
                     <a target="blank" href="{{$item->page_link}}">{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"H:i d-m-Y ")}}
                     </td>
-                    <td class="text-center">{{($item->user) ? $item->user->real_name : ''}}</td>
+                    <td class="text-center">
+
+                        @if ($flag)
+                        <a title="chỉ định Sale nhận data" data-id="{{$item->id}}" class="update-assign-TN-sale btn-icon aoh">
+                            <i class="fa fa-save"></i>
+                        </a>
+                        <div class="mof-container">
+                            <select name="assignTNSale_{{$item->id}}" id="">
+                                @foreach ($listSale->get() as $sale)
+                                <option <?php echo ($item->user->id == $sale->id) ? 'selected' : '' ?> value="{{$sale->id}}">{{($sale->real_name) ? $sale->real_name : ''}} </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div style="clear: both;"></div>
+                        @else
+                            {{($item->user) ? $item->user->real_name : ''}} 
+                        @endif
+                    </td>
                     <td class="text-center area5 hidden-xs">
                         <div class="text-right">
+
+                            <?php $checkAll = isFullAccess(Auth::user()->role);?>
+                            @if ($checkAll)
+                            <a title="xoá" class="hidden btn-icon aoh" onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" role="button">
+                                <svg class="icon me-2">
+                                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-trash')}}"></use>
+                                </svg>
+                            </a>
+                            @endif
 
                             @if ($item->id_order)
                             <a data-target="#createOrder" data-toggle="modal" data-id="{{$item->id_order}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
@@ -354,14 +390,7 @@
                      <td class="text-center"> 
                         <a data-toggle="modal" data-id="{{$item->id}}" data-target="#myModal" class="updateModal btn-icon aoh"><i class="fa fa-edit"></i>Cập nhật</a>
                     
-                        <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                        @if ($checkAll)
-                        <a title="xoá" onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" role="button">
-                            <svg class="icon me-2">
-                            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-backspace')}}"></use>
-                            </svg>
-                        </a>
-                        @endif
+                       
                     </td>
                 </tr>
         
@@ -545,6 +574,51 @@ if (time) {
 </script>
 
 <script>
+
+$('.update-assign-TN-sale').click(function(){
+        $('.body').css("opacity", '0.5');
+        $('.loader').show();
+        var id = $(this).data("id");
+        var textArea = "select[name='assignTNSale_" + id + "']";
+        var assignSale  = $(textArea).val();
+        // console.log(assignSale);
+        // var textTN   = $(textArea).val();
+        var _token   = $("input[name='_token']").val();
+        // console.log('koko', id);
+        // return;
+        $.ajax({
+            url: "{{route('update-salecare-assign')}}",
+            type: 'POST',
+            data: {
+                _token: _token,
+                id,
+                assignSale
+            },
+            success: function(data) {
+                $('.body').css("opacity", '1');
+                var tr = '.tr_' + id;
+                if (!data.error) {
+                    $('#notify-modal').modal('show');
+                    if ($('.modal-backdrop-notify').length === 0) {
+                        $('.modal-backdrop').addClass('modal-backdrop-notify');
+                    }
+
+                    $(tr).addClass('success');
+                    setTimeout(function() { 
+                        $('#notify-modal').modal("hide");
+                        $(tr).removeClass('success');
+                    }, 2000);
+                } else {
+                    alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
+                    $(tr).addClass('error');
+                    setTimeout(function() { 
+                        $(tr).removeClass('error');
+                    }, 3000);
+                }
+                $('.loader').hide();
+            }
+        });
+    });
     $('.update-TN-sale').click(function(){
         $('.body').css("opacity", '0.5');
         $('.loader').show();
