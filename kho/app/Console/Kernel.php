@@ -180,7 +180,7 @@ class Kernel extends ConsoleKernel
           $linkPage = $val['link'];
           $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
           $today    = strtotime(date("Y/m/d H:i"));
-          $before = strtotime ( '-6 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+          $before = strtotime ( '-2 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
           $before = date ( 'Y/m/d H:i' , $before );
           $before = strtotime($before);
 
@@ -199,15 +199,16 @@ class Kernel extends ConsoleKernel
               $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
 
               $assgin_user = 0;
-              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user);
+              $is_duplicate = false;
+              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user, $is_duplicate);
 
               if ($name && $checkSaleCareOld) {  
-                
                 if ($assgin_user == 0) {
                   $assignSale = Helper::getAssignSale();
                   $assgin_user = $assignSale->id;
                 }
 
+                $is_duplicate = ($is_duplicate) ? 1 : 0;
                 $sale = new SaleController();
                 $data = [
                   'page_link' => $linkPage,
@@ -222,7 +223,8 @@ class Kernel extends ConsoleKernel
                   'text'      => 'Page ' . $namePage,
                   'chat_id'   => 'id_VUI',
                   'm_id'      => $mId,
-                  'assgin'    => $assgin_user
+                  'assgin'    => $assgin_user,
+                  'is_duplicate' => $is_duplicate
                 ];
 
                 $request = new \Illuminate\Http\Request();

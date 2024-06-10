@@ -103,84 +103,74 @@ class TestController extends Controller
     }
   }
 
-  public function updateStatusOrderGHN() 
+  public function crawlerPancake()
   {
-    $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
-    foreach ($orders as $order) {
-      $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;
-      $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])
-        ->post($endpoint, [
-          'order_code' => $order->shippingOrder->order_code,
-          'token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55',
-        ]);
+    $panCake = Helper::getConfigPanCake();
+    if ($panCake->status == 1 && $panCake->page_id != '' && $panCake->token != '') {
+      $pageId = $panCake->page_id;
+      $pages  = json_decode($pageId,1);
+      $token  = $panCake->token;
+
+      if (count($pages) > 0) {
+        foreach ($pages as $key => $val) {
+          $pIdPan   = $val['id'];
+          $namePage = $val['name'];
+          $linkPage = $val['link'];
+          $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
+          $today    = strtotime(date("Y/m/d H:i"));
+          $before = strtotime ( '-6 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+          $before = date ( 'Y/m/d H:i' , $before );
+          $before = strtotime($before);
+
+          $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
+          $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
     
-      if ($response->status() == 200) {
-        $content  = json_decode($response->body());
-        $data     = $content->data;
-        switch ($data->status) {
-          case 'ready_to_pick':
-            $order->status = 1;
-          case 'picking':
-            #chờ lây hàng
-            $order->status = 1;
-            break;
-            
-          case 'delivered':
-            #hoàn tât
-            $order->status = 3;
-            break;
+          if ($response->status() == 200) {
+            $content  = json_decode($response->body());
+            $data     = $content->conversations;
 
-          case 'return':
-            $order->status = 0;
-          case 'cancel':
-            $order->status = 0;
-          case 'returned':
-            #hoàn/huỷ
-            $order->status = 0;
-            break;
-          
-          default:
-            # đang giao
-            $order->status = 2;
-            break;
-        }
-        
-        $order->save();
-        
-        //chỉ áp dụng cho đơn phân bón
-        $isFertilizer = Helper::checkFertilizer($order->id_product);
+            foreach ($data as $item) {
+              $recentPhoneNumbers = $item->recent_phone_numbers[0];
+              $mId      = $recentPhoneNumbers->m_id;
+              $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
+              $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
+              $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
 
-        //check đơn này đã có data chưa
-        $issetOrder = Helper::checkOrderSaleCare($order->id);
-        
-        // status = 'hoàn tất', tạo data tác nghiệp sale
-        if ($order->status == 3 && $isFertilizer) {
+              $assgin_user = 0;
+              $is_duplicate = false;
+              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user, $is_duplicate);
 
-          $assignCSKH = Helper::getAssignCSKH();
+              if ($name && $checkSaleCareOld) {  
+                
+                if ($assgin_user == 0) {
+                  $assignSale = Helper::getAssignSale();
+                  $assgin_user = $assignSale->id;
+                }
+                $is_duplicate = ($is_duplicate) ? 1 : 0;
+                $sale = new SaleController();
+                $data = [
+                  'page_link' => $linkPage,
+                  'page_name' => $namePage,
+                  'sex'       => 0,
+                  'old_customer' => 0,
+                  'address'   => '...',
+                  'messages'  => $messages,
+                  'name'      => $name,
+                  'phone'     => $phone,
+                  'page_id'   => $pIdPan,
+                  'text'      => 'Page ' . $namePage,
+                  'chat_id'   => 'id_VUI',
+                  'm_id'      => $mId,
+                  'assgin'    => $assgin_user,
+                  'is_duplicate' => $is_duplicate
+                ];
 
-          if ($assignCSKH) {
-            $assgin_user = $assignCSKH->id;
-          } else {
-            $assgin_user = $order->assign_user;
+                $request = new \Illuminate\Http\Request();
+                $request->replace($data);
+                $sale->save($request);
+              }
+            }
           }
-
-          $sale = new SaleController();
-          $data = [
-              'id_order' => $order->id,
-              'sex' => $order->sex,
-              'name' => $order->name,
-              'phone' => $order->phone,
-              'address' => $order->address,
-              'assgin' => $assgin_user,
-          ];
-
-          if ($issetOrder || $order->id) {
-            $data['old_customer'] = 1;
-          }
-
-          $request = new \Illuminate\Http\Request();
-          $request->replace($data);
-          $sale->save($request);
         }
       }
     }
@@ -256,7 +246,7 @@ class TestController extends Controller
 
   }
 
-  public function crawlerPancake()
+  public function crawlerPancake2()
   {
     /*
     $panCake = Helper::getConfigPanCake();

@@ -34,10 +34,14 @@ class LadipageController  extends Controller
         $namePage = 'Ladi Page';
         
         $assgin_user = 0;
+        $is_duplicate = 0;
         $isOldDataLadi = Helper::isOldDataLadi($phone, $linkPage, $assgin_user);
+
         if (!$isOldDataLadi) {
             $assignSale = Helper::getAssignSale();
             $assgin_user = $assignSale->id;
+        } else {
+            $is_duplicate = 1;
         }
 
         if($ladiPage->status == 1) {
@@ -53,7 +57,8 @@ class LadipageController  extends Controller
                   'phone'     => $phone,
                   'text'      => $namePage,
                   'chat_id'   => 'id_VUI',
-                  'assgin'    => $assgin_user
+                  'assgin'    => $assgin_user,
+                  'is_duplicate' => $is_duplicate
                 ];
 
                 $request = new \Illuminate\Http\Request();

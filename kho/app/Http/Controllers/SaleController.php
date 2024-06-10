@@ -92,7 +92,8 @@ class SaleController extends Controller
             $saleCare->old_customer         = ($req->old_customer) ?: 0;
             $saleCare->page_link            = $req->page_link;
             $saleCare->m_id                 = $req->m_id;
-
+            $saleCare->is_duplicate         = $req->is_duplicate;
+            
             $saleCare->save();
 
             if (!isset($req->id)) {

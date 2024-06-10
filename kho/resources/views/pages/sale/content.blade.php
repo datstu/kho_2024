@@ -327,7 +327,15 @@
                         </div>
                         {{-- <a class="btn-icon aoh"><i class="fa fa-edit"></i> </a> --}}
                         <span class="span-col span-col-width cancel-col">{{$item->full_name}}</span><br>
-                        <span class="small-tip"><a href="tel:0987609812">{{$item->phone}}</a></span><br>
+                        <span class="small-tip"><a href="tel:0987609812">{{$item->phone}}</a>
+
+                            @if ($item->is_duplicate)
+                            <svg class="icon me-2" style="color: #ff0000">
+                                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-copy')}}"></use>
+                            </svg>
+                            @endif
+                            
+                        </span><br>
                         <span class="small-tip">{{$item->address}}</span>
                     </td>
                     <td>{{$item->messages}}</td>

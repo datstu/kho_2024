@@ -217,7 +217,7 @@ class Helper
     }
 
     
-    public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, &$assign) 
+    public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, &$assign, &$is_duplicate) 
     {
         if (!$mId || !$phone || $phone == '0961161760' || $phone == '0372625799') {
             return false;
@@ -236,8 +236,10 @@ class Helper
             }
         }
        
+        /** trùng sđt: set lại assign sale trước đó và set trùng data */
         $assign = $saleCares[0]->assign_user;
-      
+        $is_duplicate = true;
+        
         return true;
     }
 
