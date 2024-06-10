@@ -228,7 +228,6 @@ class SaleController extends Controller
                 $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
                 $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
 
-                // dd($dataFilter['daterange']);
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
             }
@@ -239,6 +238,10 @@ class SaleController extends Controller
                 } else {
                     $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
                 }   
+            }
+
+            if (isset($dataFilter['type_customer'])) {
+                $list->where('old_customer', $dataFilter['type_customer']);   
             }
         }
 
@@ -326,6 +329,15 @@ class SaleController extends Controller
             $dataFilter['src'] = $src;
         }
 
+        $typeCustomer = $req->type_customer;
+        
+        // echo $req->type_customer;
+        // die();
+        if ($typeCustomer != 999) {
+            // dd($req->type_customer);
+            $dataFilter['type_customer'] = $typeCustomer;
+        }
+        // dd($dataFilter['type_customer']);
         try {
             $data       = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
             $count      = $data->count();
@@ -384,6 +396,4 @@ class SaleController extends Controller
 
         return response()->json(['error'=>'Đã có lỗi xảy ra trong quá trình cập nhật']);
     }
-
-    
 }

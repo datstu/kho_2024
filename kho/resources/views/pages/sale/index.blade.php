@@ -65,6 +65,13 @@
             $('.notify.fixed').hide();
         }, 3000);
     }
+
+    /* thu gọn menu sidebar*/
+    
+    setTimeout(function() { 
+        $('.sidebar-toggler').click();
+    }, 1000);
+    
   });
 </script>
 @stop

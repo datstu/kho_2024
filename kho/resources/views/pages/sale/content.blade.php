@@ -139,13 +139,20 @@
         <script type="text/javascript" src="{{asset('public/js/moment.js')}}"></script>
         <link rel="stylesheet" type="text/css" href="{{asset('public/css/daterangepicker.css')}}" /> 
         <div class="row mb-1 filter-order">
-            <div class=" col-sm-3 form-group daterange mb-1">
+            <div class=" col-4 form-group daterange mb-1">
                 <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
             </div>
-
+            <div class="col-2 form-group mb-1">
+                <select name="type_customer" id="type_customer-filter" class="form-select">
+                <option value="999">--Chọn khách cũ--</option>
+                <option value="1">Khách cũ</option>
+                <option value="0">Khách mới</option>
+                
+                </select>
+            </div>
             <?php $checkAll = isFullAccess(Auth::user()->role);?>
                 @if ($checkAll)
-                <div class="col-sm-4 form-group mb-1">
+                <div class=" col-2 form-group mb-1">
                     <select name="src" id="src-filter" class="form-select" aria-label="Default select example">
                     <option value="999">--Tất cả Nguồn--</option>
 
@@ -186,7 +193,7 @@
 
                     </select>
                 </div>
-                <div class="col-sm-2 form-group mb-1">
+                <div class="col-2 form-group mb-1">
                     <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
                     <option value="999">--Tất cả Sale--</option>
                     @if (isset($sales))
@@ -573,6 +580,11 @@ if (src) {
     $('#src-filter option[value=' + src +']').attr('selected','selected');
 }
 
+let typeCustomer = $.urlParam('type_customer') 
+if (typeCustomer) {
+    $('#type_customer-filter option[value=' + typeCustomer +']').attr('selected','selected');
+}
+
 let time = $.urlParam('daterange') 
 if (time) {
     time = decodeURIComponent(time)
@@ -681,7 +693,7 @@ $('.update-assign-TN-sale').click(function(){
     }
    
     // Call the function to set the zoom on page load
-    setZoom();
+    // setZoom();
    
     // Handle the window resize event
     window.addEventListener('resize', setZoom);
