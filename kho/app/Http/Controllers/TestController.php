@@ -517,6 +517,89 @@ class TestController extends Controller
         return false;
     }
   }
+
+  public function updateStatusOrderGHN() 
+  {
+    $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
+    foreach ($orders as $order) {
+      $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;
+      $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])
+        ->post($endpoint, [
+          'order_code' => $order->shippingOrder->order_code,
+          'token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55',
+        ]);
+    
+      if ($response->status() == 200) {
+        $content  = json_decode($response->body());
+        $data     = $content->data;
+        switch ($data->status) {
+          case 'ready_to_pick':
+            $order->status = 1;
+          case 'picking':
+            #chờ lây hàng
+            $order->status = 1;
+            break;
+            
+          case 'delivered':
+            #hoàn tât
+            $order->status = 3;
+            break;
+
+          case 'return':
+            $order->status = 0;
+          case 'cancel':
+            $order->status = 0;
+          case 'returned':
+            #hoàn/huỷ
+            $order->status = 0;
+            break;
+          
+          default:
+            # đang giao
+            $order->status = 2;
+            break;
+        }
+        
+        $order->save();
+        
+        //chỉ áp dụng cho đơn phân bón
+        $isFertilizer = Helper::checkFertilizer($order->id_product);
+
+        //check đơn này đã có data chưa
+        $issetOrder = Helper::checkOrderSaleCare($order->id);
+        
+        // status = 'hoàn tất', tạo data tác nghiệp sale
+        if ($order->status == 3 && $isFertilizer) {
+
+          $assignCSKH = Helper::getAssignCSKH();
+
+          if ($assignCSKH) {
+            $assgin_user = $assignCSKH->id;
+          } else {
+            $assgin_user = $order->assign_user;
+          }
+
+          $sale = new SaleController();
+          $data = [
+              'id_order' => $order->id,
+              'sex' => $order->sex,
+              'name' => $order->name,
+              'phone' => $order->phone,
+              'address' => $order->address,
+              'assgin' => $assgin_user,
+          ];
+
+          if ($issetOrder || $order->id) {
+            $data['old_customer'] = 1;
+          }
+
+          $request = new \Illuminate\Http\Request();
+          $request->replace($data);
+          $sale->save($request);
+        }
+      }
+    }
+  }
 }
 
 
