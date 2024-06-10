@@ -24,7 +24,7 @@ class HomeController extends Controller
         $item = $this->filterByDate('day', $toMonth);
 
         $category   = Category::where('status', 1)->get();
-        $sales   = User::where('status', 1)->where('is_sale', 1)->get();
+        $sales   = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
 
         return view('pages.home')->with('item', $item)->with('category', $category)->with('sales', $sales);
     }

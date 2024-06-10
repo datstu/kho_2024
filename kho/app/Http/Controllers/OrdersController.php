@@ -448,7 +448,8 @@ class OrdersController extends Controller
     }
 
     public function getListSale() {
-        return User::where('status', 1)->where('is_sale', 1);
+        return User::where('status', 1)->where('is_sale', 1)
+            ->orWhere('is_cskh', 1);
     }
 
     public function createShipping($id) {
