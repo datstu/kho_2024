@@ -86,6 +86,10 @@
         border: 3px solid #08a322 !important;
     }
     
+    th {
+        cursor: move;
+        border: 1px solid white;
+    }
 </style>        
 
 <?php $listSale = Helper::getListSale(); 
@@ -113,10 +117,10 @@
     <div class="dragscroll1 tableFixHead">
 
         <!-- Trigger the modal with a button -->
-        {{-- <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
+        <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
             <i class="fa fa-edit"></i>
-            <div class="text">Tạo mới</div>
-        </a> --}}
+            <div class="text">Tạo TN</div>
+        </a>
         {{-- <a href="{{route('add-orders')}}" class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm đơn</a>   --}}
             <!-- Modal -->
         <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
@@ -254,28 +258,28 @@
                 </div>
             </div>
         </div>
-        <table class="table table-bordered table-multi-select table-sale">
+        <table class="table table-bordered table-multi-select table-sale" id="myTable">
             <thead>
                 <tr class="drags-area">
                     <th style="top: 0.5px;">
                         <span class="chk-all"><input id="" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
                     </th>
-                    <th style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 80px;">Mã đơn hàng</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 80px;">Mã đơn hàng</span></th>
 
-                    <th style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 150px;">Nguồn data <br>Ngày nhận</span></th>
-                    <th style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 100px;">Sale</span></th>
-                    <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;">
+                    <th draggable="true" ondragstart="handleDragStart(event)" style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 150px;">Nguồn data <br>Ngày nhận</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 100px;">Sale</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;">
                         <span class="span-col text-center" style="display: inline-block; min-width: 200px; max-width: 200px;">Họ tên<br>
                             <span class="span-col">Số điện thoại</span><br>
                             <span class="span-col">Địa chỉ</span>
                         </span>
                     </th> 
-                    <th style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 150px;">Tin nhắn</span></th>
-                    <th class="text-center no-wrap area2" style="top: 0.5px;"> <span style="display: inline-block; min-width: 220px; max-width: 150px;">Tác nghiệp cần</span></th>
-                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Kết quả gọi</span></th>
-                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">TN Tiếp</span></th>
-                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 120px;">Ghi chú thông tin khách hàng</span></th>
-                    <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Thao tác</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 150px;">Tin nhắn</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"> <span style="display: inline-block; min-width: 220px; max-width: 150px;">Tác nghiệp cần</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Kết quả gọi</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">TN Tiếp</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 120px;">Ghi chú thông tin khách hàng</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Thông tin đơn</span></th>
                 </tr>
             </thead>    
             <tbody>
@@ -294,7 +298,7 @@
                     
                     </td>
                     <td class="text-center">
-                    <a target="blank" href="{{$item->page_link}}">{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"H:i d-m-Y ")}}
+                    <a target="blank" {{ ($item->page_link) ? 'href="' . $item->page_link .'"' : '' }}>{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"H:i d-m-Y ")}}
                     </td>
                     <td class="text-center">
 
@@ -411,10 +415,28 @@
                         </div>
                     </td> --}}
                     <td class="area2 hidden-xs">{{$item->note_info_customer}}</td>
-                     <td class="text-center"> 
+                    {{-- <td class="text-center"> 
                         <a data-toggle="modal" data-id="{{$item->id}}" data-target="#myModal" class="updateModal btn-icon aoh"><i class="fa fa-edit"></i>Cập nhật</a>
-                    
-                       
+                    </td> --}}
+                    <td class="text-center"> 
+
+                    <?php 
+                    if ($item->id_order) {
+                        $order = $item->order;
+                        foreach (json_decode($order->id_product) as $product) {
+                            $productModel = getProductByIdHelper($product->id);
+                            if ($productModel) {
+                        ?>
+                        
+                        {{$productModel->name}} x{{$product->val}} <br>
+                        
+                        <?php }
+                        } ?>
+
+                    <span>Tổng: {{number_format($order->total)}}đ</span> 
+                    <?php 
+                    } ?>
+
                     </td>
                 </tr>
         
@@ -706,4 +728,52 @@ $('.update-assign-TN-sale').click(function(){
    
     // Handle the window resize event
     window.addEventListener('resize', setZoom);
-  </script>
+</script>
+
+<script type="text/javascript">
+    var dragCol = null;
+    function handleDragStart(e) {
+        dragCol = this;
+        e.dataTransfer.efferAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.outerHtml);
+    }
+
+    function handleDragOver(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDrop(e) {
+        if (e.stopPropagation) {
+            e.stopPropagation;
+        }
+
+        if (dragCol !== this) {
+            var sourceIndex = Array.from(dragCol.parentNode.children).indexOf(dragCol);
+            var targetIndex = Array.from(this.parentNode.children).indexOf(this);
+
+            var table = document.getElementById('myTable');
+            var rows = table.rows;
+            for ( var i = 0; i < rows.length; i++) {
+                var sourceCell = rows[i].cells[sourceIndex];
+                var targetCell = rows[i].cells[targetIndex];
+
+                var tempHTML = sourceCell.innerHTML;
+                sourceCell.innerHTML = targetCell.innerHTML;
+                targetCell.innerHTML = tempHTML;
+            }
+        }
+        return false;
+    }
+
+    var cols = document.querySelectorAll('th');
+    [].forEach.call(cols, function(col) {
+        col.addEventListener('dragstart', handleDragStart, false);
+        col.addEventListener('dragover', handleDragOver, false);
+        col.addEventListener('drop', handleDrop, false);
+    });
+
+</script>

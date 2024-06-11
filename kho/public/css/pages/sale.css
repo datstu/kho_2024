@@ -329,7 +329,9 @@ a.btn-icon i {
     opacity: 1;
 }
 
-
+.sidebar, #content-right {
+    transition: all 0.5s ease-out;
+}
 @media only screen and (min-width: 1200px) {
     .modal-xl {
         width: 1140px !important;

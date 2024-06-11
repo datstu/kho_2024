@@ -36,4 +36,9 @@ class SaleCare extends Model
     {
         return $this->belongsTo(User::class, 'assign_user', 'id');
     }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Orders::class, 'id_order', 'id');
+    }
 }

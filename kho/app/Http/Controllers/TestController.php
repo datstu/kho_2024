@@ -600,6 +600,11 @@ class TestController extends Controller
       }
     }
   }
+
+  public function testMoveColumn()
+  {
+    return view('pages.test');
+  }
 }
 
 

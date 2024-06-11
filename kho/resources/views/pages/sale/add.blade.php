@@ -180,26 +180,7 @@
                                                 id="addressFor" type="text">
                                             <p class="error_msg" id="address"></p>
                                         </div>
-                                        <div class="col-sm-12 col-lg-4">
-                                            <label for="type_tree" class="form-label">Cây trồng:</label>
-                                            <textarea name="type_tree" class="form-control" id="type_tree" rows="3"></textarea>
-                                            <p></p>
-                                        </div>
-                                        <div class="col-sm-12 col-lg-4">
-                                            <label for="product-request" class="form-label">Nhu cầu dòng sản phẩm:</label>
-                                            <textarea name="product_request" class="form-control" id="product-request" rows="3"></textarea>
-                                            <p></p>
-                                        </div>
-                                        <div class="col-sm-12 col-lg-4">
-                                            <label for="reason_not_buy" class="form-label">Lý do không mua hàng:</label>
-                                            <textarea name="reason_not_buy" class="form-control" id="reason_not_buy" rows="3"></textarea>
-                                            <p></p>
-                                        </div>
-                                        <div class="col-sm-12 col-lg-4">
-                                            <label for="note_info_customer" class="form-label">Ghi chú thông tin khách hàng:</label>
-                                            <textarea name="note_info_customer" class="form-control" id="note_info_customer" rows="3"></textarea>
-                                            <p></p>
-                                        </div>
+                                        
                                         {{-- <div class="col-sm-12 col-lg-4 call">
                                             <label for="call1" class="form-label ">Gọi lần 1:
                                                 <span class="delete">xoá</span>
@@ -209,13 +190,14 @@
                                         </div> --}}
                                     </div>
                                     <div class="row">
-                                        <div class="col-sm-12 col-lg-4">
-                                            <label for="id_order" class="form-label">Mã đơn:</label>
-                                            <input class="form-control" name="id_order"
-                                                id="id_order" type="text">
-                                            <p></p>
+                                        <input type="text" name="text" value="Sale tự tạo" class="hidden">
+                                        <input type="text" name="page_name" value="Sale tự tạo" class="hidden">
+                                        <div class="col-sm-6 col-lg-8">
+                                            <label class="form-label" for="messagesFor">Tin nhắn</label><br>
+                                            <textarea name="messages" id="messagesFor" cols="80" rows="5"></textarea>
+                                            <p class="error_msg" id="address"></p>
                                         </div>
-
+                                        
                                         <?php $checkAll = isFullAccess(Auth::user()->role);?>
                                         @if ($checkAll)
                                         <div class="col-lg-3">
@@ -305,6 +287,18 @@ $( document ).ready(function() {
     $('.print-error-msg').on( "click", function() {
         $(this).hide();
     });
+
+    $('#submit').on( "click", function() {
+        $phone = $("input[name='phone']").val();
+        $name = $("input[name='name']").val();
+        $address = $("input[name='address']").val();
+        if ( $phone != '' && $name != '' && $address != '') {
+            $('.loader').show();
+            $('.body form').css("opacity", '0.5');
+        }
+    });
+
+    
 });
 function deleteCall(val) {
     parent      = val.parent().parent();
