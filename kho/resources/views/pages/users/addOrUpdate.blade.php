@@ -56,7 +56,7 @@
                                             <div class="form-check">
                                                 <label class="form-check-label">
                     <?php 
-                    $checkAll = $checkPaulo = $checkFertilizer = $checkOther = '';
+                    $checkAll = $checkPaulo = $checkFertilizer = $checkLeadSale = $other = '';
                     $roles = json_decode($user->role, true);
                         // dd($user->role);
                     if ( is_array($roles)) {
@@ -75,10 +75,14 @@
                                 // break;
                             } 
                             if ($value == 4) {
-                                $checkOther = 'checked';
+                                $checkLeadSale = 'checked';
                                 // break;
                             }
-                        }   
+                            if ($value == 5) {
+                                $other = 'checked';
+                                // break;
+                            }
+                        }
                     }
                     
                     
@@ -98,7 +102,12 @@
                                             </div>
                                             <div class="form-check">
                                                 <label class="form-check-label">
-                                                <input {{$checkOther}} name="roles[]" type="checkbox" class="form-check-input" value="4">Khác
+                                                <input {{$checkLeadSale}} name="roles[]" type="checkbox" class="form-check-input" value="4">Lead Sale
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                <input {{$other}} name="roles[]" type="checkbox" class="form-check-input" value="5">Khác
                                                 </label>
                                             </div>
                                         </div>
@@ -446,7 +455,7 @@ $(document).ready(function() {
                 });
                 console.log(values);
                 
-                if (values.length == 3) {
+                if (values.length == 4) {
                     $("#role-all").prop('checked', true);
                 }
             }

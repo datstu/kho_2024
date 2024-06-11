@@ -383,8 +383,8 @@ class HomeController extends Controller
         $countOrdersRate = $ordersController->getListOrderByPermisson(Auth::user(), $newFilter)->count();
        
        
-        $ordersCtl = new SaleController();
-        $saleCare  = $ordersCtl->getListSalesByPermisson(Auth::user(), $dataFilter)
+        $saleCtl = new SaleController();
+        $saleCare  = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilter)
             ->where('old_customer', 0);
             // dd($saleCare);
             // ->where(function ($query) {
@@ -394,8 +394,7 @@ class HomeController extends Controller
             // ->whereIn('old_customer', [0, NULL]);
             // ->orWhereNull('old_customer');
         $countSaleCare = $saleCare->count();
-        // dd($dataFilter);
-        // dd($countSaleCare);
+
         /** tỷ lệ chốt = số đơn/số data */
         if ($countSaleCare == 0) {
             $rateSuccess = $countOrders * 100;

@@ -12,6 +12,7 @@ use Validator;
 use App\Models\SaleCare;
 use App\Helpers\Helper;
 use PHPUnit\TextUI\Help;
+use Illuminate\Support\Facades\Route;
 
 class SaleController extends Controller
 {
@@ -249,9 +250,11 @@ class SaleController extends Controller
         $listRole   = [];
         $roles      = json_decode($roles);
 
-        if ($roles) {
+        $routeName = Route::currentRouteName();
+        // dd($routeName);
+        if ($roles ) {
             foreach ($roles as $key => $value) {
-                if ($value == 1) {
+                if ($value == 1 || ($value == 4 && $routeName != 'filter-total-sales')) {
                     $checkAll = true;
                     break;
                 } else {

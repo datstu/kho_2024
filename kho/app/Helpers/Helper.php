@@ -381,4 +381,16 @@ class Helper
 
         return $sale;
     }
+    
+    public static function isLeadSale($role) 
+    {
+        $arr = json_decode($role);
+
+        /** 4: leadsale */
+        if (in_array(4, $arr)) {
+            return true;
+        }
+
+        return false;
+    }
 }

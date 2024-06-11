@@ -95,8 +95,10 @@
     if ($listSale->count() > 0 &&  $checkAll) {
         $flag = true;
     }
+
+    $isLeadSale = Helper::isLeadSale(Auth::user()->role);      
 ?>
-                           
+                   
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -193,9 +195,14 @@
 
                     </select>
                 </div>
+                @endif
+
+                @if ($checkAll || $isLeadSale)
                 <div class="col-2 form-group mb-1">
                     <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
-                    <option value="999">--Tất cả Sale--</option>
+
+                    @if ($checkAll)<option value="999">--Tất cả Sale--</option> @endif
+                    
                     @if (isset($sales))
                         @foreach($sales as $sale)
                         <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
@@ -311,7 +318,7 @@
                         <div class="text-right">
 
                             <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                            @if ($checkAll)
+                            @if ($checkAll || $isLeadSale)
                             <a title="xoá" class="hidden btn-icon aoh" onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" role="button">
                                 <svg class="icon me-2">
                                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-trash')}}"></use>
@@ -319,11 +326,13 @@
                             </a>
                             @endif
 
-                            @if ($item->id_order)
-                            <a data-target="#createOrder" data-toggle="modal" data-id="{{$item->id_order}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                            <a data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                          
+                            {{-- @if ($item->id_order)
+                              <a data-target="#createOrder" data-toggle="modal" data-id="{{$item->id_order}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
                             @else
                             <a data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
-                            @endif
+                            @endif --}}
 
                             @if ($item->old_customer)
                             <a title="Khách cũ, khách cũ" class="btn-icon">
