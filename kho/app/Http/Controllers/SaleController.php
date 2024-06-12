@@ -233,13 +233,55 @@ class SaleController extends Controller
                     ->whereDate('created_at', '<=', $dateEnd);
             }
 
-            if (isset($dataFilter['src'])) {
-                if (is_numeric($dataFilter['src'])) {
-                    $list->where('page_id', 'like', '%' . $dataFilter['src'] . '%');
-                } else {
-                    $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
-                }   
+            /** mrNguyen = 1
+             *  mrTien = 2
+             */
+            if (isset($dataFilter['mkt']) ) {
+
+                /** có chọn 1 nguồn */
+                if (isset($dataFilter['src'])) {
+                    if (is_numeric($dataFilter['src'])) {
+                        $list->where('page_id', 'like', '%' . $dataFilter['src'] . '%');
+                    } else {
+                        $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
+                    }
+                } 
+
+                if ($dataFilter['mkt'] == 1) {
+                    /** tất cả nguồn */
+                    $src = ['332556043267807', '318167024711625', '341850232325526', 'mua4tang2', 'giamgia45'];
+                    $list = $list->where(function($query) use ($src) {
+                        foreach ($src as $term) {
+                            if (is_numeric($term)) {
+                                $query->orWhere('page_id', 'like', '%' . $term . '%');
+                            } else {
+                                $query->orWhere('page_link', 'like', '%' . $term . '%');
+                            }
+                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
+                        }
+                    });
+                } else if ($dataFilter['mkt'] == 2) {
+                    $src = ['mua4-tang2'];
+                    $list = $list->where(function($query) use ($src) {
+                        foreach ($src as $term) {
+                            if (is_numeric($term)) {
+                                $query->orWhere('page_id', 'like', '%' . $term . '%');
+                            } else {
+                                $query->orWhere('page_link', 'like', '%' . $term . '%');
+                            }
+                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
+                        }
+                    });
+                }
             }
+
+            // if (isset($dataFilter['src'])) {
+            //     if (is_numeric($dataFilter['src'])) {
+            //         $list->where('page_id', 'like', '%' . $dataFilter['src'] . '%');
+            //     } else {
+            //         $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
+            //     }   
+            // }
 
             if (isset($dataFilter['type_customer'])) {
                 $list->where('old_customer', $dataFilter['type_customer']);   
@@ -326,7 +368,12 @@ class SaleController extends Controller
         if ($req->sale && $sale != 999) {
             $dataFilter['sale'] = $sale;
         }
-        
+
+        $mkt = $req->mkt;
+        if ($req->mkt && $mkt != 999) {
+            $dataFilter['mkt'] = $mkt;
+        }     
+
         $src = $req->src;
         if ($req->src && $src != 999) {
             $dataFilter['src'] = $src;

@@ -90,6 +90,15 @@
         cursor: move;
         border: 1px solid white;
     }
+
+    .header.header-sticky {
+        position: unset;
+    }
+
+    #sale-filter {
+    transition: all 2s ease-out;
+    }
+
 </style>        
 
 <?php $listSale = Helper::getListSale(); 
@@ -150,7 +159,7 @@
             </div>
             <div class="col-2 form-group mb-1">
                 <select name="type_customer" id="type_customer-filter" class="form-select">
-                <option value="999">--Chọn khách cũ--</option>
+                <option value="999">--Tất cả khách--</option>
                 <option value="1">Khách cũ</option>
                 <option value="0">Khách mới</option>
                 
@@ -158,9 +167,16 @@
             </div>
             <?php $checkAll = isFullAccess(Auth::user()->role);?>
                 @if ($checkAll)
-                <div class=" col-2 form-group mb-1">
+                <div class="col-2 form-group mb-1">
+                    <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
+                        <option value="999">--Tất cả Marketing--</option>
+                        <option value="1">a.Nguyên</option>
+                        <option value="2">a.Tiễn</option>
+                    </select>
+                </div>
+                <div class="src-filter col-2 form-group mb-1 hidden">
                     <select name="src" id="src-filter" class="form-select" aria-label="Default select example">
-                    <option value="999">--Tất cả Nguồn--</option>
+           <!--         
 
                 <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
                     if ($pagePanCake) {
@@ -195,8 +211,8 @@
                         <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
                 <?php   
                     }
-                ?>
-
+                ?> 
+!-->
                     </select>
                 </div>
                 @endif
@@ -298,7 +314,7 @@
                     
                     </td>
                     <td class="text-center">
-                    <a target="blank" {{ ($item->page_link) ? 'href="' . $item->page_link .'"' : '' }}>{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"H:i d-m-Y ")}}
+                    <a target="blank" {{ ($item->page_link) ? ('href=' . $item->page_link ) : '' }}>{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"H:i d-m-Y ")}}
                     </td>
                     <td class="text-center">
 
@@ -350,9 +366,11 @@
                         <span class="small-tip"><a href="tel:0987609812">{{$item->phone}}</a>
 
                             @if ($item->is_duplicate)
-                            <svg class="icon me-2" style="color: #ff0000">
-                                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-copy')}}"></use>
-                            </svg>
+                            <a title="Trùng só điện thoại" class="btn-icon">
+                                <svg  class="icon me-2" style="color: #ff0000">
+                                    <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-copy')}}"></use>
+                                </svg>
+                            </a>
                             @endif
                             
                         </span><br>
@@ -594,6 +612,34 @@
 </script>
 
 <script>
+const mrNguyen = [
+    {
+        id : '332556043267807',
+        name_page : 'Rước Đòng Organic Rice - Tăng Đòng Gấp 3 Lần',
+    },
+    {
+        id : '318167024711625',
+        name_page : 'Siêu Rước Đòng Organic Rice- Hàm Lượng Cao X3',
+    },
+    {
+        id : '341850232325526',
+        name_page : 'Siêu Rước Đòng Organic Rice - Hiệu Quả 100%',
+    },
+    {
+        id : 'mua4tang2',
+        name_page : 'Ladipage mua4tang2',
+    },
+    {
+        id : 'giamgia45',
+        name_page : 'Ladipage giamgia45',
+    }
+];
+const mrTien = [
+    {
+        id : 'mua4-tang2',
+        name_page : 'Ladipage mua4-tang2',
+    }
+];
 $.urlParam = function(name){
     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
     if (results) {
@@ -606,8 +652,29 @@ if (sale) {
     $('#sale-filter option[value=' + sale +']').attr('selected','selected');
 }
 
+let mkt = $.urlParam('mkt') 
+if (mkt) {
+    $('#mkt-filter option[value=' + mkt +']').attr('selected','selected');
+}
+
 let src = $.urlParam('src') 
 if (src) {
+    let str = '<option value="999">--Tất cả Nguồn--</option>';
+    $('.src-filter').show('slow');
+
+    if (mkt == 1) {
+        mrNguyen.forEach (function(item) {
+            // console.log(item);
+            str += '<option value="' + item.id +'">' + item.name_page +'</option>';
+        })
+        $(str).appendTo("#src-filter");
+    } else if (mkt == 2) {
+        mrTien.forEach (function(item) {
+            // console.log(item);
+            str += '<option value="' + item.id +'">' + item.name_page +'</option>';
+        })
+        $(str).appendTo("#src-filter");
+    }
     $('#src-filter option[value=' + src +']').attr('selected','selected');
 }
 
@@ -776,4 +843,38 @@ $('.update-assign-TN-sale').click(function(){
         col.addEventListener('drop', handleDrop, false);
     });
 
+</script>
+
+<script>
+   
+$("#mkt-filter").change(function() {
+    var selectedVal = $(this).find(':selected').val();
+    var selectedText = $(this).find(':selected').text();
+    
+    let str = '<option value="999">--Tất cả Nguồn--</option>';
+    $('.src-filter').show('slow');
+
+    if ($('#src-filter').children().length > 0) {
+        $('#src-filter').children().remove();
+    }
+
+    if (selectedVal == 1) {
+    
+        mrNguyen.forEach (function(item) {
+            console.log(item);
+            str += '<option value="' + item.id +'">' + item.name_page +'</option>';
+        })
+        $(str).appendTo("#src-filter");
+    } else if (selectedVal == 2) {
+
+        mrTien.forEach (function(item) {
+            console.log(item);
+            str += '<option value="' + item.id +'">' + item.name_page +'</option>';
+        });
+        $(str).appendTo("#src-filter");
+    } else {
+        $('.src-filter').hide('slow');
+        $('#src-filter').children().remove();
+    }
+});
 </script>
