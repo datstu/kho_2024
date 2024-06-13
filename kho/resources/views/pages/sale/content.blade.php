@@ -103,13 +103,13 @@
 
 <?php $listSale = Helper::getListSale(); 
     $checkAll = isFullAccess(Auth::user()->role);
+    $isLeadSale = Helper::isLeadSale(Auth::user()->role);      
     $flag = false;
 
-    if ($listSale->count() > 0 &&  $checkAll) {
+    if (($listSale->count() > 0 &&  $checkAll) || $isLeadSale) {
         $flag = true;
     }
-
-    $isLeadSale = Helper::isLeadSale(Auth::user()->role);      
+   
 ?>
                    
 
