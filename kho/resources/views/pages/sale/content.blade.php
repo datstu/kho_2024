@@ -109,7 +109,6 @@
     if (($listSale->count() > 0 &&  $checkAll) || $isLeadSale) {
         $flag = true;
     }
-   
 ?>
                    
 
@@ -157,80 +156,81 @@
             <div class=" col-4 form-group daterange mb-1">
                 <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
             </div>
-            <div class="col-2 form-group mb-1">
-                <select name="type_customer" id="type_customer-filter" class="form-select">
-                <option value="999">--Tất cả khách--</option>
-                <option value="1">Khách cũ</option>
-                <option value="0">Khách mới</option>
-                
+            
+            <?php $checkAll = isFullAccess(Auth::user()->role);?>
+            @if ($checkAll)
+            
+            <div class="src-filter col-2 form-group mb-1">
+                <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
+                    <option value="999">--Chọn nguồn--</option>
+            <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
+                if ($pagePanCake) {
+                    $pages = json_decode($pagePanCake);
+                    // dd($pages);
+                    foreach ($pages as $page) {
+            ?>
+                        <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
+            <?php   }
+                }   
+
+                $ladiPages = [
+                    [
+                        'name' => 'Ladipage mua4tang2',
+                        'id' => 'mua4tang2',
+                        // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                    ],
+                    [
+                        'name' => 'Ladipage giamgia45',
+                        'id' => 'giamgia45',
+                        // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
+                    ],
+                    [
+                        'name' => 'Tiễn - Ladipage mua4-tang2 ',
+                        'id' => 'mua4-tang2',
+                        // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+                    ],
+
+                ];
+                foreach ($ladiPages as $page) {
+            ?>
+                    <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+            <?php   
+                }
+            ?> 
+
                 </select>
             </div>
-            <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                @if ($checkAll)
-                <div class="col-2 form-group mb-1">
-                    <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
-                        <option value="999">--Tất cả Marketing--</option>
-                        <option value="1">a.Nguyên</option>
-                        <option value="2">a.Tiễn</option>
-                    </select>
-                </div>
-                <div class="src-filter col-2 form-group mb-1 hidden">
-                    <select name="src" id="src-filter" class="form-select" aria-label="Default select example">
-           <!--         
+            <div class="col-2 form-group mb-1">
+                <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
+                    <option value="999">--chọn Marketing--</option>
+                    <option value="1">a.Nguyên</option>
+                    <option value="2">a.Tiễn</option>
+                </select>
+            </div>
+            @endif
 
-                <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
-                    if ($pagePanCake) {
-                        $pages = json_decode($pagePanCake);
-                        // dd($pages);
-                        foreach ($pages as $page) {
-                ?>
-                            <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
-                <?php   }
-                    }   
+            @if ($checkAll || $isLeadSale)
+            <div class="col-2 form-group mb-1">
+                <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
 
-                    $ladiPages = [
-                        [
-                            'name' => 'Ladipage mua4tang2',
-                            'id' => 'mua4tang2',
-                            // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
-                        ],
-                        [
-                            'name' => 'Ladipage mua4-tang2 Tiễn',
-                            'id' => 'mua4-tang2',
-                            // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
-                        ],
-                        [
-                            'name' => 'Ladipage giamgia45',
-                            'id' => 'giamgia45',
-                            // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
-                        ],
-
-                    ];
-                    foreach ($ladiPages as $page) {
-                ?>
-                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
-                <?php   
-                    }
-                ?> 
-!-->
-                    </select>
-                </div>
+                @if ($checkAll)<option value="999">--Chọn Sale--</option> @endif
+                
+                @if (isset($sales))
+                    @foreach($sales as $sale)
+                    <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
+                    @endforeach
                 @endif
+                </select>
+            </div>
+            @endif
 
-                @if ($checkAll || $isLeadSale)
-                <div class="col-2 form-group mb-1">
-                    <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
-
-                    @if ($checkAll)<option value="999">--Tất cả Sale--</option> @endif
-                    
-                    @if (isset($sales))
-                        @foreach($sales as $sale)
-                        <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
-                        @endforeach
-                    @endif
-                    </select>
-                </div>
-                @endif
+            <div class="col-2 form-group mb-1">
+                <select name="type_customer" id="type_customer-filter" class="form-select">
+                    <option value="999">--Tất cả khách--</option>
+                    <option value="1">Khách cũ</option>
+                    <option value="0">Khách mới</option>
+                </select>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
@@ -659,22 +659,22 @@ if (mkt) {
 
 let src = $.urlParam('src') 
 if (src) {
-    let str = '<option value="999">--Tất cả Nguồn--</option>';
-    $('.src-filter').show('slow');
+    // let str = '<option value="999">--Tất cả Nguồn--</option>';
+    // $('.src-filter').show('slow');
 
-    if (mkt == 1) {
-        mrNguyen.forEach (function(item) {
-            // console.log(item);
-            str += '<option value="' + item.id +'">' + item.name_page +'</option>';
-        })
-        $(str).appendTo("#src-filter");
-    } else if (mkt == 2) {
-        mrTien.forEach (function(item) {
-            // console.log(item);
-            str += '<option value="' + item.id +'">' + item.name_page +'</option>';
-        })
-        $(str).appendTo("#src-filter");
-    }
+    // if (mkt == 1) {
+    //     mrNguyen.forEach (function(item) {
+    //         // console.log(item);
+    //         str += '<option value="' + item.id +'">' + item.name_page +'</option>';
+    //     })
+    //     $(str).appendTo("#src-filter");
+    // } else if (mkt == 2) {
+    //     mrTien.forEach (function(item) {
+    //         // console.log(item);
+    //         str += '<option value="' + item.id +'">' + item.name_page +'</option>';
+    //     })
+    //     $(str).appendTo("#src-filter");
+    // }
     $('#src-filter option[value=' + src +']').attr('selected','selected');
 }
 
@@ -692,8 +692,7 @@ if (time) {
 </script>
 
 <script>
-
-$('.update-assign-TN-sale').click(function(){
+    $('.update-assign-TN-sale').click(function(){
         $('.body').css("opacity", '0.5');
         $('.loader').show();
         var id = $(this).data("id");
@@ -845,36 +844,35 @@ $('.update-assign-TN-sale').click(function(){
 
 </script>
 
-<script>
-   
-$("#mkt-filter").change(function() {
-    var selectedVal = $(this).find(':selected').val();
-    var selectedText = $(this).find(':selected').text();
-    
-    let str = '<option value="999">--Tất cả Nguồn--</option>';
-    $('.src-filter').show('slow');
+<script>  
+    // $("#mkt-filter").change(function() {
+    //     var selectedVal = $(this).find(':selected').val();
+    //     var selectedText = $(this).find(':selected').text();
+        
+    //     let str = '<option value="999">--Tất cả Nguồn--</option>';
+    //     $('.src-filter').show('slow');
 
-    if ($('#src-filter').children().length > 0) {
-        $('#src-filter').children().remove();
-    }
+    //     if ($('#src-filter').children().length > 0) {
+    //         $('#src-filter').children().remove();
+    //     }
 
-    if (selectedVal == 1) {
-    
-        mrNguyen.forEach (function(item) {
-            console.log(item);
-            str += '<option value="' + item.id +'">' + item.name_page +'</option>';
-        })
-        $(str).appendTo("#src-filter");
-    } else if (selectedVal == 2) {
+    //     if (selectedVal == 1) {
+        
+    //         mrNguyen.forEach (function(item) {
+    //             console.log(item);
+    //             str += '<option value="' + item.id +'">' + item.name_page +'</option>';
+    //         })
+    //         $(str).appendTo("#src-filter");
+    //     } else if (selectedVal == 2) {
 
-        mrTien.forEach (function(item) {
-            console.log(item);
-            str += '<option value="' + item.id +'">' + item.name_page +'</option>';
-        });
-        $(str).appendTo("#src-filter");
-    } else {
-        $('.src-filter').hide('slow');
-        $('#src-filter').children().remove();
-    }
-});
+    //         mrTien.forEach (function(item) {
+    //             console.log(item);
+    //             str += '<option value="' + item.id +'">' + item.name_page +'</option>';
+    //         });
+    //         $(str).appendTo("#src-filter");
+    //     } else {
+    //         $('.src-filter').hide('slow');
+    //         $('#src-filter').children().remove();
+    //     }
+    // });
 </script>

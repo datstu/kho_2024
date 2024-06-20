@@ -6,7 +6,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
         <meta name="description" content="Đăng nhập vào kho Công Nghệ Cao">
-        <title>CoreUI Free Bootstrap Admin Template</title>
+        <title>Đăng nhập vào hệ thống Usu</title>
        
 
         <meta name="msapplication-TileColor" content="#ffffff">

@@ -34,10 +34,8 @@ class OrdersController extends Controller
         $data       = $this->getListOrderByPermisson(Auth::user());
         $sumProduct = $data->sum('qty');
         $totalOrder = $data->count();
-        // dd($totalOrder);
         $list       = $data->paginate(50);
-        $sales      = User::where('status', 1)->where('is_sale', 1)->get();
-        // $list = $this->getListOrderByPermisson(Auth::user())->paginate(50);
+        $sales      = Helper::getListSale()->get();
         return view('pages.orders.index')->with('sales', $sales)->with('totalOrder', $totalOrder)->with('sumProduct', $sumProduct)->with('list', $list)->with('category', $category);
     }
 
@@ -61,6 +59,11 @@ class OrdersController extends Controller
 
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
+
+                // if (isset($dataFilter['mkt']) ) {
+                //     $listsaleCare->whereDate('created_at', '>=', $dateBegin)
+                //         ->whereDate('created_at', '<=', $dateEnd);
+                // }
             }
             
             if (isset($dataFilter['status'])) {
@@ -93,7 +96,42 @@ class OrdersController extends Controller
                     }
                 }
 
-                $list       = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
+                $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
+            }
+
+            /** mrNguyen = 1
+             *  mrTien = 2
+             *
+             * lấy list sđt từ order
+             * get sale care ( where phone = sđt và &page_id/link của mkt
+             * kqua sđt này bao gồm data thuộc mkt và có đơn theo điều kiên lọc ban đầu của order
+             * lấy order từ sđt vừa lọc sale care
+             */
+            $dataFilterSale = [];
+            if (isset($dataFilter['src'])) {
+                $dataFilterSale['src'] = $dataFilter['src'];
+            }
+
+            if (isset($dataFilter['mkt'])) {
+                $dataFilterSale['mkt'] = $dataFilter['mkt'];
+            }
+        
+            if (count($dataFilterSale) > 0) {
+                $phoneFilter = [];
+                $listPhoneOrder = $list->pluck('phone')->toArray();
+
+                foreach ($listPhoneOrder as $phone) {
+                    $saleCtl = new SaleController();
+                    $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
+                    $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $phone . '%')->first();
+
+                    if ($careFromOrderPhone) {
+                        $phoneFilter[] = $phone;
+                    }
+                   
+                }
+
+                $list = Orders::whereIn('phone', $phoneFilter);
             }
         }
 
@@ -492,6 +530,16 @@ class OrdersController extends Controller
         $sale = $req->sale;
         if ($sale != 999) {
             $dataFilter['sale'] = $sale;
+        } 
+
+        $src = $req->src;
+        if ($src != 999) {
+            $dataFilter['src'] = $src;
+        } 
+
+        $mkt = $req->mkt;
+        if ($mkt != 999) {
+            $dataFilter['mkt'] = $mkt;
         }
 
         try {
@@ -502,7 +550,7 @@ class OrdersController extends Controller
             // dd($sumProduct);
             $category   = Category::where('status', 1)->get();
             $list       = $data->paginate(50);
-            $sales      = User::where('status', 1)->where('is_sale', 1)->get();
+            $sales      = Helper::getListSale()->get();
 
             return view('pages.orders.index')->with('list', $list)->with('category', $category)
                 ->with('sumProduct', $sumProduct)->with('sales', $sales)->with('totalOrder', $totalOrder);

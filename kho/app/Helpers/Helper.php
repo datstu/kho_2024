@@ -163,8 +163,13 @@ class Helper
     }
 
     public static function getListSale() {
-        return User::where('status', 1)->where('is_sale', 1)
-            ->orWhere('is_cskh', 1);
+        $arrQuery = [1];
+        return  User::where('status', 1)
+            ->where(function($query) use ($arrQuery) {
+            foreach ($arrQuery as $term) {
+                $query->orWhere('is_sale', $term)->orWhere('is_cskh', $term);
+            }
+        });
     }
 
     public static function getListCall() {
@@ -392,5 +397,10 @@ class Helper
         }
 
         return false;
+    }
+
+    public static function getSaleById($id)
+    {
+        return User::find($id);
     }
 }

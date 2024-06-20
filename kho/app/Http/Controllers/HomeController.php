@@ -20,6 +20,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+        // dd('hi');
         $toMonth      = date("Y-m-d", time());
         $item = $this->filterByDate('day', $toMonth);
 
@@ -93,7 +94,7 @@ class HomeController extends Controller
                
 
                 $ordersCtl = new SaleController();
-                $saleCare          = $ordersCtl->getListSalesByPermisson(Auth::user(), $dataFilter)
+                $saleCare  = $ordersCtl->getListSalesByPermisson(Auth::user(), $dataFilter)
                     ->where('old_customer', 0);
                 $countSaleCare = $saleCare->count();
                 // dd($countSaleCare);
@@ -105,48 +106,6 @@ class HomeController extends Controller
                 }
 
                 $rateSuccess = round($rateSuccess, 2);
-                /** old code */
-                // $percentAvg         = $avgOrders = $percentCountDay = $percentTotalDay = 0;
-                // $ordersSum          = Orders::whereDate('created_at', '=', $date)
-                //     // ->where('status', 3)
-                //     ->get()->sum('total');
-                // $yesterday          = date('Y-m-d',strtotime("$date -1 days"));
-                // $ordersYesterdaySum = Orders::whereDate('created_at', '=', $yesterday)
-                // // ->where('status', 3)
-                //     ->get()->sum('total');
-                
-                // $totalDay           = $ordersSum + $ordersYesterdaySum;
-
-                // $countOrders        = Orders::whereDate('created_at', '=', $date)
-                //     // ->where('status', 3)
-                //     ->get()->count();
-                // $countOrdersYes     =  Orders::whereDate('created_at', '=', $yesterday)
-                //     // ->where('status', 3)
-                //     ->get()->count();
-                // $countOrdersDay     = $countOrders + $countOrdersYes;
-
-                // if ($ordersSum) {
-                //     $percentTotalDay    = round(($ordersSum - $ordersYesterdaySum) * 100 / $totalDay, 2);
-                //     $avgOrders = $ordersSum / $countOrders;
-                // }
-                
-                // if ($countOrdersDay > 0) {
-                //     $percentCountDay    = round(($countOrders - $countOrdersYes) * 100 / $countOrdersDay, 2);
-                // }
- 
-                // if ($ordersYesterdaySum > 0) {
-                //     $avgOrdersYes   = $ordersYesterdaySum / $countOrdersYes;
-                //     $totalAvgDay    = $ordersSum + $ordersYesterdaySum;
-                //     $percentAvg     = round(($avgOrders - $avgOrdersYes) * 100 / $totalAvgDay, 2);
-                // }
-
-              
-                // $countSaleCare = SaleCare::whereDate('created_at', '>=', $date)
-                //     ->whereDate('created_at', '<=', $yesterday)->count();
-                // $countSaleCare = SaleCare::->whereDate('created_at', '>', $yesterday)     
-                // ->whereDate('created_at', '<=', $date)->count();
-
-                // dd($yesterday);
                 
                 $result = [
                     'totalSum'      => number_format($ordersSum) . 'đ',
@@ -332,15 +291,9 @@ class HomeController extends Controller
         $timeBegin  = str_replace('/', '-', $time[0]);
         $timeEnd    = str_replace('/', '-', $time[1]);
 
-        // $dateBegin  = date('Y-m-d', strtotime("$timeBegin"));
-        // $dateEnd    = date('Y-m-d', strtotime("$timeEnd"));
-        // $dataFilter['daterange']['dateBegin']   = $dateBegin;
-        // $dataFilter['daterange']['dateEnd']     = $dateEnd;
-
-        // $list->whereDate('created_at', '>=', $dateBegin)
-        //     ->whereDate('created_at', '<=', $dateEnd);
         if ($req->status != 999) {
             $dataFilter['status'] = $req->status;
+            $newFilter['status'] = $req->status;
         }
 
         $category = $req->category;
@@ -354,17 +307,24 @@ class HomeController extends Controller
             $dataFilter['product'] = $product;
         }
 
-        // $countSaleCare = SaleCare::whereDate('created_at', '>=', $dateBegin)
-        //     ->whereDate('created_at', '<=', $dateEnd)
-        //     ->where('old_customer', 0)
-        //     ->count();
         if ($req->sale && $req->sale != 999) {
             $dataFilter['sale'] = $req->sale;
-            // $countSaleCare = SaleCare::whereDate('created_at', '>=', $dateBegin)
-            // ->whereDate('created_at', '<=', $dateEnd)->where('assign_user', $req->sale)
-            // ->where('old_customer', 0)->count();
         }
+
+        $mkt = $req->mkt;
+        if ($mkt != 999) {
+            $dataFilter['mkt'] = $mkt;
+            $newFilter['mkt'] = $mkt;
+        }
+
+        $src = $req->src;
+        if ($src != 999) {
+            $dataFilter['src'] = $src;
+            $newFilter['src'] = $src;
+        } 
  
+        // dd($dataFilter);
+        // dd($dataFilter);
         $data = $ordersController->getListOrderByPermisson(Auth::user(), $dataFilter);
         $countOrders = $data->count();
         // $list       = $data->paginate(50);
@@ -380,12 +340,19 @@ class HomeController extends Controller
         /** tỷ lệ chốt: số đơn/ số data */
         $newFilter['daterange'] =  $req->date;
         $newFilter['sale'] = $req->sale;
+      
         $countOrdersRate = $ordersController->getListOrderByPermisson(Auth::user(), $newFilter)->count();
        
-       
         $saleCtl = new SaleController();
-        $saleCare  = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilter)
-            ->where('old_customer', 0);
+        // if (isset($newFilter['mkt']) || $newFilter['src']) {
+        //     $saleCare  = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilter);
+        // } else {
+        //     $saleCare  = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilter);
+        // }
+
+        $saleCare  = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilter);
+
+            // ->where('old_customer', 0);
             // dd($saleCare);
             // ->where(function ($query) {
             //     $query->where('old_customer', 0)
