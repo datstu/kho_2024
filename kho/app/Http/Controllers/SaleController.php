@@ -248,7 +248,7 @@ class SaleController extends Controller
                  */
                 if ($dataFilter['mkt'] == 1) {
                     /** tất cả nguồn */
-                    $src = ['332556043267807', '318167024711625', '341850232325526', 'mua4tang2', 'giamgia45'];
+                    $src = ['332556043267807', '318167024711625', '341850232325526', 'ruoc-dong', 'mua4tang2', 'giamgia45'];
                     $list = $list->where(function($query) use ($src) {
                         foreach ($src as $term) {
                             if (is_numeric($term)) {

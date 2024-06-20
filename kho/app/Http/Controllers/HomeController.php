@@ -87,11 +87,10 @@ class HomeController extends Controller
                 $listOrder      = $ordersCtl->getListOrderByPermisson(Auth::user(),$dataFilter);
                 $countOrders    = $listOrder->count();
                 $ordersSum      = $listOrder->sum('total');
-                
+
                 if ($countOrders > 0) {
                     $avgOrders = $ordersSum / $countOrders;
                 }
-               
 
                 $ordersCtl = new SaleController();
                 $saleCare  = $ordersCtl->getListSalesByPermisson(Auth::user(), $dataFilter)

@@ -111,6 +111,27 @@
         <input id="daterange" class="btn btn-outline-secondary" type="text" name="daterange" />
       </div>
 
+      <?php $isDigital = Auth::user()->is_digital;?>
+      @if ($isDigital)
+      <div class="src-filter col-2 form-group mb-1">
+        <select name="src" id="src-filter" class="form-select">
+          <option value="999">--Chọn nguồn--</option>
+            <?php $pagePanCake = Helper::getConfigPanCake()->page_id;   
+              $ladiPages = [
+                [
+                    'name' => 'Tiễn - Ladipage mua4-tang2 ',
+                    'id' => 'mua4-tang2',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+                ],
+              ];?>
+              @foreach ($ladiPages as $page) 
+                <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+              @endforeach
+
+        </select>
+      </div>
+      @endif
+
       @if ($checkAll)
       <div class="src-filter col-2 form-group mb-1">
         <select name="src" id="src-filter" class="form-select">
@@ -126,21 +147,26 @@
                 }   
 
                 $ladiPages = [
-                    [
-                        'name' => 'Ladipage mua4tang2',
-                        'id' => 'mua4tang2',
-                        // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
-                    ],
-                    [
-                        'name' => 'Ladipage giamgia45',
-                        'id' => 'giamgia45',
-                        // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
-                    ],
-                    [
-                        'name' => 'Tiễn - Ladipage mua4-tang2 ',
-                        'id' => 'mua4-tang2',
-                        // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
-                    ],
+                  [
+                    'name' => 'Ladipage ruoc-dong',
+                    'id' => 'ruoc-dong',
+                    // 'src' => 'https://www.phanbonlua.xyz/ruoc-dong'
+                  ],
+                  [
+                    'name' => 'Ladipage mua4tang2',
+                    'id' => 'mua4tang2',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
+                  [
+                    'name' => 'Ladipage giamgia45',
+                    'id' => 'giamgia45',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
+                  ],
+                  [
+                    'name' => 'Tiễn - Ladipage mua4-tang2 ',
+                    'id' => 'mua4-tang2',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+                  ],
 
                 ];
                 foreach ($ladiPages as $page) {
@@ -150,7 +176,7 @@
                 }
             ?> 
         </select>
-    </div>
+      </div>
       <div class="col-2 form-group mb-1">
           <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
               <option value="999">--Chọn Marketing--</option>

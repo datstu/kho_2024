@@ -125,21 +125,26 @@
                 }   
 
                 $ladiPages = [
-                    [
-                        'name' => 'Ladipage mua4tang2',
-                        'id' => 'mua4tang2',
-                        // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
-                    ],
-                    [
-                        'name' => 'Ladipage giamgia45',
-                        'id' => 'giamgia45',
-                        // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
-                    ],
-                    [
-                        'name' => 'Tiễn - Ladipage mua4-tang2 ',
-                        'id' => 'mua4-tang2',
-                        // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
-                    ],
+                  [
+                    'name' => 'Ladipage ruoc-dong',
+                    'id' => 'ruoc-dong',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
+                  [
+                    'name' => 'Ladipage mua4tang2',
+                    'id' => 'mua4tang2',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
+                  [
+                    'name' => 'Ladipage giamgia45',
+                    'id' => 'giamgia45',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
+                  ],
+                  [
+                    'name' => 'Tiễn - Ladipage mua4-tang2 ',
+                    'id' => 'mua4-tang2',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+                  ],
 
                 ];
                 foreach ($ladiPages as $page) {

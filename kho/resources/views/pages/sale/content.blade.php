@@ -175,6 +175,11 @@
 
                 $ladiPages = [
                     [
+                        'name' => 'Ladipage ruoc-dong',
+                        'id' => 'ruoc-dong',
+                        // 'src' => 'https://www.phanbonlua.xyz/ruoc-dong'
+                    ],
+                    [
                         'name' => 'Ladipage mua4tang2',
                         'id' => 'mua4tang2',
                         // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'

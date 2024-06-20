@@ -128,10 +128,9 @@ class OrdersController extends Controller
                     if ($careFromOrderPhone) {
                         $phoneFilter[] = $phone;
                     }
-                   
                 }
 
-                $list = Orders::whereIn('phone', $phoneFilter);
+                $list = Orders::whereIn('phone', $phoneFilter)->orderBy('id', 'desc');
             }
         }
 
@@ -152,9 +151,24 @@ class OrdersController extends Controller
         if (isset($dataFilter['sale']) && $dataFilter['sale'] != 999 && $checkAll) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
+        } else if ($user->is_digital == 1) {
+            $phoneFilter = [];
+            $listPhoneOrder = $list->pluck('phone')->toArray();
+            $dataFilterSale['mkt'] = 2; //aT
+            foreach ($listPhoneOrder as $phone) {
+                $saleCtl = new SaleController();
+                $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
+                $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $phone . '%')->first();
+
+                if ($careFromOrderPhone) {
+                    $phoneFilter[] = $phone;
+                } 
+            }
+
+            $list = Orders::whereIn('phone', $phoneFilter)->orderBy('id', 'desc');
         } else if (!$checkAll) {
             $list = $list->where('assign_user', $user->id);
-        }  
+        }
 
         return $list;
     }

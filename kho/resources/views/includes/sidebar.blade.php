@@ -1,5 +1,5 @@
 
-<ul class="sidebar-nav" data-coreui="navigation" data-simplebar="">
+<ul class="sidebar-nav " data-coreui="navigation" data-simplebar="">
     <li class="nav-item"><a class="nav-link" href="{{route('home')}}">
             <svg class="nav-icon">
                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-speedometer')}}"></use>
