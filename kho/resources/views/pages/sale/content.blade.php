@@ -378,8 +378,12 @@
                     </td>
                     <td>{{$item->messages}}</td>
                     <td class="area2 hidden-xs">
+                        
+                        @if (!$item->old_customer)
                         <span class="fb span-col ttgh7" style="cursor: pointer;">Data nóng</span> 
-
+                        @else 
+                        <span class="fb span-col" style="cursor: pointer;">CSKH</span> 
+                        @endif
                         {{-- <a class="btn-icon aoh hidden" href="/ld/sale/sale-tac-nghiep/id/0" title="Xem bản ghi chốt đơn" target="_blank">
                             <i style="font-size:14px;" class="fa fa-arrow-circle-o-left"></i>
                         </a>  --}}
