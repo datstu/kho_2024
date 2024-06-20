@@ -233,20 +233,19 @@ class SaleController extends Controller
                     ->whereDate('created_at', '<=', $dateEnd);
             }
 
-            /** mrNguyen = 1
-             *  mrTien = 2
-             */
+            /** có chọn 1 nguồn */
+            if (isset($dataFilter['src'])) {
+                if (is_numeric($dataFilter['src'])) {
+                    $list->where('page_id', 'like', '%' . $dataFilter['src'] . '%');
+                } else {
+                    $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
+                }
+            } 
+             
             if (isset($dataFilter['mkt']) ) {
-
-                /** có chọn 1 nguồn */
-                if (isset($dataFilter['src'])) {
-                    if (is_numeric($dataFilter['src'])) {
-                        $list->where('page_id', 'like', '%' . $dataFilter['src'] . '%');
-                    } else {
-                        $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
-                    }
-                } 
-
+                /** mrNguyen = 1
+                 *  mrTien = 2
+                 */
                 if ($dataFilter['mkt'] == 1) {
                     /** tất cả nguồn */
                     $src = ['332556043267807', '318167024711625', '341850232325526', 'mua4tang2', 'giamgia45'];
@@ -293,10 +292,12 @@ class SaleController extends Controller
         $roles      = json_decode($roles);
 
         $routeName = Route::currentRouteName();
-        // dd($routeName);
         if ($roles ) {
             foreach ($roles as $key => $value) {
-                if ($value == 1 || ($value == 4 && $routeName != 'filter-total-sales')) {
+                /**
+                 * value: 4 = lead sale ko áp dụng cho filter/index dashboard
+                 */
+                if ($value == 1 || ($value == 4 && $routeName != 'filter-total-sales' && $routeName != 'home')) {
                     $checkAll = true;
                     break;
                 } else {
@@ -305,27 +306,17 @@ class SaleController extends Controller
             }
         }
 
-         // dd($user);
-         if ($user->is_digital) {
-            // dd($list);
+        if ($user->is_digital) {
             $list =  $list->where('page_link', 'like', '%' . 'mua4-tang2' . '%');
-                // ->orWhere(function ($query) {
-                //     if (isset($dataFilter['daterange'])) {
-                //         $time       = $dataFilter['daterange'];
-                //         $timeBegin  = str_replace('/', '-', $time[0]);
-                //         $timeEnd    = str_replace('/', '-', $time[1]);
-                //         $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
-                //         $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
-                //         $query->whereDate('created_at', '>=', $dateBegin)
-                //         ->whereDate('created_at', '<=', $dateEnd);
-                //     }
-                 
-                //     $query->where('page_id', 'like', '%' . '341850232325526' . '%');
-                // });
-
-                // dd($list);
         } else if (isset($dataFilter['sale']) && $dataFilter['sale'] != 999 && $checkAll) {
             /** user đang login = full quyền và đang lọc 1 sale */
+            $sale = Helper::getSaleById($dataFilter['sale']);
+
+            if ($sale->is_CSKH == 1) {
+                $list = $list->where('old_customer', 1);
+            } else {
+                $list = $list->where('old_customer', 0);
+            }
             $list = $list->where('assign_user', $dataFilter['sale']);
         } else if (!$checkAll) {
             $list = $list->where('assign_user', $user->id);
