@@ -122,7 +122,7 @@
     <div class="loader hidden">
         <img src="{{asset('public/images/new-loader.gif')}}" alt="">
     </div>
-    <div class="dragscroll1 tableFixHead">
+
 
         <!-- Trigger the modal with a button -->
         <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
@@ -279,8 +279,9 @@
                 </div>
             </div>
         </div>
-        <table class="table table-bordered table-multi-select table-sale" id="myTable">
-            <thead>
+    <div class="dragscroll1 tableFixHead">
+        <table class=" table table-bordered table-multi-select table-sale" id="myTable">
+            <thead class="">
                 <tr class="drags-area">
                     <th style="top: 0.5px;">
                         <span class="chk-all"><input id="" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
@@ -806,50 +807,50 @@ if (time) {
 </script>
 
 <script type="text/javascript">
-    var dragCol = null;
-    function handleDragStart(e) {
-        dragCol = this;
-        e.dataTransfer.efferAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.outerHtml);
-    }
+    // var dragCol = null;
+    // function handleDragStart(e) {
+    //     dragCol = this;
+    //     e.dataTransfer.efferAllowed = 'move';
+    //     e.dataTransfer.setData('text/html', this.outerHtml);
+    // }
 
-    function handleDragOver(e) {
-        if (e.preventDefault) {
-            e.preventDefault();
-        }
-        e.dataTransfer.dropEffect = 'move';
-        return false;
-    }
+    // function handleDragOver(e) {
+    //     if (e.preventDefault) {
+    //         e.preventDefault();
+    //     }
+    //     e.dataTransfer.dropEffect = 'move';
+    //     return false;
+    // }
 
-    function handleDrop(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation;
-        }
+    // function handleDrop(e) {
+    //     if (e.stopPropagation) {
+    //         e.stopPropagation;
+    //     }
 
-        if (dragCol !== this) {
-            var sourceIndex = Array.from(dragCol.parentNode.children).indexOf(dragCol);
-            var targetIndex = Array.from(this.parentNode.children).indexOf(this);
+    //     if (dragCol !== this) {
+    //         var sourceIndex = Array.from(dragCol.parentNode.children).indexOf(dragCol);
+    //         var targetIndex = Array.from(this.parentNode.children).indexOf(this);
 
-            var table = document.getElementById('myTable');
-            var rows = table.rows;
-            for ( var i = 0; i < rows.length; i++) {
-                var sourceCell = rows[i].cells[sourceIndex];
-                var targetCell = rows[i].cells[targetIndex];
+    //         var table = document.getElementById('myTable');
+    //         var rows = table.rows;
+    //         for ( var i = 0; i < rows.length; i++) {
+    //             var sourceCell = rows[i].cells[sourceIndex];
+    //             var targetCell = rows[i].cells[targetIndex];
 
-                var tempHTML = sourceCell.innerHTML;
-                sourceCell.innerHTML = targetCell.innerHTML;
-                targetCell.innerHTML = tempHTML;
-            }
-        }
-        return false;
-    }
+    //             var tempHTML = sourceCell.innerHTML;
+    //             sourceCell.innerHTML = targetCell.innerHTML;
+    //             targetCell.innerHTML = tempHTML;
+    //         }
+    //     }
+    //     return false;
+    // }
 
-    var cols = document.querySelectorAll('th');
-    [].forEach.call(cols, function(col) {
-        col.addEventListener('dragstart', handleDragStart, false);
-        col.addEventListener('dragover', handleDragOver, false);
-        col.addEventListener('drop', handleDrop, false);
-    });
+    // var cols = document.querySelectorAll('th');
+    // [].forEach.call(cols, function(col) {
+    //     col.addEventListener('dragstart', handleDragStart, false);
+    //     col.addEventListener('dragover', handleDragOver, false);
+    //     col.addEventListener('drop', handleDrop, false);
+    // });
 
 </script>
 
