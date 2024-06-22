@@ -27,8 +27,11 @@
         </svg></a></li>
   </ul>
   <ul class="header-nav ms-3">
-    <li class="nav-item dropdown"><a class="nav-link py-0" data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-        <div class="avatar avatar-md"><img class="avatar-img" src="{{asset('public/assets/img/avatars/8.jpg')}}" alt="user@email.com"></div>
+    <li class="nav-item dropdown">
+      <a class="nav-link py-0" data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+        <div class="avatar avatar-md"><img class="avatar-img" src="{{asset('public/assets/img/avatars/8.jpg')}}" alt="user@email.com">
+          </div>
+        
       </a>
       <div class="dropdown-menu dropdown-menu-end pt-0">
         <div class="dropdown-header bg-light py-2">
@@ -41,6 +44,9 @@
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-account-logout')}}"></use>
           </svg> Đăng xuất</a>
       </div>
+      <a style="color: rgba(44, 56, 74, 0.681);;" data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+        <span style="width:100%; display: inline-block; text-align: center">{{Auth::user()->real_name ?: Auth::user()->name }}</span>
+      </a>
     </li>
   </ul>
 </div>
