@@ -57,6 +57,11 @@
   position: static;
   margin: 1rem -1rem -1rem;
 }
+
+.sidebar, #content-right {
+  transition: all 0.5s ease-out;
+}
+
 @media (min-width: 576px) {
   .example .preview .fixed-top,
   .example .preview .sticky-top {

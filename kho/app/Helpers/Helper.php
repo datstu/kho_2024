@@ -403,4 +403,19 @@ class Helper
     {
         return User::find($id);
     }
+
+    public static function stringToNumberPrice($number_with_commas)
+    {
+        // // Original number as a string with commas
+        // $number_with_commas = "123,456,789";
+
+        // Remove commas
+        $number_without_commas = str_replace(",", "", $number_with_commas);
+
+        // Convert the string to an integer or float
+        $number = (int)$number_without_commas;
+
+        // Display the result
+        return $number;
+    }
 }

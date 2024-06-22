@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
 use App\Models\SaleCare;
-
+use App\Helpers\Helper;
 class HomeController extends Controller
 {
     /**
@@ -20,14 +20,22 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // dd('hi');
         $toMonth      = date("Y-m-d", time());
-        $item = $this->filterByDate('day', $toMonth);
 
+        /**set tmp */
+        // $toMonth = '2024-06-19';
+        // $item = $this->filterByDate('day', $toMonth);
+
+        $dataSale = $this->getReportHomeSale($toMonth);
+        // echo "<pre>";
+        // print_r($data);
+        // echo "</pre>";
+        // die();
+        // dd($dataSale);
         $category   = Category::where('status', 1)->get();
         $sales   = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
 
-        return view('pages.home')->with('item', $item)->with('category', $category)->with('sales', $sales);
+        return view('pages.home')->with('category', $category)->with('sales', $sales)->with('dataSale', $dataSale);
     }
     
       /**
@@ -271,6 +279,128 @@ class HomeController extends Controller
     }
 
     /**
+     * contact: số data sale đc nhận
+     * order: số đơn đc tạo
+     * rate: tỉ lệ chốt
+     * product: tổng số lượng sp 
+     * total: doanh thu
+     * avg: trung bình đơn
+    * Lưu ý: hiện tại logic là khách cũ - khách mới chỉ định cho 2 sale riêng biệt
+    * nên get/set theo thuộc tính is_sale cho khách mới và is_cskh cho khách cũ
+    * và if else cho new old tuọng trưng để sau này 1 sale có thể TN cả khách cũ và khách mới
+    */
+    public function getSaleByType($dataFilter, $type)
+    {
+        $result = []; 
+        $avgOrders = 0;
+        $ordersCtl = new OrdersController();
+        $listOrder      = $ordersCtl->getListOrderByPermisson(Auth::user(),$dataFilter);
+        $countOrders    = $listOrder->count();
+        $ordersSum      = $listOrder->sum('total');
+        $sumProduct     = $listOrder->sum('qty');
+
+        if ($countOrders > 0) {
+            $avgOrders = round($ordersSum / $countOrders, 0);
+        }
+
+        $ordersCtl = new SaleController();
+        $saleCare  = $ordersCtl->getListSalesByPermisson(Auth::user(), $dataFilter);
+
+        
+        if ($type == 'new') {
+            $saleCare->where('old_customer', 0);    
+        } else if ($type == 'old') {
+            $saleCare->where('old_customer', 1);    
+        }
+
+        $countSaleCare = $saleCare->count();
+        
+        /** tỷ lệ chốt = số đơn/số data */
+        if ($countSaleCare == 0) {
+            $rateSuccess = $countOrders * 100;
+        } else {
+            $rateSuccess = $countOrders / $countSaleCare * 100;
+        }
+        
+        $result = [
+            'contact' => $countSaleCare,
+            'order' => $countOrders,
+            'rate' => round($rateSuccess, 2),
+            'product' => $sumProduct,
+            'total' => round($ordersSum, 0),
+            'avg' => round($avgOrders, 0),
+        ];
+        return $result;
+    }
+    public function getReportHomeSale($time)
+    {
+        $dataFilter['daterange'] = [$time, $time];
+        $listSale = Helper::getListSale();
+        $result = [];
+
+        $checkAll = isFullAccess(Auth::user()->role);
+        if ($checkAll) {
+            foreach ($listSale->get() as $sale) {
+                $data = $this->getReportUserSale($sale, $dataFilter);
+                $result[] = $data;
+            }
+        } else if (Auth::user()->is_CSKH || Auth::user()->is_sale) {
+            $result[] = $this->getReportUserSale(Auth::user(), $dataFilter);
+        }
+
+        return $result;
+    }
+
+    public function getReportUserSale($user, $dataFilter)
+    {
+        $data = ['name' => ($user->real_name) ?: ''];
+        $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
+        $dataFilter['sale'] = $user->id;
+
+        if ($user->is_sale) {
+            $newCustomer = $this->getSaleByType($dataFilter, 'new');
+            $data['new_customer'] = $newCustomer;
+            $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
+            $newCountOrder = $newCustomer['order'];
+
+            $data['old_customer'] = [
+                'contact' => 0,
+                'order' => 0,
+                'rate' => 0,
+                'product' => 0,
+                'total' => 0,
+                'avg' => 0,
+            ];
+        } else if ($user->is_CSKH) {
+            $oldCustomer = $this->getSaleByType($dataFilter, 'old');
+            $data['old_customer'] = $oldCustomer;
+            $oldTotal = Helper::stringToNumberPrice($oldCustomer['total']);
+            $oldCountOrder = $oldCustomer['order'];
+
+            $data['new_customer'] = [
+                'contact' => 0,
+                'order' => 0,
+                'rate' => 0,
+                'product' => 0,
+                'total' => 0,
+                'avg' => 0,
+            ];
+        }  
+        
+        $totalSum = $newTotal + $oldTotal;
+        if ($newCountOrder != 0 || $oldCountOrder != 0) {
+            $avgSum = $totalSum / ($newCountOrder + $oldCountOrder);
+        }
+
+        $data['summary_total'] = [
+            'total' => round($totalSum, 0),
+            'avg' => round($avgSum, 0),
+        ];
+
+        return $data;
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return Response
@@ -280,6 +410,181 @@ class HomeController extends Controller
         return response()->json($this->filterByDate($req->type, $req->date));
     }
 
+    public function ajaxFilterDashboar(Request $req) 
+    {
+        $result =  $dataFilter = $list = [];
+        $dataFilter['daterange'] = $req->date;
+
+        if ($req->status != 999) {
+            $dataFilter['status'] = $req->status;
+            $newFilter['status'] = $req->status;
+        }
+
+        $category = $req->category;
+        if ($category != 999) {
+            $dataFilter['category'] = $category;
+        }
+
+        $product = $req->product;
+        if ($req->product && $product != 999) {
+            $dataFilter['product'] = $product;
+        }
+
+        $sale = $req->sale;
+        if ($sale && $sale != 999) {
+            $dataFilter['sale'] = $req->sale;
+        }
+
+        $mkt = $req->mkt;
+        if ($mkt != 999) {
+            $dataFilter['mkt'] = $mkt;
+            $newFilter['mkt'] = $mkt;
+        }
+
+        $src = $req->src;
+        if ($src != 999) {
+            $dataFilter['src'] = $src;
+            $newFilter['src'] = $src;
+        } 
+ 
+        /**
+         * bắt đầu lọc 
+         * chọn 1 sale
+        */
+        if (isset($dataFilter['sale'])) {
+            $sale = Helper::getSaleById($dataFilter['sale']);
+            $list[] = $this->getReportUserSale($sale, $dataFilter);
+        } else {
+            /** chọn tất cả sale */
+            $listSale = Helper::getListSale();
+            $checkAll = isFullAccess(Auth::user()->role);
+
+            if ($checkAll) {
+                foreach ($listSale->get() as $sale) {
+                    $data = $this->getReportUserSale($sale, $dataFilter);
+                    $list[] = $data;
+                }
+            } else {
+                /**sale đang xem thông tin */
+                $list[] = $this->getReportUserSale(Auth::user(), $dataFilter);
+            }
+        }
+        $result['data'] = $list;
+
+        /////
+        $totalSum = $avgSum = $newContact = $newOrder = $newRate = $newProduct = $newTotal = $oldAvg = $oldTotal = $oldProduct = $oldRate = $newAvg = $oldContact = $oldOrder= 0;
+        $sumNewCustomer = $sumOldCustomer = [
+            'contact' => 0,
+            'order' => 0,
+            'rate' => 0,
+            'product' => 0,
+            'total' => 0,
+            'avg' => 0,
+        ];
+        
+        foreach ($list as $data) {
+            if (isset($data['new_customer'])) {
+            $newContact += $data['new_customer']['contact'];
+            $newOrder += $data['new_customer']['order'];
+            $newProduct += $data['new_customer']['product'];
+            $newTotal += ($data['new_customer']['total']);
+            }
+            if (isset($data['old_customer'])) {
+            $oldContact += $data['old_customer']['contact'];
+            $oldOrder += $data['old_customer']['order'];
+            $oldRate += $data['old_customer']['rate'];
+            $oldProduct += $data['old_customer']['product'];
+            $oldTotal += ($data['old_customer']['total']);
+            }
+        }
+    
+        $sumNewCustomer['contact'] = $newContact;
+        $sumNewCustomer['order'] = $newOrder;
+        if ($newContact > 0) {
+            $newRate = $newOrder / $newContact * 100;
+            $sumNewCustomer['rate'] = round($newRate, 2);
+        }
+    
+        $sumNewCustomer['product'] = $newProduct;
+        $sumNewCustomer['total'] = $newTotal;
+        $sumNewCustomer['avg'] = ($newOrder != 0) ? round($newTotal/$newOrder, 0) : 0;
+    
+        $sumOldCustomer['contact'] = $oldContact;
+        $sumOldCustomer['order'] = $oldOrder;
+        if ($oldContact > 0) {
+            $oldRate = $oldOrder / $oldContact * 100;
+            $sumOldCustomer['rate'] = round($oldRate, 2);
+        }
+    
+        $sumOldCustomer['rate'] = round($oldRate, 2);
+        $sumOldCustomer['product'] = $oldProduct;
+        $sumOldCustomer['total'] = $oldTotal;
+        $sumOldCustomer['avg'] = ($oldOrder != 0) ?  round($oldTotal/$oldOrder, 0) : 0;
+        $totalSum = $oldTotal + $newTotal;
+        if ($oldOrder + $newOrder) {
+            $avgSum = round(($totalSum / ($oldOrder + $newOrder)), 0);
+        }
+
+        $result['trSum'] = [
+            'new_customer' => $sumNewCustomer,
+            'old_customer' => $sumOldCustomer,
+            'sumary_total' => [
+                'total' => $totalSum,
+                'avg' => $avgSum,
+            ]
+        ];
+
+        return $result;
+
+    //     $data = $ordersController->getListOrderByPermisson(Auth::user(), $dataFilter);
+    //     $countOrders = $data->count();
+    //     $sumProduct = $data->sum('qty');
+
+    //     $totalSum  = $data->sum('total');
+    //     $avgOrders = 0;
+    //     if ($totalSum > 0) {
+    //         $avgOrders = $totalSum / $countOrders;
+    //     }
+        
+    //     /** tỷ lệ chốt: số đơn/ số data */
+    //     $newFilter['daterange'] =  $req->date;
+    //     $newFilter['sale'] = $req->sale;
+      
+    //     $countOrdersRate = $ordersController->getListOrderByPermisson(Auth::user(), $newFilter)->count();
+       
+    //     $saleCtl = new SaleController();
+    //     $saleCare  = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilter);
+    //     $countSaleCare = $saleCare->count();
+
+    //     /** tỷ lệ chốt = số đơn/số data */
+    //     if ($countSaleCare == 0) {
+    //         $rateSuccess = $countOrders * 100;
+    //     } else {
+    //         $rateSuccess = $countOrders / $countSaleCare * 100;
+    //     }
+
+    //     // dd($countOrdersRate);
+    //     if ($countSaleCare == 0) {
+    //         $rateSuccess = $countOrdersRate * 100;
+    //     } else {
+    //         $rateSuccess = $countOrdersRate / $countSaleCare * 100;
+    //     }
+       
+    //     $rateSuccess = round($rateSuccess, 2);
+    // //    dd($rateSuccess);
+    //     $result = [
+    //         'totalSum'      => number_format($totalSum) . 'đ',
+    //         'percentTotal'  => '',
+    //         'countOrders'   => $countOrders,
+    //         'percentCount'  => '',
+    //         'avgOrders'     => number_format($avgOrders) . 'đ',
+    //         'percentAvg'    => '',
+    //         'sumProduct'    => '(' . $sumProduct . ' sản phẩm)',
+    //         'rateSuccess'   =>  $rateSuccess . '%',
+    //         'countSaleCare' =>  $countSaleCare
+    //     ];
+    //     return $result;
+    }
     public function filterDashboard(Request $req) {
         $rateSuccess = $countSaleCare = 0;
         $ordersController = new OrdersController();
@@ -390,4 +695,6 @@ class HomeController extends Controller
         ];
         return $result;
     }
+
+
 }

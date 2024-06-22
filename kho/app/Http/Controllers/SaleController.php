@@ -322,8 +322,6 @@ class SaleController extends Controller
             $list = $list->where('assign_user', $user->id);
         }  
 
-       
-
         return $list;
     }
 

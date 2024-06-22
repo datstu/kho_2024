@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
 use App\Http\Controllers\SaleController;
 use App\Models\SaleCare;
+use PhpParser\Node\Stmt\TryCatch;
 
 class OrdersController extends Controller
 {
@@ -371,10 +372,14 @@ class OrdersController extends Controller
                     }
 
                     //tạo mới order
-                    $response = $client->request('GET', $endpoint, ['query' => [
-                        'chat_id' => $chatId, 
-                        'text' => $userAssign . ' ' . $text . $notiText,
-                    ]]);
+                    try {
+                        $client->request('GET', $endpoint, ['query' => [
+                            'chat_id' => $chatId, 
+                            'text' => $userAssign . ' ' . $text . $notiText,
+                        ]]);
+                    } catch (\Exception $e) {
+                        return $e;
+                    }
                 }
                 
             } else {

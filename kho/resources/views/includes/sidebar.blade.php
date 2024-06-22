@@ -48,6 +48,7 @@
         </ul>
     </li>
 
+    @if ($checkAll)
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-voice-over-record')}}"></use>
@@ -57,6 +58,7 @@
             <li class="nav-item"><a class="nav-link" href="{{route('sale-index')}}"><span class="nav-icon"></span>Fanpge</a></li>
         </ul>
     </li>
+    @endif
     
     @if ($checkAll)
 

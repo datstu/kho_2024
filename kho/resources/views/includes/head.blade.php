@@ -21,8 +21,12 @@
     <link href="{{ asset('public/css/style.css'); }}" rel="stylesheet">
     <!-- We use those styles to show code examples, you should remove them in your application.-->
     <link href="{{ asset('public/css/examples.css'); }}" rel="stylesheet">
+    <link href="{{ asset('public/css/customOld.css'); }}" rel="stylesheet">
+    
     <link href="{{ asset('public/vendors/@coreui/chartjs/css/coreui-chartjs.css')}}" rel="stylesheet">
     <script src="{{asset('public/js/jquery.min.js')}}"></script>
+    
+   
     <style type="text/css">
         .loader img {
             position: absolute;
