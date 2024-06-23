@@ -330,8 +330,13 @@
                         </a>
                         <div class="mof-container">
                             <select name="assignTNSale_{{$item->id}}" id="">
+                                @if (!$item->user)
+                                <option value="0">None </option>
+                                    @endif
                                 @foreach ($listSale->get() as $sale)
-                                <option <?php echo ($item->user->id == $sale->id) ? 'selected' : '' ?> value="{{$sale->id}}">{{($sale->real_name) ? $sale->real_name : ''}} </option>
+                                   
+                                    
+                                <option <?php echo ($item->user && $item->user->id == $sale->id) ? 'selected' : '' ?> value="{{$sale->id}}">{{($sale->real_name) ? $sale->real_name : ''}} </option>
                                 @endforeach
                             </select>
                         </div>
