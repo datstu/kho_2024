@@ -77,25 +77,23 @@
                                                 <div class="mb-3 col-4">
                                                     <label class="form-label" for="qtyIP">Quyền truy cập</label>
                                                     <div class="form-check">
-                                                        <label class="form-check-label">
-                            
-                                                        <input <?=  $product->roles == 1 ? 'checked' : '' ?>  id="role-all" name="role" type="radio" class="form-check-input" value="1">Tất cả
-                                                        </label>
+                                                        <input <?=  $product->roles == 1 ? 'checked' : '' ?>  id="role-all" name="role" type="radio" class="form-check-input" value="1">
+                                                        <label class="form-check-label" for="role-all">Tất cả</label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <label class="form-check-label">
-                                                        <input <?=  $product->roles == 2 ? 'checked' : '' ?> name="role" type="radio" class="form-check-input" value="2">Paulo
-                                                        </label>
+                                                        
+                                                        <input <?=  $product->roles == 2 ? 'checked' : '' ?> id="role-paulo" name="role" type="radio" class="form-check-input" value="2">
+                                                        <label class="form-check-label" for="role-paulo">Paulo</label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <label class="form-check-label">
-                                                        <input <?=  $product->roles == 3 ? 'checked' : '' ?> name="role" type="radio" class="form-check-input" value="3">Phân bón
-                                                        </label>
+                                                        
+                                                        <input <?=  $product->roles == 3 ? 'checked' : '' ?> id="role-fer" name="role" type="radio" class="form-check-input" value="3">
+                                                        <label class="form-check-label" for="role-fer">Phân bón</label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <label class="form-check-label">
-                                                        <input <?=  $product->roles == 4 ? 'checked' : '' ?> name="role" type="radio" class="form-check-input" value="4">Khác
-                                                        </label>
+                                                        
+                                                        <input <?=  $product->roles == 4 ? 'checked' : '' ?> id="other" name="role" type="radio" class="form-check-input" value="4">
+                                                        <label class="form-check-label" for="other">Khác</label>
                                                     </div>
                                                 </div>
                                             </div>
