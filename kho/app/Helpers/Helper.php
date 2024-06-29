@@ -418,4 +418,103 @@ class Helper
         // Display the result
         return $number;
     }
+
+    public static function getSumCustomer($dataSale) 
+    {
+        $totalSum = $avgSum = $newContact = $newOrder = $newRate = $newProduct = $newTotal = $oldAvg = $oldTotal = $oldProduct = $oldRate = $newAvg = $oldContact = $oldOrder= 0;
+        $result = [];
+        $sumNewCustomer = $sumOldCustomer = [
+            'contact' => 0,
+            'order' => 0,
+            'rate' => 0,
+            'product' => 0,
+            'total' => 0,
+            'avg' => 0,
+        ];
+
+        if (isset($dataSale)) {
+            // dd($dataSale);
+            foreach ($dataSale as $data) {
+            // echo "<pre>";
+            // print_r($data);
+            // echo "</pre>";
+            // die();
+                if (isset($data['new_customer'])) {
+                    $newContact += $data['new_customer']['contact'];
+                    $newOrder += $data['new_customer']['order'];
+                    $newProduct += $data['new_customer']['product'];
+                    $newTotal += ($data['new_customer']['total']);
+                }
+                if (isset($data['old_customer'])) {
+                    $oldContact += $data['old_customer']['contact'];
+                    $oldOrder += $data['old_customer']['order'];
+                    $oldRate += $data['old_customer']['rate'];
+                    $oldProduct += $data['old_customer']['total'];
+                    $oldTotal += ($data['old_customer']['total']);
+                }
+            }
+
+           
+            $sumNewCustomer['contact'] = $newContact;
+            $sumNewCustomer['order'] = $newOrder;
+            if ($newContact > 0) {
+            $newRate = $newOrder / $newContact * 100;
+            $sumNewCustomer['rate'] = round($newRate, 2);
+            }
+
+            $sumNewCustomer['product'] = $newProduct;
+            $sumNewCustomer['total'] = round($newTotal, 0);
+            $sumNewCustomer['avg'] = round((($newOrder != 0) ? $newTotal/$newOrder : 0), 0);
+
+            $sumOldCustomer['contact'] = $oldContact;
+            $sumOldCustomer['order'] = $oldOrder;
+            if ($oldContact > 0) {
+                $oldRate = $oldOrder / $oldContact * 100;
+                $sumOldCustomer['rate'] = round($oldRate, 2);
+            }
+
+            $sumOldCustomer['product'] = $oldProduct;
+            $sumOldCustomer['total'] = round($oldTotal, 0);
+            $sumOldCustomer['avg'] = round((($oldOrder != 0) ? $oldTotal/$oldOrder : 0), 0);
+
+            $totalSum = $oldTotal + $newTotal;
+            if ($oldOrder + $newOrder) {
+                $avgSum = round(($totalSum / ($oldOrder + $newOrder)), 0);
+            }
+
+            $result['sum_new_customer'] = $sumNewCustomer;
+            $result['sum_old_customer'] = $sumOldCustomer;
+            $result['summary'] = [
+                'total' => $totalSum,
+                'avg' => $avgSum,
+            ];
+        }
+
+        return $result;
+    }
+
+    public static function checkTypeOrderbyPhone($phone, $type)
+    {
+        $rs = false;
+        $order = Orders::where('phone', 'like', '%' . $phone . '%')->orderBy('id', 'desc')->first();
+        if (!$order) {
+            return $rs;
+        }
+
+        $assign_user = $order->assign_user;
+        $sale = Helper::getSaleById($assign_user);
+        if (!$sale ) {
+            return $rs;
+        }
+
+        /**data nóng */
+        if ($type == 0 && !$sale->is_CSKH && $sale->is_sale) {
+            $rs = true;
+        } else if ($type == 1 && $sale->is_CSKH && !$sale->is_sale) {
+            /**CSKH */
+            $rs = true;
+        }
+        // dd($rs);
+        return $rs;
+    }
 }

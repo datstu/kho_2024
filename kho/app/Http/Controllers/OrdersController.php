@@ -100,6 +100,7 @@ class OrdersController extends Controller
                 $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
             }
 
+
             /** mrNguyen = 1
              *  mrTien = 2
              *
@@ -115,23 +116,49 @@ class OrdersController extends Controller
 
             if (isset($dataFilter['mkt'])) {
                 $dataFilterSale['mkt'] = $dataFilter['mkt'];
-            }
+            }  
+
+            // if (isset($dataFilter['type_customer'])) {
+            //     $dataFilterSale['type_customer'] = $dataFilter['type_customer'];
+            // }
         
-            if (count($dataFilterSale) > 0) {
+            if (count($dataFilterSale) > 0 && !isset($dataFilter['sale'])) {
                 $phoneFilter = [];
                 $listPhoneOrder = $list->pluck('phone')->toArray();
+                // dd(count($listPhoneOrder));
+                // dd($listPhoneOrder);
+
+                $flag = false;
 
                 foreach ($listPhoneOrder as $phone) {
+                    // if ($phone == '0394518375') {
                     $saleCtl = new SaleController();
                     $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
-                    $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $phone . '%')->first();
-
-                    if ($careFromOrderPhone) {
+                    $cus9phone = $this->getCustomPhone9Num($phone);
+                    // echo ($phone) . "\n";
+                    // dd(isset($dataFilter['type_customer']));
+                    // dd($dataFilter);
+                    $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $cus9phone . '%')->first();
+                    // dd($careFromOrderPhone);
+                    
+                    if (isset($dataFilter['type_customer'])) {
+                        $flag = Helper::checkTypeOrderbyPhone($cus9phone, $dataFilter['type_customer']);
+                    }
+                  
+                    // if ($flag) {
+                    //     $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $cus9phone . '%')->first();
+                    // }
+                    if ($careFromOrderPhone && $flag) {
                         $phoneFilter[] = $phone;
                     }
+                // }
                 }
+                // dd($phoneFilter);
+                // die();
 
-                $list = Orders::whereIn('phone', $phoneFilter)->orderBy('id', 'desc');
+                $list = Orders::whereIn('phone', $phoneFilter)->whereDate('created_at', '>=', $dateBegin)
+                    ->whereDate('created_at', '<=', $dateEnd);
+                // dd($list->pluck('phone')->toArray());
             }
         }
 
@@ -149,9 +176,11 @@ class OrdersController extends Controller
             }
         }
 
+      
         if (isset($dataFilter['sale']) && $dataFilter['sale'] != 999 && $checkAll) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
+            // dd($list->pluck('phone')->toArray());
         } else if ($user->is_digital == 1) {
             $phoneFilter = [];
             $listPhoneOrder = $list->pluck('phone')->toArray();
@@ -170,7 +199,7 @@ class OrdersController extends Controller
         } else if (!$checkAll) {
             $list = $list->where('assign_user', $user->id);
         }
-
+        // dd($list->count());
         return $list;
     }
 
@@ -578,6 +607,21 @@ class OrdersController extends Controller
             dd($e);
             return redirect()->route('home');
         }
-        
+    }
+
+    /**
+     * input:
+     *  +84973409613
+     *  84973409613
+     *  0973409613
+     *  973409613
+     * 
+     * output: 973409613
+     */
+    public function getCustomPhone9Num($phone)
+    {
+        $length = strlen($phone);
+        $pos = $length - 9;
+        return substr($phone, $pos);
     }
 }

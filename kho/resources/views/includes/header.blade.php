@@ -3,7 +3,7 @@
     <svg class="icon icon-lg">
       <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-menu')}}"></use>
     </svg>
-  </button><a class="header-brand d-md-none" href="#">
+  </button><a class="header-brand d-md-none" href="{{route('home')}}">
     <svg width="118" height="46" alt="CoreUI Logo">
       <use xlink:href="{{asset('public/assets/brand/coreui.svg#full')}}"></use>
     </svg></a>

@@ -550,7 +550,7 @@ a, a:visited { color: #3c8dbc;}
 
     /* Handle on hover */
     ::-webkit-scrollbar-thumb:hover { background: #f89854; }
-.tableFixHead { overflow-y: auto; height: 600px; z-index:99!important;}
+.tableFixHead { overflow-y: auto; z-index:99!important;}
     .tableFixHead thead th { position: sticky; top: 0; z-index: 999; }
    /* .tableFixHead thead tr + tr th { position: sticky; top: 28px; z-index: 999; }
     .tableFixHead thead tr td { position: sticky; top: 70px; z-index: 999; }*/

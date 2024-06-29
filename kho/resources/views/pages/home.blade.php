@@ -87,6 +87,14 @@
     /* min-width: 230px; */
   }
 
+  span.loader {
+    position: absolute;
+    z-index: 9999;
+    /* display: block; */
+    right: 50%;
+    top: 50%;
+  }
+
   .loader img {
     position: relative;
     top: unset;
@@ -102,79 +110,25 @@
       white-space: nowrap;
     }
   }
+
+  #daterange {
+    width: 100%;
+  }
 </style>
 
-<?php $checkAll = isFullAccess(Auth::user()->role);?>
-<?php $totalSum = $avgSum = $newContact = $newOrder = $newRate = $newProduct = $newTotal = $oldAvg = $oldTotal = $oldProduct = $oldRate = $newAvg = $oldContact = $oldOrder= 0;
-  $sumNewCustomer = $sumOldCustomer = [
-    'contact' => 0,
-    'order' => 0,
-    'rate' => 0,
-    'product' => 0,
-    'total' => 0,
-    'avg' => 0,
-  ];
-
-  if (isset($dataSale)) {
-    foreach ($dataSale as $data) {
-      // echo "<pre>";
-      // print_r($data);
-      // echo "</pre>";
-      // die();
-      if (isset($data['new_customer'])) {
-        $newContact += $data['new_customer']['contact'];
-        $newOrder += $data['new_customer']['order'];
-        $newProduct += $data['new_customer']['product'];
-        $newTotal += ($data['new_customer']['total']);
-      }
-      if (isset($data['old_customer'])) {
-        $oldContact += $data['old_customer']['contact'];
-        $oldOrder += $data['old_customer']['order'];
-        $oldRate += $data['old_customer']['rate'];
-        $oldProduct += $data['old_customer']['total'];
-        $oldTotal += ($data['old_customer']['total']);
-      }
-    }
-
-    $sumNewCustomer['contact'] = $newContact;
-    $sumNewCustomer['order'] = $newOrder;
-    if ($newContact > 0) {
-      $newRate = $newOrder / $newContact * 100;
-      $sumNewCustomer['rate'] = round($newRate, 2);
-    }
-
-    $sumNewCustomer['product'] = $newProduct;
-    $sumNewCustomer['total'] = round($newTotal, 0);
-    $sumNewCustomer['avg'] = round((($newOrder != 0) ? $newTotal/$newOrder : 0), 0);
-
-    $sumOldCustomer['contact'] = $oldContact;
-    $sumOldCustomer['order'] = $oldOrder;
-    if ($oldContact > 0) {
-      $oldRate = $oldOrder / $oldContact * 100;
-      $sumOldCustomer['rate'] = round($oldRate, 2);
-    }
-
-    $sumOldCustomer['product'] = $oldProduct;
-    $sumOldCustomer['total'] = round($oldTotal, 0);
-    $sumOldCustomer['avg'] = round((($oldOrder != 0) ? $oldTotal/$oldOrder : 0), 0);
-
-    $totalSum = $oldTotal + $newTotal;
-    if ($oldOrder + $newOrder) {
-      $avgSum = $totalSum / ($oldOrder + $newOrder);
-    }
-  }
-
-
+<?php $checkAll = isFullAccess(Auth::user()->role);
+  $isLeadSale = Helper::isLeadSale(Auth::user()->role);
 ?>
+
 <div class="body flex-grow-1 px-3">
   <div class="container-lg">
     <div class="row mb-1 filter-order">
-      <div class="col-xs-12 col-sm-6 col-md-2 form-group daterange mb-1">
+      <div class="col-xs-12 col-sm-6 col-md-4 form-group daterange mb-1">
         <input id="daterange" class=" btn btn-outline-secondary" type="text" name="daterange"/>
       </div>
      
       @if ($checkAll)
-      <div class="src-filter col-2 form-group mb-1">
+      <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <select name="src" id="src-filter" class="form-select" aria-label="Default select example">
           <option value="999">--Chọn nguồn--</option>
             <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
@@ -218,7 +172,7 @@
             ?> 
         </select>
     </div>
-      <div class="col-2 form-group mb-1">
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
           <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
               <option value="999">--Chọn Marketing--</option>
               <option value="1">a.Nguyên</option>
@@ -228,7 +182,7 @@
       
       @endif
       
-      @if ($checkAll)
+      @if ($checkAll || $isLeadSale)
       <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
           <option value="999">--Chọn Sale--</option>
@@ -267,9 +221,7 @@
           <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
         </svg>Lọc</button>
         <a  class="btn btn-outline-danger" href="{{route('home')}}"><strong>X</strong></a>
-        <span class="loader hidden">
-          <img src="https://kho.phanboncanada.online/public/images/loader-home.gif" alt="">
-        </span>
+        
       </div>
     </div>
 
@@ -349,20 +301,30 @@
         </div> --}}
         <div style="clear: both;"></div>
 <?php if ($dataSale) {
+    
     /** lấy ra trung bình đơn lớn nhất của trong list sale**/
     $maxAvgSum = $dataSale[0]['summary_total']['avg'];
+
+    $sumTR = Helper::getSumCustomer($dataSale);
+    $sumNewCustomer = $sumTR['sum_new_customer'];
+    $sumOldCustomer = $sumTR['sum_old_customer'];
+    $summary = $sumTR['summary'];
+
     foreach ($dataSale as $data) {
-        if ($data['summary_total']['avg'] > $maxAvgSum) {
-            $maxAvgSum = $data['summary_total']['avg'];
-        }
+      if ($data['summary_total']['avg'] > $maxAvgSum) {
+          $maxAvgSum = $data['summary_total']['avg'];
+      }
     } 
 ?>      
         <div style="clear: both; margin-bottom: 15px;"></div>
-        <div class="dragscroll1 tableFixHead table_sale" style="height: 570px;">
+        <div class="dragscroll1 tableFixHead table_sale">
+          <span class="loader hidden">
+            <img src="{{asset('public/images/rocket.svg')}}" alt="">
+          </span>
           <table class="table table-bordered table-multi-select" id="tableReportSale">
             <thead>
               <tr style="cursor: grab;" class="drags-area">
-                  <th class="text-center" style="width: 50px;"></th>
+                  <th class="text-center" style="width: 35px;"></th>
                   <th class="text-center" style="width: 10%"></th>
                   <th class="text-center" rowspan="1" colspan="6">KHÁCH HÀNG MỚI</th>
                   <th class="text-center" rowspan="1" colspan="6">KHÁCH HÀNG CŨ</th>
@@ -373,7 +335,7 @@
                   <th class="text-center" rowspan="2" colspan="1" style="width: 5%">Tỉ lệ KPI (%)</th> --}}
               </tr>
               <tr style="cursor: grab;" class="drags-area t28">
-                  <th class="text-center" style="width: 50px;">STT</th>
+                  <th class="text-center" style="width: 35px;">STT</th>
                   <th class="text-center" style="width: 10%">SALE</th>
 
                   
@@ -434,12 +396,12 @@
                       <span>{{number_format($sumOldCustomer['total'])}}</span></td>
                   <td class="text-center font-weight-bold">
                       <span>{{number_format($sumOldCustomer['avg'])}}</span></td>
-                  <td class="text-center font-weight-bold">
 
-                      {{-- doanh số tổng --}}
-                      <span>{{number_format($totalSum)}}</span></td>
+                  {{-- doanh số tổng --}}
                   <td class="text-center font-weight-bold">
-                      <span>{{number_format($avgSum)}}</span></td>
+                      <span>{{number_format($summary['total'])}}</span></td>
+                  <td class="text-center font-weight-bold">
+                      <span>{{number_format($summary['avg'])}}</span></td>
 
                   
                   {{-- <td class="text-center font-weight-bold >">
@@ -595,7 +557,7 @@
                       <div class="box-progress">
                           <div class="progress">
 
-                            <?php $perCentTotalSum = ($totalSum  != 0) ? ($data['summary_total']['total'] / $totalSum * 100) : 0;?>
+                            <?php $perCentTotalSum = ($summary['total']  != 0) ? ($data['summary_total']['total'] / $summary['total'] * 100) : 0;?>
                             <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentTotalSum}}%"></div>
                           </div>
                           <span class="progress-text">{{number_format($data['summary_total']['total'])}}</span>
@@ -623,300 +585,223 @@
         </div>
 <?php } ?>
         <div style="height: 15px; clear: both;"></div>
+        <span class="loader hidden">
+          <img src="{{asset('public/images/rocket.svg')}}" alt="">
+        </span>
+  <?php if ($dataDigital) {
 
-        <!--div class="dragscroll1 tableFixHead table_marketing" style="height: 480px;">
-            <table class="table table-bordered table-multi-select" id="tableReportMarketing">
-                <thead>
-                    <tr style="cursor: grab;" class="drags-area">
-                        <th class="text-center" style="width: 35px;"></th>
-                        <th class="text-center no-wrap" style="min-width: 10%"></th>
-                        <th class="text-center" rowspan="1" colspan="9">KHÁCH HÀNG MỚI</th>
-                        
-                        <th class="text-center" rowspan="1" colspan="2">KHÁCH HÀNG CŨ</th>
-                        
-                        <th class="text-center" rowspan="1" colspan="3">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblDoanhSo_Header_Marketing">DOANH SỐ TỔNG</span></th>
-                        
-                        <th class="text-center" rowspan="1" colspan="5">GIAO HÀNG</th>
-                        
-                        <th class="text-center" rowspan="2" colspan="1" style="width: 5%">KPI</th>
-                        
-                        <th class="text-center" rowspan="2" colspan="1" style="width: 5%">Tỉ lệ KPI (%)</th>
-                        
-                    </tr>
-                    <tr style="cursor: grab;" class="drags-area t28">
-                        
-                        <th class="text-center" style="width: 35px;">STT</th>
-                        <th class="text-center" style="width: 10%">MARKETING</th>
-                        <th class="text-center" style="width: 4%;">Ngân sách</th>
-                        <th class="text-center" style="width: 4%;">Contact</th>
-                        <th class="text-center" style="width: 4%;">Giá contact</th>
-                        <th class="text-center" style="width: 4%;">Đơn chốt</th>
-                        <th class="text-center" style="width: 5%;">Tỉ lệ chốt đơn (%)</th>
-                        <th class="text-center" style="width: 4%;">Số sản phẩm</th>
-                        <th class="text-center" style="width: 5%;">Doanh số</th>
-                        <th class="text-center" style="width: 5%;">Giá trị đơn</th>
-                        <th class="text-center" style="width: 4%;">Tỉ lệ NS/DS(%)</th>
+    /** lấy ra trung bình đơn lớn nhất của trong list sale**/
+    $maxAvgSum = $dataDigital[0]['summary_total']['avg'];
 
-                        
-                        <th class="text-center" style="width: 5%;">Doanh số</th>
-                        <th class="text-center" style="width: 5%;">Giá trị đơn</th>
+    $sumTR = Helper::getSumCustomer($dataDigital);
+    $sumNewCustomer = $sumTR['sum_new_customer'];
+    $sumOldCustomer = $sumTR['sum_old_customer'];
+    $summary = $sumTR['summary'];
+    // dd($sumTR);
+    // dd($sumTR);
+    foreach ($dataDigital as $data) {
+        if ($data['summary_total']['avg'] > $maxAvgSum) {
+            $maxAvgSum = $data['summary_total']['avg'];
+        }
+    } 
+?> 
 
-                        
-                        <th class="text-center" style="width: 5%;">Doanh số</th>
-                        <th class="text-center" style="width: 4%;">Tỉ lệ NS/DS (%)</th>
-                        <th class="text-center" style="width: 7%;">Giá trị đơn</th>
-                        
-                        <th class="text-center" style="width: 4%;">Tỉ lệ hủy</th>
-                        <th class="text-center" style="width: 3%;">Tỉ lệ hoàn</th>
-                        <th class="text-center " style="width: 3%;">Phí COD</th>
-                        <th class="text-center " style="width: 3%;">Hỗ trợ COD</th>
-                        <th class="text-center " style="width: 3%;">Đặt cọc</th>
-                    </tr>
-                    <tr class="rowsum drags-area t72" style="cursor: grab;">
-                        <td colspan="2" class="text-center font-weight-bold">Tổng: </td>
-                        
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongNganSach_KHM_M">0</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongSoContact_KHM_M">4,627</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongSoGiaContact_KHM_M">0</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongSoSoDonChot_KHM_M">1,793</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongTyLeChotDon_KHM_M">38.75 %</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongSoSanPham_KHM_M">11,818</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongDoanhSo_KHM_M">3,874,057,000</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongGiaTriDon_KHM_M">2,160,656.44</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblNganSachDoanhSo_KHM_M">0 %</span></td>
+      <div class="dragscroll1 tableFixHead table_digital">
+        <span class="loader hidden">
+          <img src="{{asset('public/images/rocket.svg')}}" alt="">
+        </span>
+        <table class="table table-bordered table-multi-select" id="tableReportMarketing">
+            <thead>
+                <tr style="cursor: grab;" class="drags-area">
+                    <th class="text-center" style="width: 35px;"></th>
+                    <th class="text-center no-wrap" style="min-width: 10%"></th>
+                    <th class="text-center" rowspan="1" colspan="6">KHÁCH HÀNG MỚI</th>
+                    
+                    <th class="text-center" rowspan="1" colspan="2">KHÁCH HÀNG CŨ</th>
+                    
+                    <th class="text-center" rowspan="1" colspan="2">
+                        <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblDoanhSo_Header_Marketing">DOANH SỐ TỔNG</span></th>
+                    
+          
+                    
+                </tr>
+                <tr style="cursor: grab;" class="drags-area t28">
+                    
+                    <th class="text-center" style="width: 35px;">STT</th>
+                    <th class="text-center">MARKETING</th>
+                    <th class="text-center">Contact</th>
+                    <th class="text-center">Đơn chốt</th>
+                    <th class="text-center">Tỉ lệ chốt đơn (%)</th>
+                    <th class="text-center">Số sản phẩm</th>
+                    <th class="text-center">Doanh số</th>
+                    <th class="text-center">Giá trị đơn</th>
 
-                        
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongDoanhSo_KHC_M">758,846,000</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongGiaTriDon_KHC_M">3,201,881.86</span></td>
+                    
+                    <th class="text-center">Doanh số</th>
+                    <th class="text-center">Giá trị đơn</th>
 
-                        
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongDoanhSo_M">4,632,903,000</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblNganSachDoanhSo_M">0 %</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongGiaTriDon_M">2,282,218.23</span></td>
+                    
+                    <th class="text-center">Doanh số</th>
+                    <th class="text-center">Giá trị đơn</th>
+                    
+                </tr>
+                <tr class="rowsum drags-area t72" id="tr-sum-digital" style="cursor: grab;">
+                  <td colspan="2" class="text-center font-weight-bold">Tổng: </td>
 
-                        
-                        <td class="text-center font-weight-bold >">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongHuy_M">0 %</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTongHoan_M">0.46 %</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblCOD_M">290,846,679</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblHoTroCOD_M">291,284,598</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblDatCoc_M">17,920,000</span></td>
-                        
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblDoanhSoKPI_M">0</span></td>
-                        <td class="text-center font-weight-bold">
-                            <span id="dnn_ctr1652_Main_DashboardLoader_DashboardCEOV2_lblTyLeDSTTKPIDS_M">∞ %</span></td>
-                    </tr>
-                </thead>
-                
-                <tbody>
-                    <tr>
-                        <td class="text-center">
-                            1
-                        </td>
-                        
-                        
-                        <td>Di Di (bio.mkt4)
-                        </td>
-                        
-                        <td class="tdProgress tdNganSach">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0</span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdSoContact">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-                                </div>
-                                <span class="progress-text">1,587</span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdGiaContact">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0
-                            </span></div>
-                        </td>
-                        <td class="tdProgress tdSoChotDon">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-                                </div>
-                                <span class="progress-text">644
-                            </span></div>
-                        </td>
-                        <td class="tdProgress tdTyLeChotDon">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 40.57971%"></div>
-                                </div>
-                                <span class="progress-text">40.58 %</span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdSoSanPham">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 3872%"></div>
-                                </div>
-                                <span class="progress-text">3,872 </span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdDoanhSo">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-                                </div>
-                                <span class="progress-text">1,295,442,000</span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdGiaTriDon">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 55.1413349950932%"></div>
-                                </div>
-                                <span class="progress-text">2,011,555.9 </span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdTyLeNganSachDoanhSo">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0 %</span>
-                            </div>
-                        </td>
+                  {{-- khách mới --}}
+                  <td class="text-center font-weight-bold">
+                    <span>{{$sumNewCustomer['contact']}}</span></td>
+                  <td class="text-center font-weight-bold">
+                    <span>{{$sumNewCustomer['order']}}</span></td>
+                  <td class="text-center font-weight-bold">
+                    <span>{{$sumNewCustomer['rate']}} %</span></td>
+                  <td class="text-center font-weight-bold">
+                    <span>{{$sumNewCustomer['product']}}</span></td>
+                  <td class="text-center font-weight-bold">
+                    <span>{{number_format($sumNewCustomer['total'])}}</span></td>
+                  <td class="text-center font-weight-bold">
+                      <span>{{number_format($sumNewCustomer['avg'])}}</span></td>
 
-                        
-                        <td class="tdProgress tdDoanhSo">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 514.207423133985%"></div>
-                                </div>
-                                <span class="progress-text">312,752,000</span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdGiaTriDon">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 1.29870129870121%"></div>
-                                </div>
-                                <span class="progress-text">4,061,714.29</span>
-                            </div>
-                        </td>
+                  {{-- khách cũ --}}
+                  <td class="text-center font-weight-bold">
+                      <span>{{number_format($sumOldCustomer['total'])}}</span></td>
+                  <td class="text-center font-weight-bold">
+                      <span>{{number_format($sumOldCustomer['avg'])}}</span></td>
 
-                        
-                        <td class="tdProgress tdDoanhSo">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-                                </div>
-                                <span class="progress-text">1,608,194,000 </span>
+                  {{-- doanh số tổng --}}
+                  <td class="text-center font-weight-bold">
+                      <span>{{number_format($summary['total'])}}</span></td>
+                  <td class="text-center font-weight-bold">
+                      <span>{{number_format($summary['avg'])}}</span></td>
+
+                  
+              </tr>
+            </thead>
+            
+            <tbody id="body-digital">
+              <?php $i = 1; 
+                // dd($dataDigital);
+  
+                  foreach ($dataDigital as $data) {
+                ?>
+                  <tr>
+                    <td class="text-center">{{$i}}</td>
+                    <td>{{$data['name']}}</td>
+                    <td class="tdProgress tdSoContact">
+                      <div class="box-progress">
+                        <div class="progress">
+  
+                          <?php $perCentContactNew = ($sumNewCustomer['contact'] != 0) ? ($data['new_customer']['contact'] / $sumNewCustomer['contact'] * 100) : 0;?>
+  
+                          <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentContactNew}}%"></div>
+                        </div>
+                        <span class="progress-text">{{$data['new_customer']['contact']}}</span>
+                      </div>
+                    </td>
+                    <td class="tdProgress tdSoChotDon">
+                      <div class="box-progress">
+                        <div class="progress">
+  
+                          <?php $perCentOrderNew =  ($sumNewCustomer['order'] != 0) ? ($data['new_customer']['order'] / $sumNewCustomer['order'] * 100) : 0;?>
+  
+                          <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentOrderNew}}%"></div>
+                        </div>
+                        <span class="progress-text">{{$data['new_customer']['order']}}</span>
+                      </div>
+                    </td>
+                    <td class="tdProgress tdTyLeChotDon">
+                      <div class="box-progress">
+                        <div class="progress">
+                          <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$data['new_customer']['rate']}}%"></div>
+                        </div>
+                        <span class="progress-text">{{$data['new_customer']['rate']}} %</span>
+                      </div>
+                    </td>
+                    <td class="tdProgress tdSoSanPham">
+                      <div class="box-progress">
+                        <div class="progress">
+                          
+                          <?php $perCentProductNew = ($sumNewCustomer['product'] != 0) ? ($data['new_customer']['product'] / $sumNewCustomer['product'] * 100) : 0;?>
+  
+                          <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentProductNew}}%"></div>
+                        </div>
+                        <span class="progress-text">{{$data['new_customer']['product']}}</span>
+                      </div>
+                    </td>
+                    <td class="tdProgress tdDoanhSo">
+                      <div class="box-progress">
+                        <div class="progress">
+  
+                          <?php $perCentTotalNew = ($sumNewCustomer['total'] != 0) ? ($data['new_customer']['total'] / $sumNewCustomer['total'] * 100) : 0;?>
+  
+                          <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentTotalNew}}%"></div>
+                        </div>
+                        <span class="progress-text">{{number_format($data['new_customer']['total'])}}</span>
+                      </div>
+                    </td>
+                    <td class="tdProgress tdGiaTriDon">
+                      <div class="box-progress">
+                          <div class="progress">
+  
+                            <?php $perCentAvgNew = ($sumNewCustomer['avg'] != 0) ? ($data['new_customer']['avg'] / $sumNewCustomer['avg'] * 100) : 0;?>
+                            <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentAvgNew}}%"></div>
+                          </div>
+                          <span class="progress-text">{{number_format($data['new_customer']['avg'])}}</span>
+                      </div>
+                    </td>
+                  
+                    <td class="tdProgress tdDoanhSo">
+                        <div class="box-progress">
+                            <div class="progress">
+  
+                              <?php $perCentTotalOld = ($sumOldCustomer['total'] != 0) ? ($data['old_customer']['total'] / $sumOldCustomer['total'] * 100) : 0;?>
+                              <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentTotalOld}}%"></div>
                             </div>
-                        </td>
-                        <td class="tdProgress tdTyLeNganSachDoanhSo">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0 %</span>
+                            <span class="progress-text">{{$data['old_customer']['total']}}</span>
+                        </div>
+                    </td>
+                    <td class="tdProgress tdGiaTriDon">
+                        <div class="box-progress">
+                            <div class="progress">
+  
+                              <?php $perCentAvgOld = ($sumOldCustomer['avg'] != 0) ? ($data['old_customer']['avg'] / $sumOldCustomer['avg'] * 100) : 0;?>
+                              <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentAvgOld}}%"></div>
                             </div>
-                        </td>
-                        <td class="tdProgress tdGiaTriDon">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 60.9120707121652%"></div>
-                                </div>
-                                <span class="progress-text">2,230,504.85</span>
+                            <span class="progress-text">{{$data['old_customer']['avg']}}</span>
+                        </div>
+                    </td>
+  
+                    <td class="tdProgress tdDoanhSoTong">
+                        <div class="box-progress">
+                            <div class="progress">
+  
+                              <?php $perCentTotalSum = ($summary['total']  != 0) ? ($data['summary_total']['total'] / $summary['total'] * 100) : 0;?>
+                              <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentTotalSum}}%"></div>
                             </div>
-                        </td>
-                        
-                        <td class="tdProgress tdTyLeHuy">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0%</span>
+                            <span class="progress-text">{{number_format($data['summary_total']['total'])}}</span>
+                        </div>
+                    </td>
+  
+                    <td class="tdProgress tdGiaTriDon">
+                        <div class="box-progress">
+                            <div class="progress">
+  
+                              <?php $perCentAvgSum = ($maxAvgSum  != 0) ? ($data['summary_total']['avg'] / $maxAvgSum * 100) : 0;?>
+                              <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentAvgSum}}%"></div>
                             </div>
-                        </td>
-                        <td class="tdProgress tdTyLeHoan">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 12.0887385164505%"></div>
-                                </div>
-                                <span class="progress-text">0.14%</span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdCOD ">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-                                </div>
-                                <span class="progress-text">100,754,034</span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdHoTroCOD ">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-                                </div>
-                                <span class="progress-text">99,632,234</span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdHoTroCOD ">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-                                </div>
-                                <span class="progress-text">5,840,000</span>
-                            </div>
-                        </td>
-                        
-                        <td class="tdProgress tdDoanhSoKPI">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0</span>
-                            </div>
-                        </td>
-                        <td class="tdProgress tdTyLeDoanhSoKPI">
-                            <div class="box-progress">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0 %</span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div style="height: 5px;"></div-->
+                            <span class="progress-text">{{number_format($data['summary_total']['avg'])}}</span>
+                        </div>
+                    </td>
+                  </tr>    
+                <?php 
+                  $i++;
+                  }
+                ?>
+            </tbody>
+        </table>
+      </div>
+<?php } ?>
+        <div style="height: 5px;"></div>
     </div>
     </div>
   </div>
@@ -1012,7 +897,9 @@
         var mkt       = $("select[name='mkt']").val();
         var src       = $("select[name='src']").val();
 
-        $('.loader').show();
+        $('.table_sale .loader').show();
+        $('.table_sale').css("opacity", "0.5");
+        $('.table_sale').css("position", "relative");
         $.ajax({
             url: "{{ route('filter-total-sales') }}",
             type: 'GET',
@@ -1112,7 +999,7 @@
                             + '</div><span class="progress-text">' + number_format_js(element.summary_total.avg) + '</span></div></td></tr>';
                         
                     });
-                    console.log(maxAvcElem);
+                    // console.log(maxAvcElem);
 
                     $("#body-sale").html(str);
 
@@ -1136,21 +1023,134 @@
                         + '<td class="text-center font-weight-bold"><span>' + number_format_js(summaryCusomerTrSum.avg) + '</span></td>';
 
                     $("#tr-sum-sale").html(strTdSum);
+                }
 
-                }
-                if (!$.isEmptyObject(data.totalSum)) {
-                    $("#totalSum").text(data.totalSum);
-                    $(".percentTotalDay").text(data.percentTotal);
-                    $(".countOrders").text(data.countOrders);
-                    $(".percentCountDay").text(data.percentCount);
-                    $(".avgOrders").text(data.avgOrders);
-                    $(".percentAvg").text(data.percentAvg);
-                    $(".sumProduct").text(data.sumProduct);
-                    $(".rateSuccess").text(data.rateSuccess);
-                    $(".countSaleCare").text(data.countSaleCare);
-                }
-                $('.loader').hide();
+                $('.table_sale .loader').hide();
+                $('.table_sale').css("opacity", "1");
+                $('.table_sale').css("position", "relative");
             }
+        });
+
+        $('.table_digital .loader').show();
+        $('.table_digital').css("opacity", "0.5");
+        $('.table_digital').css("position", "relative");
+        $.ajax({
+            url: "{{ route('filter-total-digital') }}",
+            type: 'GET',
+            data: {
+                _token: _token,
+                type: 'daterange',
+                date: arr,
+                status,
+                category,
+                product,
+                sale,
+                mkt,
+                src
+            },
+            success: function(data) {
+
+                var data = data.data_digital;
+                console.log(data);
+                if (data.data.length > 0) {
+                    /* lọc data digital*/
+                    var str = '';
+
+                    var newCusomerTrSum = data.trSum.sum_new_customer;
+                    var oldCusomerTrSum = data.trSum.sum_old_customer;
+                    var summaryCusomerTrSum = data.trSum.summary;
+                  
+                    var maxAvcElem = data.data[0].summary_total.avg;
+
+                     /** lấy ra trung bình đơn lớn nhất của trong list sale**/
+                    data.data.forEach((element, k) => {
+                        if (element.summary_total.avg > maxAvcElem) {
+                            maxAvcElem = element.summary_total.avg;
+                        }
+                    });
+                    data.data.forEach((element, k) => {
+                        perCentContactNew = (newCusomerTrSum.contact != 0) ? (element.new_customer.contact / newCusomerTrSum.contact * 100) : 0;
+                        perCentOrderNew =  (newCusomerTrSum.order != 0) ? (element.new_customer.order / newCusomerTrSum.order * 100) : 0;
+                        perCentProductNew = (newCusomerTrSum.product != 0) ? (element.new_customer.product / newCusomerTrSum.product * 100) : 0;
+                        perCentTotalNew = (newCusomerTrSum.total != 0) ? (element.new_customer.total / newCusomerTrSum.total * 100) : 0;
+                        perCentAvgNew = (newCusomerTrSum.avg != 0) ? (element.new_customer.avg / newCusomerTrSum.avg * 100) : 0;
+
+                        perCentContactOld = (oldCusomerTrSum.contact != 0) ? (element.old_customer.contact / oldCusomerTrSum.contact * 100) : 0;
+                        perCentOrderOld =  (oldCusomerTrSum.order != 0) ? (element.old_customer.order / oldCusomerTrSum.order * 100) : 0;
+                        perCentProductOld = (oldCusomerTrSum.product != 0) ? (element.old_customer.product / oldCusomerTrSum.product * 100) : 0;
+                        perCentTotalOld = (oldCusomerTrSum.total != 0) ? (element.old_customer.total / oldCusomerTrSum.total * 100) : 0;
+                        perCentAvgOld = (oldCusomerTrSum.avg != 0) ? (element.old_customer.avg / oldCusomerTrSum.avg * 100) : 0;
+
+                        perCentTotalSum = (summaryCusomerTrSum.total != 0) ? (element.summary_total.total / summaryCusomerTrSum.total * 100) : 0;
+                        perCentAvgSum = (maxAvcElem.avg != 0) ? (element.summary_total.avg / maxAvcElem * 100) : 0;
+                            
+                        str += '<tr>'
+                            + '<td class="text-center">' + (k+1) + '</td>'
+                            + '<td>' + element.name + '</td>'
+                            + '<td class="tdProgress tdSoContact"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' + perCentContactNew + '%"></div>'
+                            + '</div><span class="progress-text">' +  element.new_customer.contact + '</span></div></td>'
+                            + '<td class="tdProgress tdSoChotDon"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' + perCentOrderNew + '%"></div>'
+                            + '</div><span class="progress-text">' +  element.new_customer.order + '</span></div></td>'
+                            + '<td class="tdProgress tdTyLeChotDon"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' +  element.new_customer.rate + '%"></div>'
+                            + '</div><span class="progress-text">' +  element.new_customer.rate + '%</span></div></td>'
+                            + '<td class="tdProgress tdSoSanPham"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' + perCentProductNew + '%"></div>'
+                            + '</div><span class="progress-text">' +  element.new_customer.product + '</span></div></td>'
+                            + '<td class="tdProgress tdDoanhSo"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' + perCentTotalNew + '%"></div>'
+                            + '</div><span class="progress-text">' +  number_format_js(element.new_customer.total) + '</span></div></td>'
+                            + '<td class="tdProgress tdGiaTriDon"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' + perCentAvgNew + '%"></div>'
+                            + '</div><span class="progress-text">' + number_format_js(element.new_customer.avg) + '</span></div></td>';
+
+                        
+                        str += ' </div><span class="progress-text">' + element.old_customer.product + '</span></div></td>'
+                            + '<td class="tdProgress tdDoanhSo"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' + perCentTotalOld + '%"></div>'
+                            + '</div><span class="progress-text">' + number_format_js(element.old_customer.total) + '</span></div></td>'
+                            + '<td class="tdProgress tdGiaTriDon"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' + perCentAvgOld + '%"></div>'
+                            + '</div><span class="progress-text">' + number_format_js(element.old_customer.avg) + '</span></div></td>';
+
+                        str += '<td class="tdProgress tdDoanhSoTong"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' + perCentTotalSum + '%"></div>'
+                            + '</div><span class="progress-text">' + number_format_js(element.summary_total.total) + '</span></div></td>'
+                            + '<td class="tdProgress tdGiaTriDon"><div class="box-progress"><div class="progress">'
+                            + '<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: ' + perCentAvgSum + '%"></div>'
+                            + '</div><span class="progress-text">' + number_format_js(element.summary_total.avg) + '</span></div></td></tr>';
+                        
+                    });
+                    // console.log(maxAvcElem);
+
+                    $("#body-digital").html(str);
+
+                    var strTdSum = '';
+                    strTdSum += '<td colspan="2" class="text-center font-weight-bold">Tổng: </td>'
+                        + '<td class="text-center font-weight-bold"><span>' + newCusomerTrSum.contact + '</span></td>'
+                        + '<td class="text-center font-weight-bold"><span>' + newCusomerTrSum.order + '</span></td>'
+                        + '<td class="text-center font-weight-bold"><span>' + newCusomerTrSum.rate + '%</span></td>'
+                        + '<td class="text-center font-weight-bold"><span>' + newCusomerTrSum.product + '</span></td>'
+                        + '<td class="text-center font-weight-bold"><span>' + number_format_js(newCusomerTrSum.total) + '</span></td>'
+                        + '<td class="text-center font-weight-bold"><span>' + number_format_js(newCusomerTrSum.avg) + '</span></td>';
+
+                        
+                    strTdSum += '<td class="text-center font-weight-bold"><span>' + number_format_js(oldCusomerTrSum.total) + '</span></td>'
+                        + '<td class="text-center font-weight-bold"><span>' + number_format_js(oldCusomerTrSum.avg) + '</span></td>'
+                        + '<td class="text-center font-weight-bold"><span>' + number_format_js(summaryCusomerTrSum.total) + '</span></td>'
+                        + '<td class="text-center font-weight-bold"><span>' + number_format_js(summaryCusomerTrSum.avg) + '</span></td>';
+
+                    $("#tr-sum-digital").html(strTdSum);
+                }
+
+                $('.table_digital .loader').hide();
+                $('.table_digital').css("opacity", "1");
+                $('.table_digital').css("position", "relative");
+                
+            }
+           
         });
     });
     
