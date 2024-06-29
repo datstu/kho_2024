@@ -122,7 +122,7 @@ class OrdersController extends Controller
             //     $dataFilterSale['type_customer'] = $dataFilter['type_customer'];
             // }
         
-            if (count($dataFilterSale) > 0 && !isset($dataFilter['sale'])) {
+            if (count($dataFilterSale) > 0) {
                 $phoneFilter = [];
                 $listPhoneOrder = $list->pluck('phone')->toArray();
                 // dd(count($listPhoneOrder));
@@ -176,8 +176,9 @@ class OrdersController extends Controller
             }
         }
 
-      
-        if (isset($dataFilter['sale']) && $dataFilter['sale'] != 999 && $checkAll) {
+        $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+
+        if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
             // dd($list->pluck('phone')->toArray());
@@ -196,7 +197,7 @@ class OrdersController extends Controller
             }
 
             $list = Orders::whereIn('phone', $phoneFilter)->orderBy('id', 'desc');
-        } else if (!$checkAll) {
+        } else if (!$checkAll || !$isLeadSale) {
             $list = $list->where('assign_user', $user->id);
         }
         // dd($list->count());

@@ -886,17 +886,18 @@
     });
 
     $("#btn-filter").on( "click", function() {
-        let value =  $("input[name='daterange']").val();
-        let arr = value.split("-");
+      let value =  $("input[name='daterange']").val();
+      let arr = value.split("-");
 
-        var _token    = $("input[name='_token']").val();
-        var status    = $("select[name='status']").val();
-        var category  = $("select[name='category']").val();
-        var product   = $("select[name='product']").val();
-        var sale      = $("select[name='sale']").val();
-        var mkt       = $("select[name='mkt']").val();
-        var src       = $("select[name='src']").val();
+      var _token    = $("input[name='_token']").val();
+      var status    = $("select[name='status']").val();
+      var category  = $("select[name='category']").val();
+      var product   = $("select[name='product']").val();
+      var sale      = $("select[name='sale']").val();
+      var mkt       = $("select[name='mkt']").val();
+      var src       = $("select[name='src']").val();
 
+      if ($('.table_sale').length > 0) {
         $('.table_sale .loader').show();
         $('.table_sale').css("opacity", "0.5");
         $('.table_sale').css("position", "relative");
@@ -924,7 +925,7 @@
                     console.log(data.data);
                     var maxAvcElem = data.data[0].summary_total.avg;
 
-                     /** lấy ra trung bình đơn lớn nhất của trong list sale**/
+                      /** lấy ra trung bình đơn lớn nhất của trong list sale**/
                     data.data.forEach((element, k) => {
                         if (element.summary_total.avg > maxAvcElem) {
                             maxAvcElem = element.summary_total.avg;
@@ -1030,7 +1031,9 @@
                 $('.table_sale').css("position", "relative");
             }
         });
+      }
 
+      if ($('.table_digital').length > 0) {
         $('.table_digital .loader').show();
         $('.table_digital').css("opacity", "0.5");
         $('.table_digital').css("position", "relative");
@@ -1152,6 +1155,7 @@
             }
            
         });
+      }
     });
     
     $("input[name='dateTotal']").change(function () {

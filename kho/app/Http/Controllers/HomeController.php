@@ -392,7 +392,8 @@ class HomeController extends Controller
         $result = [];
 
         $checkAll = isFullAccess(Auth::user()->role);
-        if ($checkAll) {
+        $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+        if ($checkAll || $isLeadSale) {
             foreach ($listSale->get() as $sale) {
                 $data = $this->getReportUserSale($sale, $dataFilter);
                 $result[] = $data;
@@ -401,6 +402,7 @@ class HomeController extends Controller
             $result[] = $this->getReportUserSale(Auth::user(), $dataFilter);
         }
 
+       
         return $result;
     }
 
@@ -511,8 +513,8 @@ class HomeController extends Controller
             /** chọn tất cả sale */
             $listSale = Helper::getListSale();
             $checkAll = isFullAccess(Auth::user()->role);
-
-            if ($checkAll) {
+            $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+            if ($checkAll || $isLeadSale) {
                 foreach ($listSale->get() as $sale) {
                     $data = $this->getReportUserSale($sale, $dataFilter);
                     $list[] = $data;
@@ -686,7 +688,7 @@ class HomeController extends Controller
         }
        
         $rateSuccess = round($rateSuccess, 2);
-    //    dd($rateSuccess);
+
         $result = [
             'totalSum'      => number_format($totalSum) . 'đ',
             'percentTotal'  => '',

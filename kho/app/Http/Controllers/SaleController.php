@@ -306,9 +306,11 @@ class SaleController extends Controller
             }
         }
 
+        $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+
         if ($user->is_digital) {
             $list =  $list->where('page_link', 'like', '%' . 'mua4-tang2' . '%');
-        } else if (isset($dataFilter['sale']) && $dataFilter['sale'] != 999 && $checkAll) {
+        } else if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $sale = Helper::getSaleById($dataFilter['sale']);
 
@@ -318,7 +320,7 @@ class SaleController extends Controller
                 $list = $list->where('old_customer', 0);
             }
             $list = $list->where('assign_user', $dataFilter['sale']);
-        } else if (!$checkAll) {
+        } else if (!$checkAll || !$isLeadSale) {
             $list = $list->where('assign_user', $user->id);
         }  
 
