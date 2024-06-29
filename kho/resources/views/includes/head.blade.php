@@ -28,12 +28,12 @@
     
    
     <style type="text/css">
-        .loader img {
+        /* .loader img {
             position: absolute;
             right: 50%;
             top: 50%;
             height: 40px;
-        }
+        } */
         .hidden {display:none;}
         .error_msg {color: red;}
     </style>

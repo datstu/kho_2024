@@ -7,17 +7,14 @@ $listStatus = Helper::getListStatus();
 
 <script src="{{asset('public/js/number-format/cleave.min.js')}}"></script>
 <link href="{{ asset('public/css/pages/styleOrders.css'); }}" rel="stylesheet">
-<div class="body flex-grow-1 px-3">
+<div class="body flex-grow-1 py-3 px-3">
     <div class="row">
         <div id="notifi-box" class="hidden alert alert-success print-error-msg">
             <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
         </div>
-
+        @if(isset($order))
         <div class="col-lg-12">
             <div class="card">
-                
-                @if(isset($order))
-                
                 <div class="card-header"><span><strong>Cập nhật đơn hàng #{{$order->id}} - {{date_format($order->created_at,"d-m-Y ")}}</strong></span>
                     
                     <?php $isMappingShip = Helper::isMappingShippByOrderId($order->id);?>
@@ -81,11 +78,12 @@ $listStatus = Helper::getListStatus();
                                                             id="priceFor"
                                                             type="text"
                                                             data-product-price={{$order->total}}>
-                                                        <label class="form-label" for="xxx">
-                                                            <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="xxx"> Giá khuyến mãi
-                                                            
-                                                        </label>
-                                                        <p class="error_msg" id="price"></p>
+                                                            <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="xxx"> 
+                                                            <label class="form-label" for="xxx">
+                                                                Giá khuyến mãi
+                                                                
+                                                            </label>
+                                                            <p class="error_msg" id="price"></p>
                                                     </div>
                                         <?php $checkAll = isFullAccess(Auth::user()->role);?>
                                         @if ($checkAll)
@@ -198,9 +196,9 @@ $listStatus = Helper::getListStatus();
 
                                         <div class="row products">
                                         </div>
-                                        <div class="loader hidden">
+                                        {{-- <div class="loader hidden">
                                             <img src="{{asset('public/images/loader.gif')}}" alt="">
-                                        </div>
+                                        </div> --}}
                                         <button id="submit" class="btn btn-primary">Cập nhật </button>
                                     </div>
                                 </form>
@@ -360,20 +358,21 @@ $listStatus = Helper::getListStatus();
 
                         <div class="row products">
                         </div>
-                        <div class="loader hidden text-center">
-                            <img src="{{asset('public/images/loader.gif')}}" alt="">
-                        </div>
+                       
                         <button id="submit" class="mb-1 btn btn-primary">Chốt đơn</button>
                     </form>
                 </div>
             </div>
         </div>
         @endif
+       
     </div>
     <div class="row text-right">
         <div><button class="refresh btn btn-info">Refresh</button></div>
     </div>
-    
+    <span class="loader hidden">
+        <img src="{{asset('public/images/rocket.svg')}}" alt="">
+    </span>
 </div>
 </div>
 </div>
@@ -620,8 +619,12 @@ $(document).ready(function() {
     $("#submit").click(function(e) {
         e.preventDefault();
 
-        $('.loader').show();
-        $('.body').css("opacity", '0.5');
+        // $('.loader').show();
+        // $('.body').css("opacity", '0.5');
+
+        $('.body .loader').show();
+        $('.body .row').css("opacity", "0.5");
+        $('.body .row').css("position", "relative");
 
         var _token      = $("input[name='_token']").val();
         var phone       = $("input[name='phone']").val();
@@ -704,8 +707,12 @@ $(document).ready(function() {
                     }
                 }
 
-                $('.body').css("opacity", '1');
-                $('.loader').hide();
+                // $('.body').css("opacity", '1');
+                // $('.loader').hide();
+
+                $('.body .loader').hide();
+                $('.body .row').css("opacity", "1");
+                $('.body .row').css("position", "relative");
             }
         });
 

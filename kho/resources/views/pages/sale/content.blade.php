@@ -350,14 +350,14 @@
 
                             <?php $checkAll = isFullAccess(Auth::user()->role);?>
                             @if ($checkAll || $isLeadSale)
-                            <a title="xoá" class="hidden btn-icon aoh" onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" role="button">
+                            <a title="Xoá TN này" class="hidden btn-icon aoh" onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" role="button">
                                 <svg class="icon me-2">
                                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-trash')}}"></use>
                                 </svg>
                             </a>
                             @endif
 
-                            <a data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                            <a title="Chốt đơn cho TN này"data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
                           
                             {{-- @if ($item->id_order)
                               <a data-target="#createOrder" data-toggle="modal" data-id="{{$item->id_order}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>

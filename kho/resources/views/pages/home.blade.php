@@ -87,20 +87,6 @@
     /* min-width: 230px; */
   }
 
-  span.loader {
-    position: absolute;
-    z-index: 9999;
-    /* display: block; */
-    right: 50%;
-    top: 50%;
-  }
-
-  .loader img {
-    position: relative;
-    top: unset;
-    right: unset;
-  }
-
   @media only screen and (max-width: 600px) {
     .px-3 {
       padding: 0 !important;
@@ -899,8 +885,8 @@
 
       if ($('.table_sale').length > 0) {
         $('.table_sale .loader').show();
-        $('.table_sale').css("opacity", "0.5");
-        $('.table_sale').css("position", "relative");
+        $('.table_sale .table-multi-select').css("opacity", "0.5");
+        $('.table_sale .table-multi-select').css("position", "relative");
         $.ajax({
             url: "{{ route('filter-total-sales') }}",
             type: 'GET',
@@ -1027,16 +1013,16 @@
                 }
 
                 $('.table_sale .loader').hide();
-                $('.table_sale').css("opacity", "1");
-                $('.table_sale').css("position", "relative");
+                $('.table_sale .table-multi-select').css("opacity", "1");
+                $('.table_sale .table-multi-select').css("position", "relative");
             }
         });
       }
 
       if ($('.table_digital').length > 0) {
         $('.table_digital .loader').show();
-        $('.table_digital').css("opacity", "0.5");
-        $('.table_digital').css("position", "relative");
+        $('.table_digital .table-multi-select').css("opacity", "0.5");
+        $('.table_digital .table-multi-select').css("position", "relative");
         $.ajax({
             url: "{{ route('filter-total-digital') }}",
             type: 'GET',
@@ -1149,9 +1135,8 @@
                 }
 
                 $('.table_digital .loader').hide();
-                $('.table_digital').css("opacity", "1");
-                $('.table_digital').css("position", "relative");
-                
+                $('.table_digital .table-multi-select').css("opacity", "1");
+                $('.table_digital .table-multi-select').css("position", "relative");
             }
            
         });

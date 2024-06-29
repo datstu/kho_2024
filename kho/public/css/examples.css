@@ -85,7 +85,23 @@
   display: flex;
 }
 
+span.loader {
+  position: absolute;
+  /* z-index: 9999; */
+  /* display: block; */
+  right: 50%;
+  top: 50%;
+}
 
+.loader img {
+  position: relative;
+  /* top: unset;
+  right: unset; */
+  /* right: 50%;
+  top: 50%; */
+  height: 50px;
+  z-index: 1;
+}
 
 @media only screen and (max-width: 600px) {
   .tbl_mobile, .tbl_mobile .container-lg, .tbl_mobile .card-body  {
