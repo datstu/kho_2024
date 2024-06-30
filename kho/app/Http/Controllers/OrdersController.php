@@ -144,7 +144,7 @@ class OrdersController extends Controller
         $roles      = json_decode($roles);
         if ($roles) {
             foreach ($roles as $key => $value) {
-                if ($value == 1) {
+                if ($value == 1 || $value == 4) {
                     $checkAll = true;
                     break;
                 } else {
