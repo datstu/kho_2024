@@ -104,6 +104,8 @@
 
 <?php $checkAll = isFullAccess(Auth::user()->role);
   $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+  $enableSale = ($checkAll || $isLeadSale || Auth::user()->is_CSKH || Auth::user()->is_sale);
+  $enableDigital = ($checkAll || Auth::user()->is_digital);
 ?>
 
 <div class="body flex-grow-1 px-3">
@@ -286,7 +288,9 @@
             </div>
         </div> --}}
         <div style="clear: both;"></div>
-<?php if ($dataSale) {
+<?php 
+// dd($dataSale);
+if ($dataSale && $enableSale) {
     
     /** lấy ra trung bình đơn lớn nhất của trong list sale**/
     $maxAvgSum = $dataSale[0]['summary_total']['avg'];
@@ -574,7 +578,7 @@
         <span class="loader hidden">
           <img src="{{asset('public/images/rocket.svg')}}" alt="">
         </span>
-  <?php if ($dataDigital) {
+  <?php if ($dataDigital && $enableDigital) {
 
     /** lấy ra trung bình đơn lớn nhất của trong list sale**/
     $maxAvgSum = $dataDigital[0]['summary_total']['avg'];

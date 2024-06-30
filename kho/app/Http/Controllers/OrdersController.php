@@ -60,11 +60,6 @@ class OrdersController extends Controller
 
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
-
-                // if (isset($dataFilter['mkt']) ) {
-                //     $listsaleCare->whereDate('created_at', '>=', $dateBegin)
-                //         ->whereDate('created_at', '<=', $dateEnd);
-                // }
             }
             
             if (isset($dataFilter['status'])) {
@@ -117,48 +112,30 @@ class OrdersController extends Controller
             if (isset($dataFilter['mkt'])) {
                 $dataFilterSale['mkt'] = $dataFilter['mkt'];
             }  
-
-            // if (isset($dataFilter['type_customer'])) {
-            //     $dataFilterSale['type_customer'] = $dataFilter['type_customer'];
-            // }
         
             if (count($dataFilterSale) > 0) {
                 $phoneFilter = [];
                 $listPhoneOrder = $list->pluck('phone')->toArray();
-                // dd(count($listPhoneOrder));
-                // dd($listPhoneOrder);
 
                 $flag = false;
 
                 foreach ($listPhoneOrder as $phone) {
-                    // if ($phone == '0394518375') {
                     $saleCtl = new SaleController();
                     $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
                     $cus9phone = $this->getCustomPhone9Num($phone);
-                    // echo ($phone) . "\n";
-                    // dd(isset($dataFilter['type_customer']));
-                    // dd($dataFilter);
                     $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $cus9phone . '%')->first();
-                    // dd($careFromOrderPhone);
                     
                     if (isset($dataFilter['type_customer'])) {
                         $flag = Helper::checkTypeOrderbyPhone($cus9phone, $dataFilter['type_customer']);
                     }
                   
-                    // if ($flag) {
-                    //     $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $cus9phone . '%')->first();
-                    // }
                     if ($careFromOrderPhone && $flag) {
                         $phoneFilter[] = $phone;
                     }
-                // }
                 }
-                // dd($phoneFilter);
-                // die();
 
                 $list = Orders::whereIn('phone', $phoneFilter)->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
-                // dd($list->pluck('phone')->toArray());
             }
         }
 

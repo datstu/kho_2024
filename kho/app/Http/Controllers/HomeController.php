@@ -48,43 +48,21 @@ class HomeController extends Controller
                 'mkt' => 2,
             ],
         ];
+
         $result = [];
+
+        $req = new Request();
+        $req->merge(['date' => $dataFilter['daterange']]);
+
         $checkAll = isFullAccess(Auth::user()->role);
-        if ($checkAll) {
-            foreach ($listDigital as $digital) {
-                $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
-                $data = ['name' => $digital['name']];
-                $dataFilter['mkt'] = $digital['mkt'];
+        if (Auth::user()->is_digital) {
+            $req->merge(['mkt' => 2]);
+        }
 
-                $newCustomer = $this->getSaleByType($dataFilter, 'new');
-                $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
-                $newCountOrder = $newCustomer['order'];
+        $data = $this->ajaxFilterDashboardDigital($req);
 
-                $data['new_customer'] = $newCustomer;
-                $data['old_customer'] = [
-                    'contact' => 0,
-                    'order' => 0,
-                    'rate' => 0,
-                    'product' => 0,
-                    'total' => 0,
-                    'avg' => 0,
-                ];
-
-                $totalSum = $newTotal + $oldTotal;
-                if ($newCountOrder != 0 || $oldCountOrder != 0) {
-                    $avgSum = $totalSum / ($newCountOrder + $oldCountOrder);
-                }
-
-                $data['summary_total'] = [
-                    'total' => round($totalSum, 0),
-                    'avg' => round($avgSum, 0),
-                ];
-
-
-                $result[] = $data;
-            }
-        } else if (Auth::user()->is_digital) {
-            // $result[] = $this->getReportUserSale(Auth::user(), $dataFilter);
+        if (count($data['data_digital']['data'])) {
+            $result = $data['data_digital']['data'];
         }
 
         return $result;
@@ -345,6 +323,13 @@ class HomeController extends Controller
         $result = []; 
         $avgOrders = 0;
         $ordersCtl = new OrdersController();
+
+        if ($type == 'new') {
+            $dataFilter['type_customer'] = 0;  
+        } else if ($type == 'old') {
+            $dataFilter['type_customer'] = 1;    
+        }
+
         $listOrder      = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter);
         $countOrders    = $listOrder->count();
         $ordersSum      = $listOrder->sum('total');
@@ -385,6 +370,7 @@ class HomeController extends Controller
         ];
         return $result;
     }
+
     public function getReportHomeSale($time)
     {
         $dataFilter['daterange'] = [$time, $time];
@@ -411,7 +397,7 @@ class HomeController extends Controller
         $data = ['name' => ($user->real_name) ?: ''];
         $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
         $dataFilter['sale'] = $user->id;
-
+        // dd($dataFilter);
         if ($user->is_sale) {
             $newCustomer = $this->getSaleByType($dataFilter, 'new');
             $data['new_customer'] = $newCustomer;
@@ -502,6 +488,8 @@ class HomeController extends Controller
             $newFilter['src'] = $src;
         } 
  
+        // dd($dataFilter);
+
         /**
          * bắt đầu lọc 
          * chọn 1 sale xxxxx
@@ -708,13 +696,15 @@ class HomeController extends Controller
         $resultDigital = $result =  $dataFilter = $list = [];
         $dataFilter['daterange'] = $req->date;
 
-        if ($req->status != 999) {
-            $dataFilter['status'] = $req->status;
-            $newFilter['status'] = $req->status;
+        $status = $req->status;
+
+        if (($status || $status == 0) && $status != 999  ) {
+            $dataFilter['status'] = $status;
+            $newFilter['status'] = $status;
         }
 
         $category = $req->category;
-        if ($category != 999) {
+        if ($category && $category != 999) {
             $dataFilter['category'] = $category;
         }
 
@@ -729,13 +719,13 @@ class HomeController extends Controller
         }
 
         $mkt = $req->mkt;
-        if ($mkt != 999) {
+        if ($mkt && $mkt != 999) {
             $dataFilter['mkt'] = $mkt;
             $newFilter['mkt'] = $mkt;
         }
 
         $src = $req->src;
-        if ($src != 999) {
+        if ($src && $src != 999) {
             $dataFilter['src'] = $src;
             $newFilter['src'] = $src;
         } 
@@ -751,7 +741,12 @@ class HomeController extends Controller
             ],
         ];
 
-        if (isset($dataFilter['mkt'])) {
+        $checkAll = isFullAccess(Auth::user()->role);
+        if (!$checkAll && Auth::user()->is_digital == 1) {
+            $dataFilter['mkt'] = 2;
+        }
+
+        if (isset($dataFilter['mkt']) ) {
             if ($dataFilter['mkt'] == 1) {
                 $digital =  [
                     'name' => 'Mr Nguyên',
@@ -798,7 +793,6 @@ class HomeController extends Controller
             // dd($data);
         } else {
             foreach ($listDigital as $digital) {
-                
                 $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
                 $data = ['name' => $digital['name']];
                 $dataFilter['mkt'] = $digital['mkt'];
