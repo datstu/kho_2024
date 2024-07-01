@@ -400,7 +400,7 @@ class TestController extends Controller
           $linkPage = $val['link'];
           $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
           $today    = strtotime(date("Y/m/d H:i"));
-          $before = strtotime ( '-6 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+          $before = strtotime ( '-2 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
           $before = date ( 'Y/m/d H:i' , $before );
           $before = strtotime($before);
 
@@ -420,6 +420,7 @@ class TestController extends Controller
 
                 $assgin_user = 0;
                 $is_duplicate = false;
+                $phone = Helper::getCustomPhoneNum($phone);
                 $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user, $is_duplicate);
 
                 if ($name && $checkSaleCareOld) {  

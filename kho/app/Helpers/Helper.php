@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Telegram;
 use App\Models\Pancake;
 use App\Models\LadiPage;
+use PHPUnit\TextUI\Help;
 
 setlocale(LC_TIME, 'vi_VN.utf8');
 
@@ -224,12 +225,12 @@ class Helper
     
     public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, &$assign, &$is_duplicate) 
     {
-        if (!$mId || !$phone || $phone == '0961161760' || $phone == '0372625799') {
+        if (!$mId || !$phone || $phone == '0961161760' || $phone == '961161760' || $phone == '0372625799') {
             return false;
         } 
-       
+        
         $saleCares = SaleCare::where('old_customer', 0)->where('phone', $phone)
-            ->where('page_id', $pageId)->orderBy('id', 'desc')->get();
+            ->where('page_id', $pageId)->orderBy('id', 'asc')->get();
             
         if ($saleCares->count() == 0) {
             return true;
@@ -516,5 +517,21 @@ class Helper
         }
         // dd($rs);
         return $rs;
+    }
+
+        /**
+     * input:
+     *  +84973409613
+     *  84973409613
+     *  0973409613
+     *  973409613
+     * 
+     * output: 0973409613
+     */
+    public static function getCustomPhoneNum($phone)
+    {
+        $length = strlen($phone);
+        $pos = $length - 9;
+        return '0' . substr($phone, $pos);
     }
 }
