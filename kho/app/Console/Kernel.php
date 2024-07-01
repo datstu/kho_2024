@@ -189,47 +189,48 @@ class Kernel extends ConsoleKernel
     
           if ($response->status() == 200) {
             $content  = json_decode($response->body());
-            $data     = $content->conversations;
+            if ($content->success) {
+              $data     = $content->conversations;
+              foreach ($data as $item) {
+                $recentPhoneNumbers = $item->recent_phone_numbers[0];
+                $mId      = $recentPhoneNumbers->m_id;
+                $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
+                $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
+                $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
 
-            foreach ($data as $item) {
-              $recentPhoneNumbers = $item->recent_phone_numbers[0];
-              $mId      = $recentPhoneNumbers->m_id;
-              $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
-              $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
-              $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
+                $assgin_user = 0;
+                $is_duplicate = false;
+                $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user, $is_duplicate);
 
-              $assgin_user = 0;
-              $is_duplicate = false;
-              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user, $is_duplicate);
+                if ($name && $checkSaleCareOld) {  
+                  if ($assgin_user == 0) {
+                    $assignSale = Helper::getAssignSale();
+                    $assgin_user = $assignSale->id;
+                  }
 
-              if ($name && $checkSaleCareOld) {  
-                if ($assgin_user == 0) {
-                  $assignSale = Helper::getAssignSale();
-                  $assgin_user = $assignSale->id;
+                  $is_duplicate = ($is_duplicate) ? 1 : 0;
+                  $sale = new SaleController();
+                  $data = [
+                    'page_link' => $linkPage,
+                    'page_name' => $namePage,
+                    'sex'       => 0,
+                    'old_customer' => 0,
+                    'address'   => '...',
+                    'messages'  => $messages,
+                    'name'      => $name,
+                    'phone'     => $phone,
+                    'page_id'   => $pIdPan,
+                    'text'      => 'Page ' . $namePage,
+                    'chat_id'   => 'id_VUI',
+                    'm_id'      => $mId,
+                    'assgin'    => $assgin_user,
+                    'is_duplicate' => $is_duplicate
+                  ];
+
+                  $request = new \Illuminate\Http\Request();
+                  $request->replace($data);
+                  $sale->save($request);
                 }
-
-                $is_duplicate = ($is_duplicate) ? 1 : 0;
-                $sale = new SaleController();
-                $data = [
-                  'page_link' => $linkPage,
-                  'page_name' => $namePage,
-                  'sex'       => 0,
-                  'old_customer' => 0,
-                  'address'   => '...',
-                  'messages'  => $messages,
-                  'name'      => $name,
-                  'phone'     => $phone,
-                  'page_id'   => $pIdPan,
-                  'text'      => 'Page ' . $namePage,
-                  'chat_id'   => 'id_VUI',
-                  'm_id'      => $mId,
-                  'assgin'    => $assgin_user,
-                  'is_duplicate' => $is_duplicate
-                ];
-
-                $request = new \Illuminate\Http\Request();
-                $request->replace($data);
-                $sale->save($request);
               }
             }
           }
