@@ -32,6 +32,7 @@ class OrdersController extends Controller
         $category = Category::where('status', 1)->get();
         // $list = $this->getListOrderByPermisson(Auth::user())->paginate(50);
 
+        // dd('hiho');
         $data       = $this->getListOrderByPermisson(Auth::user());
         $sumProduct = $data->sum('qty');
         $totalOrder = $data->count();
@@ -57,7 +58,7 @@ class OrdersController extends Controller
                 // dd($dataFilter['daterange']);
                 // $dateBegin  = $dataFilter['daterange']['dateBegin']; 
                 // $dateEnd    = $dataFilter['daterange']['dateEnd']; 
-
+                // dd($dateBegin);
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
             }
@@ -112,31 +113,79 @@ class OrdersController extends Controller
             if (isset($dataFilter['mkt'])) {
                 $dataFilterSale['mkt'] = $dataFilter['mkt'];
             }  
-        
+
+            // dd($dataFilterSale);
             if (count($dataFilterSale) > 0) {
                 $phoneFilter = [];
                 $listPhoneOrder = $list->pluck('phone')->toArray();
-
+                // dd($listPhoneOrder);
                 $flag = false;
 
+                
+                // if ($dataFilter['type_customer'] == 1) {
+                    // dd($dataFilter['type_customer']);
+               
                 foreach ($listPhoneOrder as $phone) {
+                    // if ($phone == '383432913') {
+
+                    
                     $saleCtl = new SaleController();
                     $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
                     $cus9phone = $this->getCustomPhone9Num($phone);
                     $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $cus9phone . '%')->first();
                     
-                    if (isset($dataFilter['type_customer'])) {
-                        $flag = Helper::checkTypeOrderbyPhone($cus9phone, $dataFilter['type_customer']);
+                    // dd($careFromOrderPhone);
+                    // $dataFilter['type_customer'] = 0;
+                    // dd( $dataFilter['type_customer']);
+
+                    if (!isset($dataFilter['type_customer']) ) {
+                        $dataFilter['type_customer'] = 999; //lấy tất cả data nóng và CSKH
                     }
-                  
+                    
+                    // dd($dataFilter['type_customer']);
+
+                    $flag = Helper::checkTypeOrderbyPhone($cus9phone, $dataFilter['type_customer']);
+
                     if ($careFromOrderPhone && $flag) {
                         $phoneFilter[] = $phone;
                     }
                 }
 
                 $list = Orders::whereIn('phone', $phoneFilter)->whereDate('created_at', '>=', $dateBegin)
-                    ->whereDate('created_at', '<=', $dateEnd);
-            }
+                    ->whereDate('created_at', '<=', $dateEnd)->orderBy('id', 'desc');  
+            } 
+        } 
+        if ($user->is_digital == 1){
+            // $today  = date("Y-m-d", time());
+            // $dateBegin  = date('Y-m-d',strtotime("$today"));
+            // $dateEnd    = date('Y-m-d',strtotime("$today"));
+            // $list->whereDate('created_at', '>=', $dateBegin)
+            //     ->whereDate('created_at', '<=', $dateEnd);
+
+            // $phoneFilter = [];
+            // $listPhoneOrder = $list->pluck('phone')->toArray();
+            // dd($listPhoneOrder);
+            // $flag = false;
+            // $dataFilterSale['mkt'] = 2;
+           
+            // foreach ($listPhoneOrder as $phone) {
+            //     $saleCtl = new SaleController();
+            //     $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
+            //     $cus9phone = $this->getCustomPhone9Num($phone);
+            //     $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $cus9phone . '%')->first();
+            
+            //     if (!isset($dataFilter['type_customer']) ) {
+            //         $dataFilter['type_customer'] = 999; //lấy tất cả data nóng và CSKH
+            //     }
+                
+            //     $flag = Helper::checkTypeOrderbyPhone($cus9phone, $dataFilter['type_customer']);
+            //     if ($careFromOrderPhone && $flag) {
+            //         $phoneFilter[] = $phone;
+            //     }
+            // }
+
+            // $list = Orders::whereIn('phone', $phoneFilter)->whereDate('created_at', '>=', $dateBegin)
+            //     ->whereDate('created_at', '<=', $dateEnd)->orderBy('id', 'desc');  
         }
 
         $checkAll   = false;
@@ -154,12 +203,23 @@ class OrdersController extends Controller
         }
 
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
-
+        $routeName = \Request::route();
+        // dd($routeName->getName());
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
+            // dd($list->get());
             // dd($list->pluck('phone')->toArray());
-        } else if ($user->is_digital == 1) {
+        } 
+        else if ($user->is_digital == 1 && $routeName->getName() == 'order') {
+            if (!$dataFilter) {
+                $today  = date("Y-m-d", time());
+                $dateBegin  = date('Y-m-d',strtotime("$today"));
+                $dateEnd    = date('Y-m-d',strtotime("$today"));
+                $list->whereDate('created_at', '>=', $dateBegin)
+                    ->whereDate('created_at', '<=', $dateEnd);
+            }
+            
             $phoneFilter = [];
             $listPhoneOrder = $list->pluck('phone')->toArray();
             $dataFilterSale['mkt'] = 2; //aT
@@ -174,9 +234,12 @@ class OrdersController extends Controller
             }
 
             $list = Orders::whereIn('phone', $phoneFilter)->orderBy('id', 'desc');
-        } else if (!$checkAll || !$isLeadSale) {
-            $list = $list->where('assign_user', $user->id);
         }
+         else if ((!$checkAll || !$isLeadSale) && !$user->is_digital) {
+            $list = $list->where('assign_user', $user->id);
+            // dd($list->get());
+        }
+        
         // dd($list->count());
         return $list;
     }
@@ -567,6 +630,11 @@ class OrdersController extends Controller
         if ($mkt != 999) {
             $dataFilter['mkt'] = $mkt;
         }
+
+        // $typeCustomer = $req->type_customer;
+        // if (!$typeCustomer) {
+        //     $dataFilter['type_customer'] = 1;
+        // }
 
         try {
             $data       = $this->getListOrderByPermisson(Auth::user(), $dataFilter);

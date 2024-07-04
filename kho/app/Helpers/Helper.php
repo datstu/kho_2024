@@ -508,11 +508,17 @@ class Helper
             return $rs;
         }
 
+        $routeName = \Request::route();
+        // dd($routeName->getName());
         /**data nóng */
         if ($type == 0 && !$sale->is_CSKH && $sale->is_sale) {
             $rs = true;
         } else if ($type == 1 && $sale->is_CSKH && !$sale->is_sale) {
             /**CSKH */
+            $rs = true;
+        } else if ($type = 999 && $routeName->getName() != 'home' && $routeName->getName() != 'filter-total-digital') {
+
+            /** lấy tất cả */
             $rs = true;
         }
         // dd($rs);

@@ -115,6 +115,31 @@
         <input id="daterange" class=" btn btn-outline-secondary" type="text" name="daterange"/>
       </div>
      
+      <?php $isDigital = Auth::user()->is_digital;?>
+      @if ($isDigital)
+      <div class="src-filter col-2 form-group mb-1">
+        <select name="src" id="src-filter" class="form-select">
+          <option value="999">--Chọn nguồn--</option>
+            <?php $pagePanCake = Helper::getConfigPanCake()->page_id;   
+              $ladiPages = [
+                [
+                    'name' => 'Tiễn - Ladipage mua4-tang2 ',
+                    'id' => 'mua4-tang2',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+                ],
+                [
+                    'name' => 'Tiễn - Dùng Là X3 Năng Suất',
+                    'id' => '335902056281917',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+                ],
+              ];?>
+              @foreach ($ladiPages as $page) 
+                <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+              @endforeach
+
+          </select>
+        </div>
+        @endif
       @if ($checkAll)
       <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <select name="src" id="src-filter" class="form-select" aria-label="Default select example">

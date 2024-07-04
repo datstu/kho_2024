@@ -124,14 +124,19 @@
                     'id' => 'mua4-tang2',
                     // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
                 ],
+                [
+                    'name' => 'Tiễn - Dùng Là X3 Năng Suất',
+                    'id' => '335902056281917',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+                ],
               ];?>
               @foreach ($ladiPages as $page) 
                 <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
               @endforeach
 
-        </select>
-      </div>
-      @endif
+          </select>
+        </div>
+        @endif
 
       @if ($checkAll)
       <div class="src-filter col-2 form-group mb-1">

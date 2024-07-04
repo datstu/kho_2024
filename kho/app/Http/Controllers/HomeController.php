@@ -27,12 +27,15 @@ class HomeController extends Controller
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataSale = $this->getReportHomeSale($toMonth);
+
         $dataDigital = $this->getReportHomeDigital($toMonth);
 
         $category   = Category::where('status', 1)->get();
         $sales   = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
 
-        return view('pages.home')->with('category', $category)->with('sales', $sales)->with('dataSale', $dataSale)->with('dataDigital', $dataDigital);
+        return view('pages.home')->with('category', $category)->with('sales', $sales)
+        ->with('dataSale', $dataSale)
+        ->with('dataDigital', $dataDigital);
     }
     
     public function getReportHomeDigital($time)
@@ -61,6 +64,7 @@ class HomeController extends Controller
 
         $data = $this->ajaxFilterDashboardDigital($req);
 
+        // dd($data);
         if (count($data['data_digital']['data'])) {
             $result = $data['data_digital']['data'];
         }
@@ -330,6 +334,7 @@ class HomeController extends Controller
             $dataFilter['type_customer'] = 1;    
         }
 
+        // dd($dataFilter);
         $listOrder      = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter);
         $countOrders    = $listOrder->count();
         $ordersSum      = $listOrder->sum('total');
@@ -698,7 +703,8 @@ class HomeController extends Controller
 
         $status = $req->status;
 
-        if (($status || $status == 0) && $status != 999  ) {
+        // dd(($status || $status == 0) && $status != 999 && $status);
+        if (($status || $status == 0) && $status != 999 && $status) {
             $dataFilter['status'] = $status;
             $newFilter['status'] = $status;
         }
@@ -746,6 +752,7 @@ class HomeController extends Controller
             $dataFilter['mkt'] = 2;
         }
 
+        // dd($dataFilter);
         if (isset($dataFilter['mkt']) ) {
             if ($dataFilter['mkt'] == 1) {
                 $digital =  [
@@ -771,19 +778,22 @@ class HomeController extends Controller
            
             $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
             $newCountOrder = $newCustomer['order'];
-
-            /** khách cũ */
+            // dd($newCustomer);
+            // /** khách cũ */
             $dataFilter['type_customer'] = 1;
             $oldCustomer = $this->getSaleByType($dataFilter, 'old');
+            $oldTotal = Helper::stringToNumberPrice($oldCustomer['total']);
+            $oldCountOrder = $oldCustomer['order'];
 
             $data['new_customer'] = $newCustomer;
             $data['old_customer'] =  $oldCustomer;
 
             $totalSum = $newTotal + $oldTotal;
+          
             if ($newCountOrder != 0 || $oldCountOrder != 0) {
                 $avgSum = $totalSum / ($newCountOrder + $oldCountOrder);
             }
-
+            // dd($oldCountOrder);
             $data['summary_total'] = [
                 'total' => round($totalSum, 0),
                 'avg' => round($avgSum, 0),
@@ -803,11 +813,13 @@ class HomeController extends Controller
                 $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
                 $newCountOrder = $newCustomer['order'];
               
-
                  /** khách cũ */
                 $dataFilter['type_customer'] = 1;
                 $oldCustomer = $this->getSaleByType($dataFilter, 'old');
+                $oldTotal = Helper::stringToNumberPrice($oldCustomer['total']);
+                $oldCountOrder = $oldCustomer['order'];
 
+                // dd($dataFilter);
                 $data['new_customer'] = $newCustomer;
                 $data['old_customer'] = $oldCustomer;
 

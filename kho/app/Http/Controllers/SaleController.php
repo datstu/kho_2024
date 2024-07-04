@@ -242,7 +242,8 @@ class SaleController extends Controller
                 }
             } 
              
-            if (isset($dataFilter['mkt']) ) {
+            // dd('hi');
+            if (isset($dataFilter['mkt'])) {
                 /** mrNguyen = 1
                  *  mrTien = 2
                  */
@@ -259,8 +260,8 @@ class SaleController extends Controller
                             // $query->orWhere('page_id', 'like', '%' . $term . '%');
                         }
                     });
-                } else if ($dataFilter['mkt'] == 2) {
-                    $src = ['mua4-tang2'];
+                } else if ($dataFilter['mkt'] == 2 || $user->is_digital) {
+                    $src = ['mua4-tang2', '335902056281917'];
                     $list = $list->where(function($query) use ($src) {
                         foreach ($src as $term) {
                             if (is_numeric($term)) {
@@ -272,6 +273,19 @@ class SaleController extends Controller
                         }
                     });
                 }
+            } else if ($user->is_digital) {
+                $src = ['mua4-tang2', '335902056281917'];
+                $list = $list->where(function($query) use ($src) {
+                    foreach ($src as $term) {
+                        if (is_numeric($term)) {
+                            $query->orWhere('page_id', 'like', '%' . $term . '%');
+                        } else {
+                            $query->orWhere('page_link', 'like', '%' . $term . '%');
+                        }
+                        // $query->orWhere('page_id', 'like', '%' . $term . '%');
+                    }
+                });
+               
             }
 
             // if (isset($dataFilter['src'])) {
@@ -285,6 +299,7 @@ class SaleController extends Controller
             if (isset($dataFilter['type_customer'])) {
                 $list->where('old_customer', $dataFilter['type_customer']);   
             }
+
         }
 
         $checkAll   = false;
@@ -306,11 +321,14 @@ class SaleController extends Controller
             }
         }
 
+
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
 
-        if ($user->is_digital) {
-            $list =  $list->where('page_link', 'like', '%' . 'mua4-tang2' . '%');
-        } else if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
+        // if ($user->is_digital) {
+        //     // $list =  $list->where('page_link', 'like', '%' . 'mua4-tang2' . '%');
+        //     $list =  $list->where('page_link', 'like', '%' . 'mua4-tang2' . '%');
+        // } else 
+        if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $sale = Helper::getSaleById($dataFilter['sale']);
 
@@ -320,10 +338,11 @@ class SaleController extends Controller
                 $list = $list->where('old_customer', 0);
             }
             $list = $list->where('assign_user', $dataFilter['sale']);
-        } else if (!$checkAll || !$isLeadSale) {
+        } else if ((!$checkAll || !$isLeadSale ) && !$user->is_digital) {
             $list = $list->where('assign_user', $user->id);
         }  
 
+        // dd($list->get());
         return $list;
     }
 
