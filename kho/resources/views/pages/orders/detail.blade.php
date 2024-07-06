@@ -113,7 +113,7 @@
                 </tbody>
             </table>
 
-            <table class="table">
+            <table class="table order">
                 <tbody>
                     <tr><th>Sản phẩm:</th></tr>
                     <?php 
