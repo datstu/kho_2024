@@ -1,5 +1,36 @@
 @extends('layouts.default')
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<?php 
+    $checkAll = $checkPaulo = $checkFertilizer = $checkLeadSale = $other = '';
+    $roles = json_decode($user->role, true);
+        // dd($user->role);
+    if ( is_array($roles)) {
+        // dd($roles);
+        foreach ($roles as $key => $value) {
+            if ($value == 1) {
+                $checkAll = $checkPaulo = $checkFertilizer = $checkOther = 'checked';
+                break;
+            } 
+            if ($value == 2) {
+                $checkPaulo = 'checked';
+                // break;
+            } 
+            if ($value == 3) {
+                $checkFertilizer = 'checked';
+                // break;
+            } 
+            if ($value == 4) {
+                $checkLeadSale = 'checked';
+                // break;
+            }
+            if ($value == 5) {
+                $other = 'checked';
+                // break;
+            }
+        }
+    }
+?>
 
 <div class="body flex-grow-1 px-3">
     <div class="container-lg">
@@ -54,60 +85,33 @@
                                         <div class="mb-3 col-4">
                                             <label class="form-label" for="qtyIP">Quyền truy cập</label>
                                             <div class="form-check">
-                                                <label class="form-check-label">
-                    <?php 
-                    $checkAll = $checkPaulo = $checkFertilizer = $checkLeadSale = $other = '';
-                    $roles = json_decode($user->role, true);
-                        // dd($user->role);
-                    if ( is_array($roles)) {
-                        // dd($roles);
-                        foreach ($roles as $key => $value) {
-                            if ($value == 1) {
-                                $checkAll = $checkPaulo = $checkFertilizer = $checkOther = 'checked';
-                                break;
-                            } 
-                            if ($value == 2) {
-                                $checkPaulo = 'checked';
-                                // break;
-                            } 
-                            if ($value == 3) {
-                                $checkFertilizer = 'checked';
-                                // break;
-                            } 
-                            if ($value == 4) {
-                                $checkLeadSale = 'checked';
-                                // break;
-                            }
-                            if ($value == 5) {
-                                $other = 'checked';
-                                // break;
-                            }
-                        }
-                    }
-                    
-                    
-                    ?>
-                                                <input {{$checkAll}} id="role-all" name="roles[]" type="checkbox" class="form-check-input" value="1">Tất cả
+                                                <input {{$checkAll}} id="role-all" name="roles[]" type="checkbox" class="form-check-input" value="1">
+                                                <label class="form-check-label" for="role-all">
+                                               Tất cả
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <label class="form-check-label">
-                                                <input {{$checkPaulo}} name="roles[]" type="checkbox" class="form-check-input" value="2">Paulo
+                                                <input id="paulo" {{$checkPaulo}} name="roles[]" type="checkbox" class="form-check-input" value="2">
+                                                <label for="paulo" class="form-check-label">
+                                                    Paulo
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <label class="form-check-label">
-                                                <input {{$checkFertilizer}} name="roles[]" type="checkbox" class="form-check-input" value="3">Phân bón
+                                                <input id="fertilizer" {{$checkFertilizer}} name="roles[]" type="checkbox" class="form-check-input" value="3">
+                                                <label for="fertilizer" class="form-check-label">
+                                                Phân bón
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <label class="form-check-label">
-                                                <input {{$checkLeadSale}} name="roles[]" type="checkbox" class="form-check-input" value="4">Lead Sale
+                                                <input id="leadSale" {{$checkLeadSale}} name="roles[]" type="checkbox" class="form-check-input" value="4">
+                                                <label for="leadSale" class="form-check-label">
+                                                Lead Sale
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <label class="form-check-label">
-                                                <input {{$other}} name="roles[]" type="checkbox" class="form-check-input" value="5">Khác
+                                                <input id="other" {{$other}} name="roles[]" type="checkbox" class="form-check-input" value="5">
+                                                <label for="other" class="form-check-label">
+                                                Khác
                                                 </label>
                                             </div>
                                         </div>
@@ -254,18 +258,21 @@
                                     <label class="form-label" for="qtyIP">Quyền truy cập</label>
                                 
                                     <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input id="role-all" name="roles[]" type="checkbox" class="form-check-input" value="1">Tất cả
+                                        <input id="role-all" name="roles[]" type="checkbox" class="form-check-input" value="1">
+                                        <label for="role-all" class="form-check-label">
+                                            Tất cả
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input name="roles[]" type="checkbox" class="form-check-input" value="2">Paulo
+                                        <input id="paulo" name="roles[]" type="checkbox" class="form-check-input" value="2">
+                                        <label for="paulo" class="form-check-label">
+                                            Paulo
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input name="roles[]" type="checkbox" class="form-check-input" value="3">Phân bón
+                                        <input id="fertilize" name="roles[]" type="checkbox" class="form-check-input" value="3">
+                                        <label for="fertilize" class="form-check-label">
+                                            Phân bón
                                         </label>
                                     </div>
                                     {{-- <div class="form-check">
@@ -274,8 +281,9 @@
                                             </label>
                                     </div> --}}
                                     <div class="form-check">
-                                            <label class="form-check-label">
-                                                <input name="roles[]" type="checkbox" class="form-check-input" value="4">Lead Sale
+                                        <input id="leadSale" name="roles[]" type="checkbox" class="form-check-input" value="4">
+                                            <label for="leadSale" class="form-check-label">
+                                                Lead Sale
                                             </label>
                                     </div>
                                     {{-- <div class="form-check">

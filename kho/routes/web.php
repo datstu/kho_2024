@@ -15,8 +15,9 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\FbWebHookController;
 use App\Http\Controllers\CategoryCallController;
 use App\Http\Controllers\LadipageController;
-use App\Http\Controllers\SrcPageController
-;
+use App\Http\Controllers\SrcPageController;
+use App\Http\Controllers\GroupController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -116,6 +117,11 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/quan-ly-nguon',  [SrcPageController::class, 'index'])->name('manage-src');
     Route::get('/them-nguon',  [SrcPageController::class, 'add'])->name('add-src');
     
+    Route::get('/quan-ly-nhom',  [GroupController::class, 'index'])->name('manage-group');
+    Route::get('/them-nhom',  [GroupController::class, 'add'])->name('add-group');
+    Route::get('/cap-nhat-nhom/{id}',  [GroupController::class, 'update'])->name('update-group');
+    Route::post('/luu-nhom',  [GroupController::class, 'save'])->name('save-group');
+    Route::get('/xoa-nhom/{id}',  [GroupController::class, 'delete'])->name('delete-group');
 });
 
 Route::get('/login',  [UserController::class, 'login'])->name('login');

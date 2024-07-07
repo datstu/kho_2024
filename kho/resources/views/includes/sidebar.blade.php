@@ -61,6 +61,11 @@
     @endif
     
     @if ($checkAll)
+    <li class="nav-item"><a class="nav-link" href="{{route('manage-group')}}">
+        <svg class="nav-icon">
+            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-group')}}"></use>
+        </svg>QL Nhóm</a>
+    </li>
 
     <li class="nav-item"><a class="nav-link" href="{{route('manage-user')}}">
         <svg class="nav-icon">

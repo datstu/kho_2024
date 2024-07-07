@@ -24,6 +24,8 @@
     <link href="{{ asset('public/css/customOld.css'); }}" rel="stylesheet">
     
     <link href="{{ asset('public/vendors/@coreui/chartjs/css/coreui-chartjs.css')}}" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('public/font-awesome/css/all.css')}}">
     <script src="{{asset('public/js/jquery.min.js')}}"></script>
     
    

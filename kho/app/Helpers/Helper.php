@@ -17,6 +17,8 @@ use App\Models\Pancake;
 use App\Models\LadiPage;
 use PHPUnit\TextUI\Help;
 use App\Models\SrcPage;
+use App\Models\Group;
+
 
 setlocale(LC_TIME, 'vi_VN.utf8');
 
@@ -550,5 +552,25 @@ class Helper
     public static function getSrcById($id)
     {
         return  SrcPage::find($id);
+    }
+
+    public static function getListMemberByIdGroup($idGroup)
+    {
+        $result = [];
+        $group = Group::find($idGroup);
+
+        if ($group) {
+            $memberString = $group->member;
+            $members = json_decode($memberString);
+           
+            foreach ($members as $mem) {
+                $sale = Helper::getSaleById($mem);
+                if ($sale) {
+                    $result[] = $sale;
+                }
+            }
+        }
+
+        return $result;
     }
 }
