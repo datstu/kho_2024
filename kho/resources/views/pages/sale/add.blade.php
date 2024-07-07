@@ -18,6 +18,8 @@
 
 </head>
 <?php 
+ $isLeadSale = Helper::isLeadSale(Auth::user()->role);      
+
 $ladiPages = [
     [
         'name' => 'Ladipage ruoc-dong',
@@ -190,7 +192,7 @@ $ladiPages = [
                                 </div>
 
                                 <div class="row">            
-                                    <div class="col-sm-8 col-lg-8 mb-1">
+                                    <div class="col-sm-8 col-lg-6 mb-1">
                                         <label class="form-label">Nguồn Data:</label>
                                         <select name="src" id="src-filter" class="form-control" aria-label="Default select example">       
                                                 
@@ -202,14 +204,14 @@ $ladiPages = [
                                     </div>
 
                                     <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                                    @if ($checkAll)
-                                    <div class="col-lg-3">
+                                    @if ($checkAll || $isLeadSale)
+                                    <div class="col-lg-2">
                                         <label class="form-label">Chọn Sale:</label>
                                         <select class="form-control" name="assgin" >
 
                                         @if (isset($listSale))
                                         @foreach ($listSale as $item)
-                                            <option value="{{$item->id}}">{{$item->name}}</option>
+                                            <option value="{{$item->id}}">{{$item->real_name}}</option>
                                         @endforeach
                                         @endif
 
