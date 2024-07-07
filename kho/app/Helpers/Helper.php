@@ -16,6 +16,7 @@ use App\Models\Telegram;
 use App\Models\Pancake;
 use App\Models\LadiPage;
 use PHPUnit\TextUI\Help;
+use App\Models\SrcPage;
 
 setlocale(LC_TIME, 'vi_VN.utf8');
 
@@ -539,5 +540,15 @@ class Helper
         $length = strlen($phone);
         $pos = $length - 9;
         return '0' . substr($phone, $pos);
+    }
+
+    public static function getListDigital()
+    {
+        return  User::where('status', 1)->where('is_digital', 1);
+    }
+
+    public static function getSrcById($id)
+    {
+        return  SrcPage::find($id);
     }
 }

@@ -199,7 +199,7 @@ $listStatus = Helper::getListStatus();
                                         {{-- <div class="loader hidden">
                                             <img src="{{asset('public/images/loader.gif')}}" alt="">
                                         </div> --}}
-                                        <button id="submit" class="btn btn-primary">Cập nhật </button>
+                                        <button id="submit" class="btn btn-primary">Update</button>
                                     </div>
                                 </form>
                             </div>
@@ -696,7 +696,9 @@ $(document).ready(function() {
                     $("#notifi-box").show();
                     $("#notifi-box").html(data.success);
                     $("#notifi-box").slideDown('fast').delay(5000).hide(0);
-                    
+                    if (data.link) {
+                        window.location.href = data.link;
+                    }
                 } else {
                     $('.error_msg').text('');
                     let resp = data.errors;
@@ -713,6 +715,7 @@ $(document).ready(function() {
                 $('.body .loader').hide();
                 $('.body .row').css("opacity", "1");
                 $('.body .row').css("position", "relative");
+
             }
         });
 

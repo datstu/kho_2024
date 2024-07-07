@@ -80,6 +80,7 @@
                     <li class="nav-item"><a class="nav-link" href="{{route('call-index')}}"><span class="nav-icon"></span>Thiết lập TN Sale</a></li>
                 </ul>
             </li>
+            <li class="nav-item"><a href="{{route('manage-src')}}" class="nav-link">QL Nguồn data</a></li>
         </ul>
     </li>
     @endif

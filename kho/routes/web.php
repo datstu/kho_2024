@@ -15,7 +15,8 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\FbWebHookController;
 use App\Http\Controllers\CategoryCallController;
 use App\Http\Controllers\LadipageController;
-
+use App\Http\Controllers\SrcPageController
+;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -91,6 +92,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/tim-tac-nghiep-sale',  [SaleController::class, 'search'])->name('search-sale-care');
     Route::post('/cap-nhat-TNcan',  [SaleController::class, 'updateTNcan'])->name('update-salecare-TNcan');
     Route::post('/cap-nhat-assign-TNcan',  [SaleController::class, 'updateAssignTNSale'])->name('update-salecare-assign');
+    Route::post('/id-order-new-check',  [SaleController::class, 'getIdOrderNewTNSale'])->name('get-salecare-idorder-new');
     
     Route::get('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
 
@@ -110,6 +112,9 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/telegram-save',  [SettingController::class, 'telegramSave'])->name('telegram-save');
     Route::post('/pancake-save',  [SettingController::class, 'pancakeSave'])->name('pancake-save');
     Route::post('/ladi-save',  [SettingController::class, 'ladiSave'])->name('ladi-save');
+
+    Route::get('/quan-ly-nguon',  [SrcPageController::class, 'index'])->name('manage-src');
+    Route::get('/them-nguon',  [SrcPageController::class, 'add'])->name('add-src');
     
 });
 
@@ -122,6 +127,6 @@ Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filt
 Route::get('/filter-total-sales',  [HomeController::class, 'ajaxFilterDashboar'])->name('filter-total-sales');
 Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboardDigital'])->name('filter-total-digital');
 
-Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
+Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');
 
 Route::get('/webhook', [FbWebHookController::class, 'webhook'])->name('webhook');

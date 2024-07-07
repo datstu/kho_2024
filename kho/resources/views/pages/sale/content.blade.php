@@ -312,15 +312,15 @@
                     <td class="text-center">
                         <span class="chk-item"><input id="" type="checkbox" name=""><label for="">{{$item->id}}</label></span>
                     </td>
-                    <td class="text-center">
+                    <td class="text-center id-order-new" >
 
-                        @if (isset($item->id_order))
-                        <a href="{{route('view-order', ['id' => $item->id_order])}}">{{$item->id_order}}</a>
+                        @if (isset($item->id_order_new))
+                        <a target="_blank" href="{{route('view-order', ['id' => $item->id_order_new])}}">{{$item->id_order_new}}</a>
                         @endif
                     
                     </td>
                     <td class="text-center">
-                    <a target="blank" {{ ($item->page_link) ? ('href=' . $item->page_link ) : '' }}>{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"H:i d-m-Y ")}}
+                    <a target="_blank" {{ ($item->page_link) ? ('href=' . $item->page_link ) : '' }}>{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"H:i d-m-Y ")}}
                     </td>
                     <td class="text-center">
 
@@ -357,15 +357,15 @@
                             </a>
                             @endif
 
-                            <a title="Chốt đơn cho TN này"data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                            {{-- <a title="Chốt đơn cho TN này" data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a> --}}
                           
-                            {{-- @if ($item->id_order)
-                              <a data-target="#createOrder" data-toggle="modal" data-id="{{$item->id_order}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                            @if ($item->id_order_new)
+                                <a data-target="#createOrder" data-toggle="modal" title="Sửa đơn" data-tnsale-id="{{$item->id}}" data-id_order_new="{{$item->id_order_new}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
                             @else
-                            <a data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
-                            @endif --}}
+                                <a data-target="#createOrder" data-toggle="modal" title="Chốt đơn" data-tnsale-id="{{$item->id}}"  class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                            @endif
 
-                            @if ($item->old_customer)
+                            @if ($item->old_customer == 1)
                             <a title="Khách cũ, khách cũ" class="btn-icon">
                                 <i class="fa fa-heart" style="color:red;"></i>
                             </a>
@@ -392,8 +392,10 @@
                         
                         @if (!$item->old_customer)
                         <span class="fb span-col ttgh7" style="cursor: pointer;">Data nóng</span> 
-                        @else 
+                        @elseif ($item->old_customer == 1)
                         <span class="fb span-col" style="cursor: pointer;">CSKH</span> 
+                        @elseif ($item->old_customer == 2)
+                        <span class="fb span-col" style="cursor: pointer;">Hotline</span> 
                         @endif
                         {{-- <a class="btn-icon aoh hidden" href="/ld/sale/sale-tac-nghiep/id/0" title="Xem bản ghi chốt đơn" target="_blank">
                             <i style="font-size:14px;" class="fa fa-arrow-circle-o-left"></i>
@@ -466,7 +468,8 @@
                         <?php }
                         } ?>
 
-                    <span>Tổng: {{number_format($order->total)}}đ</span> 
+                    <span>Tổng: {{number_format($order->total)}}đ</span> <br>
+                    <a target="_blank" href="{{route('view-order', $item->id_order)}}">Xem đơn</a>
                     <?php 
                     } ?>
 
@@ -498,17 +501,59 @@
   </div>
 <script>
     $('.orderModal').on('click', function () {
-        var myBookId = $(this).data('id');
-        var saleId = $(this).data('sale-id');
-        if (saleId) {
-            var link = "{{URL::to('/them-don-hang/')}}";
-            $("#createOrder iframe").attr("src", link + '?saleCareId=' + saleId);
-        } else {
-            console.log('myBookId')
-            
+        var idOrderNew = $(this).data('id_order_new');
+        var TNSaleId = $(this).data('tnsale-id');
+        console.log(TNSaleId);
+        if (idOrderNew) {
             var link = "{{URL::to('/update-order/')}}";
-            $("#createOrder iframe").attr("src", link + '/' + myBookId);
+            $("#createOrder iframe").attr("src", link + '/' + idOrderNew);
+        } else {
+            var link = "{{URL::to('/them-don-hang/')}}";
+            $("#createOrder iframe").attr("src", link + '?saleCareId=' + TNSaleId);
+
+            //cập nhật TN Sale
+            (function( $ ){
+            $.fn.getIdOrderNew = function() {
+                console.log('aaaa')
+                setTimeout(function() {
+                    var _token  = $("input[name='_token']").val();
+                    $.ajax({
+                        url: "{{ route('get-salecare-idorder-new') }}",
+                        type: 'POST',
+                        data: {
+                            _token: _token,
+                            TNSaleId,
+                        },
+                        success: function(data) {
+                            if (data.id_order_new) {
+                                if ($('.tr_' + TNSaleId + ' .id-order-new a').length == 0) {
+                                    var td = $('.tr_' + TNSaleId + ' .id-order-new');
+                                    td.wrapInner('<a href="' + data.link + '">' + data.id_order_new + '</a>');
+
+                                    var aCreate = $('.tr_' + TNSaleId + ' td div a.orderModal');
+                                    aCreate.data('id_order_new',  data.id_order_new);
+                                    aCreate.attr('title', 'Sửa đơn');
+                                }
+                            
+                            } 
+                        }
+                    });
+           
+                }, 3000);
+            }; 
+            })( jQuery );
+
+            $('#createOrder').on('click', function () {
+                $.fn.getIdOrderNew();
+            });
+           
+
+            $('#close-main').on('click', function () {
+                $.fn.getIdOrderNew();
+            });
         }
+
+        
         // var link = "{{URL::to('/update-order')}}";
         // $("#createOrder iframe").attr("src", link + '/' + myBookId);
     });
@@ -859,35 +904,3 @@ if (time) {
 
 </script>
 
-<script>  
-    // $("#mkt-filter").change(function() {
-    //     var selectedVal = $(this).find(':selected').val();
-    //     var selectedText = $(this).find(':selected').text();
-        
-    //     let str = '<option value="999">--Tất cả Nguồn--</option>';
-    //     $('.src-filter').show('slow');
-
-    //     if ($('#src-filter').children().length > 0) {
-    //         $('#src-filter').children().remove();
-    //     }
-
-    //     if (selectedVal == 1) {
-        
-    //         mrNguyen.forEach (function(item) {
-    //             console.log(item);
-    //             str += '<option value="' + item.id +'">' + item.name_page +'</option>';
-    //         })
-    //         $(str).appendTo("#src-filter");
-    //     } else if (selectedVal == 2) {
-
-    //         mrTien.forEach (function(item) {
-    //             console.log(item);
-    //             str += '<option value="' + item.id +'">' + item.name_page +'</option>';
-    //         });
-    //         $(str).appendTo("#src-filter");
-    //     } else {
-    //         $('.src-filter').hide('slow');
-    //         $('#src-filter').children().remove();
-    //     }
-    // });
-</script>

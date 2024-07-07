@@ -418,7 +418,7 @@ class OrdersController extends Controller
             /**cập nhật mã đơn hàng được tạo vào record sale_care */
             $saleCare = SaleCare::find($order->sale_care);
             if ($saleCare) {
-                $saleCare->id_order = $order->id;
+                $saleCare->id_order_new = $order->id;
                 $saleCare->save();
             }
 
@@ -476,10 +476,13 @@ class OrdersController extends Controller
 
                     $sale->save($request);
                 }
-                // die();
             }
 
-            return response()->json(['success'=>$text]);
+            $link = route('update-order', $order->id);
+            return response()->json([
+                'success' => $text,
+                'link' => $link,
+        ]);
         }
      
         return response()->json(['errors'=>$validator->errors()]);

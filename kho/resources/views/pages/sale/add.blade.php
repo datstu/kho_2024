@@ -17,28 +17,34 @@
 </style>
 
 </head>
+<?php 
+$ladiPages = [
+    [
+        'name' => 'Ladipage ruoc-dong',
+        'id' => 'ruoc-dong',
+        // 'src' => 'https://www.phanbonlua.xyz/ruoc-dong'
+    ],
+    [
+        'name' => 'Ladipage mua4tang2',
+        'id' => 'mua4tang2',
+        // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+    ],
+    [
+        'name' => 'Ladipage giamgia45',
+        'id' => 'giamgia45',
+        // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
+    ],
+    [
+        'name' => 'Tiễn - Ladipage mua4-tang2 ',
+        'id' => 'mua4-tang2',
+        // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+    ],
+];
+?>
 <body>
     @include('notify::components.notify')
     <div class="body flex-grow-1 px-3 mt-2">
         <div class="row">
-
-            <?php foreach ($errors->getMessages() as $kE => $error) {
-                
-                if ($kE == 'id_order') {
-                    $kE = 'Mã đơn hàng';
-                }
-                foreach ($error as $k => $val) {
-            ?>
-            <div id="notifi-box" style="display: flex; justify-content: space-between;" class="alert alert-danger print-error-msg">
-                <span>{{$kE . ' ' . $val}}</span>
-                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button> 
-            </div>
-            <?php
-                    }
-                }
-            ?>
-            
-    
             <div class="col-lg-12">
                 <div class="card">
 
@@ -60,15 +66,6 @@
                                             <label class="form-label" for="nameFor">Tên khách hàng</label>
                                             <input value="{{$saleCare->full_name}}" class="form-control" name="name" id="nameFor" type="text">
                                             <p class="error_msg" id="name"></p>
-                                        </div>
-                                        <div class="col-sm-12 col-lg-3">
-                                            <label class="form-label" for="sexFor">Giới tính</label>
-                                            <select name="sex"
-                                                id="sexFor" class="form-control">
-                                                <option <?= $saleCare->sex == 0 ? 'selected' : ''; ?> value="0">Nam</option>
-                                                <option <?= $saleCare->sex == 1 ? 'selected' : ''; ?> value="1">Nữ</option>
-                                            </select>
-                                            <p class="error_msg" id="sex"></p>
                                         </div>
                                         <div class="col-sm-12 col-lg-3">
                                             <label class="form-label" for="addressFor">Địa chỉ/đường</label>
@@ -135,9 +132,9 @@
 
                                         @endif
                                     </div>
-                                    <div class="loader hidden">
+                                    {{-- <div class="loader hidden">
                                         <img src="{{asset('public/images/loader.gif')}}" alt="">
-                                    </div>
+                                    </div> --}}
                                     {{-- <button id="add" type="button" class="btn btn-danger text-white">Thêm lần gọi</button> --}}
                                     <button id="submit" class="btn btn-primary">Cập nhật </button>
                                     
@@ -147,96 +144,109 @@
                     </div>
          
                 @else
-                    <div class="card-body card-orders">
-                        <div class="body flex-grow-1">
-                            <div class="tab-content rounded-bottom">
-                                <form method="post" action="{{route('sale-care-save')}}">
-                                    {{ csrf_field() }}
-                                    <div class="row" id="content-add">
-                                        <div class="col-sm-12 col-lg-3">
-                                            <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
-                                            <input required placeholder="0973409613" class="form-control" name="phone"
-                                                id="phoneFor" type="text">
-                                            <p class="error_msg" id="phone"></p>
-                                        </div>
-                                        <div class="col-sm-12 col-lg-3">
-                                            <label class="form-label" for="nameFor">Tên khách hàng<span class="required-input">(*)</span></label>
-                                            <input required placeholder="Họ và tên" class="form-control" name="name"
-                                                id="nameFor" type="text">
-                                            <p class="error_msg" id="name"></p>
-                                        </div>
-                                        <div class="col-sm-6 col-lg-2">
-                                            <label class="form-label" for="sexFor">Giới tính<span class="required-input">(*)</span></label>
-                                            <select theme="google" name="sex" id="sexFor"
-                                                class="form-control">
-                                                <option value="0">Nam</option>
-                                                <option value="1">Nữ</option>
-                                            </select>
-                                            <p class="error_msg" id="sex"></p>
-                                        </div>
-                                        <div class="col-sm-6 col-lg-4">
-                                            <label class="form-label" for="addressFor">Địa chỉ/đường<span class="required-input">(*)</span></label>
-                                            <input required placeholder="180 cao lỗ" class="form-control" name="address"
-                                                id="addressFor" type="text">
-                                            <p class="error_msg" id="address"></p>
-                                        </div>
-                                        
-                                        {{-- <div class="col-sm-12 col-lg-4 call">
-                                            <label for="call1" class="form-label ">Gọi lần 1:
-                                                <span class="delete">xoá</span>
-                                            </label>
-                                            <textarea data-id-call=1 name="call[]" class="form-control" id="call1" rows="3"></textarea>
-                                            <p></p>
-                                        </div> --}}
+                <div class="card-body card-orders">
+                    <div class="body flex-grow-1">
+                        <div class="tab-content rounded-bottom">
+                            <form method="post" action="{{route('sale-care-save')}}">
+                                <input type="hidden" name="old_customer" value="2">
+                                {{ csrf_field() }}
+                                <div class="row" id="content-add">
+                                    <div class="col-sm-12 col-lg-3">
+                                        <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
+                                        <input required placeholder="0973409613" class="form-control" name="phone"
+                                            id="phoneFor" type="text">
+                                        <p class="error_msg" id="phone"></p>
                                     </div>
-                                    <div class="row">
-                                        <input type="text" name="text" value="Sale tự tạo" class="hidden">
-                                        <input type="text" name="page_name" value="Sale tự tạo" class="hidden">
-                                        <div class="col-sm-6 col-lg-8">
-                                            <label class="form-label" for="messagesFor">Tin nhắn</label><br>
-                                            <textarea name="messages" id="messagesFor" cols="80" rows="5"></textarea>
-                                            <p class="error_msg" id="address"></p>
-                                        </div>
-                                        
-                                        <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                                        @if ($checkAll)
-                                        <div class="col-lg-3">
-                                            <label class="form-label">Chọn Sale:</label>
-                                            <select class="form-control" name="assgin" >
-
-                                            @if (isset($listSale))
-                                            @foreach ($listSale as $item)
-                                                <option value="{{$item->id}}">{{$item->name}}</option>
-                                            @endforeach
-                                            @endif
-
-                                            </select>
-                                            <p class="error_msg" id="price"></p>
-                                        </div>
-                                        @else 
-                                        <div class="col-lg-3 hidden">
-                                            <label class="form-label">Chọn Sale:</label>
-                                            <select class="form-control" name="assgin">
-                                                <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
-                                            </select>
-                                            <p class="error_msg" id="price"></p>
-                                        </div>
-                                        @endif
+                                    <div class="col-sm-12 col-lg-3">
+                                        <label class="form-label" for="nameFor">Tên khách hàng<span class="required-input">(*)</span></label>
+                                        <input required placeholder="Họ và tên" class="form-control" name="name"
+                                            id="nameFor" type="text">
+                                        <p class="error_msg" id="name"></p>
                                     </div>
-
-                                    <div class="loader hidden text-center">
-                                        <img src="{{asset('public/images/loader.gif')}}" alt="">
-                                    </div>
-                                    {{-- <button id="add" type="button" class="btn btn-danger text-white">Thêm lần gọi</button> --}}
-                                    <button id="submit" class="btn btn-primary">Tạo</button>
                                     
-                                </form>
-                            </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <label class="form-label" for="addressFor">Địa chỉ/đường<span class="required-input">(*)</span></label>
+                                        <input required placeholder="180 cao lỗ" class="form-control" name="address"
+                                            id="addressFor" type="text">
+                                        <p class="error_msg" id="address"></p>
+                                    </div>
+                                    
+                                    {{-- <div class="col-sm-12 col-lg-4 call">
+                                        <label for="call1" class="form-label ">Gọi lần 1:
+                                            <span class="delete">xoá</span>
+                                        </label>
+                                        <textarea data-id-call=1 name="call[]" class="form-control" id="call1" rows="3"></textarea>
+                                        <p></p>
+                                    </div> --}}
+                                </div>
+                                <div class="row">
+                                    {{-- <input type="text" name="text" value="Sale tự tạo" class="hidden"> --}}
+                                    {{-- <input type="text" name="page_name" value="Sale tự tạo"> --}}
+                                    <div class="col-sm-6 col-lg-12">
+                                        <label class="form-label" for="messagesFor">Tin nhắn</label><br>
+                                        <textarea name="messages" id="messagesFor" cols="100" rows="5" style="width:100%"></textarea>
+                                        <p class="error_msg" id="address"></p>
+                                    </div>
+                                </div>
+
+                                <div class="row">            
+                                    <div class="col-sm-8 col-lg-8 mb-1">
+                                        <label class="form-label">Nguồn Data:</label>
+                                        <select name="src" id="src-filter" class="form-control" aria-label="Default select example">       
+                                                
+                                        @foreach ($listSrc as $page) 
+                                            <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+                                        @endforeach 
+                        
+                                        </select>
+                                    </div>
+
+                                    <?php $checkAll = isFullAccess(Auth::user()->role);?>
+                                    @if ($checkAll)
+                                    <div class="col-lg-3">
+                                        <label class="form-label">Chọn Sale:</label>
+                                        <select class="form-control" name="assgin" >
+
+                                        @if (isset($listSale))
+                                        @foreach ($listSale as $item)
+                                            <option value="{{$item->id}}">{{$item->name}}</option>
+                                        @endforeach
+                                        @endif
+
+                                        </select>
+                                        <p class="error_msg" id="price"></p>
+                                    </div>
+                                    @else 
+                                    <div class="col-lg-3 hidden">
+                                        <label class="form-label">Chọn Sale:</label>
+                                        <select class="form-control" name="assgin">
+                                            <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
+                                        </select>
+                                        <p class="error_msg" id="price"></p>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                {{-- <div class="loader hidden text-center">
+                                    <img src="{{asset('public/images/loader.gif')}}" alt="">
+                                </div> --}}
+                                {{-- <button id="add" type="button" class="btn btn-danger text-white">Thêm lần gọi</button> --}}
+                                <button id="submit" class="btn btn-primary">Tạo</button>
+                                
+                            </form>
                         </div>
                     </div>
+                </div>
                 @endif
 
                 </div>
+
+                <div class="row text-right">
+                    <div><button class="refresh btn btn-info">Refresh</button></div>
+                </div>
+                <span class="loader hidden">
+                    <img src="{{asset('public/images/rocket.svg')}}" alt="">
+                </span>
             </div>
         </div>
     </div>
@@ -244,6 +254,10 @@
 
     // A $( document ).ready() block.
 $( document ).ready(function() {
+    $('.refresh').click(function() {
+        location.reload(true)
+    });
+
     if ($('.print-error-msg').length > 0) {
         setTimeout(function() { 
             $('.print-error-msg').hide();

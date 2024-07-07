@@ -13,9 +13,8 @@ use App\Models\SaleCare;
 use App\Helpers\Helper;
 use PHPUnit\TextUI\Help;
 use Illuminate\Support\Facades\Route;
-use App\Models\SrcPage;
 
-class SaleController extends Controller
+class SrcPageController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,43 +23,15 @@ class SaleController extends Controller
      */
     public function index(Request $r)
     {
-       
-        if (count($r->all())) {
-            return $this->filterSalesByDate($r);
-        }
-
-        $helper     = new Helper();
-        $listCall   = $helper->getListCall()->get();
-        $sales      = Helper::getListSale()->get();
-       
-        $saleCare   = $this->getListSalesByPermisson(Auth::user());
-        $count      = $saleCare->count();
-        $saleCare   = $saleCare->paginate(50);
-        // $saleCare   = SaleCare::orderBy('id', 'desc')->where('assign_user', $id)->paginate(50);
-
-        // dd($saleCare);
-        return view('pages.sale.index')->with('count', $count)->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
+        return view('pages.src.index');
     }
 
     public function add()
     { 
-        
-        $helper = new Helper();
-        $listSale = $helper->getListSale()->get();
-
-        $src = new SrcPage();
-        $listSrc = $src->get();
-        // dd($listSrc);
-        return view('pages.sale.add')->with('listSale', $listSale)->with('listSrc', $listSrc);
+        $list = Helper::getListDigital();
+        return view('pages.src.add')->with('list', $list);
     }
 
-    /**
-     * old_customer"
-     *  0: khách mới - data nóng
-     *  1: khách cũ - cskh
-     *  2: sale tự tạo data - hotline
-     * 
-     */
     public function save(Request $req) {
         // dd($req->all());
         $validator      = Validator::make($req->all(), [
@@ -84,7 +55,8 @@ class SaleController extends Controller
                 $saleCare = new SaleCare();
                 $text = 'Tạo tác nghiệp thành công.';
             }
-
+            // $req->old_customer = 9;
+            // dd($req->all());
             $saleCare->id_order             = $req->id_order;
             $saleCare->sex                  = ($req->sex) ?: 0;
             $saleCare->full_name            = $req->name;
@@ -95,27 +67,14 @@ class SaleController extends Controller
             $saleCare->reason_not_buy       = $req->reason_not_buy;
             $saleCare->note_info_customer   = $req->note_info_customer;
             $saleCare->assign_user          = $req->assgin;
-            
+            $saleCare->page_name            = $req->page_name;
+            $saleCare->page_id              = $req->page_id;
             $saleCare->messages             = $req->messages;
             $saleCare->old_customer         = ($req->old_customer) ?: 0;
-           
+            $saleCare->page_link            = $req->page_link;
             $saleCare->m_id                 = $req->m_id;
             $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
-            $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
             
-            $srcId = $req->src;
-            if ($srcId) {
-                $src = Helper::getSrcById($srcId);
-                // dd($src);
-                $saleCare->page_name            = $src->name;
-                $saleCare->page_id              = $src->id_page;
-                $saleCare->page_link            = $src->link;
-            } else {
-                $saleCare->page_name            = $req->page_name;
-                $saleCare->page_id              = $req->page_id;
-                $saleCare->page_link            = $req->page_link;
-            }
-
             $saleCare->save();
 
             if (!isset($req->id)) {
@@ -149,17 +108,13 @@ class SaleController extends Controller
                        
                        
                     $name =  $saleCare->user->real_name ?: $saleCare->user->name;
-                    if ($saleCare->old_customer == 1) {
+                    if ($saleCare->old_customer) {
                         $notiText .= "Đã nhận được hàng."  . "\nĐơn mua: " . $tProduct; 
                         $notiText .= "\nCSKH nhận data: " . $name;    
-                    } else if ($saleCare->old_customer == 0) {
+                    } else {
                         $notiText .= "\nNguồn data: " . $req->text;
                         $notiText .= "\nSale nhận data: " . $name;
-                    } else if ($saleCare->old_customer == 2) {
-                        $notiText .= "\nNguồn data: Hotline";
-                        $notiText .= "\nSale nhận data: " . $name;
                     }
-                    
                     // dd($notiText);
                     // $name =  $saleCare->user->real_name ?: $saleCare->user->name;
                     
@@ -374,7 +329,7 @@ class SaleController extends Controller
     {
         if ($req->search) {
             $helper     = new Helper();
-            $sales      = Helper::getListSale()->get();
+            $sales      = User::where('status', 1)->where('is_sale', 1)->get();
             $listCall   = $helper->getListCall()->get();
             $saleCare = SaleCare::where('full_name', 'like', '%' . $req->search . '%')
                 ->orWhere('phone', 'like', '%' . $req->search . '%')
@@ -479,18 +434,5 @@ class SaleController extends Controller
         }
 
         return response()->json(['error'=>'Đã có lỗi xảy ra trong quá trình cập nhật']);
-    }
-
-    public function getIdOrderNewTNSale(Request $r)
-    {
-        $saleCare = SaleCare::find($r->TNSaleId);
-        // dd( $r->all());
-        if ($saleCare && $saleCare->id_order_new) {
-            $link = route('view-order', $saleCare->id_order_new);
-            return response()->json([
-                'id_order_new' => $saleCare->id_order_new,
-                'link' => $link
-            ]);
-        }
     }
 }
