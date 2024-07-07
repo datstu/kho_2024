@@ -362,7 +362,7 @@
                             @if ($item->id_order_new)
                                 <a data-target="#createOrder" data-toggle="modal" title="Sửa đơn" data-tnsale-id="{{$item->id}}" data-id_order_new="{{$item->id_order_new}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
                             @else
-                                <a data-target="#createOrder" data-toggle="modal" title="Chốt đơn" data-tnsale-id="{{$item->id}}"  class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                                <a data-target="#createOrder" data-toggle="modal" title="Chốt đơn" data-tnsale-id="{{$item->id}}" data-address="{{$item->address}}" data-name="{{$item->full_name}}" data-phone="{{$item->phone}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
                             @endif
 
                             @if ($item->old_customer == 1)
@@ -508,8 +508,13 @@
             var link = "{{URL::to('/update-order/')}}";
             $("#createOrder iframe").attr("src", link + '/' + idOrderNew);
         } else {
+            var phone = $(this).data('phone');
+            var name = $(this).data('name');
+            var address = $(this).data('address');
+
+            var param = 'saleCareId=' + TNSaleId + '&phone=' + phone + '&name=' + name + '&address=' + address ;
             var link = "{{URL::to('/them-don-hang/')}}";
-            $("#createOrder iframe").attr("src", link + '?saleCareId=' + TNSaleId);
+            $("#createOrder iframe").attr("src", link + '?' + param);
 
             //cập nhật TN Sale
             (function( $ ){

@@ -867,5 +867,29 @@ document.querySelectorAll('.price_class').forEach(inp => new Cleave(inp, {
     }));
 
 </script>
+<script>
+$.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results) {
+        return results[1];
+    }
+    return 0;
+}
 
+let phone = $.urlParam('phone') 
+if (phone) {
+    $('input[name="phone"]').val(phone)
+}
+
+let name = $.urlParam('name') 
+if (name) {
+    name = decodeURIComponent((name + '').replace(/\+/g, '%20'));
+    $('input[name="name"]').val(name)
+}
+let address = $.urlParam('address') 
+if (address) {
+    address = decodeURIComponent((address + '').replace(/\+/g, '%20'));
+    $('input[name="address"]').val(address)
+}
+</script>
 @stop
