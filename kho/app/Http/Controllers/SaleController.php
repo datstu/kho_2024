@@ -65,12 +65,12 @@ class SaleController extends Controller
         // dd($req->all());
         $validator      = Validator::make($req->all(), [
             'name'      => 'required',
-            'address'   => 'required',
+            // 'address'   => 'required',
             'phone'     => 'required',
             // 'id_order'  => 'numeric',
         ],[
             'name.required' => 'Nhập tên khách hàng',
-            'address.required' => 'Nhập địa chỉ',
+            // 'address.required' => 'Nhập địa chỉ',
             'phone.required' => 'Nhập số điện thoại',
             // 'id_order.numeric' => 'Chỉ được nhập số',
         ]);

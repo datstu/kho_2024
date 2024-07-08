@@ -1,6 +1,12 @@
 @extends('layouts.default')
 @section('content')
 
+
+<style>
+    .row {
+        margin-right: unset;
+    }
+</style>
 <?php 
 $listStatus = Helper::getListStatus();
 ?>

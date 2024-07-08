@@ -216,7 +216,7 @@ class Kernel extends ConsoleKernel
                     'page_name' => $namePage,
                     'sex'       => 0,
                     'old_customer' => 0,
-                    'address'   => '...',
+                    'address'   => '',
                     'messages'  => $messages,
                     'name'      => $name,
                     'phone'     => $phone,
