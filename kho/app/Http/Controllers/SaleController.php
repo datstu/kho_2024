@@ -49,7 +49,7 @@ class SaleController extends Controller
         $listSale = $helper->getListSale()->get();
 
         $src = new SrcPage();
-        $listSrc = $src->get();
+        $listSrc = $src::orderBy('id', 'desc')->get();
         // dd($listSrc);
         return view('pages.sale.add')->with('listSale', $listSale)->with('listSrc', $listSrc);
     }
@@ -126,7 +126,14 @@ class SaleController extends Controller
                     $tokenGroupChat = $telegram->token;
                     $chatId = $req->chat_id;
 
-                    if ($chatId &&  $chatId == 'id_VUI') {
+                    $saleTricho = $saleCare->user->name;
+                    if ($saleTricho == 'sale.hiep') {
+                        if ($chatId &&  $chatId == 'id_VUI_tricho') {
+                            $chatId = env('id_VUI_tricho');
+                        } else {
+                            $chatId = env('id_CSKH_tricho');
+                        }
+                    } else if ($chatId &&  $chatId == 'id_VUI') {
                         $chatId = $telegram->id_VUI;
                     } else {
                         $chatId = $telegram->id_CSKH;
@@ -153,7 +160,16 @@ class SaleController extends Controller
                         $notiText .= "Đã nhận được hàng."  . "\nĐơn mua: " . $tProduct; 
                         $notiText .= "\nCSKH nhận data: " . $name;    
                     } else if ($saleCare->old_customer == 0) {
-                        $notiText .= "\nNguồn data: " . $req->text;
+                        $chatId = $telegram->id_VUI;
+                        $textSrcPage = $req->text;
+
+                        $srcPageId = $req->src;
+                        $srcPage = SrcPage::find($srcPageId);
+                        if(!$textSrcPage && $srcPage) {
+                            $textSrcPage = $srcPage->name;
+                        }
+
+                        $notiText .= "\nNguồn data: " . $textSrcPage;
                         $notiText .= "\nSale nhận data: " . $name;
                     } else if ($saleCare->old_customer == 2) {
                         $notiText .= "\nNguồn data: Hotline";

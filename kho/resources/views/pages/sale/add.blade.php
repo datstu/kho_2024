@@ -150,7 +150,7 @@ $ladiPages = [
                     <div class="body flex-grow-1">
                         <div class="tab-content rounded-bottom">
                             <form method="post" action="{{route('sale-care-save')}}">
-                                <input type="hidden" name="old_customer" value="2">
+                                <input type="hidden" name="old_customer" value="0">
                                 {{ csrf_field() }}
                                 <div class="row" id="content-add">
                                     <div class="col-sm-12 col-lg-3">
@@ -167,8 +167,8 @@ $ladiPages = [
                                     </div>
                                     
                                     <div class="col-sm-6 col-lg-4">
-                                        <label class="form-label" for="addressFor">Địa chỉ/đường<span class="required-input">(*)</span></label>
-                                        <input required placeholder="180 cao lỗ" class="form-control" name="address"
+                                        <label class="form-label" for="addressFor">Địa chỉ/đường</label>
+                                        <input placeholder="180 cao lỗ" class="form-control" name="address"
                                             id="addressFor" type="text">
                                         <p class="error_msg" id="address"></p>
                                     </div>
@@ -308,7 +308,7 @@ $( document ).ready(function() {
         $phone = $("input[name='phone']").val();
         $name = $("input[name='name']").val();
         $address = $("input[name='address']").val();
-        if ( $phone != '' && $name != '' && $address != '') {
+        if ( $phone != '' && $name != '') {
             $('.loader').show();
             $('.body form').css("opacity", '0.5');
         }
