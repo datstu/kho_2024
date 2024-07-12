@@ -25,6 +25,7 @@
 
     @endif
 
+    @if ($checkAll)
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
             <svg class="nav-icon">
                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-grid')}}"></use>
@@ -38,7 +39,8 @@
                     mục</a></li>
         </ul>
     </li>
-
+    @endif
+    
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-voice-over-record')}}"></use>
