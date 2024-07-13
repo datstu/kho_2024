@@ -150,7 +150,7 @@ $ladiPages = [
                     <div class="body flex-grow-1">
                         <div class="tab-content rounded-bottom">
                             <form method="post" action="{{route('sale-care-save')}}">
-                                <input type="hidden" name="old_customer" value="0">
+                                <input type="hidden" name="old_customer" value="2">
                                 {{ csrf_field() }}
                                 <div class="row" id="content-add">
                                     <div class="col-sm-12 col-lg-3">

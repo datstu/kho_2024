@@ -102,6 +102,7 @@ class SaleController extends Controller
             $saleCare->m_id                 = $req->m_id;
             $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
             $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
+            $saleCare->group_id             = $req->group_id;
             
             $srcId = $req->src;
             if ($srcId) {
@@ -110,6 +111,12 @@ class SaleController extends Controller
                 $saleCare->page_name            = $src->name;
                 $saleCare->page_id              = $src->id_page;
                 $saleCare->page_link            = $src->link;
+                // dd('hi');
+                if ($src->id_page == 'tricho') {
+                    $saleCare->group_id            = $src->id_page;
+                    $saleCare->save();
+                }
+               
             } else {
                 $saleCare->page_name            = $req->page_name;
                 $saleCare->page_id              = $req->page_id;
@@ -127,13 +134,15 @@ class SaleController extends Controller
                     $chatId = $req->chat_id;
 
                     $saleTricho = $saleCare->user->name;
-                    if ($saleTricho == 'sale.hiep') {
-                        if ($chatId &&  $chatId == 'id_VUI_tricho') {
+                    // dd($saleTricho);
+                    if ((($saleTricho == 'sale.hiep' || $saleTricho == 'sale') && $req->group_id == 'tricho')
+                        ||  $saleCare->group_id == 'tricho') {
+                        if (($chatId &&  $chatId == 'id_VUI_tricho') || $saleCare->page_id == 'tricho') {
                             $chatId = env('id_VUI_tricho');
                         } else {
                             $chatId = env('id_CSKH_tricho');
                         }
-                    } else if ($chatId &&  $chatId == 'id_VUI') {
+                    } else if (($chatId &&  $chatId == 'id_VUI') || $saleCare->old_customer == 0) {
                         $chatId = $telegram->id_VUI;
                     } else {
                         $chatId = $telegram->id_CSKH;
@@ -142,6 +151,7 @@ class SaleController extends Controller
                     if ($req->phone == '0973409613') {
                         $chatId = '-4286962864';
                     }
+
                     // echo 'chat id: ' . $chatId;
                     
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
@@ -159,8 +169,8 @@ class SaleController extends Controller
                     if ($saleCare->old_customer == 1) {
                         $notiText .= "Đã nhận được hàng."  . "\nĐơn mua: " . $tProduct; 
                         $notiText .= "\nCSKH nhận data: " . $name;    
-                    } else if ($saleCare->old_customer == 0) {
-                        $chatId = $telegram->id_VUI;
+                    } else if ($saleCare->old_customer == 0 || $saleCare->old_customer == 2) {
+
                         $textSrcPage = $req->text;
 
                         $srcPageId = $req->src;
@@ -171,10 +181,11 @@ class SaleController extends Controller
 
                         $notiText .= "\nNguồn data: " . $textSrcPage;
                         $notiText .= "\nSale nhận data: " . $name;
-                    } else if ($saleCare->old_customer == 2) {
-                        $notiText .= "\nNguồn data: Hotline";
-                        $notiText .= "\nSale nhận data: " . $name;
                     }
+                    //  else if ($saleCare->old_customer == 2) {
+                    //     $notiText .= "\nNguồn data: " . $textSrcPage;
+                    //     $notiText .= "\nSale nhận data: " . $name;
+                    // }
                     
                     // dd($notiText);
                     // $name =  $saleCare->user->real_name ?: $saleCare->user->name;
