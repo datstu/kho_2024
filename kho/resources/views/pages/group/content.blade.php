@@ -33,7 +33,7 @@
       <div class="col-8 ">
         <form class ="row tool-bar" action="{{route('search-order')}}" method="get">
           <div class="col-3">
-            <input class="form-control" value="{{ isset($search) ? $search : null}}" name="search" placeholder="Tìm đơn hàng..." type="text">
+            <input class="form-control" value="{{ isset($search) ? $search : null}}" name="search" placeholder="Tìm..." type="text">
           </div>
           <div class="col-3 " style="padding-left:0;">
             <button type="submit" class="btn btn-primary"><svg class="icon me-2">
@@ -53,6 +53,8 @@
                 
                 <th scope="col">Tên nhóm</th>
                 <th class="col" scope="col" >Thành viên</th>
+                <th class="col" scope="col" >Nguồn data</th>
+                <th class="col" scope="col" >Sản phẩm</th>
                 <th scope="col">Trạng thái</th>
                 <th scope="col">Ngày tạo</th>
                 <th scope="col"></th>
@@ -66,14 +68,34 @@
                 <td>{{$gr->id}}</td>
                 <td>{{$gr->name}}</td>
                 <td>
-                  <?php $members = Helper::getListMemberByIdGroup($gr->id);?>
-                  @if ($members)
-                  @foreach ($members as $mem)
-                    {{$mem->real_name}} <br>
+
+                @if ($gr->sales)
+                  @foreach ($gr->sales as $mem)
+                    {{$mem->user->real_name}} <br>
                   @endforeach
-                  @endif
+                @endif
+
                 </td>
-                <td>{{$gr->status}}</td>
+                <td>
+
+                  @if ($gr->srcs)
+                    @foreach ($gr->srcs as $src)
+                      {{$src->name}} <br>
+                    @endforeach
+                  @endif
+  
+                </td>
+                <td>
+
+                  @if ($gr->products)
+                    @foreach ($gr->products as $product)
+                    {{-- {{dd($product->product->name)}} --}}
+                      {{$product->product->name}} <br>
+                    @endforeach
+                  @endif
+  
+                </td>
+                <td>{{($gr->status ? 'Bật' : 'Tắt')}}</td>
                 <td>{{$gr->created_at}}</td>
                 <td scope="col-1">
                   <a class="btn btn-warning" href="{{route('update-group',['id'=>$gr->id])}}" role="button">
@@ -84,11 +106,11 @@
                   </a>
                 </td>
                 <td scope="col-1">
-                  <a class="btn btn-danger active" href="{{route('delete-group',['id'=>$gr->id])}}" role="button">
+                  {{-- <a class="btn btn-danger active" href="{{route('delete-group',['id'=>$gr->id])}}" role="button">
                     <svg class="icon me-2">
                       <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-backspace')}}"></use>
                     </svg>Xoá
-                  </a>
+                  </a> --}}
                 </td>
               </tr>
               @endforeach

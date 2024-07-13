@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Group;
-class SrcPage extends Model
+use App\Models\Product;
+
+class DetailProductGroup extends Model
 {
     use HasFactory;
     protected $primaryKey = 'id';
@@ -16,10 +17,10 @@ class SrcPage extends Model
      *
      * @var string
      */
-    protected $table = 'src_page';
+    protected $table = 'detail_product_group';
 
-    public function group(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(Group::class, 'id_group', 'id');
+        return $this->belongsTo(Product::class, 'id_product', 'id');
     }
 }

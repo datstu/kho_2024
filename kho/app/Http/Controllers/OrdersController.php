@@ -41,10 +41,10 @@ class OrdersController extends Controller
         return view('pages.orders.index')->with('sales', $sales)->with('totalOrder', $totalOrder)->with('sumProduct', $sumProduct)->with('list', $list)->with('category', $category);
     }
 
-    public function getListOrderByPermisson($user, $dataFilter = null) 
+    public function  getListOrderByPermisson($user, $dataFilter = null) 
     {
-        $roles      = $user->role;
-        $list       = Orders::orderBy('id', 'desc');
+        $roles  = $user->role;
+        $list   = Orders::orderBy('id', 'desc');
 
         if ($dataFilter) {
             if (isset($dataFilter['daterange'])) {
@@ -239,8 +239,21 @@ class OrdersController extends Controller
             $list = $list->where('assign_user', $user->id);
             // dd($list->get());
         }
+
         
-        // dd($list->count());
+        /**ẩn thông tin tricho đối với leadsale lúa */
+        if ( Helper::isLeadSale(Auth::user()->role) && !isFullAccess(Auth::user()->role)) {
+            $newOrderId = [];
+            // dd($list->get());
+            foreach ($list->get() as $k => $order) {
+                if (empty($order->salecare->group_id) ||  $order->salecare->group_id != 'tricho') {
+                    $newOrderId[] = $order->id;
+                }
+            } 
+
+            $list = Orders::whereIn('id', $newOrderId)->orderBy('id', 'desc');
+        }
+
         return $list;
     }
 
@@ -415,19 +428,28 @@ class OrdersController extends Controller
 
             $order->save();
 
+            $telegram = Helper::getConfigTelegram();
+            $chatId         = $telegram->id_NVTR;
+
             /**cập nhật mã đơn hàng được tạo vào record sale_care */
             $saleCare = SaleCare::find($order->sale_care);
             if ($saleCare) {
                 $saleCare->id_order_new = $order->id;
                 $saleCare->save();
+                if ($saleCare->group_id == 'tricho') {
+                    // $chatId = '-4167465219';
+                    $chatId = env('id_CreateOrder_tricho');
+                }
             }
 
             if (!isset($request->id)) {
                 //gửi thông báo qua telegram
-                $telegram = Helper::getConfigTelegram();
+             
                 if ($telegram && $telegram->status == 1) {
                     $tokenGroupChat = $telegram->token;
-                    $chatId         = $telegram->id_NVTR;
+                   
+
+                   
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
                     $client         = new \GuzzleHttp\Client();
 

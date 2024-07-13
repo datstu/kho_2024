@@ -1076,7 +1076,7 @@
                                     </table></span>
                             </td>
                             <td class="no-wrap area3 text-right hidden-xs">
-                                <table class="tb-in-sp">
+                                <table class="tb-in-sp hidden">
                                     <tbody><tr>
                                         <td>
                                             <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangTongThanhTien_0" title="Thành tiền"></span></td>

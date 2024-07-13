@@ -133,6 +133,8 @@ Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filt
 Route::get('/filter-total-sales',  [HomeController::class, 'ajaxFilterDashboar'])->name('filter-total-sales');
 Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboardDigital'])->name('filter-total-digital');
 
-Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
+// Route::get('/test',  [TestController::class, 'crawlerPancakeTricho'])->name('test');
+Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');
+// Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
 
 Route::get('/webhook', [FbWebHookController::class, 'webhook'])->name('webhook');

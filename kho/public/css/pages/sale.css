@@ -57,7 +57,7 @@ a.tao-don-fixed {
     z-index: 999;
 }
 .table-bordered th {
-    border: 1px solid #256cc2 !important;
+    border: 1px solid #256cc2;
     padding: 5px !important;
     color: white;
     background-color: #3782dc !important;

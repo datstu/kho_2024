@@ -9,19 +9,19 @@
   }
 </style>
 
-<?php $id = $name = $member = '';
+<?php $id = $name = $member = $membersStr = '';
     $status = 1;
-
+    $members = $srcs = $products = [];
     if (isset($group)) {
         $id = $group->id;
         $name = $group->name;
-        $membersStr = $group->member;
         $status = $group->status;
+        $members = $group->sales->pluck('id_user')->toArray();
+        // dd($members);
+        $srcs = $group->srcs->pluck('id')->toArray();
+        $products = $group->products->pluck('id_product')->toArray();
     }
 
-    if ($membersStr) {
-        $members = json_decode($membersStr);
-    }
 ?>
 <div class="body flex-grow-1 px-3">
     <div class="container-lg">
@@ -33,7 +33,7 @@
             <div class="col-12">
                 <div class="card mb-4">
                     
-            <div class="card-header"><strong>Thêm nhóm mới </span></div>
+            <div class="card-header"><strong>Lưu thông tin nhóm </span></div>
             <div class="card-body">
                 <div class="body flex-grow-1">
                     <div class="tab-content rounded-bottom">
@@ -47,13 +47,9 @@
                                         <input value="{{$name}}" class="form-control" name="name" id="nameIP" type="text" required>
                                         <p class="error_msg" id="name"></p>
                                     </div>
-                                    {{-- <div class="mb-3 col-4">
-                                        <label class="form-label" for="skuIP">sku</label>
-                                        <input class="form-control" name="name" id="skuIP" type="text">
-                                        <p class="error_msg" id="name"></p>
-                                    </div> --}}
-
-                                    <div class="col-4 form-group">
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 form-group">
                                         <label for="like-color">Chọn thành viên</label>
                                         <select required name="member[]" id="list-sale" class="custom-select" multiple>
                                             
@@ -62,6 +58,25 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div class="col-12 form-group">
+                                        <label for="like-color">Chọn nguồn data</label>
+                                        <select required name="src[]" id="list-src" class="custom-select" multiple>
+                                            
+                                            @foreach($listSrc as $src) 
+                                                <option <?= (in_array($src->id, $srcs)) ? 'selected' : ''; ?> value="{{$src->id}}">{{$src->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-12 form-group">
+                                        <label for="like-color">Chọn sản phẩm</label>
+                                        <select required name="product[]" id="list-product" class="custom-select" multiple>
+                                             
+                                            @foreach($listProduct as $product) 
+                                                <option <?= (in_array($product->id, $products)) ? 'selected' : ''; ?> value="{{$product->id}}">{{$product->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
                                     <div class="mb-3 col-2">
                                         <label class="form-label" for="qtyIP">Trạng Thái</label>
                                         <div class="form-check">
@@ -102,6 +117,9 @@
 <script>
     $(function() {
         $('#list-sale').select2();
+        $('#list-product').select2();
+        $('#list-src').select2();
+        
     });
     if ($('.flex.items-start').length) {
         console.log('tadada')

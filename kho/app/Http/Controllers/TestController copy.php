@@ -342,49 +342,31 @@ class TestController extends Controller
         
         $order->save();
         
-        /** ko gửi thông báo nếu đơn chỉ có sp paulo */
-        $notHasPaulo = Helper::hasAllPaulo($order->id_product);
+        //chỉ áp dụng cho đơn phân bón
+        $isFertilizer = Helper::checkFertilizer($order->id_product);
 
         //check đơn này đã có data chưa
         $issetOrder = Helper::checkOrderSaleCare($order->id);
-
-        // echo "$order->status $notHasPaulo";
-       
-        // status = 'hoàn tất', tạo data tác nghiệp sale
-        if ($order->status == 3 && $notHasPaulo) {
-
-          $orderTricho = $order->saleCare;
-          $groupId = '';
-          if (!empty($orderTricho->group_id) && $orderTricho->group_id == 'tricho') {
-            // $assgin_user = Helper::getSaleTricho()->id;
-            $assgin_user = $order->saleCare->assign_user;
-            $groupId = 'tricho';
-            echo 'case 1';
-          } else {
-            $assignCSKH = Helper::getAssignCSKH();
-            echo 'case 2';
-            if ($assignCSKH) {
-              $assgin_user = $assignCSKH->id;
-               echo 'case 2.1';
-            } else {
-              $assgin_user = $order->assign_user;
-              echo 'case 2.2';
-            }
-          }
-          
-          // echo 'sisis';
-         
         
+        // status = 'hoàn tất', tạo data tác nghiệp sale
+        if ($order->status == 3 && $isFertilizer) {
+
+          $assignCSKH = Helper::getAssignCSKH();
+
+          if ($assignCSKH) {
+            $assgin_user = $assignCSKH->id;
+          } else {
+            $assgin_user = $order->assign_user;
+          }
 
           $sale = new SaleController();
           $data = [
-            'id_order' => $order->id,
-            'sex' => $order->sex,
-            'name' => $order->name,
-            'phone' => $order->phone,
-            'address' => $order->address,
-            'assgin' => $assgin_user,
-            'group_id' => $groupId,
+              'id_order' => $order->id,
+              'sex' => $order->sex,
+              'name' => $order->name,
+              'phone' => $order->phone,
+              'address' => $order->address,
+              'assgin' => $assgin_user,
           ];
 
           if ($issetOrder || $order->id) {
@@ -449,7 +431,7 @@ class TestController extends Controller
                     if ($name && $checkSaleCareOld) {  
                       if ($assgin_user == 0 && $srcModel && $group->sales) {
                         // dd($group);
-                        $assignSale = Helper::getAssignSale();
+                        $assignSale = Helper::getAssignSaleByGroup($group);
                         $assgin_user = $assignSale->id;
                       }
 
@@ -483,103 +465,6 @@ class TestController extends Controller
           }
         }
       }
-    }
-  }
-
-  public function crawlerPancakeTricho()
-  {
-    $pages = [
-      'token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOiIwODY4NGY2ZS1hZjJhLTQwNDgtYTg1Ny0zNzMwMjAxOTViYTQiLCJzZXNzaW9uX2lkIjoiWGFMd3diSk1JeXlaMVg3N09nN2F3K2pOdTVUTXd5bjFzQ1pBZ1JPRmZSbyIsIm5hbWUiOiJEYXQgRGluaCIsImxvZ2luX3Nlc3Npb24iOm51bGwsImluZm8iOnsib3MiOm51bGwsImRldmljZV90eXBlIjozLCJjbGllbnRfaXAiOiI0Mi4xMTUuMTY0LjE0NyIsImJyb3dzZXIiOjF9LCJpYXQiOjE3MTk3MzI1OTgsImZiX25hbWUiOiJEYXQgRGluaCIsImZiX2lkIjoiMTIxMjMxMTg1NDk1NDE4IiwiZXhwIjoxNzI3NTA4NTk4LCJhcHBsaWNhdGlvbiI6MX0.yeksbxM457DJpnHHaIBYvcIbXXf_nyxxW-Tw_Ha_lCY',
-      'pages' => [
-        [
-          "name" => "Trichoderma Basilus - 100 Tỷ Bào Tử - 0986987791",
-          "link" => "https://www.facebook.com/profile.php?id=61561895244196",
-          "id"   => "352893387908060",
-          "group" => 'tricho'
-        ],
-        [
-          "name" => "Tricho Basilus - 1 Lít Pha 1000 Lít Nước - 0986987791",
-          "link" => "https://www.facebook.com/profile.php?id=61561817156259",
-          "id"   => "378087158713964",
-          "group" => 'tricho'
-        ],
-        [
-          "name" => "Trichoderma Basilus - 1 Xô Pha 10.000 Lít Nước",
-          "link" => "https://www.facebook.com/profile.php?id=61562087439362",
-          "id"   => "381180601741468",
-          "group" => 'tricho'
-        ]
-      ]
-    ];
-
-    // dd('hi');
-    $token  = $pages['token'];
-
-      foreach ($pages['pages'] as $key => $val) {
-        $pIdPan   = $val['id'];
-        $namePage = $val['name'];
-        $linkPage = $val['link'];
-        $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
-        $today    = strtotime(date("Y/m/d H:i"));
-        $before = strtotime ( '-5 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
-        $before = date ( 'Y/m/d H:i' , $before );
-        $before = strtotime($before);
-
-        $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
-        $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
-    
-        if ($response->status() == 200) {
-          $content  = json_decode($response->body());
-          if ($content->success) {
-            $data     = $content->conversations;
-            // dd($data);
-            foreach ($data as $item) {
-              $recentPhoneNumbers = $item->recent_phone_numbers[0];
-              $mId      = $recentPhoneNumbers->m_id;
-              $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
-              $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
-              $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-
-              $assgin_user = 0;
-              // $assgin_user = Helper::getSaleTricho()->id;
-              $is_duplicate = false;
-              $phone = Helper::getCustomPhoneNum($phone);
-              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePageTricho($phone, $mId, $is_duplicate, $assgin_user);
-
-              if ($name && $checkSaleCareOld) {  
-                if ($assgin_user == 0) {
-                  $assignSale = Helper::getSaleTricho();
-                  $assgin_user = $assignSale->id;
-                }
-
-                $is_duplicate = ($is_duplicate) ? 1 : 0;
-                $sale = new SaleController();
-                $data = [
-                  'page_link' => $linkPage,
-                  'page_name' => $namePage,
-                  'sex'       => 0,
-                  'old_customer' => 0,
-                  'address'   => '',
-                  'messages'  => $messages,
-                  'name'      => $name,
-                  'phone'     => $phone,
-                  'page_id'   => $pIdPan,
-                  'text'      => 'Page ' . $namePage,
-                  'chat_id'   => 'id_VUI_tricho',
-                  'm_id'      => $mId,
-                  'assgin'    => $assgin_user,
-                  'is_duplicate' => $is_duplicate,
-                  'group_id' => 'tricho'
-                ];
-
-                $request = new \Illuminate\Http\Request();
-                $request->replace($data);
-                $sale->save($request);
-              }
-            }
-        }
-      }
-
     }
   }
 }

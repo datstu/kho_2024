@@ -9,6 +9,7 @@ use App\Models\ShippingOrder;
 use App\Models\User;
 use App\Models\Call;
 use App\Http\Controllers\ProductController;
+use App\Models\DetailUserGroup;
 use App\Models\Orders;
 use App\Models\SaleCare;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,8 @@ use App\Models\Pancake;
 use App\Models\LadiPage;
 use PHPUnit\TextUI\Help;
 use App\Models\SrcPage;
+use App\Models\Group;
+
 
 setlocale(LC_TIME, 'vi_VN.utf8');
 
@@ -222,31 +225,7 @@ class Helper
         }
         return false;
     }
-    
-    public static function checkOrderSaleCarebyPhonePageTricho($phone, $mId, &$is_duplicate, &$assign) 
-    {
-        if (!$mId || !$phone || $phone == '0986987791' || $phone == '986987791') {
-            return false;
-        } 
-        
-        $saleCares = SaleCare::where('old_customer', 0)->where('phone', $phone)->orderBy('id', 'asc')->get();
-            
-        if ($saleCares->count() == 0) {
-            return true;
-        }
-    
-        foreach ($saleCares as $item) {
-            if ($item->m_id == $mId) {
-                return false;
-            }
-        }
-        // dd($saleCares[0]->assign_user);
-        /** trùng sđt: set lại assign sale trước đó và set trùng data */
-        $assign = $saleCares[0]->assign_user;
-        $is_duplicate = true;
-        
-        return true;
-    }
+
     
     public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, &$assign, &$is_duplicate) 
     {
@@ -360,6 +339,68 @@ class Helper
         return $sale;
     }
     
+        /**
+     * next_assign chỉ định sale
+     *  = 0 sẵn sàn chỉ định
+     *  = 1 chỉ định -> người được chọn
+     *  = 2 người chỉ định vừa gọi
+     */
+    public static function getAssignSaleByGroup($group)
+    {
+        $saleOfGroup = $group->sales;
+        // // $listSale = $group->sales->pluck('id_user')->toArray();
+        // dd($saleOfGroup[0]->user);
+        /**lấy user chỉ định bằng 1 */
+        $mainSale = $nextSale = null;
+        //list sale
+        foreach ($saleOfGroup as $item) {
+            if ($item->user && $item->user->is_sale && $item->user->status 
+                && $item->user->is_receive_data && $item->user->next_assign == 1) {
+                $mainSale = $item->user;
+                break;
+            }
+        }
+
+        /**ko có user nào đc chỉ định thì lấy user đầu tiên, điều kiện tất cả user đều = 0 */
+        if (!$mainSale) {
+            $mainSale = $saleOfGroup[0]->user;
+        }
+        // dd($mainSale);
+        /**set user chỉ định đã được lấy, set = 2 = đã dùng trong lần gọi này*/
+        $mainSale->next_assign = 2;
+        $mainSale->save();
+
+        /** chỉ định người tiếp theo: lấy toàn bộ những người hợp lệ trừ user vừa set = 2 ở trên (hợp lệ = 0)
+         * và lấy user đầu tiên trong danh sách
+         * trường hợp ko tìm đc ai (tất cả đều bằng 2) -> reset all về bằng 0 - sẵn sàng assign lần tiếp
+         */
+        foreach ($saleOfGroup as $item) {
+            if ($item->user && $item->user->is_sale && $item->user->status 
+                && $item->user->is_receive_data && ($item->user->next_assign == 0) && $item->user->id != $mainSale->id) {
+                    // $item->user->next_assign = 1;
+                $nextSale = $item->user;
+                    // $item->user->save();
+                break;
+            }
+        }
+
+        if ($nextSale) {
+            $nextSale->next_assign = 1;
+            $nextSale->save();
+        } else {
+            
+            foreach ($saleOfGroup as $item) {
+                if ($item->user && $item->user->is_sale && $item->user->status 
+                    && $item->user->is_receive_data) {
+                        $item->user->next_assign = 0;
+                        $item->user->save();
+                }
+            }
+        }
+        // die();
+        return $mainSale;
+    }
+
     public static function getConfigLadiPage() 
     {
         return LadiPage::first();
@@ -576,41 +617,25 @@ class Helper
         return  SrcPage::find($id);
     }
 
-    public static function getSaleTricho()
-    {
-        $trichoTeam = config('tricchoTeam.list_sale');
-        $saleCare = SaleCare::where('group_id', 'tricho')->where('old_customer', 0)->orderBy('id', 'desc')->first();
-        // dd($saleCare);
-        if ($saleCare) {
-            // dd($trichoTeam );
-            if ($saleCare->user->name == 'sale.hiep' && $trichoTeam['sale']['status']) {
-                return User::where('name', 'sale')->first();
-            } else {
-                return User::where('name', 'sale.hiep')->first();
-            }
-        } else {
-            return User::where('name', 'sale')->first();
-        }
+    // public static function getListMemberByIdGroup($idGroup)
+    // {
+    //     $result = [];
+    //     $group = Group::find($idGroup);
 
-        return  User::where('name', 'sale.hiep')->first();
-    }
+    //     if ($group) {
+    //         $memberString = $group->member;
+    //         $members = json_decode($memberString);
+           
+    //         foreach ($members as $mem) {
+    //             $sale = Helper::getSaleById($mem);
+    //             if ($sale) {
+    //                 $result[] = $sale;
+    //             }
+    //         }
+    //     }
 
-    /**
-     * return false nếu list sp truyền vào chỉ có paulo
-     */
-    public static function hasAllPaulo($listProduct)
-    {
-        $listProduct = json_decode($listProduct);
-
-        foreach ($listProduct as $product) {
-            $product = Product::find($product->id);
-            if ($product && $product->roles != 2) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    //     return $result;
+    // }
 
     public static function getListProduct()
     {

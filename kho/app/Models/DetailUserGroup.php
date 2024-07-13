@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Group;
-class SrcPage extends Model
+
+class DetailUserGroup extends Model
 {
     use HasFactory;
     protected $primaryKey = 'id';
@@ -16,10 +18,10 @@ class SrcPage extends Model
      *
      * @var string
      */
-    protected $table = 'src_page';
+    protected $table = 'detail_user_group';
 
-    public function group(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Group::class, 'id_group', 'id');
+        return $this->belongsTo(User::class, 'id_user', 'id');
     }
 }

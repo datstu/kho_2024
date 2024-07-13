@@ -61,7 +61,9 @@ input[type=radio]:focus + label:before, input[type=checkbox]:focus  + label:befo
 .m-header-wrap { position: relative; min-height: 50px; z-index: 998; box-shadow: 0 0 5px #999; }
 .m-header { top: 0px; z-index: 1; background-color: white; width: 100%; padding-top: 12px; min-height: 55px; border: 1px solid transparent; }
 .m-header-inso {top: 0px;box-shadow: 0 0 5px #999;z-index: 1;background-color: white;width: 100%;padding-top: 10px;min-height: 50px;margin-bottom: 10px;padding-bottom: 5px;}
-.m-header .text{color: #000;text-shadow: none!important;font-size: 16px;font-weight: bold;height:100%;line-height:30px;display:inline-block;}
+.m-header .text{
+    padding: 0 var(--cui-card-cap-padding-x);
+    color: #000;text-shadow: none!important;font-size: 16px;font-weight: bold;height:100%;line-height:30px;display:inline-block;}
 .m-header .cmd{display:inline-block;float:right;height: 100%;padding-top:10px;}
 
 select{ padding: 6px;width: 100%;border:1px solid #ddd;}
@@ -93,7 +95,11 @@ textarea.form-control { line-height: 16px; }
 .select2-container.txt-dotted { padding: 0px; }
 
 .table-bordered { border:none; border-collapse: collapse; font-size: 12px; color: #000 !important; }
-.table-bordered th { border: 1px solid #256cc2 !important; padding: 5px !important; color: white; background-color: #3782dc !important; vertical-align: middle !important; }
+.table-bordered th { 
+    border: 1px solid #256cc2; padding: 5px !important; 
+    color: white; 
+    background-color: #3782dc !important; 
+    vertical-align: middle !important; }
 .table-bordered th:last-child { border-color: #256cc2 !important; }
 .table-bordered td { padding: 5px 5px !important; border: none; border-right: 1px solid #e0e0e0 !important; border-left: 1px solid #e0e0e0 !important; border: 1px solid #e0e0e0 !important; vertical-align: middle !important; -moz-transition: ease 0.5s all; -o-transition: ease 0.5s all; -webkit-transition: ease 0.5s all; transition: ease 0.5s all; }
 .table-bordered tr:nth-child(odd) td { background-color: #f3f3f3 }
