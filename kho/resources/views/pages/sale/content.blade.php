@@ -920,7 +920,7 @@
                                 @else
                                 <div>
                                     {{($item->user) ? $item->user->real_name : ''}} 
-                                    <span class="small-tip">({{($item->name)}})</span>
+                                    <span class="small-tip">({{($item->user->name)}})</span>
                                 </div>
                                 @endif
                             </td>
