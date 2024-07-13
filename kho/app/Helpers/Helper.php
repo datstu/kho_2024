@@ -583,10 +583,12 @@ class Helper
         // dd($saleCare);
         if ($saleCare) {
             // dd($trichoTeam );
-            if ($saleCare->user->name == 'sale.hiep' && $trichoTeam['sale']['status']) {
+            if ($saleCare->user->name == 'sale.ly' && $trichoTeam['thu']['status']) {
                 return User::where('name', 'sale')->first();
-            } else {
+            } else if ($saleCare->user->name == 'sale' && $trichoTeam['hiep']['status']) {
                 return User::where('name', 'sale.hiep')->first();
+            } else if ($saleCare->user->name == 'sale.hiep' && $trichoTeam['ly']['status']) {
+                return User::where('name', 'sale.ly')->first();
             }
         } else {
             return User::where('name', 'sale')->first();

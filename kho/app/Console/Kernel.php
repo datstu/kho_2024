@@ -283,6 +283,12 @@ class Kernel extends ConsoleKernel
           "link" => "https://www.facebook.com/profile.php?id=61561817156259",
           "id"   => "352893387908060",
           "group" => 'tricho'
+        ],
+        [
+          "name" => "Trichoderma Basilus - 1 Xô Pha 10.000 Lít Nước",
+          "link" => "https://www.facebook.com/profile.php?id=61562087439362",
+          "id"   => "381180601741468",
+          "group" => 'tricho'
         ]
       ]
     ];
