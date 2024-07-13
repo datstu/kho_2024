@@ -1,57 +1,14 @@
-<?php $checkAll = isFullAccess(Auth::user()->role);
-    $listSale = Helper::getListSale(); 
-    $checkAll = isFullAccess(Auth::user()->role);
-    $isLeadSale = Helper::isLeadSale(Auth::user()->role);      
-    $flag = false;
-
-    if (($listSale->count() > 0 &&  $checkAll) || $isLeadSale) {
-        $flag = true;
-    }
-
-    $ladiPages = [
-        [
-            'name' => 'Ladipage ruoc-dong',
-            'id' => 'ruoc-dong',
-            // 'src' => 'https://www.phanbonlua.xyz/ruoc-dong'
-        ],
-        [
-            'name' => 'Ladipage mua4tang2',
-            'id' => 'mua4tang2',
-            // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
-        ],
-        [
-            'name' => 'Ladipage giamgia45',
-            'id' => 'giamgia45',
-            // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
-        ],
-        [
-            'name' => 'Tiễn - Ladipage mua4-tang2 ',
-            'id' => 'mua4-tang2',
-            // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
-        ],
-
-    ];
-
-    $listStatus = Helper::getListStatus();
-
-    $styleStatus = [
-        0 => 'red',
-        1 => 'white',
-        2 => 'orange',
-        3 => 'green',
-    ];
-?>
 <style>
     .m-header .text {
-        padding: 0 var(--cui-card-cap-padding-x);
-        color: #000;
-        text-shadow: none !important;
-        font-size: 16px;
-        font-weight: bold;
-        height: 100%;
-        line-height: 30px;
-        display: inline-block;
-    }
+    padding: 0 var(--cui-card-cap-padding-x);
+    color: #000;
+    text-shadow: none !important;
+    font-size: 16px;
+    font-weight: bold;
+    height: 100%;
+    line-height: 30px;
+    display: inline-block;
+}
     .modal-backdrop.in {
         opacity: -0.5;
     }
@@ -142,59 +99,86 @@
     transition: all 2s ease-out;
     }
 
-</style>                  
+</style>        
+
+<?php $listSale = Helper::getListSale(); 
+    $checkAll = isFullAccess(Auth::user()->role);
+    $isLeadSale = Helper::isLeadSale(Auth::user()->role);      
+    $flag = false;
+
+    if (($listSale->count() > 0 &&  $checkAll) || $isLeadSale) {
+        $flag = true;
+    }
+
+    $ladiPages = [
+        [
+            'name' => 'Ladipage ruoc-dong',
+            'id' => 'ruoc-dong',
+            // 'src' => 'https://www.phanbonlua.xyz/ruoc-dong'
+        ],
+        [
+            'name' => 'Ladipage mua4tang2',
+            'id' => 'mua4tang2',
+            // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+        ],
+        [
+            'name' => 'Ladipage giamgia45',
+            'id' => 'giamgia45',
+            // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
+        ],
+        [
+            'name' => 'Tiễn - Ladipage mua4-tang2 ',
+            'id' => 'mua4-tang2',
+            // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+        ],
+
+    ];
+?>
+                   
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <link href="{{ asset('public/css/pages/sale.css'); }}" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-<script type="text/javascript" src="{{asset('public/js/moment.js')}}"></script>
-<link rel="stylesheet" type="text/css" href="{{asset('public/css/daterangepicker.css')}}" /> 
 
-<style>
-    .btn-sm {
-        padding-top: 7px;
-        padding-bottom: 4px;
-        font-size: 11px;
-        padding-right: 12px;
-        font-weight: bold;
-        height: 30px;
-    }
-    .select2-container {
-        width: 100% !important;
-    }
-    body {
-        font-family: Arial, Helvetica, sans-serif
-    }
-    .maintain-filter-main:hover {
-        opacity: 0.2;
-        border: 1px solid #ff0000;
-    }
-    textarea.txt-mof {
-        position: absolute;
-        top: 0px;
-        /* left: 0px; */
-        /* height: 30px; */
-        overflow-y: hidden;
-        transition: ease 0.2s all;
-        line-height: 20px;
-        font-size: 11px;
-        padding-top: 4px;
-        background: none;
-        border: none;
-    }
 
-    .select-assign, .result-TN {
-        background-color: transparent;
-        border: none;
+<style>.btn-sm {
+    padding-top: 7px;
+    padding-bottom: 4px;
+    font-size: 11px;
+    padding-right: 12px;
+    font-weight: bold;
+    height: 30px;
+}
+.select2-container {
+    width: 100% !important;
+}
+body {
+    font-family: Arial, Helvetica, sans-serif
+}
+.maintain-filter-main:hover {
+    opacity: 0.2;
+    border: 1px solid #ff0000;
+}
+textarea.txt-mof {
+    position: absolute;
+    top: 0px;
+    /* left: 0px; */
+    /* height: 30px; */
+    overflow-y: hidden;
+    transition: ease 0.2s all;
+    line-height: 20px;
+    font-size: 11px;
+    padding-top: 4px;
+    background: none;
+    border: none;
     }
-
 </style>
-
+@csrf
 {{-- update filter --}}
 
-<div class="" title="Sắp rã đông">
-    <div class="maintain-filter-main" id="dnn_ctr1441_Main_SaleTacNghiep_up1">
+<div class="maintain-filter-main" title="Sắp rã đông">
+    <div id="dnn_ctr1441_Main_SaleTacNghiep_up1">
             
         <span id="dnn_ctr1441_Main_SaleTacNghiep_lblDownLoad" class="hidden"></span>
         <input name="dnn$ctr1441$Main$SaleTacNghiep$_UserId" type="text" value="-1" id="dnn_ctr1441_Main_SaleTacNghiep__UserId" class="sale-user-id hidden">
@@ -255,7 +239,7 @@
         </div>
 
     </div>
-    <div class="maintain-filter-main" id="dnn_ctr1441_Main_SaleTacNghiep_UpdatePanel1">
+    <div id="dnn_ctr1441_Main_SaleTacNghiep_UpdatePanel1">
         <div class="box-body " style="padding-bottom: 0px;">
             <div class="row">
                 <div class="col-sm-4 form-group daterange">
@@ -669,10 +653,15 @@
             </div>
         </div>
     </div>
+</div>
+{{-- end update filter --}}
+
     <div class="box-body">
         <div class="loader hidden">
             <img src="{{asset('public/images/new-loader.gif')}}" alt="">
         </div>
+
+
         <!-- Trigger the modal with a button -->
         <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
             <i class="fa fa-edit"></i>
@@ -695,78 +684,85 @@
                 </div>
             </div>
         </div>
-    
+        
         <form action="{{route('sale-index')}}" class="mb-1">
             @csrf
-            <div class="row mb-1 filter-order">
-                <div class=" col-4 form-group daterange mb-1">
-                    <input id="daterange" class="btn" type="text" name="daterange" />
-                </div>
-                
-                <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                @if ($checkAll)
-                
-                <div class="src-filter col-2 form-group mb-1">
-                    <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
-                        <option value="999">--Chọn nguồn--</option>
-                    <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
-                    if ($pagePanCake) {
-                        $pages = json_decode($pagePanCake);
-                        // dd($pages);
-                        foreach ($pages as $page) {
-                    ?>
-                        <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
-                    <?php   }
-                    }   
-
-                    foreach ($ladiPages as $page) {
-                    ?>
-                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
-                    <?php   
-                        }
-                    ?> 
-
-                    </select>
-                </div>
-                <div class="col-2 form-group mb-1">
-                    <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
-                        <option value="999">--chọn Marketing--</option>
-                        <option value="1">a.Nguyên</option>
-                        <option value="2">a.Tiễn</option>
-                    </select>
-                </div>
-                @endif
-
-                @if ($checkAll || $isLeadSale)
-                <div class="col-2 form-group mb-1">
-                    <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
-
-                    @if ($checkAll)<option value="999">--Chọn Sale--</option> @endif
-                    
-                    @if (isset($sales))
-                        @foreach($sales as $sale)
-                        <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
-                        @endforeach
-                    @endif
-                    </select>
-                </div>
-                @endif
-
-                <div class="col-2 form-group mb-1">
-                    <select name="type_customer" id="type_customer-filter" class="form-select">
-                        <option value="999">--Tất cả khách--</option>
-                        <option value="1">Khách cũ</option>
-                        <option value="0">Khách mới</option>
-                    </select>
-                </div>
+            
+        <script type="text/javascript" src="{{asset('public/js/moment.js')}}"></script>
+        <link rel="stylesheet" type="text/css" href="{{asset('public/css/daterangepicker.css')}}" /> 
+        <div class="row mb-1 filter-order">
+            <div class=" col-4 form-group daterange mb-1">
+                <input id="daterange" class="btn" type="text" name="daterange" />
             </div>
+            
+            <?php $checkAll = isFullAccess(Auth::user()->role);?>
+            @if ($checkAll)
+            
+            <div class="src-filter col-2 form-group mb-1">
+                <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
+                    <option value="999">--Chọn nguồn--</option>
+                <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
+                if ($pagePanCake) {
+                    $pages = json_decode($pagePanCake);
+                    // dd($pages);
+                    foreach ($pages as $page) {
+                ?>
+                    <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
+                <?php   }
+                }   
 
-            <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
-                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
-            </svg>Lọc</button>
-            <a class="btn btn-outline-danger" href="{{route('sale-index')}}"><strong>X</strong></a>
+                foreach ($ladiPages as $page) {
+                ?>
+                    <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+                <?php   
+                    }
+                ?> 
+
+                </select>
+            </div>
+            <div class="col-2 form-group mb-1">
+                <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
+                    <option value="999">--chọn Marketing--</option>
+                    <option value="1">a.Nguyên</option>
+                    <option value="2">a.Tiễn</option>
+                </select>
+            </div>
+            @endif
+
+            @if ($checkAll || $isLeadSale)
+            <div class="col-2 form-group mb-1">
+                <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
+
+                @if ($checkAll)<option value="999">--Chọn Sale--</option> @endif
+                
+                @if (isset($sales))
+                    @foreach($sales as $sale)
+                    <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
+                    @endforeach
+                @endif
+                </select>
+            </div>
+            @endif
+
+            <div class="col-2 form-group mb-1">
+                <select name="type_customer" id="type_customer-filter" class="form-select">
+                    <option value="999">--Tất cả khách--</option>
+                    <option value="1">Khách cũ</option>
+                    <option value="0">Khách mới</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
+            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
+        </svg>Lọc</button>
+        <a class="btn btn-outline-danger" href="{{route('sale-index')}}"><strong>X</strong></a>
         </form>
-
+        
+        
+        <div class="row">
+            <div class="mb-1 mt-1" style="padding: 0 15px">Tổng data: <span>{{$count}}</span></div>
+        </div>
         <div class="row ">
             <div class="col-4"></div>
             <div class="col-8 mb-1">
@@ -782,376 +778,229 @@
             </div>
             
         </div>
-    
-        <div id="createOrder" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content ">
-                <div class="modal-header">
-                    <h5 class="modal-title">Thao tác đơn hàng</h5>
-                    <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-    
-                <iframe src="{{route('add-orders')}}" frameborder="0"></iframe>
-    
-                </div>
+    </div>
+    <div id="createOrder" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">Thao tác đơn hàng</h5>
+                <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-        </div>
 
-        <div class="dragscroll1 tableFixHead" style="height: 819px;">
-            <div id="dnn_ctr1441_Main_SaleTacNghiep_UpdatePanel2">
-                {{-- thêm TN SALE --}}
-                    
-                <table class="table table-bordered table-multi-select table-sale">
-                    <thead>
-                        <tr class="drags-area hidden-xs hidden">
-                            <th class="text-center no-wrap" colspan="2" style="top: 0px;">
-                                <span class="area5"><span>NGUỒN DỮ LIỆU</span></span>
-                            </th>
-                            <th class="text-center no-wrap" colspan="3" style="top: 0px;">
-                                <span class="area1"><span>THÔNG TIN KHÁCH HÀNG </span></span>
-                            </th>
-                            <th class="text-center no-wrap" colspan="5" style="top: 0px;">
-                                <span class="area2"><span>TÁC NGHIỆP SALE</span></span>
-                            </th>
-                            <th class="text-center no-wrap" colspan="3" style="top: 0px;">
-                                <span class="area3"><span>THÔNG TIN ĐƠN HÀNG</span></span>
-                            </th>
-                        </tr>
-                        <tr class="drags-area">
-                            <th style="top: 0.5px;">
-                                <span class="chk-all">
-                                    <input id="dnn_ctr1441_Main_SaleTacNghiep_chkItem" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem">
-                                    <label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
-                            </th>
-                            <th style="top: 0.5px;">Mã đơn</th>
-                            <th class="text-center hidden" style="width: 50px; top: 0px;">
-                                <span class="chk-all"><input id="dnn_ctr1441_Main_SaleTacNghiep_chkAll" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkAll"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkAll">&nbsp;</label></span></th>
-                            <th style="width: 60px; top: 0px;" class="text-center hidden">Id</th>
-
-                            <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;"><span class="span-col" style="width: 80px;">Nguồn dữ liệu</span><br>
-                                Ngày data về</th>
-                            <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;"><span class="span-col" style="width: 120px;">Sale
-                            <br>
-                                Ngày nhận data</span></th>
-
-                            <th class="text-left no-wrap area1" style="top: 0.5px;">
-                                <span class="span-col text-center" style="display: inline-block; min-width: 150px; max-width: 200px;">Họ tên<br>
-                                    <span class="span-col">Số điện thoại</span>
-                                    <br>
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_lblNgayMuonNhanHangHeader">Ngày muốn nhận hàng</span>
-                                </span>
-                            </th>
-                            <th class="text-center no-wrap area1  hidden-xs" style="top: 0.5px;"><span class="span-col td-message td-793">Tin nhắn</span></th>
-                            <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col" style="display: inline-block; min-width: 200px;">TN cần</span></th>
-                            <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="width: 150px;">Kết quả</span></th>
-                            <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col">TN tiếp</span></th>
-                            <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col">Sau</span><br>
-                                Còn lại</th>
-                            <th class="text-center no-wrap area3 hidden-xs" style="top: 0.5px;"><span class="span-col">Sản phẩm - Số lượng - Đơn giá</span></th>
-                            <th class="text-center no-wrap area3 hidden-xs" style="top: 0.5px;"><span class="span-col">Thành tiền / CK
-                                <br>
-                                Phí VC / Tổng tiền</span></th>
-                            <th class="text-center no-wrap area3 hidden-xs" style="top: 0.5px;"><span class="span-col">Đặt cọc</span></th>
-                            <th class="text-center no-wrap area4" style="top: 0.5px;"><span class="span-col"><span id="dnn_ctr1441_Main_SaleTacNghiep_lblTrangThaiGHHeader">Trạng thái giao hàng</span>
-                                <br>
-                                Ngày muốn nhận hàng
-                                                                    </span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        {{ csrf_field() }}
-                        <?php $i = 1; ?>
-                        @foreach ($saleCare as $item)
-                        <tr class="contact-row tr_{{$item->id}}">
-                            <td class="text-center">
-                                <span class="chk-item">
-                                    <input type="checkbox" id=""><label for="">{{$i}}</label></span>
-                            </td>
-                            <td class="text-center hidden">
-                                <span class="chk-item"><input id="" type="checkbox" name="">
-                                    <label for="">&nbsp;</label></span>
-                            </td>
-                            <td class="text-center">
-                                <span id="" class="item-md" style="color: #007bff; font-weight: bold;"></span>
-                                {{-- <a onclick="show_view_contact_log(112155407,&quot;&quot;);return false;" class="btn-icon aoh" title="Xem lịch sử xem thông tin số">
-                                    <i style="font-size:14px;" class="fa fa-history"></i>
-                                </a> --}}
-                                @if (isset($item->id_order_new))
-                                <a target="_blank" class="btn-icon aoh" href="{{route('view-order', ['id' => $item->id_order_new])}}" title="Xem lịch sử xem thông tin số"><i style="font-size:14px;" class="fa fa-history"></i></a>
-                                @endif
-
-                            </td>
-                            <td class="text-center area5 hidden-xs">
-                                <span class="span-col span-col-width cancel-col">
-                                    <a target="_blank" href="{{$item->page_link}}">{{$item->page_name}}</a>
-                                </span>
-                  
-                                <br>
-                                <span class="small-tip">(<span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__NgayTao_0">{{date_format($item->created_at,"H:i d-m-Y ")}}</span>)
-                                </span>
-                            </td>
-                            <td class="text-center area5 hidden-xs">
-                                @if ($checkAll || $isLeadSale)
-                                <div class="text-right">
-                                    <a onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnXoaContact" title="Xóa data" class="btn-icon aoh">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                    <a title="chỉ định Sale nhận data" data-id="{{$item->id}}" class="update-assign-TN-sale btn-icon aoh">
-                                        <i class="fa fa-save"></i>
-                                    </a>
-                                </div>
-                                
-                                <div>
-                                    <div class="mof-container">
-                                        <select class="select-assign bg-dropdown" name="assignTNSale_{{$item->id}}" id="">
-                                            @if (!$item->user)
-                                            <option value="0">None </option>
-                                                @endif
-                                            @foreach ($listSale->get() as $sale)
-                                            <option <?php echo ($item->user && $item->user->id == $sale->id) ? 'selected' : '' ?> value="{{$sale->id}}">{{($sale->real_name) ? $sale->real_name : ''}} </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div style="clear: both;"></div>
-                                </div>
-                                @else
-                                <div>
-                                    {{($item->user) ? $item->user->real_name : ''}} 
-                                    <span class="small-tip">({{($item->name)}})</span>
-                                </div>
-                                @endif
-                            </td>
-                            <td class="area1" title="FROM_FACEBOOK_MESSAGE">
-                                
-                                <div class="text-right">
-                                    {{-- <a title="Thông tin khách hàng" class="btn-icon aoh">
-                                        <i class="fa fa-info" aria-hidden="true"></i>
-                                    </a>
-                                 --}}
-                                    @if ($item->id_order_new)
-                                    <a data-target="#createOrder" data-toggle="modal" title="Sửa đơn" data-tnsale-id="{{$item->id}}" data-id_order_new="{{$item->id_order_new}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
-                                    @else
-                                        <a data-target="#createOrder" data-toggle="modal" title="Chốt đơn" data-tnsale-id="{{$item->id}}" data-address="{{$item->address}}" data-name="{{$item->full_name}}" data-phone="{{$item->phone}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
-                                    @endif
-                                </div>
-                           
-
-                           
-                                <div class="" style="text-overflow: ellipsis;">
-                                    {{$item->full_name}}
-                                </div>
-                                {{-- <span class="nha-mang">[VIETTEL]</span> --}}
-                                <a href="tel:0987609812" class="span-col" style="width: calc(100% - 90px);">
-                                    {{$item->phone}}
-                                    
-                                </a>
-                                <span class="span-col text-right" style="width: 85px;">
-                                    @if ($item->old_customer == 1)
-                                    <a title="Khách cũ, khách cũ" class="btn-icon">
-                                        <i class="fa fa-heart" style="color:red;"></i>
-                                    </a>
-                                    @endif
-
-                                    {{-- <a class="btn-icon invisible">&nbsp;</a>
-
-                                    <a id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnHistoryCall" title="Nghe ghi âm" class="btn-icon" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$btnHistoryCall','')">
-                                        <i class="fa fa-microphone" style="color:red;"></i>
-                                    </a><a onclick="showformCallOmiAjax(this);return false;" style="cursor: pointer;" data-id="112155407" data-saletacnghiepcanid="89532" data-phonecall="0353456700" data-phonecallhidden="0353456700" data-namecallhidden="Phúc Phu">
-                                        <i class="fa fa-phone" style="color: red;"></i>
-                                    </a> --}}
-                                    @if ($item->is_duplicate)
-                                    <a title="Trùng só điện thoại" class="btn-icon">
-                                        <svg  class="icon me-2" style="color: #ff0000">
-                                            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-copy')}}"></use>
-                                        </svg>
-                                    </a>
-                                    @endif
-                                </span>
-                                <div class="text-left khkn sline">
-                                    
-                                </div>
-                                <div class="small-tip">
-                                    
-                                </div>
-                            </td>
-                            <td class="area1 hidden-xs td-5055" style="max-width: 100px;">
-                                
-                                <span style="cursor: pointer;">
-                                    {{$item->messages}}
-                                </span>
-                            </td>
-                            <td class="area2 hidden-xs">
-                                {{-- <span id="" class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">Gọi lần 2</span> 
-                                 --}}
-                                @if (!$item->old_customer)
-                                <span class="fb span-col ttgh7" style="cursor: pointer; width: calc(100% - 60px);">Data nóng</span> 
-                                @elseif ($item->old_customer == 1)
-                                <span class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">CSKH</span> 
-                                @elseif ($item->old_customer == 2)
-                                <span class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">Hotline</span> 
-                                @endif
-                                {{-- <a class="btn-icon aoh hidden" href="/ld/sale/sale-tac-nghiep/id/0" title="Xem bản ghi chốt đơn" target="_blank">
-                                    <i style="font-size:14px;" class="fa fa-arrow-circle-o-left"></i>
-                                </a>  --}}
-
-                                <a onclick="showLoader();" data-id="{{$item->id}}"  title="Lưu ghi chú" class="update-TN-sale btn-icon aoh">
-                                    <i class="fa fa-save"></i>
-                                </a>
-                                <div class="mof-container">
-                                    <textarea id="TNSale_{{$item->id}}" rows="2" cols="20" class="form-control txt-mof txt-dotted" data-length="500"
-                                        data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" data-original-title="" title="">{{$item->TN_can}}</textarea>
-                                </div>
-                                <div style="clear: both;"></div>
-                                <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__LastMessage_0" class="item-noidung-other"></span>
-                            </td>
-                            <td class="area2 no-wrap fix_brower_continue_let_off" style="min-width:100px">
-                                <div class="text-right">
-                                    <a onclick="" title="Lịch sử tác nghiệp" class="btn-icon aoh">
-                                        <i class="fa fa-history"></i>
-                                    </a>
-                                </div>
-                                <select data-id="{{$item->id}}" onchange="" id="" class="result-TN txt-dotted ddlpb dis_val" tabindex="-1" title="" >
-                                    <option value="-1">--kết quả--</option>
-                                    {{-- <option value="96908">Chốt đơn</option>
-                                    <option value="96909">Không nghe máy</option>
-                                    <option value="96910">Máy bận </option>
-                                    <option value="96911">Gọi lại sau</option>
-                                    <option value="96912">Trùng số</option>
-                                    <option value="96914">Thuê bao</option>
-                                    <option value="96915">Suy nghĩ thêm</option>
-                                    <option value="96916">Không có nhu cầu</option>
-                                    <option value="96917">Khách hàng hẹn giao</option>
-                                    <option value="97114">Tham khảo</option>
-                                    <option value="98477">Tương Tác Zalo</option> --}}
-
-                                </select>
-
-                                <div class="small-tip text-left">
-                                    
-                                    <a class="btn-icon invisible">&nbsp;</a>
-                                </div>
-                                
-                            </td>
-                            <td class="no-wrap area2 no-wrap  hidden-xs" style="min-width:120px">
-                                {{-- <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__SaleTacNghiepTiepTen_0">Đang phát triển</span> --}}
-                                <a class="btn-icon aoh hidden" href="/ld/sale/sale-tac-nghiep/id/0" title="Xem bản ghi chăm sóc" target="_blank">
-                                    <i style="font-size:14px;" class="fa fa-arrow-circle-o-right"></i>
-                                </a>
-                            </td>
-                            <td class="text-center no-wrap area2 hidden-xs" style="min-width:80px">
-                                <div class="text-right">
-                                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnChuyenTacNghiepTiepAuto" title="Chuyển sang tác nghiệp tiếp (112155407)" class="aoh btn-chuyen-tac-nghiep hidden" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$btnChuyenTacNghiepTiepAuto','')">
-                                        <i class="fa fa-arrow-circle-o-up"></i>
-                                    </a><span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__SaleTacNghiepTiepNgayBatDau_0" class="sau-bao-lau-het-han hidden"></span><a onclick="sua_lich_tac_nghiep(112155407);return false;" id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnSuaLichTacNghiep" title="Sửa lịch tác nghiệp" class="btn-icon aoh" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$btnSuaLichTacNghiep','')">
-                                        <i class="fa fa-calendar"></i>
-                                    </a>
-                                </div>
-                                <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__SaleTacNghiepSauBaoLauTen_0"></span>
-                                <br>
-                                <span class="span-col small-tip" style="width: calc(100% - 20px);">
-                                    <span class="sau-bao-lau-con-lai"></span>
-                                </span>
-                            </td>
-                            <td class="text-left area3 hidden-xs">
-                                <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonhangTenSanPhams_0">
-                                    <table class="tb-in-sp">
-                                        <tbody>
-                                            
-                                            @if ($item->order)
-                                            <?php $order = $item->order ?>
-                                            @foreach (json_decode($order->id_product) as $product)
-                                            <?php $productModel = getProductByIdHelper($product->id)?>
-                                                @if ($productModel)
-                                                <tr><td><span class="ten-sp" style="text-overflow:ellipsis">{{$productModel->name}}</span></td>
-                                                    <td class="text-center no-wrap">&nbsp; x{{$product->val}} &nbsp;</td><td class="text-right">{{number_format($productModel->price)}}</td>
-                                                </tr>
-                                                @endif
-                                            @endforeach
-                                            @endif
-                                            
-                                        </tbody>
-                                    </table></span>
-                            </td>
-                            <td class="no-wrap area3 text-right hidden-xs">
-                                <table class="tb-in-sp">
-                                    <tbody><tr>
-                                        <td>
-                                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangTongThanhTien_0" title="Thành tiền"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangChietKhau_0" title="Chiết khấu"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangGiaCOD_0" title="Phí VC"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangTongTien_0" title="Tổng tiền đơn hàng" style="font-weight: bold; font-size: 13px;"></span>&nbsp;
-                                            
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            </td>
-                            <td class="no-wrap area3 text-right hidden-xs">
-                                <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangDatCoc_0"></span>
-                            </td>
-                            <td class="text-center area4">
-                                <span class="span-col no-wrap">
-                                    <span class="span-col" style="width: 20px;">
-                                        
-                                    </span>
-                                    <span class="span-col no-wrap" style="width: calc(100% - 50px);">
-                                        <span class="ttgh0"></span>
-                                    </span>
-                                    <span class="span-col" style="width: 20px;">
-                                        
-                                    </span>
-                                    <div class="small-tip">
-                                        @if ($item->orderNew)
-                                        {{$listStatus[$item->orderNew->status]}}
-                                        @endif
-                                    </div>
-                                </span>
-                                <span class="small-tip"></span>
-                                <a id="dnn_ctr1441_Main_SaleTacNghiep_rptData__LinkTraCuuMaDonGiaoVan_0" class="item-mdgv" href="javascript:void(0)" style="color: darkorange;"></a>
-                                
-                                <br>
-
-                                <a onclick="show_cap_nhat_ngay_giao_hang(112155407);return false;" title="Cập nhật ngày muốn nhận hàng" class="btn-icon aoh" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$ctl08','')">
-                                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                                </a>
-
-                                <div style="color: green;">
-                                    
-                                </div>
-                            </td>
-                        </tr>
-                        <?php $i++; ?>
-                        @endforeach
-
-                    </tbody>
-                </table>
-                {{ $saleCare->appends(request()->input())->links('pagination::bootstrap-5') }}
+            <iframe src="{{route('add-orders')}}" frameborder="0"></iframe>
 
             </div>
         </div>
     </div>
-</div>
-{{-- end update filter --}}
+    <div class="dragscroll1 tableFixHead">
+        <table class=" table table-bordered table-multi-select table-sale" id="myTable">
+            <thead class="">
+                <tr class="drags-area">
+                    <th style="top: 0.5px;">
+                        <span class="chk-all"><input id="" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
+                    </th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" style="top: 0.5px;"><span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 80px;">Mã đơn</span></th>
 
-<div class="box-body">
-    
-        
-        
-    
-</div>
+                    <th class=" text-center" draggable="true" ondragstart="handleDragStart(event)" style="top: 0.5px;"> 
+                        <span class="span-col" style="display: inline-block; width: 150px; max-width: 150px;">Nguồn data <br>Ngày nhận</span></th>
+                    <th class=" text-center" draggable="true" ondragstart="handleDragStart(event)" style="top: 0.5px;"> <span class="span-col text-center" style="display: inline-block; min-width: 60px; max-width: 100px;">Sale</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;">
+                        <span class="span-col text-center" style="display: inline-block; min-width: 200px; max-width: 200px;">Họ tên<br>
+                            <span class="span-col">Số điện thoại</span><br>
+                            <span class="span-col">Địa chỉ</span>
+                        </span>
+                    </th> 
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center" style="top: 0.5px;"> <span class="span-col " style="display: inline-block; min-width: 150px; max-width: 150px;">Tin nhắn</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"> <span style="display: inline-block; min-width: 220px; max-width: 150px;">Tác nghiệp cần</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Kết quả gọi</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">TN Tiếp</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 120px;">Ghi chú thông tin khách hàng</span></th>
+                    <th draggable="true" ondragstart="handleDragStart(event)" class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 150px;">Thông tin đơn</span></th>
+                </tr>
+            </thead>    
+            <tbody>
+                {{ csrf_field() }}
+                @if (isset($saleCare))
+                    @foreach ($saleCare as $item)
+                <tr class="contact-row tr_{{$item->id}}">
+                    <td class="text-center">
+                        <span class="chk-item"><input id="" type="checkbox" name=""><label for="">{{$item->id}}</label></span>
+                    </td>
+                    <td class="text-center id-order-new" >
 
+                        @if (isset($item->id_order_new))
+                        <a target="_blank" href="{{route('view-order', ['id' => $item->id_order_new])}}">{{$item->id_order_new}}</a>
+                        @endif
+                    
+                    </td>
+                    <td class="text-center">
+                    <a target="_blank" {{ ($item->page_link) ? ('href=' . $item->page_link ) : '' }}>{{$item->page_name}}</a>     <br> {{date_format($item->created_at,"H:i d-m-Y ")}}
+                    </td>
+                    <td class="text-center">
+
+                        @if ($flag)
+                        <a title="chỉ định Sale nhận data" data-id="{{$item->id}}" class="update-assign-TN-sale btn-icon aoh">
+                            <i class="fa fa-save"></i>
+                        </a>
+                        <div class="mof-container">
+                            <select name="assignTNSale_{{$item->id}}" id="">
+                                @if (!$item->user)
+                                <option value="0">None </option>
+                                    @endif
+                                @foreach ($listSale->get() as $sale)
+                                    
+                                    
+                                <option <?php echo ($item->user && $item->user->id == $sale->id) ? 'selected' : '' ?> value="{{$sale->id}}">{{($sale->real_name) ? $sale->real_name : ''}} </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div style="clear: both;"></div>
+                        @else
+                            {{($item->user) ? $item->user->real_name : ''}} 
+                        @endif
+                    </td>
+                    <td class="text-center area5 hidden-xs">
+                        <div class="text-right">
+
+                            <?php $checkAll = isFullAccess(Auth::user()->role);?>
+                            @if ($checkAll || $isLeadSale)
+                            <a title="Xoá TN này" class="hidden btn-icon aoh" onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" role="button">
+                                <svg class="icon me-2">
+                                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-trash')}}"></use>
+                                </svg>
+                            </a>
+                            @endif
+
+                            {{-- <a title="Chốt đơn cho TN này" data-toggle="modal" data-sale-id="{{$item->id}}" data-target="#createOrder" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a> --}}
+                            
+                            @if ($item->id_order_new)
+                                <a data-target="#createOrder" data-toggle="modal" title="Sửa đơn" data-tnsale-id="{{$item->id}}" data-id_order_new="{{$item->id_order_new}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                            @else
+                                <a data-target="#createOrder" data-toggle="modal" title="Chốt đơn" data-tnsale-id="{{$item->id}}" data-address="{{$item->address}}" data-name="{{$item->full_name}}" data-phone="{{$item->phone}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
+                            @endif
+
+                            @if ($item->old_customer == 1)
+                            <a title="Khách cũ, khách cũ" class="btn-icon">
+                                <i class="fa fa-heart" style="color:red;"></i>
+                            </a>
+                            @endif
+
+                        </div>
+                        {{-- <a class="btn-icon aoh"><i class="fa fa-edit"></i> </a> --}}
+                        <span class="span-col span-col-width cancel-col">{{$item->full_name}}</span><br>
+                        <span class="small-tip"><a href="tel:0987609812">{{$item->phone}}</a>
+
+                            @if ($item->is_duplicate)
+                            <a title="Trùng só điện thoại" class="btn-icon">
+                                <svg  class="icon me-2" style="color: #ff0000">
+                                    <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-copy')}}"></use>
+                                </svg>
+                            </a>
+                            @endif
+                            
+                        </span><br>
+                        <span class="small-tip">{{$item->address}}</span>
+                    </td>
+                    <td>{{$item->messages}}</td>
+                    <td class="area2 hidden-xs">
+                        
+                        @if (!$item->old_customer)
+                        <span class="fb span-col ttgh7" style="cursor: pointer;">Data nóng</span> 
+                        @elseif ($item->old_customer == 1)
+                        <span class="fb span-col" style="cursor: pointer;">CSKH</span> 
+                        @elseif ($item->old_customer == 2)
+                        <span class="fb span-col" style="cursor: pointer;">Hotline</span> 
+                        @endif
+                        {{-- <a class="btn-icon aoh hidden" href="/ld/sale/sale-tac-nghiep/id/0" title="Xem bản ghi chốt đơn" target="_blank">
+                            <i style="font-size:14px;" class="fa fa-arrow-circle-o-left"></i>
+                        </a>  --}}
+
+                        <a title="Lưu ghi chú" data-id="{{$item->id}}" class="update-TN-sale btn-icon aoh">
+                            <i class="fa fa-save"></i>
+                        </a>
+                        <a href="#" title="Tin nhắn nội bộ" class="btn-icon aoh"><i class="fa fa-commenting-o"></i></a>
+                        <div class="mof-container">
+                            <textarea id="TNSale_{{$item->id}}" rows="2" cols="20" class="form-control txt-mof txt-dotted" data-length="500"
+                                    data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" data-original-title="" title="">{{$item->TN_can}}</textarea>
+                        </div>
+                        <div style="clear: both;"></div>
+                        <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__LastMessage_0" class="item-noidung-other"></span>
+                    </td>
+                    <td class="area2 no-wrap fix_brower_continue_let_off">
+                        <div class="select2-container txt-dotted ddlpb chosen dis_val">
+                            <a class="select2-choice" tabindex="-1" data-id="{{$item->id}}">  
+                                <span class="select2-chosen list-call-{{$item->id}}" > {{$item->result_call ? $item->call->name : '--Chọn--' }}</span>
+                                <span class="select2-arrow" role="presentation"><b role="presentation"></b></span>
+                            </a>
+                            
+                            <div id="list-call-{{$item->id}}" class="hidden list-call position-absolute dropdown-content">
+                                <input type="text" placeholder="tìm.." id="myInput" onkeyup="filterFunction('list-call-{{$item->id}}')">
+
+                                @if(isset($listCall))
+                                @foreach ($listCall as $value)
+                                <a class="option-product"
+                                    data-call-item-id="{{$item->id}}"
+                                    data-call-name="{{$value->result_call}}"
+                                    data-call-id="{{$value->id}}">{{$value->result_call}}
+                                </a>
+                                @endforeach
+                                @endif
+
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center next-step-{{$item->id}}">{{ ($item->next_step) ? 'Gọi lần ' . $item->next_step : ''}}</td>
+                    {{-- <td class="text-center area5 hidden-xs">
+                        {{$item->type_tree}}
+                    </td> --}}
+                    {{-- <td class="area1">
+                        {{$item->product_request}}
+                    </td> --}}
+                    {{-- <td class="area1 hidden-xs">
+                        <div class="mof-container">
+                            <div class="form-control txt-mof txt-dotted">
+                                {{$item->reason_not_buy}}
+                            </div>
+                        </div>
+                    </td> --}}
+                    <td class="area2 hidden-xs">{{$item->note_info_customer}}</td>
+                    {{-- <td class="text-center"> 
+                        <a data-toggle="modal" data-id="{{$item->id}}" data-target="#myModal" class="updateModal btn-icon aoh"><i class="fa fa-edit"></i>Cập nhật</a>
+                    </td> --}}
+                    <td class="text-center"> 
+
+                    <?php 
+                    if ($item->id_order) {
+                        $order = $item->order;
+                        foreach (json_decode($order->id_product) as $product) {
+                            $productModel = getProductByIdHelper($product->id);
+                            if ($productModel) {
+                        ?>
+                        
+                        {{$productModel->name}} x{{$product->val}} <br>
+                        
+                        <?php }
+                        } ?>
+
+                    <span>Tổng: {{number_format($order->total)}}đ</span> <br>
+                    <a target="_blank" href="{{route('view-order', $item->id_order)}}">Xem đơn</a>
+                    <?php 
+                    } ?>
+
+                    </td>
+                </tr>
+        
+                @endforeach
+                
+            </tbody>
+        </table>
+        {{ $saleCare->appends(request()->input())->links('pagination::bootstrap-5') }}
+        @endif
+
+    </div>
+</div>
 
 {{-- thông báo --}}
 <div class="modal fade" id="notify-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">

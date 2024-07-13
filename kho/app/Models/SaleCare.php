@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Call;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Orders;
 
 class SaleCare extends Model
 {
@@ -40,5 +41,10 @@ class SaleCare extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Orders::class, 'id_order', 'id');
+    }
+
+    public function orderNew(): BelongsTo
+    {
+        return $this->belongsTo(Orders::class, 'id_order_new', 'id');
     }
 }
