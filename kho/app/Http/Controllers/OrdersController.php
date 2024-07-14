@@ -45,7 +45,7 @@ class OrdersController extends Controller
     {
         $roles  = $user->role;
         $list   = Orders::orderBy('id', 'desc');
-
+  
         if ($dataFilter) {
             if (isset($dataFilter['daterange'])) {
                 $time       = $dataFilter['daterange'];
@@ -155,6 +155,7 @@ class OrdersController extends Controller
                     ->whereDate('created_at', '<=', $dateEnd)->orderBy('id', 'desc');  
             } 
         } 
+
         if ($user->is_digital == 1){
             // $today  = date("Y-m-d", time());
             // $dateBegin  = date('Y-m-d',strtotime("$today"));
@@ -202,16 +203,14 @@ class OrdersController extends Controller
             }
         }
 
+
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
         $routeName = \Request::route();
         // dd($routeName->getName());
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
-            // dd($list->get());
-            // dd($list->pluck('phone')->toArray());
-        } 
-        else if ($user->is_digital == 1 && $routeName->getName() == 'order') {
+        } else if ($user->is_digital == 1 && $routeName->getName() == 'order') {
             if (!$dataFilter) {
                 $today  = date("Y-m-d", time());
                 $dateBegin  = date('Y-m-d',strtotime("$today"));
@@ -234,25 +233,24 @@ class OrdersController extends Controller
             }
 
             $list = Orders::whereIn('phone', $phoneFilter)->orderBy('id', 'desc');
-        }
-         else if ((!$checkAll || !$isLeadSale) && !$user->is_digital) {
+        } else if ((!$checkAll || !$isLeadSale) && !$user->is_digital) {
             $list = $list->where('assign_user', $user->id);
             // dd($list->get());
         }
 
-        
+        // dd($list->get());
         /**ẩn thông tin tricho đối với leadsale lúa */
-        if ( Helper::isLeadSale(Auth::user()->role) && !isFullAccess(Auth::user()->role)) {
-            $newOrderId = [];
-            // dd($list->get());
-            foreach ($list->get() as $k => $order) {
-                if (empty($order->salecare->group_id) ||  $order->salecare->group_id != 'tricho') {
-                    $newOrderId[] = $order->id;
-                }
-            } 
+        // if ( Helper::isLeadSale(Auth::user()->role) && !isFullAccess(Auth::user()->role)) {
+        //     $newOrderId = [];
+        //     // dd($list->get());
+        //     foreach ($list->get() as $k => $order) {
+        //         if (empty($order->salecare->group_id) ||  $order->salecare->group_id != 'tricho') {
+        //             $newOrderId[] = $order->id;
+        //         }
+        //     } 
 
-            $list = Orders::whereIn('id', $newOrderId)->orderBy('id', 'desc');
-        }
+        //     $list = Orders::whereIn('id', $newOrderId)->orderBy('id', 'desc');
+        // }
 
         return $list;
     }
