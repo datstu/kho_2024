@@ -38,6 +38,7 @@ class OrdersController extends Controller
         $totalOrder = $data->count();
         $list       = $data->paginate(50);
         $sales      = Helper::getListSale()->get();
+
         return view('pages.orders.index')->with('sales', $sales)->with('totalOrder', $totalOrder)->with('sumProduct', $sumProduct)->with('list', $list)->with('category', $category);
     }
 
@@ -95,7 +96,56 @@ class OrdersController extends Controller
 
                 $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
             }
+              
+            /**
+             * 1: nhóm Tricho
+             * 2: nhóm Lúa
+             */
+            if (isset($dataFilter['group'])) {
+                if ($dataFilter['group'] == 1) {
+                    $productTricho = [
+                        58 => '1kg humic',
+                        57 => 'Xô Tricho 10kg',
+                        56 => '	1 xô Tricho + 3kg Humic'
+                    ];
+                    $ids = [];
+                
+                    // dd($list->get());
+                    foreach ($list->get() as $order) {
+                        $products = json_decode($order->id_product);
+                        foreach ($products as $product) {
+                            if (array_key_exists($product->id, $productTricho)) {
+                                $ids[] = $order->id;
+                                break;
+                            }
+                        }
+                    }
 
+                } else if ($dataFilter['group'] == 2){
+                    $productOg = [
+                        55 => 'Xô OG 10kg',
+                        54 => 'OG vô gạo',
+                        53 => 'OG rước đòng',
+                        43 => 'S400'
+                    ];
+                    $ids = [];
+                
+                    // dd($list->get());
+                    foreach ($list->get() as $order) {
+                        $products = json_decode($order->id_product);
+                        foreach ($products as $product) {
+                            if (array_key_exists($product->id, $productOg)) {
+                                $ids[] = $order->id;
+                                break;
+                            }
+                        }
+                    }
+
+                }
+
+                $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
+                // $list->whereStatus($dataFilter['status']);
+            }
 
             /** mrNguyen = 1
              *  mrTien = 2
@@ -114,8 +164,9 @@ class OrdersController extends Controller
                 $dataFilterSale['mkt'] = $dataFilter['mkt'];
             }  
 
-            // dd($dataFilterSale);
-            if (count($dataFilterSale) > 0) {
+            // dd($dataFilter);
+            if (count($dataFilterSale) > 0 ) {
+                // dd('hi');
                 $phoneFilter = [];
                 $listPhoneOrder = $list->pluck('phone')->toArray();
                 // dd($listPhoneOrder);
@@ -124,38 +175,46 @@ class OrdersController extends Controller
                 
                 // if ($dataFilter['type_customer'] == 1) {
                     // dd($dataFilter['type_customer']);
-               
+                    
                 foreach ($listPhoneOrder as $phone) {
-                    // if ($phone == '383432913') {
+                    // if ($phone == '0967330586') {
+                        // dd($phone);
+                            // dd($dataFilterSale);
+                        
+                        $saleCtl = new SaleController();
+                        $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
+                        
+                        $cus9phone = $this->getCustomPhone9Num($phone);
+                        // dd($listsaleCare->get());
+                        $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $cus9phone . '%')
+                            ->where('assign_user', '!=', 55)->first();
+                        
+                        // dd($careFromOrderPhone);
+                        // $dataFilter['type_customer'] = 0;
+                        // dd( $careFromOrderPhone);
 
-                    
-                    $saleCtl = new SaleController();
-                    $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
-                    $cus9phone = $this->getCustomPhone9Num($phone);
-                    $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $cus9phone . '%')->first();
-                    
-                    // dd($careFromOrderPhone);
-                    // $dataFilter['type_customer'] = 0;
-                    // dd( $dataFilter['type_customer']);
+                        if (!isset($dataFilter['type_customer']) ) {
+                            $dataFilter['type_customer'] = 999; //lấy tất cả data nóng và CSKH
+                        }
+                        
+                        // dd($dataFilter['type_customer']);
 
-                    if (!isset($dataFilter['type_customer']) ) {
-                        $dataFilter['type_customer'] = 999; //lấy tất cả data nóng và CSKH
-                    }
-                    
-                    // dd($dataFilter['type_customer']);
+                        $flag = Helper::checkTypeOrderbyPhone($cus9phone, $dataFilter['type_customer']);
 
-                    $flag = Helper::checkTypeOrderbyPhone($cus9phone, $dataFilter['type_customer']);
-
-                    if ($careFromOrderPhone && $flag) {
-                        $phoneFilter[] = $phone;
-                    }
+                        if ($careFromOrderPhone && $flag) {
+                            $phoneFilter[] = $phone;
+                        }
+                    // }
                 }
 
+                // dd($phoneFilter);
                 $list = Orders::whereIn('phone', $phoneFilter)->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd)->orderBy('id', 'desc');  
+                   
             } 
         } 
-
+        // dd($list->get());
+        
         if ($user->is_digital == 1){
             // $today  = date("Y-m-d", time());
             // $dateBegin  = date('Y-m-d',strtotime("$today"));
@@ -203,10 +262,11 @@ class OrdersController extends Controller
             }
         }
 
-
+        
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
         $routeName = \Request::route();
-        // dd($routeName->getName());
+
+        
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
@@ -235,7 +295,6 @@ class OrdersController extends Controller
             $list = Orders::whereIn('phone', $phoneFilter)->orderBy('id', 'desc');
         } else if ((!$checkAll || !$isLeadSale) && !$user->is_digital) {
             $list = $list->where('assign_user', $user->id);
-            // dd($list->get());
         }
 
         // dd($list->get());
@@ -252,6 +311,7 @@ class OrdersController extends Controller
         //     $list = Orders::whereIn('id', $newOrderId)->orderBy('id', 'desc');
         // }
 
+        // dd($list->sum('total'));
         return $list;
     }
 
@@ -262,11 +322,30 @@ class OrdersController extends Controller
      */
     public function add()
     { 
-        // $provinces      = $this->getProvince();
-        $listProduct    = Helper::getListProductByPermisson(Auth::user()->role)->get();
-        $listSale       = $this->getListSale()->get();
-        $saleCareId     = request()->get('saleCareId');
-        // dd($saleCareId);
+
+        $saleCareId = request()->get('saleCareId');
+        $listProduct = $listSale = [];
+
+        $saleCare = SaleCare::find($saleCareId);
+        if ($saleCare) {
+            if ($group = $saleCare->group) {
+                $sales     = $group->sales;
+                $products    = $group->products;
+
+                foreach ($products as $item) {
+                    $listProduct[] = $item->product;
+                }
+
+                foreach ($sales as $item) {
+                    $listSale[] = $item->user;
+                }
+            } else {
+                //data TN cũ chưa có group => hiển thị toàn bộ list ban đầu
+                $listProduct    = Helper::getListProductByPermisson(Auth::user()->role)->get();
+                $listSale       = $this->getListSale()->get();
+            }
+    
+        }
 
         return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct)
             // ->with('provinces', $provinces)
@@ -426,34 +505,31 @@ class OrdersController extends Controller
 
             $order->save();
 
-            $telegram = Helper::getConfigTelegram();
-            $chatId         = $telegram->id_NVTR;
-
-            /**cập nhật mã đơn hàng được tạo vào record sale_care */
-            $saleCare = SaleCare::find($order->sale_care);
-            if ($saleCare) {
-                $saleCare->id_order_new = $order->id;
-                $saleCare->save();
-                if ($saleCare->group_id == 'tricho') {
-                    // $chatId = '-4167465219';
-                    $chatId = env('id_CreateOrder_tricho');
-                }
-            }
-
             if (!isset($request->id)) {
-                //gửi thông báo qua telegram
-             
-                if ($telegram && $telegram->status == 1) {
-                    $tokenGroupChat = $telegram->token;
-                   
+                /**cập nhật mã đơn hàng được tạo vào record sale_care
+                 * workflow hiện tại đơn tạo từ TN Sale => luôn tồn tại saleCare
+                 * 
+                 */
+                $chatId = '-4286962864'; //khởi tạo nhóm Test
+                $tokenGroupChat = '';
+                $saleCare = SaleCare::find($order->sale_care);
+                if ($saleCare) {
+                    $saleCare->id_order_new = $order->id;
+                    $saleCare->save();
+                    $group = $saleCare->group;
+                    // dd($saleCare);
+                    /** ko xoá group đã có saleCare => luôn tồn tại group */
+                    $chatId = $group->tele_create_order;
+                    $tokenGroupChat = $group->tele_bot_token;
+                }
 
-                   
+                //gửi thông báo qua telegram
+                if ($chatId != '' && $tokenGroupChat != '') {
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
                     $client         = new \GuzzleHttp\Client();
 
                     $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
-                    $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị') ;
-
+                    $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị');
                     $notiText       = "\nĐơn mua: $order->qty sản phẩm: $tProduct \nTổng: " . number_format($order->total) . "đ miễn phí Ship."
                         . "\nGửi về địa chỉ: $nameUserOrder $order->name - $order->phone - $order->address";
                     

@@ -23,11 +23,12 @@ class HomeController extends Controller
         $toMonth      = date("Y-m-d", time());
 
         /**set tmp */
-        // $toMonth = '2024-06-11';
+        // $toMonth = '2024-07-21';
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataSale = $this->getReportHomeSale($toMonth);
 
+        // dd($dataSale);
         $dataDigital = $this->getReportHomeDigital($toMonth);
 
         $category   = Category::where('status', 1)->get();
@@ -492,6 +493,11 @@ class HomeController extends Controller
             $dataFilter['src'] = $src;
             $newFilter['src'] = $src;
         } 
+
+        $group = $req->group;
+        if ($group != 999) {
+            $dataFilter['group'] = $group;
+        } 
  
         // dd($dataFilter);
 
@@ -736,6 +742,11 @@ class HomeController extends Controller
             $newFilter['src'] = $src;
         } 
 
+        $group = $req->group;
+        if ($req->group && $group != 999) {
+            $dataFilter['group'] = $group;
+        }
+
         $listDigital = [
             [
                 'name' => 'Mr Nguyên',
@@ -774,6 +785,7 @@ class HomeController extends Controller
 
             /** khách mới */
             $dataFilter['type_customer'] = 0;
+            // dd($dataFilter);
             $newCustomer = $this->getSaleByType($dataFilter, 'new');
            
             $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
@@ -808,6 +820,7 @@ class HomeController extends Controller
                 $dataFilter['mkt'] = $digital['mkt'];
 
                 /** khách mới */
+                // dd($dataFilter);
                 $dataFilter['type_customer'] = 0;
                 $newCustomer = $this->getSaleByType($dataFilter, 'new');
                 $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
@@ -840,6 +853,7 @@ class HomeController extends Controller
             // dd($dataDigital);
             $resultDigital['data'] = $dataDigital;
         }
+
         // dd($resultDigital);
         $resultDigital['trSum'] = Helper::getSumCustomer($resultDigital['data']);
 

@@ -7,21 +7,38 @@
     #laravel-notify .notify {
       z-index: 9999;
   }
+  .hidden {
+    display: none;
+  }
+  .select2.select2-container.select2-container--default{
+    width: 100% !important;
+  }
 </style>
 
-<?php $id = $name = $member = $membersStr = '';
+<?php $leadSale = $id = $name = $member = $membersStr = $teleCskhData = $teleCreateOder = $teleHotData 
+    = $teleBotToken ='';
     $status = 1;
-    $members = $srcs = $products = [];
+    $isShareDataCSKH = 0;
+    $members = $memberCskh = $srcs = $products = [];
     if (isset($group)) {
         $id = $group->id;
         $name = $group->name;
         $status = $group->status;
-        $members = $group->sales->pluck('id_user')->toArray();
+        $members = $group->sales->where('type_sale', 1)->pluck('id_user')->toArray();
         // dd($members);
         $srcs = $group->srcs->pluck('id')->toArray();
         $products = $group->products->pluck('id_product')->toArray();
+        $teleHotData = $group->tele_hot_data;
+        $teleCreateOder = $group->tele_create_order;
+        $teleCskhData = $group->tele_cskh_data;
+        $teleBotToken = $group->tele_bot_token;
+        $isShareDataCSKH = $group->is_share_data_cskh;
+        $leadSale =$group->lead_sale;
+        $memberCskh = $group->sales->where('type_sale', 2)->pluck('id_user')->toArray();
     }
+    $listLeadSale = Helper::getListLeadSale();
 
+    $checkAll = isFullAccess(Auth::user()->role);
 ?>
 <div class="body flex-grow-1 px-3">
     <div class="container-lg">
@@ -44,13 +61,21 @@
                                 <div class="row">
                                     <div class="mb-3 col-4">
                                         <label class="form-label" for="nameIP">Tên nhóm</label>
-                                        <input value="{{$name}}" class="form-control" name="name" id="nameIP" type="text" required>
+                                        <input <?= !$checkAll ? 'readonly' : ''; ?> value="{{$name}}" class="form-control" name="name" id="nameIP" type="text" required>
                                         <p class="error_msg" id="name"></p>
+                                    </div>
+                                    <div class="mb-3 col-4">
+                                        <label for="leadSale">Trưởng nhóm</label>
+                                        <select <?= !$checkAll ? 'readonly' : ''; ?>  required name="leadSale" id="list-leadSale" class="custom-select">    
+                                            @foreach($listLeadSale as $sale) 
+                                                <option <?= $sale->id == $leadSale ? 'selected' : ''; ?> value="{{$sale->id}}">{{$sale->real_name}}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-12 form-group">
-                                        <label for="like-color">Chọn thành viên</label>
+                                        <label for="like-color">Sale Data nóng</label>
                                         <select required name="member[]" id="list-sale" class="custom-select" multiple>
                                             
                                             @foreach($listSale as $sale) 
@@ -60,7 +85,7 @@
                                     </div>
                                     <div class="col-12 form-group">
                                         <label for="like-color">Chọn nguồn data</label>
-                                        <select required name="src[]" id="list-src" class="custom-select" multiple>
+                                        <select <?= !$checkAll ? 'readonly' : ''; ?>  required name="src[]" id="list-src" class="custom-select" multiple>
                                             
                                             @foreach($listSrc as $src) 
                                                 <option <?= (in_array($src->id, $srcs)) ? 'selected' : ''; ?> value="{{$src->id}}">{{$src->name}}</option>
@@ -69,14 +94,66 @@
                                     </div>
                                     <div class="col-12 form-group">
                                         <label for="like-color">Chọn sản phẩm</label>
-                                        <select required name="product[]" id="list-product" class="custom-select" multiple>
+                                        <select <?= !$checkAll ? 'readonly' : ''; ?>  required name="product[]" id="list-product" class="custom-select" multiple>
                                              
                                             @foreach($listProduct as $product) 
                                                 <option <?= (in_array($product->id, $products)) ? 'selected' : ''; ?> value="{{$product->id}}">{{$product->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div class="col-12 form-group">
+                                        <label class="form-label" for="botTele">Token Bot Telegram</label>
+                                        <input <?= !$checkAll ? 'readonly' : ''; ?>  value="{{$teleBotToken}}" class="form-control" name="teleBotToken" id="botTele" type="text" required>
+                                        <p class="error_msg" id="name"></p>
+                                    </div>
+                                    <div class="col-4 form-group">
+                                        <label class="form-label" for="teleDataHot">Chat Id Data Nóng</label>
+                                        <input <?= !$checkAll ? 'readonly' : ''; ?>  value="{{$teleHotData}}" class="form-control" name="teleHotData" id="teleDataHot" type="text" required>
+                                        <p class="error_msg" id="name"></p>
+                                    </div>
+                                    <div class="col-4 form-group">
+                                        <label class="form-label" for="teleCreateOrder">Chat Id Chốt đơn</label>
+                                        <input <?= !$checkAll ? 'readonly' : ''; ?>  value="{{$teleCreateOder}}" class="form-control" name="teleCreateOrder" id="teleCreateOrder" type="text" required>
+                                        <p class="error_msg" id="name"></p>
+                                    </div>
+                                    <div class="col-4 form-group">
+                                        <label class="form-label" for="teleChatCskh">Chat Id CSKH</label>
+                                        <input <?= !$checkAll ? 'readonly' : ''; ?> value="{{$teleCskhData}}" class="form-control" name="teleCskhData" id="teleChatCskh" type="text" required>
+                                        <p class="error_msg" id="name"></p>
+                                    </div>
                                     
+                                    <div class="mb-3 col-4">
+                                        <label class="form-label" for="qtyIP">Sale CSKH</label>
+                                        <div class="form-check">
+                                            <input <?= !$checkAll ? 'readonly' : ''; ?>  <?= ($isShareDataCSKH ) ? 'checked' : '';?> class="form-check-input" type="radio" name="shareDataCskh" value="1"
+                                                id="flexRadioDefaultCSKH">
+                                            <label class="form-check-label" for="flexRadioDefaultCSKH">
+                                                Chia đều cho team CSKH của nhóm
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input <?= !$checkAll ? 'readonly' : ''; ?> <?= (!$isShareDataCSKH) ? 'checked' : '';?> class="form-check-input" type="radio" name="shareDataCskh" value="0"
+                                                id="flexRadioDefaultCSKH2" >
+                                            <label  class="form-check-label" for="flexRadioDefaultCSKH2">
+                                                Đơn của sale nào thì người đó tự chăm
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-8 form-group">
+                                        <label class="form-label" for="saleCskhIP">Sale CSKH</label>
+                                        {{-- <input value="{{$teleCskhData}}" class=" form-control" name="saleCskh" id="saleCskhIP" type="text" required>
+                                        <p class="error_msg" id="name"></p> --}}
+                                        {{-- <label for="like-color">Sale Data nóng</label> --}}
+                                        <div class="<?= ($isShareDataCSKH) ?: 'hidden' ?>" id="list-sale-cskh-div">
+                                            <select name="memberCSKH[]" id="list-sale-cskh" class="hidden custom-select" multiple>
+                                            
+                                                @foreach($listSale as $sale) 
+                                                    <option <?= (in_array($sale->id, $memberCskh)) ? 'selected' : ''; ?> value="{{$sale->id}}">{{$sale->real_name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        
+                                    </div>
                                     <div class="mb-3 col-2">
                                         <label class="form-label" for="qtyIP">Trạng Thái</label>
                                         <div class="form-check">
@@ -99,7 +176,7 @@
                                 <div class="loader hidden">
                                     <img src="{{asset('public/images/loader.gif')}}" alt="">
                                 </div>
-                                <button id="submit" class="btn btn-primary">Tạo</button>
+                                <button id="submit" class="btn btn-primary">Lưu</button>
                             </div>
                         </form>
                     </div>
@@ -119,6 +196,8 @@
         $('#list-sale').select2();
         $('#list-product').select2();
         $('#list-src').select2();
+        $('#list-sale-cskh').select2();
+        $('#list-leadSale').select2();
         
     });
     if ($('.flex.items-start').length) {
@@ -128,5 +207,18 @@
             $('.notify.fixed').hide();
         }, 3000);
     }
+</script>
+
+<script>
+$(document).ready(function() {
+    $("input[name='shareDataCskh']").click(function() {
+    if ($(this).val() == 1) {
+        $("#list-sale-cskh-div").show();
+        $("#list-sale-cskh-div").focus();
+    } else {
+        $("#list-sale-cskh-div").hide();
+    }
+    });
+});
 </script>
 @stop

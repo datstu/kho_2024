@@ -303,7 +303,7 @@ $listStatus = Helper::getListStatus();
 
                                     <div class="col-12">
                                         <label for="note" class="form-label">Ghi chú:</label>
-                                        <textarea name="note" class="form-control" id="note" rows="3"></textarea>
+                                        <textarea name="note" class="form-control" id="note" cols="50" rows="5"></textarea>
                                         <p></p>
                                     </div>
 

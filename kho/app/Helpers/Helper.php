@@ -9,6 +9,7 @@ use App\Models\ShippingOrder;
 use App\Models\User;
 use App\Models\Call;
 use App\Http\Controllers\ProductController;
+use App\Models\Group;
 use App\Models\Orders;
 use App\Models\SaleCare;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,7 @@ use App\Models\Pancake;
 use App\Models\LadiPage;
 use PHPUnit\TextUI\Help;
 use App\Models\SrcPage;
+use Illuminate\Support\Facades\DB;
 
 setlocale(LC_TIME, 'vi_VN.utf8');
 
@@ -222,7 +224,29 @@ class Helper
         }
         return false;
     }
+    public static function checkOrderSaleCarebyPhoneV2($phone, $mId, &$is_duplicate, &$assign) 
+    {
+        if (!$mId || !$phone || $phone == '0986987791' || $phone == '986987791') {
+            return false;
+        } 
+        
+        $saleCares = SaleCare::where('old_customer', 0)->where('phone', $phone)->orderBy('id', 'asc')->get();
+
+        if ($saleCares->count() == 0) {
+            return true;
+        }
     
+        foreach ($saleCares as $item) {
+            if ($item->m_id == $mId) {
+                return false;
+            }
+        }
+
+        /** trùng sđt: set lại assign sale trước đó và set trùng data */
+        $assign = $saleCares[0]->assign_user;
+        $is_duplicate = true;
+        return true;
+    }
     public static function checkOrderSaleCarebyPhonePageTricho($phone, $mId, &$is_duplicate, &$assign) 
     {
         if (!$mId || !$phone || $phone == '0986987791' || $phone == '986987791') {
@@ -622,5 +646,186 @@ class Helper
     public static function getListSrc()
     {
         return SrcPage::all();
+    }
+
+    /**
+     * next_assign chỉ định sale
+     *  = 0 sẵn sàn chỉ định
+     *  = 1 chỉ định -> người được chọn
+     *  = 2 người chỉ định vừa gọi
+     */
+    public static function getAssignSaleByGroup($group)
+    {
+        $saleOfGroup = $group->sales->where('type_sale', 1);
+
+        /**lấy user chỉ định bằng 1 trong list sale của group*/
+        $saleItem = Helper::getSaleReady($saleOfGroup);
+
+        
+        if (!$saleItem) {
+           
+
+            $saleItem = Helper::getSaleFirst($saleOfGroup);  
+        }
+
+        /**set user chỉ định đã được lấy, set = 2 = đã dùng trong lần gọi này*/
+        $saleItem->next_assign_sale = 2;
+        $saleItem->save();
+
+        ///
+        /** còn trường hợp ko có sale nào trong ca: có data mới nhưng sale đều off (ko chia data) - chưa xử lý 
+         * = auto luôn có 1 sale trực ca/chia data*/
+        ////
+
+        Helper::setSaleNextAssign($saleOfGroup, $saleItem);
+
+        return $saleItem;
+    }
+
+    /** chỉ định người tiếp theo: lấy toàn bộ những người hợp lệ trừ user vừa set = 2 ở trên (hợp lệ = 0)
+    * và lấy user đầu tiên trong danh sách
+    * trường hợp ko tìm đc ai (tất cả đều bằng 2) -> reset all về bằng 0 - sẵn sàng assign lần tiếp
+    */
+    public static function setSaleNextAssign($sales, $currentSale, $typeSale = 'hot') 
+    { 
+        $nextSale = null;
+        if ($typeSale == 'hot') {
+            foreach ($sales as $item) {
+                if ($item->user->status && $item->next_assign_sale == 0 && $item->user->id != $currentSale->id) {
+                    $item->next_assign_sale = 1;
+                    $item->save();
+                    $nextSale = $item->user;
+                    break;
+                }
+            }
+    
+            if (!$nextSale) {
+                foreach ($sales as $item) {
+                    if ($item->user->status) {
+                        $item->next_assign_sale = 0;
+                        $item->save();
+                    }
+                }
+            }
+        } else {
+            foreach ($sales as $item) {
+                if ($item->user->status && $item->next_assign_cskh == 0 && $item->user->id != $currentSale->id) {
+                    $item->next_assign_cskh = 1;
+                    $item->save();
+                    $nextSale = $item->user;
+                    break;
+                }
+            }
+    
+            if (!$nextSale) {
+                foreach ($sales as $item) {
+                    if ($item->user->status && $item) {
+                        $item->next_assign_cskh = 0;
+                        $item->save();
+                    }
+                }
+            }
+        }
+       
+    }
+    
+    /**ko có user nào đc chỉ định thì lấy user đầu tiên, điều kiện tất cả user đều = 0 */
+    public static function getSaleFirst($sales, $typeSale = 'hot') 
+    {
+        if ($typeSale == 'hot') {
+            foreach ($sales as $item) {
+                if ($item->user->status && $item->next_assign_sale == 0) {
+                    return $item;
+                }
+            }
+        } else {
+           
+            foreach ($sales as $item) {
+                if ($item->user->status && $item->next_assign_cskh == 0) {
+                    return $item;
+                }
+            }
+        }
+        
+    }
+
+    /**
+     * active + nhận data + được chỉ định => return user
+     */
+    public static function getSaleReady($sales, $typeAssgin = 'hot') 
+    {
+        if ($typeAssgin == 'hot') {
+            foreach ($sales as $item) {
+                if ($item->user->status && $item->next_assign_sale == 1) {
+                    return $item;
+                }
+            }
+        } else {
+            foreach ($sales as $item) {
+                if ($item->user->status && $item->next_assign_cskh == 1) {
+                    return $item;
+                }
+            }
+        }
+
+
+    }
+
+    public static function getAssignCskhByGroup($group)
+    {
+        $saleOfGroup = $group->sales->where('type_sale', 2);
+        // dd($saleOfGroup);
+        /**lấy user chỉ định bằng 1 trong list sale của group*/
+        $saleItem = Helper::getSaleReady($saleOfGroup, 'cskh');
+        // dd($saleItem);
+        if (!$saleItem) {
+            // dd('hi');
+            $saleItem = Helper::getSaleFirst($saleOfGroup, 'cskh');  
+        }
+       
+       
+        /**set user chỉ định đã được lấy, set = 2 = đã dùng trong lần gọi này*/
+        $saleItem->next_assign_cskh = 2;
+        $saleItem->save();
+
+        ///
+        /** còn trường hợp ko có sale nào trong ca: có data mới nhưng sale đều off (ko chia data) - chưa xử lý 
+         * = auto luôn có 1 sale trực ca/chia data*/
+        ////
+
+        
+        Helper::setSaleNextAssign($saleOfGroup, $saleItem, 'cskh');
+        return $saleItem;
+    }
+
+    public static function getGroupByPageId($pageId)
+    {
+        $page = DB::table('src_page')
+            ->select('group_work.id')
+            ->join('group_work', 'group_work.id', '=', 'src_page.id_group')
+            ->where(['src_page.id_page' => $pageId, 'group_work.status' => 1])
+            ->first();
+
+        if ($page) {
+            return Group::find($page->id);
+        }
+    }
+
+    public static function getPageSrcByPageId($pageId)
+    {
+        return SrcPage::where('id_page', $pageId)->first();
+    }
+
+    public static function getListLeadSale()
+    {
+        $list = User::where('status', 1);
+        $result = [];
+        /** lấy ra danh sách lead sale */
+        foreach ($list->get() as $user) {
+            if (in_array(4, json_decode($user->role, true))) {
+                $result[] = $user;
+            }
+        }
+        return $result;
     }
 }

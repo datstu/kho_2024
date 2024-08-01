@@ -36,4 +36,9 @@ class Group extends Model
     {
         return $this->hasMany(DetailProductGroup::class, 'id_group');
     }
+
+    public function leadSale(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'lead_sale', 'id');
+    }
 }

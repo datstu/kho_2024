@@ -132,28 +132,25 @@ class SaleController extends Controller
                 if ($telegram && $telegram->status == 1) {
                     $tokenGroupChat = $telegram->token;
                     $chatId = $req->chat_id;
+                    // $saleTricho = $saleCare->user->name;
+                    // // dd($saleTricho);
+                    // if ((($saleTricho == 'sale.hiep' || $saleTricho == 'sale') && $req->group_id == 'tricho')
+                    //     ||  $saleCare->group_id == 'tricho') {
+                    //     if (($chatId &&  $chatId == 'id_VUI_tricho') || $saleCare->page_id == 'tricho') {
+                    //         $chatId = env('id_VUI_tricho');
+                    //     } else {
+                    //         $chatId = env('id_CSKH_tricho');
+                    //     }
+                    // } else if (($chatId &&  $chatId == 'id_VUI') || $saleCare->old_customer == 0) {
+                    //     $chatId = $telegram->id_VUI;
+                    // } else {
+                    //     $chatId = $telegram->id_CSKH;
+                    // }
 
-                    $saleTricho = $saleCare->user->name;
-                    // dd($saleTricho);
-                    if ((($saleTricho == 'sale.hiep' || $saleTricho == 'sale') && $req->group_id == 'tricho')
-                        ||  $saleCare->group_id == 'tricho') {
-                        if (($chatId &&  $chatId == 'id_VUI_tricho') || $saleCare->page_id == 'tricho') {
-                            $chatId = env('id_VUI_tricho');
-                        } else {
-                            $chatId = env('id_CSKH_tricho');
-                        }
-                    } else if (($chatId &&  $chatId == 'id_VUI') || $saleCare->old_customer == 0) {
-                        $chatId = $telegram->id_VUI;
-                    } else {
-                        $chatId = $telegram->id_CSKH;
-                    }
+                    // if ($req->phone == '0973409613') {
+                    //     $chatId = '-4286962864'; //auto về nhóm test
+                    // }
 
-                    if ($req->phone == '0973409613') {
-                        $chatId = '-4286962864';
-                    }
-
-                    // echo 'chat id: ' . $chatId;
-                    
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
                     $client         = new \GuzzleHttp\Client();
 
@@ -182,18 +179,6 @@ class SaleController extends Controller
                         $notiText .= "\nNguồn data: " . $textSrcPage;
                         $notiText .= "\nSale nhận data: " . $name;
                     }
-                    //  else if ($saleCare->old_customer == 2) {
-                    //     $notiText .= "\nNguồn data: " . $textSrcPage;
-                    //     $notiText .= "\nSale nhận data: " . $name;
-                    // }
-                    
-                    // dd($notiText);
-                    // $name =  $saleCare->user->real_name ?: $saleCare->user->name;
-                    
-                    // $notiText .= "\nCSKH nhận data: " . $name;
-                    
-                    // dd ($chatId);
-                    // . ($req->text) ? $req->text : "\nĐã nhận được hàng."
                    
                     $response = $client->request('GET', $endpoint, ['query' => [
                         'chat_id' => $chatId, 
@@ -285,6 +270,45 @@ class SaleController extends Controller
                     ->whereDate('created_at', '<=', $dateEnd);
             }
 
+            /**
+             * 1: nhóm Tricho
+             * 2: nhóm Lúa
+             */
+            if (isset($dataFilter['group'])) {
+                if ($dataFilter['group'] == 1) {
+                    $src = ['389136690940452', '378087158713964', '381180601741468', 'Hotline - Tricho', 'Khách Cũ Tricho'];
+                    $list = $list->where(function($query) use ($src) {
+                        foreach ($src as $term) {
+                            if (is_numeric($term)) {
+                                $query->orWhere('page_id', 'like', '%' . $term . '%');
+                            } else {
+                                $query->orWhere('page_link', 'like', '%' . $term . '%');
+                            }
+
+                            if (str_contains($term, 'Tricho') || str_contains($term, 'line')) {
+                                $query->orWhere('page_name', 'like', '%' . $term . '%');
+                            }
+                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
+                        }
+                    });
+                    // dd($list->get());
+
+                } else if ($dataFilter['group'] == 2){
+                    $src = ['mua4-tang2', '335902056281917', '332556043267807', '318167024711625', '341850232325526', 'ruoc-dong', 'mua4tang2', 'giamgia45'];
+                    $list = $list->where(function($query) use ($src) {
+                        foreach ($src as $term) {
+                            if (is_numeric($term)) {
+                                $query->orWhere('page_id', 'like', '%' . $term . '%');
+                            } else {
+                                $query->orWhere('page_link', 'like', '%' . $term . '%');
+                            }
+                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
+                        }
+                    });
+
+                }
+            }
+
             /** có chọn 1 nguồn */
             if (isset($dataFilter['src'])) {
                 if (is_numeric($dataFilter['src'])) {
@@ -300,7 +324,7 @@ class SaleController extends Controller
                  */
                 if ($dataFilter['mkt'] == 1) {
                     /** tất cả nguồn */
-                    $src = ['332556043267807', '318167024711625', '341850232325526', 'ruoc-dong', 'mua4tang2', 'giamgia45'];
+                    $src = ['Hotline OG', 'Hotline - Tricho', 'Khách Cũ Tricho', '378087158713964', '381180601741468', '332556043267807', '318167024711625', '341850232325526', 'ruoc-dong', 'mua4tang2', 'giamgia45'];
                     $list = $list->where(function($query) use ($src) {
                         foreach ($src as $term) {
                             if (is_numeric($term)) {
@@ -308,11 +332,15 @@ class SaleController extends Controller
                             } else {
                                 $query->orWhere('page_link', 'like', '%' . $term . '%');
                             }
+
+                            if (str_contains($term, 'Tricho') || str_contains($term, 'line')) {
+                                $query->orWhere('page_name', 'like', '%' . $term . '%');
+                            }
                             // $query->orWhere('page_id', 'like', '%' . $term . '%');
                         }
                     });
                 } else if ($dataFilter['mkt'] == 2 || $user->is_digital) {
-                    $src = ['mua4-tang2', '335902056281917'];
+                    $src = ['mua4-tang2', '335902056281917', '389136690940452'];
                     $list = $list->where(function($query) use ($src) {
                         foreach ($src as $term) {
                             if (is_numeric($term)) {
@@ -325,7 +353,7 @@ class SaleController extends Controller
                     });
                 }
             } else if ($user->is_digital) {
-                $src = ['mua4-tang2', '335902056281917'];
+                $src = ['mua4-tang2', '335902056281917', '389136690940452'];
                 $list = $list->where(function($query) use ($src) {
                     foreach ($src as $term) {
                         if (is_numeric($term)) {
@@ -438,6 +466,11 @@ class SaleController extends Controller
         $src = $req->src;
         if ($req->src && $src != 999) {
             $dataFilter['src'] = $src;
+        }
+
+        $group = $req->group;
+        if ($req->group && $group != 999) {
+            $dataFilter['group'] = $group;
         }
 
         $typeCustomer = $req->type_customer;

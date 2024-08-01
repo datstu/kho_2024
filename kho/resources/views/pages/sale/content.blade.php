@@ -10,6 +10,36 @@
 
     $ladiPages = [
         [
+            'name' => '1 Lít Pha 1000 Lít Nước - 0986987791',
+            'id' => '378087158713964',
+            // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+        ],
+        [
+            'name' => '1 Xô Pha 10.000 Lít Nước',
+            'id' => '381180601741468',
+            // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+        ],
+        [
+            'name' => 'Khách Cũ Tricho',
+            'id' => 'Khách Cũ Tricho',
+            // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+        ],
+        [
+            'name' => 'Hotline - Tricho',
+            'id' => 'Hotline - Tricho',
+            // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+        ],
+        [
+            'name' => 'Hotline OG',
+            'id' => 'Hotline OG',
+            // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+        ],
+        [
+            'name' => '1Xô pha 10.000 lít nước',
+            'id' => '389136690940452',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+        ],
+        [
             'name' => 'Ladipage ruoc-dong',
             'id' => 'ruoc-dong',
             // 'src' => 'https://www.phanbonlua.xyz/ruoc-dong'
@@ -704,6 +734,15 @@
                 </div>
                 
                 <?php $checkAll = isFullAccess(Auth::user()->role);?>
+                @if ($checkAll || Auth::user()->is_digital)
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                  <select name="group" id="group-filter" class="form-select">
+                    <option value="999">--Chọn nhóm--</option>
+                    <option value="1">Nhóm Tricho</option>
+                    <option value="2">Nhóm Lúa</option>
+                  </select>
+                </div>
+                @endif
                 @if ($checkAll)
                 
                 <div class="src-filter col-2 form-group mb-1">
@@ -1420,6 +1459,11 @@ if (time) {
     time = decodeURIComponent(time)
     time = time.replace('+-+', ' - ') //loại bỏ khoảng trắng
     $('input[name="daterange"]').val(time)
+}
+
+let group = $.urlParam('group') 
+if (group) {
+    $('#group-filter option[value="' + group +'"]').attr('selected','selected');
 }
 </script>
 

@@ -27,9 +27,13 @@
 <div class="tab-content rounded-bottom">
   <div class="tab-pane p-3 active preview" role="tabpanel" id="preview-1001">
     <div class="row">
+
+      @if ($checkAll)
       <div class="col col-4">
         <a class="add-order btn btn-primary" href="{{route('add-group')}}" role="button">+ Thêm nhớm</a>
       </div>
+      
+
       <div class="col-8 ">
         <form class ="row tool-bar" action="{{route('search-order')}}" method="get">
           <div class="col-3">
@@ -40,7 +44,9 @@
               <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-search')}}"></use>
             </svg>Tìm</button>
         </form>
-          </div>
+      </div>
+      @endif
+
       </div>
     </div>
     <div class="example-custom example mt-0">
@@ -52,6 +58,7 @@
                 <th scope="col">#</th>
                 
                 <th scope="col">Tên nhóm</th>
+                <th class="col" scope="col" >Trưởng nhóm</th>
                 <th class="col" scope="col" >Thành viên</th>
                 <th class="col" scope="col" >Nguồn data</th>
                 <th class="col" scope="col" >Sản phẩm</th>
@@ -63,10 +70,14 @@
             </thead>
             <tbody>
               @if (isset($list))
+              <?php $i = 1; ?>
               @foreach ($list as $gr)
               <tr>
-                <td>{{$gr->id}}</td>
+                <td><?= $i ?></td>
                 <td>{{$gr->name}}</td>
+                <td>
+                  {{($gr->leadSale) ? $gr->leadSale->real_name : "";}}
+                </td>
                 <td>
 
                 @if ($gr->sales)
@@ -102,7 +113,7 @@
                     
                       <svg class="icon me-2">
                         <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-color-border')}}"></use>
-                      </svg>Sửa
+                      </svg>Cập nhật
                   </a>
                 </td>
                 <td scope="col-1">
@@ -113,6 +124,7 @@
                   </a> --}}
                 </td>
               </tr>
+              <?php $i++; ?>
               @endforeach
               @endif
             </tbody>

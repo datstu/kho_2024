@@ -339,7 +339,7 @@ class Helper
         return $sale;
     }
     
-        /**
+    /**
      * next_assign chỉ định sale
      *  = 0 sẵn sàn chỉ định
      *  = 1 chỉ định -> người được chọn
@@ -347,6 +347,7 @@ class Helper
      */
     public static function getAssignSaleByGroup($group)
     {
+        dd($group);
         $saleOfGroup = $group->sales;
         // // $listSale = $group->sales->pluck('id_user')->toArray();
         // dd($saleOfGroup[0]->user);

@@ -25,7 +25,13 @@ class GroupController extends Controller
      */
     public function index()
     {
-        $list = Group::get();
+        $checkAll = isFullAccess(Auth::user()->role);
+        if ($checkAll) {
+            $list = Group::get();
+        } else {
+            $list = Group::where('lead_sale', Auth::user()->id)->get();
+        }
+       
         return view('pages.group.index')->with('list', $list);
     }
 
@@ -143,11 +149,19 @@ class GroupController extends Controller
             } else {
                 $gr = new Group();
             }
-           
+
+            // dd($req->all());
             try {
                 /** lưu thông tin nhóm */
                 $gr->name   = $req->name;
-                $gr->status = $req->status;         
+                $gr->status = $req->status; 
+                $gr->tele_bot_token = $req->teleBotToken; 
+                $gr->tele_hot_data = $req->teleHotData;         
+                $gr->tele_create_order = $req->teleCreateOrder;         
+                $gr->tele_cskh_data = $req->teleCskhData;  
+                $gr->is_share_data_cskh = $req->shareDataCskh;
+                $gr->lead_sale   = $req->leadSale;
+                
                 $gr->save();
 
                 /** lưu thôn tin user trong nhóm */
@@ -176,7 +190,7 @@ class GroupController extends Controller
                     }
                 }
 
-                /** lưu thôn tin user trong nhóm */
+                /** lưu thôn tin sản phẩm trong nhóm */
                 if (!isset($req->id)) {
                     $products = $req->product;
                     foreach ($products as $product) {
@@ -184,6 +198,21 @@ class GroupController extends Controller
                         $detailProduct->id_group = $gr->id;
                         $detailProduct->id_product = $product;
                         $detailProduct->save();
+                    }
+                }
+
+                // dd($req->all());
+                /** lưu thôn tin sale CSKH nếu isShareData = true*/
+                if ($req->shareDataCskh) {
+                    $saleCSKH = $req->memberCSKH;
+                
+                    // $tmp = [];
+                    foreach ($saleCSKH as $member) {
+                        $detailUser = new DetailUserGroup();
+                        $detailUser->id_group = $gr->id;
+                        $detailUser->id_user = $member;
+                        $detailUser->type_sale = 2;
+                        $detailUser->save();
                     }
                 }
 

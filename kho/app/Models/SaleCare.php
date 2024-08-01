@@ -8,6 +8,7 @@ use App\Models\Call;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Orders;
+use Illuminate\Database\Eloquent\Relations\hasOne;
 
 class SaleCare extends Model
 {
@@ -46,5 +47,10 @@ class SaleCare extends Model
     public function orderNew(): BelongsTo
     {
         return $this->belongsTo(Orders::class, 'id_order_new', 'id');
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class, 'group_id', 'id');
     }
 }

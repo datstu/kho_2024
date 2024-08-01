@@ -7,7 +7,9 @@
 
     <li class="nav-title">Development</li>
 
- <?php $checkAll = isFullAccess(Auth::user()->role);?>
+<?php $checkAll = isFullAccess(Auth::user()->role);
+    $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+?>
 
     @if ($checkAll)
 
@@ -62,13 +64,15 @@
     </li>
     @endif
     
-    @if ($checkAll)
+    @if ($checkAll || $isLeadSale)
     <li class="nav-item"><a class="nav-link" href="{{route('manage-group')}}">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-group')}}"></use>
         </svg>QL Nhóm</a>
     </li>
-
+    @endif
+    
+    @if ($checkAll)
     <li class="nav-item"><a class="nav-link" href="{{route('manage-user')}}">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-chart-pie')}}"></use>

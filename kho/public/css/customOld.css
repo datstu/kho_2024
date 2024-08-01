@@ -88,7 +88,7 @@ html,body,.content-wrapper {background-color:#fff;font-family:Arial,Helvetica,sa
 .content-wrapper{padding:0 0 20px 0;}
 
 .table{font-size:12px;margin-bottom:15px;}
-.form-control { font-size: 12px; height: 30px; line-height: 30px; color: #000; }
+.form-control { font-size: 12px; line-height: 30px; color: #000; }
 textarea.form-control { line-height: 16px; }
     .form-control[readonly] { background-color: white; }
 .txt-dotted {border: 1px solid transparent;border-bottom: dotted 1px #999;width: 100%;padding:0px;}

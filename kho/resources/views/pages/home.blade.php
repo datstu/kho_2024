@@ -115,6 +115,16 @@
         <input id="daterange" class=" btn btn-outline-secondary" type="text" name="daterange"/>
       </div>
      
+      @if ($checkAll || $enableDigital)
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <select name="group" id="group-filter" class="form-select">
+          <option value="999">--Chọn nhóm--</option>
+          <option value="1">Nhóm Tricho</option>
+          <option value="2">Nhóm Lúa</option>
+        </select>
+      </div>
+      @endif
+
       <?php $isDigital = Auth::user()->is_digital;?>
       @if ($isDigital)
       <div class="src-filter col-2 form-group mb-1">
@@ -130,6 +140,11 @@
                 [
                     'name' => 'Tiễn - Dùng Là X3 Năng Suất',
                     'id' => '335902056281917',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
+                ],
+                [
+                    'name' => 'Tiễn - 1Xô pha 10.000 lít nước',
+                    'id' => '389136690940452',
                     // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
                 ],
               ];?>
@@ -155,6 +170,42 @@
                 }   
 
                 $ladiPages = [
+                  [
+                    'name' => '1 Lít Pha 1000 Lít Nước - 0986987791',
+                    'id' => '378087158713964',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
+                  [
+                    'name' => '1 Xô Pha 10.000 Lít Nước',
+                    'id' => '381180601741468',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
+                  [
+                    'name' => 'Khách Cũ Tricho',
+                    'id' => 'Khách Cũ Tricho',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
+                  [
+                    'name' => 'Hotline - Tricho',
+                    'id' => 'Hotline - Tricho',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
+                  [
+                    'name' => 'Hotline OG',
+                    'id' => 'Hotline OG',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
+                  [
+                    'name' => '1Xô pha 10.000 lít nước',
+                    'id' => '389136690940452',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
+                  
+                  [
+                    'name' => 'Ladipage ruoc-dong',
+                    'id' => 'ruoc-dong',
+                    // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
+                  ],
                   [
                     'name' => 'Ladipage ruoc-dong',
                     'id' => 'ruoc-dong',
@@ -911,6 +962,7 @@ if ($dataSale && $enableSale) {
       var sale      = $("select[name='sale']").val();
       var mkt       = $("select[name='mkt']").val();
       var src       = $("select[name='src']").val();
+      var group     = $("select[name='group']").val();
 
       if ($('.table_sale').length > 0) {
         $('.table_sale .loader').show();
@@ -928,7 +980,8 @@ if ($dataSale && $enableSale) {
                 product,
                 sale,
                 mkt,
-                src
+                src,
+                group
             },
             success: function(data) {
                 // console.log(data)
@@ -1056,15 +1109,16 @@ if ($dataSale && $enableSale) {
             url: "{{ route('filter-total-digital') }}",
             type: 'GET',
             data: {
-                _token: _token,
-                type: 'daterange',
-                date: arr,
-                status,
-                category,
-                product,
-                sale,
-                mkt,
-                src
+              _token: _token,
+              type: 'daterange',
+              date: arr,
+              status,
+              category,
+              product,
+              sale,
+              mkt,
+              src,
+              group
             },
             success: function(data) {
 
