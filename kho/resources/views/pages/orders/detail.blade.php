@@ -72,6 +72,10 @@
                     </td>
                 </tr>
                 <tr>
+                    <td class="first-col">Người tạo</td>
+                    <td>{{Helper::getUserByID($order->assign_user)->real_name}}</td>
+                </tr>
+                <tr>
                     <td class="first-col">Số điện thoại</td>
                     <td>{{$order->phone}}</td>
                 </tr>
@@ -107,9 +111,10 @@
                     <td class="{{$styleStatus[$order->status]}}"><span>{{$listStatus[$order->status]}}</span></td>
                 </tr>
                 <tr>
-                    <td class="first-col">Người tạo</td>
-                    <td>{{Helper::getUserByID($order->assign_user)->real_name}}</td>
+                    <td class="first-col">Ghi chú</td>
+                    <td>{{$order->note}}</td>
                 </tr>
+                
                 </tbody>
             </table>
 
@@ -129,6 +134,7 @@
                 <?php }} ?>
                 </tbody>
             </table>
+
         </div>
     </div>
 </div>
