@@ -105,6 +105,7 @@ class SaleController extends Controller
             $saleCare->group_id             = $req->group_id;
             
             $srcId = $req->src;
+            // dd($req->all());
             if ($srcId) {
                 $src = Helper::getSrcById($srcId);
                 // dd($src);
@@ -112,17 +113,26 @@ class SaleController extends Controller
                 $saleCare->page_id              = $src->id_page;
                 $saleCare->page_link            = $src->link;
                 // dd('hi');
+
+                //những nguồn chưa chọn nhóm, tất cả đổ tạm thời về vui tricho
+                $chatId = env('id_VUI_tricho');
+                // dd($chatId);
                 if ($src->id_page == 'tricho') {
                     $saleCare->group_id            = $src->id_page;
-                    $saleCare->save();
+                    $saleCare->save();   
+                } 
+                
+                if ($src->group) {
+                    // dd($src->group);
+                    $chatId = $src->group->tele_hot_data;
                 }
-               
+            
             } else {
                 $saleCare->page_name            = $req->page_name;
                 $saleCare->page_id              = $req->page_id;
                 $saleCare->page_link            = $req->page_link;
             }
-
+            // dd($chatId);
             $saleCare->save();
 
             if (!isset($req->id)) {
@@ -131,7 +141,8 @@ class SaleController extends Controller
                 $telegram = Helper::getConfigTelegram();
                 if ($telegram && $telegram->status == 1) {
                     $tokenGroupChat = $telegram->token;
-                    $chatId = $req->chat_id;
+
+                    $chatId = (!empty($chatId)) ? $chatId : $req->chat_id;
                     // $saleTricho = $saleCare->user->name;
                     // // dd($saleTricho);
                     // if ((($saleTricho == 'sale.hiep' || $saleTricho == 'sale') && $req->group_id == 'tricho')
@@ -147,9 +158,9 @@ class SaleController extends Controller
                     //     $chatId = $telegram->id_CSKH;
                     // }
 
-                    // if ($req->phone == '0973409613') {
-                    //     $chatId = '-4286962864'; //auto về nhóm test
-                    // }
+                    if ($req->phone == '0973409613') {
+                        $chatId = '-4286962864'; //auto về nhóm test
+                    }
 
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
                     $client         = new \GuzzleHttp\Client();
@@ -179,7 +190,7 @@ class SaleController extends Controller
                         $notiText .= "\nNguồn data: " . $textSrcPage;
                         $notiText .= "\nSale nhận data: " . $name;
                     }
-                   
+
                     $response = $client->request('GET', $endpoint, ['query' => [
                         'chat_id' => $chatId, 
                         'text' => $notiText,
