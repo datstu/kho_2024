@@ -389,10 +389,10 @@ class Helper
         return LadiPage::first();
     }
 
-    public static function isOldDataLadi($phone, $link, &$assign) 
+    public static function isOldDataLadi($phone, &$assign) 
     {
         $phone = trim($phone);
-        $saleCare = SaleCare::where('phone', $phone)->where('page_link', 'like', '%' . $link . '%')->first();
+        $saleCare = SaleCare::where('phone', $phone)->first();
 
         if ($saleCare) {
             $assign = $saleCare->assign_user;
@@ -663,8 +663,6 @@ class Helper
 
         
         if (!$saleItem) {
-           
-
             $saleItem = Helper::getSaleFirst($saleOfGroup);  
         }
 
@@ -800,6 +798,7 @@ class Helper
 
     public static function getGroupByPageId($pageId)
     {
+        // dd($pageId);
         $page = DB::table('src_page')
             ->select('group_work.id')
             ->join('group_work', 'group_work.id', '=', 'src_page.id_group')
@@ -827,5 +826,21 @@ class Helper
             }
         }
         return $result;
+    }
+
+    public static function getGroupByLinkLadi($link)
+    {
+        // dd($link);
+        $page = DB::table('src_page')
+            ->select('group_work.id')
+            ->join('group_work', 'group_work.id', '=', 'src_page.id_group')
+            // ->where(['src_page.link' => $link, 'group_work.status' => 1])
+            ->where('src_page.link', 'like', '%' . $link . '%')
+            ->where('group_work.status' , 1)
+            ->first();
+
+        if ($page) {
+            return Group::find($page->id);
+        }
     }
 }

@@ -27,12 +27,149 @@ class FbWebHookController extends Controller
         file_put_contents("text.txt", $response)
         */
 
-        $inputRespone = '{
+        Log::channel('webhook')->info('run webhook');
+        $myVertifyToken = 'dat1shot';
+    
+        $challenge = $_REQUEST['hub_challenge'];
+        $verifyToken = $_REQUEST['hub_verify_token'];
+        
+        if ($myVertifyToken === $verifyToken) {
+            echo $challenge;
+            exit;
+        }
+    }
+
+    // Hàm gửi tin nhắn sử dụng Facebook Send API
+    function sendTextMessage($senderPsid, $message)
+    {
+        global $PAGE_ACCESS_TOKEN;
+        $url = 'https://graph.facebook.com/v13.0/me/messages?access_token=' . $PAGE_ACCESS_TOKEN;
+    
+        $ch = curl_init($url);
+    
+        $jsonData = [
+            'recipient' => ['id' => $senderPsid],
+            'message' => ['text' => $message]
+        ];
+    
+        $jsonDataEncoded = json_encode($jsonData);
+    
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonDataEncoded);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+        $result = curl_exec($ch);
+        curl_close($ch);
+    
+        if ($result) {
+            echo "Tin nhắn đã được gửi!";
+        } else {
+            echo "Không thể gửi tin nhắn.";
+        }
+    }
+
+    public function getUserName($userId, $access_token) {
+        // dd($access_token);
+        $url = "https://graph.facebook.com/$userId?fields=first_name,last_name&access_token=$access_token";
+    
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+    
+        $user = json_decode($response, true);
+        // if ()
+        dd( $user);
+        // Trả về tên đầy đủ hoặc chỉ tên riêng
+        return $user['last_name'] . ' ' . $user['first_name'];
+    }
+
+    public function saveDataWebhookFB($group, $pageId, $phone, $name, $mId, $messages, $pageSrc)
+    {
+        // foreach ($data as $item) {
+        // $recentPhoneNumbers = $phone;
+        // $mId      = $recentPhoneNumbers->m_id;
+        // $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
+        // $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
+        // $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
+
+        $assgin_user = 0;
+        $is_duplicate = false;
+        $phone = Helper::getCustomPhoneNum($phone);
+        $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, $assgin_user, $is_duplicate);
+
+        $chatId = $group->tele_hot_data;
+        // dd($chatId);
+        $linkPage = $pageSrc->link;
+        $namePage = $pageSrc->name;
+        if ($checkSaleCareOld) {  
+            if ($assgin_user == 0 && $group->sales) {
+                // dd($group);
+                $assignSale = Helper::getAssignSaleByGroup($group);
+                if (!$assignSale) {
+                    return;
+                }
+                $assgin_user = $assignSale->id_user;
+            }
+
+            // dd($assgin_user);
+            $is_duplicate = ($is_duplicate) ? 1 : 0;
+            $sale = new SaleController();
+            $data = [
+                'page_link' => $linkPage,
+                'page_name' => $namePage,
+                'sex'       => 0,
+                'old_customer' => 0,
+                'address'   => '',
+                'messages'  => $messages,
+                'name'      => $name,
+                'phone'     => $phone,
+                'page_id'   => $pageId,
+                'text'      => 'Page ' . $namePage,
+                'chat_id'   => $chatId,
+                'm_id'      => $mId,
+                'assgin'    => $assgin_user,
+                'is_duplicate' => $is_duplicate,
+                'group_id'  => $group->id,
+            ];
+
+            $request = new \Illuminate\Http\Request();
+            $request->replace($data);
+            $sale->save($request);
+        }
+        //   } 
+    }
+
+
+    // Xác minh webhook từ Facebook
+    public function verify(Request $request)
+    {
+        Log::channel('webhook')->info('run webhook');
+        $verifyToken = 'dat1shot'; // Token xác minh
+
+        if ($request->input('hub_mode') === 'subscribe' &&
+            $request->input('hub_verify_token') === $verifyToken) {
+            return response($request->input('hub_challenge'), 200);
+        }
+
+        return response('Xác minh thất bại', 403);
+    }
+
+    // Xử lý sự kiện webhook
+    public function handle(Request $request)
+    {
+        $data = $request->all();
+
+        // Thực hiện các hành động với dữ liệu từ Facebook
+        // Ví dụ: xử lý tin nhắn, sự kiện...
+        $inputRespone = '{"object":"page","entry":[{"time":1722480337038,"id":"341850232325526","messaging":[{"sender":{"id":"7764406346913945"},"recipient":{"id":"341850232325526"},"timestamp":1722480336422,"message":{"mid":"m_N4vRYpNm-ii954tkg4OMniJFFOCMGcl0KUY-vCD9Wr66u94SN14N1udZxrBvEvsuzs__3b2JRtRG_Rf9jThwyw","text":"0973409654 ib"}}]}]}';
+        $inputRespone2 = '{
             "object": "page",
             "entry": [
                 {
                 "time": 1721793454761,
-                "id": "326283683897191",
+                "id": "378087158713964",
                 "messaging": [
                     {
                     "sender": {
@@ -93,24 +230,24 @@ class FbWebHookController extends Controller
                             $pageId = $entry['id'];
                             $group = Helper::getGroupByPageId($pageId);
                             if (!$group) {
-                                break;
+                                continue;
                             }
                             
                             $pageSrc = Helper::getPageSrcByPageId($pageId);
                             if (!$pageSrc) {
-                                break;
+                                continue;
                             }
 
                             $tokenPage = $pageSrc->token;
                             $name = $this->getUserName($senderPsid, $tokenPage);
                             if (!$name) {
-                                break;
+                                continue;
                             }
                             // $accessToken = Helper::getAccessTokenByPageId($pageId);
                             // if (!$accessToken) {
                             //     break;
                             // }
-
+                            dd('yau');
                             foreach ($phoneNumbers as $phoneNumber) {
                                 $this->saveDataWebhookFB($group, $pageId, $phoneNumber, $name, $mid, $receivedMessage, $pageSrc);
                            
@@ -134,107 +271,6 @@ class FbWebHookController extends Controller
             }
             exit;
         }
-    
-    }
-
-    // Hàm gửi tin nhắn sử dụng Facebook Send API
-    function sendTextMessage($senderPsid, $message)
-    {
-        global $PAGE_ACCESS_TOKEN;
-        $url = 'https://graph.facebook.com/v13.0/me/messages?access_token=' . $PAGE_ACCESS_TOKEN;
-    
-        $ch = curl_init($url);
-    
-        $jsonData = [
-            'recipient' => ['id' => $senderPsid],
-            'message' => ['text' => $message]
-        ];
-    
-        $jsonDataEncoded = json_encode($jsonData);
-    
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonDataEncoded);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    
-        $result = curl_exec($ch);
-        curl_close($ch);
-    
-        if ($result) {
-            echo "Tin nhắn đã được gửi!";
-        } else {
-            echo "Không thể gửi tin nhắn.";
-        }
-    }
-
-    public function getUserName($userId, $access_token) {
-        $url = "https://graph.facebook.com/$userId?fields=first_name,last_name&access_token=$access_token";
-    
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        curl_close($ch);
-    
-        $user = json_decode($response, true);
-    
-        // Trả về tên đầy đủ hoặc chỉ tên riêng
-        return $user['last_name'] . ' ' . $user['first_name'];
-    }
-
-    public function saveDataWebhookFB($group, $pageId, $phone, $name, $mId, $messages, $pageSrc)
-    {
-        // foreach ($data as $item) {
-        // $recentPhoneNumbers = $phone;
-        // $mId      = $recentPhoneNumbers->m_id;
-        // $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
-        // $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
-        // $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-
-        $assgin_user = 0;
-        $is_duplicate = false;
-        $phone = Helper::getCustomPhoneNum($phone);
-        $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, $assgin_user, $is_duplicate);
-
-        $chatId = $group->tele_hot_data;
-        // dd($chatId);
-        $linkPage = $pageSrc->link;
-        $namePage = $pageSrc->name;
-        if ($checkSaleCareOld) {  
-            if ($assgin_user == 0 && $group->sales) {
-                // dd($group);
-                $assignSale = Helper::getAssignSaleByGroup($group);
-                if (!$assignSale) {
-                    return;
-                }
-                $assgin_user = $assignSale->id_user;
-            }
-
-            // dd($assgin_user);
-            $is_duplicate = ($is_duplicate) ? 1 : 0;
-            $sale = new SaleController();
-            $data = [
-                'page_link' => $linkPage,
-                'page_name' => $namePage,
-                'sex'       => 0,
-                'old_customer' => 0,
-                'address'   => '',
-                'messages'  => $messages,
-                'name'      => $name,
-                'phone'     => $phone,
-                'page_id'   => $pageId,
-                'text'      => 'Page ' . $namePage,
-                'chat_id'   => $chatId,
-                'm_id'      => $mId,
-                'assgin'    => $assgin_user,
-                'is_duplicate' => $is_duplicate,
-                'group_id'  => $group->id,
-            ];
-
-            $request = new \Illuminate\Http\Request();
-            $request->replace($data);
-            $sale->save($request);
-        }
-        //   }
-        
+        return response('Sự kiện đã nhận', 200);
     }
 }

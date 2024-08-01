@@ -617,7 +617,7 @@ class TestController extends Controller
     echo "namePage: $namePage \n" . '<br>';
     echo "linkPage: $linkPage \n" . '<br>';
     echo "chatId: $chatId \n" . '<br>';
-    if ($pIdPan == '381180601741468' && $pIdPan != '' && $token != '' && $namePage != '' && $linkPage != '' && $chatId != '') {
+    if ( $pIdPan != '' && $token != '' && $namePage != '' && $linkPage != '' && $chatId != '') {
     
       $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
       $today    = strtotime(date("Y/m/d H:i"));
@@ -633,7 +633,7 @@ class TestController extends Controller
         $content  = json_decode($response->body());
         if ($content->success) {
           $data     = $content->conversations;
-          dd($data);
+          // dd($data);
           foreach ($data as $item) {
           
             $recentPhoneNumbers = $item->recent_phone_numbers[0];

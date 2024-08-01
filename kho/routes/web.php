@@ -141,4 +141,6 @@ Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
 
 Route::get('/hiep',  [TestController::class, 'saveDataHiep'])->name('hiep');
 
-Route::get('/webhook-fb', [FbWebHookController::class, 'webhook'])->name('webhook');
+// Route::get('/webhook-fb', [FbWebHookController::class, 'webhook'])->name('webhook');
+// Route::get('/webhook', [FbWebHookController::class, 'verify']);
+Route::get('/webhook', [FbWebHookController::class, 'handle']);
