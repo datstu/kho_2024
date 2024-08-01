@@ -517,10 +517,16 @@ class OrdersController extends Controller
                     $saleCare->id_order_new = $order->id;
                     $saleCare->save();
                     $group = $saleCare->group;
-                    // dd($saleCare);
-                    /** ko xoá group đã có saleCare => luôn tồn tại group */
-                    $chatId = $group->tele_create_order;
-                    $tokenGroupChat = $group->tele_bot_token;
+                    if ($group) {
+                        // dd($saleCare);
+                        /** ko xoá group đã có saleCare => luôn tồn tại group */
+                        $chatId = $group->tele_create_order;
+                        $tokenGroupChat = $group->tele_bot_token;
+                    } else {
+                        $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
+                        $chatId = '-4167465219';
+                    }
+                   
                 }
 
                 //gửi thông báo qua telegram
