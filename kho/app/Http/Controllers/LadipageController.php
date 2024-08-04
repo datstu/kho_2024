@@ -71,7 +71,7 @@ class LadipageController  extends Controller
 
     public function index(Request $r) 
     {
-        Log::channel('new')->info('run api ladipage');
+        Log::channel('webhook')->info('run api ladipage');
         // dd($r->all());
         $phone = $r->phone;
         $name = $r->name;
@@ -85,20 +85,26 @@ class LadipageController  extends Controller
             $messages .= "\n" . $address;
         }
         $all = json_encode($r->all());
-        Log::channel('new')->info($all);
+        Log::channel('webhook')->info($all);
         // $str = '{"variant_url":null,"utm_campaign":null,"ip":"58.187.189.59","utm_medium":null,"link":"https:\/\/www.nongnghiepsachvn.net\/tricho-bacillus-km","form_item3209":"T\u00f4i mu\u1ed1n b\u00e1o gi\u00e1 2 x\u00f4","message_id":"ed9dbbde-5005-11ef-a2e3-2325c6b4e731","utm_term":null,"message_time":1722517186337,"phone":"0973409613","url_page":"https:\/\/www.nongnghiepsachvn.net\/tricho-bacillus-km","name":"dattest","ladi_form_id":"FORM14","variant_content":null,"utm_source":null,"utm_content":null}';
         $str = $all;
         $arr = json_decode($str, true);
         $linkPage = $arr['link'];
+         Log::channel('webhook')->info('link: ' .$linkPage);
         // dd($arr);
-        Log::info($all);
+        // Log::info($all);
 
         $assgin_user = 0;
         $is_duplicate = 0;
 
         // $group = Group::where('link', 'like', '%' . $linkPage . '%')->first();
+        Log::channel('webhook')->info('--------------------------');
+        
+        if (str_contains($linkPage, 'tricho-bacillus-km')) {
+            $linkPage = 'https://www.nongnghiepsachvn.net/tricho-bacillus-km';
+        }
         $group = Helper::getGroupByLinkLadi($linkPage);
-        // dd($group);
+        
         if ($group) {
             $chatId = $group->tele_hot_data;
             $phone = Helper::getCustomPhoneNum($phone);
