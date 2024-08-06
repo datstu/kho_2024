@@ -31,8 +31,13 @@ class Call extends Model
     /**
      * Get the shippingOrder for the Orders.
      */
-    public function categoryCall(): belongsTo
+    public function ifCall(): belongsTo
     {
         return $this->belongsTo(CategoryCall::class, 'if_call');
+    }
+
+    public function thenCall(): belongsTo
+    {
+        return $this->belongsTo(CategoryCall::class, 'then_call');
     }
 }

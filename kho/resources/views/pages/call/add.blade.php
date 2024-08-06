@@ -50,12 +50,24 @@
                                     <input required class="form-control" value="{{$call->result_call}}" name="result_call" id="rsCallIP" type="text">
                                     <p class="error_msg" id="name"></p>
                                 </div>
-                                <div class="mb-3 col-8">
+                                {{-- <div class="mb-3 col-8">
                                     <label class="form-label" for="thenCallIP">Thì</label>
                                     <input required class="form-control" value="{{$call->then_call}}" name="then_call" id="thenCallIP" type="text">
                                     <p class="error_msg" id="name"></p>
+                                </div> --}}
+                                <div class="mb-3 col-8">
+                                    <label class="form-label" for="thenCallIP">Thì</label>
+                                    <select name="then_call" class="form-select" id="thenCallIP">
+                                           
+                                        @if (isset($categoryCall))
+                                            @foreach ($categoryCall as $category)
+                                                <option <?= ($category->id == $call->then_call) ? "selected" : 'kkkk';?> value="{{$category->id}}">{{$category->name}}</option>
+                                            @endforeach
+                                        @endif
+                                        
+                                    </select>
+                                    <p class="error_msg" id="thenCallIP"></p>
                                 </div>
-
                                 <div class="mb-3 col-8">
                                     <label class="form-label" for="timeFor">Sau bao lâu (giờ)</label>
                                     <input class="form-control" value="{{$call->time}}" name="time" id="timeFor" type="text">
@@ -104,19 +116,32 @@
                                                     @endforeach
                                                 @endif
                                             </select>
-                                            <p class="error_msg" id="name"></p>
+                                            <p class="error_msg" id="ifCall"></p>
                                         </div>
                                         <div class="mb-3 col-8">
                                             <label class="form-label" for="rsCallIP">Kết quả</label>
                                             <input required class="form-control" name="result_call" id="rsCallIP" type="text">
                                             <p class="error_msg" id="name"></p>
                                         </div>
-                                        <div class="mb-3 col-8">
+                                        {{-- <div class="mb-3 col-8">
                                             <label class="form-label" for="thenCallIP">Thì</label>
                                             <input required class="form-control" name="then_call" id="thenCallIP" type="text">
                                             <p class="error_msg" id="name"></p>
+                                        </div> --}}
+                                        <div class="mb-3 col-8">
+                                            <label class="form-label" for="thenCallIP">Thì</label>
+                                            {{-- <input required class="form-control" name="if_call" id="ifCallIP" type="text"> --}}
+                                            
+                                            <select name="then_call" class="form-select" id="thenCallIP">
+                                                
+                                                @if (isset($categoryCall))
+                                                    @foreach ($categoryCall as $category)
+                                                        <option value="{{$category->id}}">{{$category->name}}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                            <p class="error_msg" id="thenCall"></p>
                                         </div>
-        
                                         <div class="mb-3 col-8">
                                             <label class="form-label" for="timeFor">Sau bao lâu (giờ)</label>
                                             <input class="form-control" name="time" id="timeFor" type="text">

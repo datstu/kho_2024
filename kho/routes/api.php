@@ -18,4 +18,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/ladipage', [LadipageController::class, 'index'])->name('ladipage');
+Route::get('/ladipage', [LadipageController::class, 'index'])->name('ladipage');

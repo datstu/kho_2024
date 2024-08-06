@@ -31,14 +31,15 @@
                     </thead>
                     <tbody>
 
+                        <?php $i = 1; ?>
                         @foreach ($call as $item)
                         <tr>
-                            <td>  {{ $item->id }}</td>
-                            <th>  {{ $item->categoryCall->name }}</th>
-                            <td>  {{ $item->result_call }}</td>
-                            <td>  {{ $item->then_call }} </td>
-                            <td>  {{ $item->time }} </td>
-                            <td >  {{ ($item->status) ? 'Bật' : 'Tắt' }} </td>
+                            <td>  {{ $i }}</td>
+                            <td> {{ ($item->ifCall) ? $item->ifCall->name : '' }}</td>
+                            <td> {{ $item->result_call }}</td>
+                            <td> {{ ($item->thenCall) ? $item->thenCall->name : '' }}</td>
+                            <td> {{ $item->time }} </td>
+                            <td> {{ ($item->status) ? 'Bật' : 'Tắt' }} </td>
                             <td>
                                 <a  title="sửa" href="{{route('call-update',['id'=>$item->id])}}" role="button">
                                 
@@ -57,6 +58,7 @@
                                 @endif
                             </td>
                         </tr>
+                        <?php $i++;?>
                         @endforeach
 
                     </tbody>

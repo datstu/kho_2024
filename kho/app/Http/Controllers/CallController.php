@@ -60,7 +60,6 @@ class CallController extends Controller
             $call->if_call = $req->if_call;
             $call->result_call = $req->result_call;
             $call->then_call = $req->then_call;
-            $call->name = $req->name;
             $call->time = $req->time;
             $call->save();
             

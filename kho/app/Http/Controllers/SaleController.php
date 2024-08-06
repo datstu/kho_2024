@@ -270,6 +270,7 @@ class SaleController extends Controller
         $list   = SaleCare::orderBy('id', 'desc');
 
         if ($dataFilter) {
+           
             if (isset($dataFilter['daterange'])) {
                 $time       = $dataFilter['daterange'];
                 $timeBegin  = str_replace('/', '-', $time[0]);
@@ -281,6 +282,7 @@ class SaleController extends Controller
                     ->whereDate('created_at', '<=', $dateEnd);
             }
 
+            
             /**
              * 1: nhóm Tricho
              * 2: nhóm Lúa
@@ -319,7 +321,7 @@ class SaleController extends Controller
 
                 }
             }
-
+            
             /** có chọn 1 nguồn */
             if (isset($dataFilter['src'])) {
                 if (is_numeric($dataFilter['src'])) {
@@ -395,7 +397,7 @@ class SaleController extends Controller
         $checkAll   = false;
         $listRole   = [];
         $roles      = json_decode($roles);
-
+        
         $routeName = Route::currentRouteName();
         if ($roles ) {
             foreach ($roles as $key => $value) {
@@ -411,6 +413,7 @@ class SaleController extends Controller
             }
         }
 
+       
 
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
 
@@ -431,7 +434,7 @@ class SaleController extends Controller
         } else if ((!$checkAll || !$isLeadSale ) && !$user->is_digital) {
             $list = $list->where('assign_user', $user->id);
         }  
-
+       
         // dd($list->get());
         return $list;
     }

@@ -23,7 +23,7 @@ class HomeController extends Controller
         $toMonth      = date("Y-m-d", time());
 
         /**set tmp */
-        // $toMonth = '2024-07-21';
+        // $toMonth = '2024-08-05';
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataSale = $this->getReportHomeSale($toMonth);
@@ -35,8 +35,8 @@ class HomeController extends Controller
         $sales   = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
 
         return view('pages.home')->with('category', $category)->with('sales', $sales)
-        ->with('dataSale', $dataSale)
-        ->with('dataDigital', $dataDigital);
+            ->with('dataSale', $dataSale)
+            ->with('dataDigital', $dataDigital);
     }
     
     public function getReportHomeDigital($time)
@@ -349,7 +349,6 @@ class HomeController extends Controller
         // dd($dataFilter);
         $ordersCtl = new SaleController();
         $saleCare  = $ordersCtl->getListSalesByPermisson(Auth::user(), $dataFilter);
-
         
         if ($type == 'new') {
             $saleCare->where('old_customer', 0);    
@@ -358,7 +357,7 @@ class HomeController extends Controller
         }
 
         $countSaleCare = $saleCare->count();
-        
+       
         /** tỷ lệ chốt = số đơn/số data */
         if ($countSaleCare == 0) {
             $rateSuccess = $countOrders * 100;
@@ -386,9 +385,10 @@ class HomeController extends Controller
         $checkAll = isFullAccess(Auth::user()->role);
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
         if ($checkAll || $isLeadSale) {
+            // dd($listSale->get());
             foreach ($listSale->get() as $sale) {
-                $data = $this->getReportUserSale($sale, $dataFilter);
-                $result[] = $data;
+                    $data = $this->getReportUserSale($sale, $dataFilter);
+                    $result[] = $data;   
             }
         } else if (Auth::user()->is_CSKH || Auth::user()->is_sale) {
             $result[] = $this->getReportUserSale(Auth::user(), $dataFilter);
@@ -407,6 +407,7 @@ class HomeController extends Controller
         if ($user->is_sale) {
             $newCustomer = $this->getSaleByType($dataFilter, 'new');
             $data['new_customer'] = $newCustomer;
+
             $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
             $newCountOrder = $newCustomer['order'];
 

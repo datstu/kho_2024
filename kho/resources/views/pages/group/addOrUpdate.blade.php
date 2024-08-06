@@ -179,6 +179,19 @@
                                 <button id="submit" class="btn btn-primary">Lưu</button>
                             </div>
                         </form>
+                        <div class="row p-3 ">
+                            <div class="col-12 tele-desc">
+                                <p><strong>Production:</strong></p>
+        
+                                <p>&ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm Niềm vui tới rồi': -4224720956</p>
+                                    <p>&ensp; Gửi thông báo khi khách hàng nhận được hàng đến 'nhóm CSKH': -4167465219</p>
+                                    <p>&ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm VUI': -4234584362</p>
+                                <p><strong>Dev/Local:</strong></p>
+                                <p> &ensp; Gửi thông báo khi tạo đơn hàng mới đến 'Dev Data Nóng': -4280564587</p>
+                                <p>&ensp;  Gửi thông báo khi khách hàng nhận được hàng đến 'Dev CSKH': -4268606310</p>
+                                <p>&ensp;  Gửi thông báo khi khách hàng nhận được hàng đến 'Dev Chốt đơn': -4211905463</p>
+                            </pre></div>
+                        </div>
                     </div>
                 </div>           
             </div>

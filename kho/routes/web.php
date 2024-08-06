@@ -136,11 +136,13 @@ Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboar
 // Route::get('/test',  [TestController::class, 'hi'])->name('test');
 // Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');
 // Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
-Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
-// Route::get('/test',  [TestController::class, 'updateStatusOrderGhnV2'])->name('test');
+// Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
+Route::get('/test',  [TestController::class, 'updateStatusOrderGhnV2'])->name('test');
+
+// Route::get('/test', [FbWebHookController::class, 'webhook']);
 
 Route::get('/hiep',  [TestController::class, 'saveDataHiep'])->name('hiep');
 
-// Route::get('/webhook-fb', [FbWebHookController::class, 'webhook'])->name('webhook');
-// Route::get('/webhook', [FbWebHookController::class, 'verify']);
-Route::get('/webhook', [FbWebHookController::class, 'handle']);
+Route::get('/webhook-fb', [FbWebHookController::class, 'webhook'])->name('webhook-fb');
+Route::get('/webhook', [FbWebHookController::class, 'verify']);
+Route::post('/webhook', [FbWebHookController::class, 'handle']);
