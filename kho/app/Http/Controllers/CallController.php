@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use App\Models\Call;
 use App\Helpers\Helper;
-use App\Models\Categorycall;
+use App\Models\CallResult;
+use App\Models\CategoryCall;
 
 class CallController extends Controller
 {
@@ -22,15 +23,16 @@ class CallController extends Controller
      */
     public function index()
     {
-        $calls = Call::orderBy('id', 'desc')->paginate(15);
+        $calls = Call::orderBy('id', 'desc')->paginate(50);
         // dd($calls);
         return view('pages.call.index')->with('call', $calls);
     }
 
     public function add()
     { 
-        $categoryCall = Categorycall::where('status', 1)->get();
-        return view('pages.call.add')->with('categoryCall', $categoryCall);
+        $categoryCall = CategoryCall::where('status', 1)->get();
+        $callResult = CallResult::where('status', 1)->get();
+        return view('pages.call.add')->with('categoryCall', $categoryCall)->with('callResult', $callResult);
     }
 
     public function save(Request $req) {
@@ -91,7 +93,9 @@ class CallController extends Controller
         $call = Call::find($id);
         if($call){
             $categoryCall = Categorycall::where('status', 1)->get();
-            return view('pages.call.add')->with('call', $call)->with('categoryCall', $categoryCall);
+            $callResult = CallResult::where('status', 1)->get();
+            return view('pages.call.add')->with('call', $call)->with('categoryCall', $categoryCall)
+            ->with('callResult', $callResult);
         } 
 
         return redirect('/');

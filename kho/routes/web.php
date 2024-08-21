@@ -17,6 +17,7 @@ use App\Http\Controllers\CategoryCallController;
 use App\Http\Controllers\LadipageController;
 use App\Http\Controllers\SrcPageController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\CallResultController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +95,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/cap-nhat-TNcan',  [SaleController::class, 'updateTNcan'])->name('update-salecare-TNcan');
     Route::post('/cap-nhat-assign-TNcan',  [SaleController::class, 'updateAssignTNSale'])->name('update-salecare-assign');
     Route::post('/id-order-new-check',  [SaleController::class, 'getIdOrderNewTNSale'])->name('get-salecare-idorder-new');
+    Route::post('/cap-nhat-ket-qua-TN',  [SaleController::class, 'updateTNresult'])->name('update-salecare-result');
     
     Route::get('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
 
@@ -102,6 +104,13 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/save-loai-TN-sale',  [CategoryCallController::class, 'save'])->name('category-call-save');
     Route::get('/cap-nhat-loai-TN-sale/{id}',  [CategoryCallController::class, 'update'])->name('category-call-update');
     Route::get('/delete-category-call/{id}',  [CategoryCallController::class, 'delete'])->name('category-call-delete');
+    
+    
+    Route::get('/ket-qua-TN-sale',  [CallResultController::class, 'index'])->name('call-result'); 
+    Route::get('/tao-ket-qua-TN-sale',  [CallResultController::class, 'add'])->name('call-result-add');
+    Route::post('/save-ket-qua-TN-sale',  [CallResultController::class, 'save'])->name('call-result-save');
+    Route::get('/cap-nhat-ket-qua-TN-sale/{id}',  [CallResultController::class, 'update'])->name('call-result-update');
+    Route::get('/delete-result-call/{id}',  [CallResultController::class, 'delete'])->name('call-result-delete');
     
     Route::get('/call',  [CallController::class, 'index'])->name('call-index');
     Route::get('/tao-call',  [CallController::class, 'add'])->name('call-add');
@@ -146,3 +155,6 @@ Route::get('/hiep',  [TestController::class, 'saveDataHiep'])->name('hiep');
 Route::get('/webhook-fb', [FbWebHookController::class, 'webhook'])->name('webhook-fb');
 Route::get('/webhook', [FbWebHookController::class, 'verify']);
 Route::post('/webhook', [FbWebHookController::class, 'handle']);
+
+Route::get('/xuat-file', [TestController::class, 'export']);
+Route::get('/wake-up', [TestController::class, 'wakeUp']);

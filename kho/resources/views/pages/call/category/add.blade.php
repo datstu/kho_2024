@@ -35,6 +35,11 @@
                                     <p class="error_msg" id="name"></p>
                                 </div>
                                 <div class="mb-3 col-8">
+                                    <label class="form-label" for="classIP">Class</label>
+                                    <input class="form-control" value="{{$categoryCall->class}}" name="class" id="classIP" type="text">
+                                    <p class="error_msg" id="class"></p>
+                                </div>
+                                <div class="mb-3 col-8">
                                     <label class="form-label" for="qtyIP">Trạng Thái</label>
                                     <div class="form-check">
                                         <input <?=  $categoryCall->status == 1 ? 'checked' : '' ?> class="form-check-input" type="radio" name="status" value="1"
@@ -69,6 +74,28 @@
                                             <label class="form-label" for="nameIP">Loại</label>
                                             <input autofocus required class="form-control" name="name" id="nameIP" type="text">
                                             <p class="error_msg" id="name"></p>
+                                        </div>
+                                        <div class="mb-3 col-8">
+                                            <label class="form-label" for="classIP">Class</label>
+                                            <input class="form-control" name="class" id="classIP" type="text">
+                                            <p class="error_msg" id="class"></p>
+                                        </div>
+                                        <div class="mb-3 col-8">
+                                            <label class="form-label" for="qtyIP">Trạng Thái</label>
+                                            <div class="form-check">
+                                                <input checked class="form-check-input" type="radio" name="status" value="1"
+                                                    id="flexRadioDefault1">
+                                                <label class="form-check-label" for="flexRadioDefault1">
+                                                    Bật
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input  class="form-check-input" type="radio" name="status" value="0"
+                                                    id="flexRadioDefault2" >
+                                                <label  class="form-check-label" for="flexRadioDefault2">
+                                                    Tắt
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 <button type="submit" id="submit" class="btn btn-primary">Tạo</button>

@@ -47,14 +47,17 @@
                                 </div>
                                 <div class="mb-3 col-8">
                                     <label class="form-label" for="rsCallIP">Kết quả</label>
-                                    <input required class="form-control" value="{{$call->result_call}}" name="result_call" id="rsCallIP" type="text">
-                                    <p class="error_msg" id="name"></p>
+                                    <select required name="result_call" class="form-select" id="rsCallIP">
+                                           
+                                        @if (isset($callResult))
+                                            @foreach ($callResult as $result)
+                                                <option <?= ($result->id == $call->result_call) ? "selected" : '';?> value="{{$result->id}}">{{$result->name}}</option>
+                                            @endforeach
+                                        @endif
+                                        
+                                    </select>
+                                    <p class="error_msg" id="rsCall"></p>
                                 </div>
-                                {{-- <div class="mb-3 col-8">
-                                    <label class="form-label" for="thenCallIP">Thì</label>
-                                    <input required class="form-control" value="{{$call->then_call}}" name="then_call" id="thenCallIP" type="text">
-                                    <p class="error_msg" id="name"></p>
-                                </div> --}}
                                 <div class="mb-3 col-8">
                                     <label class="form-label" for="thenCallIP">Thì</label>
                                     <select name="then_call" class="form-select" id="thenCallIP">
@@ -120,8 +123,17 @@
                                         </div>
                                         <div class="mb-3 col-8">
                                             <label class="form-label" for="rsCallIP">Kết quả</label>
-                                            <input required class="form-control" name="result_call" id="rsCallIP" type="text">
-                                            <p class="error_msg" id="name"></p>
+
+                                            <select required name="result_call" class="form-select" id="rsCallIP">
+                                           
+                                                @if (isset($callResult))
+                                                    @foreach ($callResult as $result)
+                                                        <option value="{{$result->id}}">{{$result->name}}</option>
+                                                    @endforeach
+                                                @endif
+                                                
+                                            </select>
+                                            <p class="error_msg" id="thenCallIP"></p>
                                         </div>
                                         {{-- <div class="mb-3 col-8">
                                             <label class="form-label" for="thenCallIP">Thì</label>

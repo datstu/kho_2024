@@ -24,7 +24,6 @@ class SaleController extends Controller
      */
     public function index(Request $r)
     {
-       
         if (count($r->all())) {
             return $this->filterSalesByDate($r);
         }
@@ -83,6 +82,7 @@ class SaleController extends Controller
             } else {
                 $saleCare = new SaleCare();
                 $text = 'Tạo tác nghiệp thành công.';
+                $saleCare->type_TN = 1;
             }
 
             $saleCare->id_order             = $req->id_order;
@@ -125,6 +125,8 @@ class SaleController extends Controller
                 if ($src->group) {
                     // dd($src->group);
                     $chatId = $src->group->tele_hot_data;
+                    $saleCare->group_id = $src->id_group;
+                    $saleCare->save();   
                 }
             
             } else {
@@ -266,11 +268,12 @@ class SaleController extends Controller
 
     public function getListSalesByPermisson($user, $dataFilter = null) 
     {
+
         $roles  = $user->role;
         $list   = SaleCare::orderBy('id', 'desc');
 
         if ($dataFilter) {
-           
+        //  dd($dataFilter['daterange']);
             if (isset($dataFilter['daterange'])) {
                 $time       = $dataFilter['daterange'];
                 $timeBegin  = str_replace('/', '-', $time[0]);
@@ -281,7 +284,6 @@ class SaleController extends Controller
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
             }
-
             
             /**
              * 1: nhóm Tricho
@@ -321,6 +323,7 @@ class SaleController extends Controller
 
                 }
             }
+
             
             /** có chọn 1 nguồn */
             if (isset($dataFilter['src'])) {
@@ -330,7 +333,7 @@ class SaleController extends Controller
                     $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
                 }
             } 
-
+         
             if (isset($dataFilter['mkt'])) {
                 /** mrNguyen = 1
                  *  mrTien = 2
@@ -364,19 +367,47 @@ class SaleController extends Controller
                             // $query->orWhere('page_id', 'like', '%' . $term . '%');
                         }
                     });
+                } else if ($dataFilter['mkt'] == 3 || $user->is_digital) {
+                    $src = [ '424411670749761', '398822199987832'];
+                    $list = $list->where(function($query) use ($src) {
+                        foreach ($src as $term) {
+                            if (is_numeric($term)) {
+                                $query->orWhere('page_id', 'like', '%' . $term . '%');
+                            } else {
+                                $query->orWhere('page_link', 'like', '%' . $term . '%');
+                            }
+                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
+                        }
+                    });
                 }
             } else if ($user->is_digital) {
-                $src = ['mua4-tang2', '335902056281917', '389136690940452'];
-                $list = $list->where(function($query) use ($src) {
-                    foreach ($src as $term) {
-                        if (is_numeric($term)) {
-                            $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        } else {
-                            $query->orWhere('page_link', 'like', '%' . $term . '%');
+               
+                if ($user->name == 'digital.tien') {
+                    $src = ['mua4-tang2', '335902056281917', '389136690940452'];
+                    $list = $list->where(function($query) use ($src) {
+                        foreach ($src as $term) {
+                            if (is_numeric($term)) {
+                                $query->orWhere('page_id', 'like', '%' . $term . '%');
+                            } else {
+                                $query->orWhere('page_link', 'like', '%' . $term . '%');
+                            }
+                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
                         }
-                        // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                    }
-                });
+                    });
+                } else if  ($user->name == 'digital.di') {
+                    $src = [ '424411670749761', '398822199987832'];
+                    $list = $list->where(function($query) use ($src) {
+                        foreach ($src as $term) {
+                            if (is_numeric($term)) {
+                                $query->orWhere('page_id', 'like', '%' . $term . '%');
+                            } else {
+                                $query->orWhere('page_link', 'like', '%' . $term . '%');
+                            }
+                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
+                        }
+                    });
+                }
+              
                
             }
 
@@ -392,7 +423,22 @@ class SaleController extends Controller
                 $list->where('old_customer', $dataFilter['type_customer']);   
             }
 
+            if (isset($dataFilter['status'])) {
+                $list->whereNotNull('id_order_new');
+                $newSCare = [];
+                foreach ($list->get() as $scare) {
+                    // dd($scare);
+                    $order = $scare->orderNew;
+                    // dd($order->get());
+                    if ($order && $order->status == $dataFilter['status']) {
+                        $newSCare[] = $scare->id;
+                    }
+                }
+                // dd($newSCare);
+                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
+            }
         }
+            
 
         $checkAll   = false;
         $listRole   = [];
@@ -417,24 +463,47 @@ class SaleController extends Controller
 
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
 
-        // if ($user->is_digital) {
-        //     // $list =  $list->where('page_link', 'like', '%' . 'mua4-tang2' . '%');
-        //     $list =  $list->where('page_link', 'like', '%' . 'mua4-tang2' . '%');
-        // } else 
+    
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $sale = Helper::getSaleById($dataFilter['sale']);
 
-            if ($sale->is_CSKH == 1) {
-                $list = $list->where('old_customer', 1);
-            } else {
-                $list = $list->where('old_customer', 0);
-            }
+            // if ($sale->is_CSKH == 1) {
+            //     $list = $list->where('old_customer', 1);
+            // } else {
+            //     $list = $list->where('old_customer', 0);
+            // }
             $list = $list->where('assign_user', $dataFilter['sale']);
+           
         } else if ((!$checkAll || !$isLeadSale ) && !$user->is_digital) {
             $list = $list->where('assign_user', $user->id);
         }  
-       
+
+        if ($user->is_digital && $user->name == 'digital.tien') {
+            $src = ['mua4-tang2', '335902056281917', '389136690940452'];
+            $list = $list->where(function($query) use ($src) {
+                foreach ($src as $term) {
+                    if (is_numeric($term)) {
+                        $query->orWhere('page_id', 'like', '%' . $term . '%');
+                    } else {
+                        $query->orWhere('page_link', 'like', '%' . $term . '%');
+                    }
+                    // $query->orWhere('page_id', 'like', '%' . $term . '%');
+                }
+            });
+        } else if ($user->is_digital && $user->name == 'digital.di') {
+            $src = [ '424411670749761', '398822199987832'];
+            $list = $list->where(function($query) use ($src) {
+                foreach ($src as $term) {
+                    if (is_numeric($term)) {
+                        $query->orWhere('page_id', 'like', '%' . $term . '%');
+                    } else {
+                        $query->orWhere('page_link', 'like', '%' . $term . '%');
+                    }
+                    // $query->orWhere('page_id', 'like', '%' . $term . '%');
+                }
+            });
+        }
         // dd($list->get());
         return $list;
     }
@@ -458,6 +527,7 @@ class SaleController extends Controller
 
     public function filterSalesByDate(Request $req) 
     {
+        // dd($req->all());
         $dataFilter = [];
 
         // dd($req->all());
@@ -494,6 +564,11 @@ class SaleController extends Controller
         if ($typeCustomer != 999) {
             // dd($req->type_customer);
             $dataFilter['type_customer'] = $typeCustomer;
+        }
+
+        $status = $req->status;
+        if ($status && $status != 999 ||  $status == 0) {
+            $dataFilter['status'] = $status;
         }
         // dd($dataFilter['type_customer']);
         try {
@@ -566,5 +641,32 @@ class SaleController extends Controller
                 'link' => $link
             ]);
         }
+    }
+
+    public function updateTNresult(Request $r) {
+        $saleCare = SaleCare::find($r->id);
+        $nextTN = '';
+
+        if ($saleCare) {
+            $saleCare->result_call = $r->value;
+
+            if ($r->value == -1) {
+                $saleCare->has_TN = 0;
+            } else {
+                $saleCare->has_TN = 1;
+                $nextTN = $saleCare->resultCall->thenCall->name;
+            }
+            
+            $saleCare->is_runjob = 0;
+            $saleCare->time_update_TN = date('Y-m-d H:i:s');
+            $saleCare->save();
+            return response()->json([
+                'success' => 'Cập nhật kết quả TN thành công!',
+                'classHasTN' => $saleCare->has_TN,
+                'nextTN' => $nextTN,
+            ]);
+        }
+
+        return response()->json(['error' => 'Đã có lỗi xảy ra trong quá trình cập nhật kết quả TN']);
     }
 }

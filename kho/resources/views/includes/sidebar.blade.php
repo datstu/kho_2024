@@ -88,6 +88,7 @@
             <li class="nav-group"><a class="nav-link nav-group-toggle">QL TN Sale</a>
                 <ul class="nav-group-items">
                     <li class="nav-item"><a class="nav-link" href="{{route('category-call')}}"><span class="nav-icon"></span>Loại TN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{route('call-result')}}"><span class="nav-icon"></span>Kết quả TN</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{route('call-index')}}"><span class="nav-icon"></span>Thiết lập TN Sale</a></li>
                 </ul>
             </li>

@@ -12,11 +12,17 @@ use Validator;
 use App\Models\Call;
 use App\Helpers\Helper;
 use App\Models\CategoryCall;
-
+use App\Models\ResultCall;
 
 
 class CategoryCallController extends Controller
 {
+    public function result()
+    {
+        $rs = ResultCall::orderBy('id', 'desc')->paginate(15);
+        return view('pages.call.category.index')->with('resultCall', $rs);
+    }
+    
     /**
      * Display a listing of the resource.
      *
@@ -36,7 +42,6 @@ class CategoryCallController extends Controller
     }
 
     public function save(Request $req) {
-    
         $validator      = Validator::make($req->all(), [
             'name'       => 'required',
         ],[
@@ -54,8 +59,9 @@ class CategoryCallController extends Controller
             }
             // dd($request->products);
             $call->name = $req->name;
+            $call->class = $req->class;
             $call->save();
-            
+           
             notify()->success($text, 'Thành công!');
            
         } else {

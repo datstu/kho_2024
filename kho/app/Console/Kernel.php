@@ -56,45 +56,78 @@ class Kernel extends ConsoleKernel
       require base_path('routes/console.php');
   }
 
-  private function wakeUp() 
+  public function wakeUp() 
   {
-      $listSc = SaleCare::whereNotNull('next_step')->get();
-      foreach ($listSc as $sc) {
-          $time       = $sc->call->time;
-          $nameCall   = $sc->call->name;
-          $updatedAt  = $sc->updated_at;
-          $isRunjob   = $sc->is_runjob;
+    $listSc = SaleCare::whereNotNull('result_call')
+      ->whereNotNull('type_TN')
+      ->where('result_call', '!=', 0)
+      ->where('result_call', '!=', -1)
+      ->where('has_TN', 1)
+      ->get();
+
+    // dd($listSc);
+    foreach ($listSc as $sc) {
+      // echo "$sc->id ";
+      $call = $sc->call;
+      $time       = $call->time;
+      $nameCall   = $call->callResult->name;
+      $updatedAt  = $sc->time_update_TN;
+      $isRunjob   = $sc->is_runjob;
+      $TNcan   = $sc->TN_can;
+      $saleAssign   = $sc->user->real_name;
       
-          if ($time && !$isRunjob) {
-              //cộng ngày update và time cuộc gọi
-              $newDate = strtotime("+$time hours", strtotime($updatedAt));
-
-              if ($newDate <= time()) {
-              $sc->is_runjob = 1;
-              $sc->save();
-
-              //gửi thông báo qua telegram
-              $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
-              // $chatId         = '-4140296352';
-              $chatId         = '-4128471334';
-              $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
-              $client         = new \GuzzleHttp\Client();
-
-              $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
-                  . "\nĐã tới thời gian tác nghiệp."
-                  . "\nKết quả gọi trước đó: $nameCall"
-                  . "\nCây trồng: $sc->type_tree"
-                  . "\nNhu cầu dòng sản phẩm: $sc->product_request"
-                  . "\nLý do không mua hàng: $sc->reason_not_buy"
-                  . "\nGhi chú thông tin khách hàng: $sc->note_info_customer.";  
-
-              $client->request('GET', $endpoint, ['query' => [
-                  'chat_id' => $chatId, 
-                  'text' => $notiText,
-              ]]);
-              }
-          }
+      if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
+        continue;
       }
+      
+      //cộng ngày update và time cuộc gọi
+      $newDate = strtotime("+$time hours", strtotime($updatedAt));
+      if ($newDate <= time()) {
+        $nextTN = $call->thenCall;
+       
+        
+        if (!$nextTN) {
+          continue;
+        }
+
+        $chatId         = '-4286962864';
+        $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
+        $group = $sc->group;
+
+
+        if ($group) {
+          $chatId = $group->tele_nhac_TN;
+          $tokenGroupChat =  $group->tele_bot_token;
+        }
+
+        //set lần gọi tiếp theo
+        $sc->type_TN = $nextTN->id;
+        $sc->result_call = 0;
+        $sc->has_TN = 0;
+        $sc->is_runjob = 1;
+        $sc->save();
+
+        //gửi thông báo qua telegram
+        
+
+        // $group = $sc->group;
+    
+        $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+        $client         = new \GuzzleHttp\Client();
+
+        $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
+          . "\nĐã tới thời gian tác nghiệp."
+          . "\nKết quả gọi trước đó: $nameCall"
+          . "\nGhi chú trước: $TNcan"
+          . "\nSale tác nghiệp: $saleAssign"; 
+
+          // dd($notiText);
+        $client->request('GET', $endpoint, ['query' => [
+          'chat_id' => $chatId, 
+          'text' => $notiText,
+        ]]);
+      }
+    }
   }
 
   public function updateStatusOrderGHN() 
@@ -574,7 +607,7 @@ class Kernel extends ConsoleKernel
             // }
             $assgin_user = 50;
             //cskh 4128471334
-            $chatId = '-4286962864';
+            $chatId = '-4128471334';
           }
           
         

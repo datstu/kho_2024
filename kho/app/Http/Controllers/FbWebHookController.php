@@ -13,9 +13,10 @@ class FbWebHookController extends Controller
     {
         $data = $req->all();
  
-        // Log::channel('new')->info('api run webhook');
-        // Log::channel('new')->info($data);
+        Log::channel('a')->info('api run webhook');
+        Log::channel('a')->info($data);
         if ($data) {
+            sleep(5);
             $this->callDataPc($data);
         }
     }
@@ -84,6 +85,7 @@ class FbWebHookController extends Controller
         // dd($chatId);
         $linkPage = $pageSrc->link;
         $namePage = $pageSrc->name;
+         Log::channel('a')->info('$namePage' . $namePage);
         if ($checkSaleCareOld) {  
             if ($assgin_user == 0 && $group->sales) {
                 // dd($group);
@@ -165,26 +167,36 @@ class FbWebHookController extends Controller
 
     public function callDataPc($data)
     {
-        $data = array (
-            'phone' => '0973409613',
-            'receivedMessage' => '0973409613 go',
-            'mid' => 'm_3RWA8svAbHssJhEYb3IrlRSX13JMTib20xEA6BqKI-0Zsa9a4XJoKC3Qe_llMV-tF_q9LRDNFhNDPZIUraidmQ',
-            'name' => 'Dat Dinh',
-            'pageId' => '381180601741468'
-        );
-    
+        // $data = array (
+        //     'phone' => '0973409613',
+        //     'receivedMessage' => '0973409613 go',
+        //     'mid' => 'm_3RWA8svAbHssJhEYb3IrlRSX13JMTib20xEA6BqKI-0Zsa9a4XJoKC3Qe_llMV-tF_q9LRDNFhNDPZIUraidmQ',
+        //     'name' => 'Dat Dinh',
+        //     'pageId' => '381180601741468'
+        // );
+    Log::channel('a')->info('run callDataPc');
         $pageId =  $data['pageId'];
         $phone =  $data['phone'];
         $mid =  $data['mid'];
         $receivedMessage = $data['receivedMessage'];
+        
+        $str  = 'pageId: ' . $pageId . '<br>';
+        $str  .= 'phone: ' . $phone . '<br>';
+        $str  .= 'mid: ' . $mid . '<br>';
+        $str  .= 'receivedMessage: ' . $receivedMessage . '<br>';
+        Log::channel('a')->info($str);
+        Log::channel('a')->info('run callDataPc');
+        
         $group = Helper::getGroupByPageId($pageId);
              
         if (!$group) {
+            Log::channel('a')->info('no group');
             return;
         }
         
         $pageSrc = Helper::getPageSrcByPageId($pageId);
         if (!$pageSrc) {
+                        Log::channel('a')->info('no pageSrc');
             return;
         }
 
@@ -195,15 +207,21 @@ class FbWebHookController extends Controller
         $response = json_decode($responseJson, true);
 
         if (!$response) {
+            Log::channel('a')->info('no response');
             return false;
         }
 
+ Log::channel('a')->info($response);
         if (!$response['success'] || !$response['conversations']) {
+            Log::channel('a')->info('success repssont is not');
+             Log::channel('a')->info($response);
             return false;
         }
 
         $data = $response['conversations'][0];
         $name = $data['customers'][0]['name'];
+        
+        Log::channel('a')->info('name: ' . $name);
         $this->saveDataWebhookFB($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
     }
 }

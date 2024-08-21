@@ -36,7 +36,7 @@
                         <tr>
                             <td>  {{ $i }}</td>
                             <td> {{ ($item->ifCall) ? $item->ifCall->name : '' }}</td>
-                            <td> {{ $item->result_call }}</td>
+                            <td> {{  ($item->callResult) ? $item->callResult->name : '' }}</td>
                             <td> {{ ($item->thenCall) ? $item->thenCall->name : '' }}</td>
                             <td> {{ $item->time }} </td>
                             <td> {{ ($item->status) ? 'Bật' : 'Tắt' }} </td>

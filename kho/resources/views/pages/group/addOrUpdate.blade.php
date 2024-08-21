@@ -15,7 +15,7 @@
   }
 </style>
 
-<?php $leadSale = $id = $name = $member = $membersStr = $teleCskhData = $teleCreateOder = $teleHotData 
+<?php $teleNhacTN = $leadSale = $id = $name = $member = $membersStr = $teleCskhData = $teleCreateOder = $teleHotData 
     = $teleBotToken ='';
     $status = 1;
     $isShareDataCSKH = 0;
@@ -31,6 +31,7 @@
         $teleHotData = $group->tele_hot_data;
         $teleCreateOder = $group->tele_create_order;
         $teleCskhData = $group->tele_cskh_data;
+        $teleNhacTN = $group->tele_nhac_TN;
         $teleBotToken = $group->tele_bot_token;
         $isShareDataCSKH = $group->is_share_data_cskh;
         $leadSale =$group->lead_sale;
@@ -106,20 +107,25 @@
                                         <input <?= !$checkAll ? 'readonly' : ''; ?>  value="{{$teleBotToken}}" class="form-control" name="teleBotToken" id="botTele" type="text" required>
                                         <p class="error_msg" id="name"></p>
                                     </div>
-                                    <div class="col-4 form-group">
+                                    <div class="col-3  form-group">
                                         <label class="form-label" for="teleDataHot">Chat Id Data Nóng</label>
                                         <input <?= !$checkAll ? 'readonly' : ''; ?>  value="{{$teleHotData}}" class="form-control" name="teleHotData" id="teleDataHot" type="text" required>
                                         <p class="error_msg" id="name"></p>
                                     </div>
-                                    <div class="col-4 form-group">
+                                    <div class="col-3 form-group">
                                         <label class="form-label" for="teleCreateOrder">Chat Id Chốt đơn</label>
                                         <input <?= !$checkAll ? 'readonly' : ''; ?>  value="{{$teleCreateOder}}" class="form-control" name="teleCreateOrder" id="teleCreateOrder" type="text" required>
                                         <p class="error_msg" id="name"></p>
                                     </div>
-                                    <div class="col-4 form-group">
+                                    <div class="col-3 form-group">
                                         <label class="form-label" for="teleChatCskh">Chat Id CSKH</label>
                                         <input <?= !$checkAll ? 'readonly' : ''; ?> value="{{$teleCskhData}}" class="form-control" name="teleCskhData" id="teleChatCskh" type="text" required>
                                         <p class="error_msg" id="name"></p>
+                                    </div>
+                                    <div class="col-3 form-group">
+                                        <label class="form-label" for="teleChatCskh">Chat Id Nhắc TN</label>
+                                        <input <?= !$checkAll ? 'readonly' : ''; ?> value="{{$teleNhacTN}}" class="form-control" name="teleNhacTN" id="teleNhacTN" type="text" required>
+                                        <p class="error_msg" id="teleNhacTN"></p>
                                     </div>
                                     
                                     <div class="mb-3 col-4">
@@ -183,13 +189,15 @@
                             <div class="col-12 tele-desc">
                                 <p><strong>Production:</strong></p>
         
-                                <p>&ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm Niềm vui tới rồi': -4224720956</p>
-                                    <p>&ensp; Gửi thông báo khi khách hàng nhận được hàng đến 'nhóm CSKH': -4167465219</p>
-                                    <p>&ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm VUI': -4234584362</p>
+                                <p>&ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm Niềm vui tới rồi': -4167465219</p>
+                                <p>&ensp; Gửi thông báo khi khách hàng nhận được hàng đến 'nhóm CSKH': -4234584362</p>
+                                <p>&ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm VUI': -4224720956</p>
+                                <p>&ensp; Gửi thông báo khi tạo đơn hàng mới đến 'nhóm Nhắc Tác Nghiệp': -4540568676</p>
                                 <p><strong>Dev/Local:</strong></p>
                                 <p> &ensp; Gửi thông báo khi tạo đơn hàng mới đến 'Dev Data Nóng': -4280564587</p>
                                 <p>&ensp;  Gửi thông báo khi khách hàng nhận được hàng đến 'Dev CSKH': -4268606310</p>
                                 <p>&ensp;  Gửi thông báo khi khách hàng nhận được hàng đến 'Dev Chốt đơn': -4211905463</p>
+                                <p>&ensp; Gửi thông báo khi tạo đơn hàng mới đến 'DEV nhắc TN': -4558910780</p>
                             </pre></div>
                         </div>
                     </div>

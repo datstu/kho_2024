@@ -160,6 +160,7 @@ class GroupController extends Controller
                 $gr->tele_create_order = $req->teleCreateOrder;         
                 $gr->tele_cskh_data = $req->teleCskhData;  
                 $gr->is_share_data_cskh = $req->shareDataCskh;
+                $gr->tele_nhac_TN = $req->teleNhacTN;  
                 $gr->lead_sale   = $req->leadSale;
                 
                 $gr->save();

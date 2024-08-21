@@ -22,6 +22,7 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Loại</th>
+                            <th scope="col">Class</th>
                             <th scope="col">Trạng thái</th>
                             <th scope="col">Thao tác</th>
                         </tr>
@@ -32,6 +33,7 @@
                         <tr>
                             <th>{{ $item->id }}</th>
                             <td>  {{ $item->name }}</td>
+                            <td>  {{ $item->class }}</td>
                             <td>  {{ ($item->status) ? 'Bật' : 'Tắt' }} </td>
                             <td>
                                 <a  title="sửa" href="{{route('category-call-update',['id'=>$item->id])}}" role="button">

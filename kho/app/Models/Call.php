@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\SaleCare;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\belongsTo;
+use App\Models\CallResult;
+use App\Models\CategoryCall;
+
+
 
 class Call extends Model
 {
@@ -18,7 +22,7 @@ class Call extends Model
      *
      * @var string
      */
-    protected $table = 'list_call';
+    protected $table = 'call';
 
     // /**
     //  * Get the author of the post.
@@ -39,5 +43,10 @@ class Call extends Model
     public function thenCall(): belongsTo
     {
         return $this->belongsTo(CategoryCall::class, 'then_call');
+    }
+
+    public function callResult(): belongsTo
+    {
+        return $this->belongsTo(CallResult::class, 'result_call');
     }
 }

@@ -51,6 +51,10 @@ class HomeController extends Controller
                 'name' => 'Mr Tiễn',
                 'mkt' => 2,
             ],
+            [
+                'name' => 'Di Di',
+                'mkt' => 3,
+            ],
         ];
 
         $result = [];
@@ -59,8 +63,14 @@ class HomeController extends Controller
         $req->merge(['date' => $dataFilter['daterange']]);
 
         $checkAll = isFullAccess(Auth::user()->role);
+  
         if (Auth::user()->is_digital) {
-            $req->merge(['mkt' => 2]);
+            if (Auth::user()->name == 'digital.tien') {
+                $req->merge(['mkt' => 2]);
+            } else if (Auth::user()->name == 'digital.di') {
+                $req->merge(['mkt' => 3]);
+            }
+            
         }
 
         $data = $this->ajaxFilterDashboardDigital($req);
@@ -757,12 +767,21 @@ class HomeController extends Controller
                 'name' => 'Mr Tiễn',
                 'mkt' => 2,
             ],
+            [
+                'name' => 'Di Di',
+                'mkt' => 3,
+            ],
         ];
 
         $checkAll = isFullAccess(Auth::user()->role);
         if (!$checkAll && Auth::user()->is_digital == 1) {
-            $dataFilter['mkt'] = 2;
-        }
+            if (Auth::user()->name == 'digital.tien') {
+                $dataFilter['mkt'] = 2;
+            } else if (Auth::user()->name == 'digital.tien') {
+                $dataFilter['mkt'] = 3;
+            }
+           
+        } 
 
         // dd($dataFilter);
         if (isset($dataFilter['mkt']) ) {
@@ -776,7 +795,12 @@ class HomeController extends Controller
                     'name' => 'Mr Tiễn',
                     'mkt' => 2,
                 ];
-            }
+            } else if ($dataFilter['mkt'] == 3) {
+                $digital = [
+                    'name' => 'Di Di',
+                    'mkt' => 3,
+                ];
+            } 
             
             // dd('hi');
             $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;

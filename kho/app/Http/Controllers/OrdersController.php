@@ -270,7 +270,7 @@ class OrdersController extends Controller
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
-        } else if ($user->is_digital == 1 && $routeName->getName() == 'order') {
+        } else if ($user->is_digital == 1 && $routeName->getName() == 'order' && $user->name == 'digital.tien') {
             if (!$dataFilter) {
                 $today  = date("Y-m-d", time());
                 $dateBegin  = date('Y-m-d',strtotime("$today"));
@@ -282,6 +282,29 @@ class OrdersController extends Controller
             $phoneFilter = [];
             $listPhoneOrder = $list->pluck('phone')->toArray();
             $dataFilterSale['mkt'] = 2; //aT
+            foreach ($listPhoneOrder as $phone) {
+                $saleCtl = new SaleController();
+                $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
+                $careFromOrderPhone = $listsaleCare->where('phone', 'like', '%' . $phone . '%')->first();
+
+                if ($careFromOrderPhone) {
+                    $phoneFilter[] = $phone;
+                } 
+            }
+
+            $list = Orders::whereIn('phone', $phoneFilter)->orderBy('id', 'desc');
+        } else if ($user->is_digital == 1 && $routeName->getName() == 'order' && $user->name == 'digital.di') {
+            if (!$dataFilter) {
+                $today  = date("Y-m-d", time());
+                $dateBegin  = date('Y-m-d',strtotime("$today"));
+                $dateEnd    = date('Y-m-d',strtotime("$today"));
+                $list->whereDate('created_at', '>=', $dateBegin)
+                    ->whereDate('created_at', '<=', $dateEnd);
+            }
+            
+            $phoneFilter = [];
+            $listPhoneOrder = $list->pluck('phone')->toArray();
+            $dataFilterSale['mkt'] = 3; //aT
             foreach ($listPhoneOrder as $phone) {
                 $saleCtl = new SaleController();
                 $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);

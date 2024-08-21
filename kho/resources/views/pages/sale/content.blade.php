@@ -219,6 +219,9 @@
         border: none;
     }
 
+    .select2-container--default .select2-selection--single {
+        border: none;
+    }
 </style>
 
 {{-- update filter --}}
@@ -798,6 +801,15 @@
                         <option value="0">Khách mới</option>
                     </select>
                 </div>
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                    <select name="status" id="status-filter" class="form-select" aria-label="Default select example">
+                    <option value="999">--Chọn Trạng Thái--</option>
+                    <option value="1">Chưa giao vận</option>
+                    <option value="2">Đang giao</option>
+                    <option value="3">Hoàn tất</option>
+                    <option value="0">Huỷ</option>
+                    </select>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
@@ -884,7 +896,7 @@
                             </th>
                             <th class="text-center no-wrap area1  hidden-xs" style="top: 0.5px;"><span class="span-col td-message td-793">Tin nhắn</span></th>
                             <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col" style="display: inline-block; min-width: 200px;">TN cần</span></th>
-                            <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="width: 150px;">Kết quả</span></th>
+                            <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; min-width: 150px; max-width: 200px;">Kết quả</span></th>
                             <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col">TN tiếp</span></th>
                             <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col">Sau</span><br>
                                 Còn lại</th>
@@ -1022,19 +1034,20 @@
                                     {{$item->messages}}
                                 </span>
                             </td>
-                            <td class="area2 hidden-xs">
-                                {{-- <span id="" class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">Gọi lần 2</span> 
-                                 --}}
-                                @if (!$item->old_customer)
-                                <span class="fb span-col ttgh7" style="cursor: pointer; width: calc(100% - 60px);">Data nóng</span> 
-                                @elseif ($item->old_customer == 1)
-                                <span class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">CSKH</span> 
-                                @elseif ($item->old_customer == 2)
-                                <span class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">Hotline</span> 
+                            <td class="area2 hidden-xs type-TN">
+
+                                @if (!$item->type_TN)
+                                    @if (!$item->old_customer)
+                                    <span class="fb span-col ttgh7" style="cursor: pointer; width: calc(100% - 60px);">Data nóng</span> 
+                                    @elseif ($item->old_customer == 1)
+                                    <span class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">CSKH</span> 
+                                    @elseif ($item->old_customer == 2)
+                                    <span class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">Hotline</span> 
+                                    @endif
+                                @else
+                                <span class="fb span-col  <?= ($item->has_TN) ?: 'ttgh7' ?>" style="cursor: pointer; width: calc(100% - 60px);"> {{$item->typeTN->name}}</span>
                                 @endif
-                                {{-- <a class="btn-icon aoh hidden" href="/ld/sale/sale-tac-nghiep/id/0" title="Xem bản ghi chốt đơn" target="_blank">
-                                    <i style="font-size:14px;" class="fa fa-arrow-circle-o-left"></i>
-                                </a>  --}}
+
 
                                 <a onclick="showLoader();" data-id="{{$item->id}}"  title="Lưu ghi chú" class="update-TN-sale btn-icon aoh">
                                     <i class="fa fa-save"></i>
@@ -1052,21 +1065,24 @@
                                         <i class="fa fa-history"></i>
                                     </a>
                                 </div>
-                                <select data-id="{{$item->id}}" onchange="" id="" class="result-TN txt-dotted ddlpb dis_val" tabindex="-1" title="" >
-                                    <option value="-1">--kết quả--</option>
-                                    {{-- <option value="96908">Chốt đơn</option>
-                                    <option value="96909">Không nghe máy</option>
-                                    <option value="96910">Máy bận </option>
-                                    <option value="96911">Gọi lại sau</option>
-                                    <option value="96912">Trùng số</option>
-                                    <option value="96914">Thuê bao</option>
-                                    <option value="96915">Suy nghĩ thêm</option>
-                                    <option value="96916">Không có nhu cầu</option>
-                                    <option value="96917">Khách hàng hẹn giao</option>
-                                    <option value="97114">Tham khảo</option>
-                                    <option value="98477">Tương Tác Zalo</option> --}}
+                                @if ($item->type_TN)
+                                <?php 
+                                    $listCallByTypeTN = Helper::listCallByTypeTN($item->type_TN);
+                                    if ($listCallByTypeTN) {
+                                             
+                                ?>
+                                    <select data-id="{{$item->id}}"  class="hidden result-TN select-assign ddlpb dis_val" tabindex="-1" title="" >
+                                        <option value="-1">--Chọn--</option>
+                                        @foreach ($listCallByTypeTN as $call)
+                                            <option value="{{$call->id}}" <?= ($item->result_call == $call->id) ? 'selected' : '' ;?>>{{$call->callResult->name}}</option>
+                                        @endforeach
 
-                                </select>
+                                    </select>
+                                <?php
+                                }
+                                ?>
+                              
+                                @endif
 
                                 <div class="small-tip text-left">
                                     
@@ -1074,11 +1090,10 @@
                                 </div>
                                 
                             </td>
-                            <td class="no-wrap area2 no-wrap  hidden-xs" style="min-width:120px">
-                                {{-- <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__SaleTacNghiepTiepTen_0">Đang phát triển</span> --}}
-                                <a class="btn-icon aoh hidden" href="/ld/sale/sale-tac-nghiep/id/0" title="Xem bản ghi chăm sóc" target="_blank">
-                                    <i style="font-size:14px;" class="fa fa-arrow-circle-o-right"></i>
-                                </a>
+                            <td class="no-wrap area2 no-wrap  hidden-xs next-TN" style="min-width:120px">
+                               @if ($item->result_call && $item->result_call != -1)
+                               {{$item->resultCall->thenCall->name}}
+                               @endif
                             </td>
                             <td class="text-center no-wrap area2 hidden-xs" style="min-width:80px">
                                 <div class="text-right">
@@ -1203,8 +1218,8 @@
             </button>
           </div>
         </div>
-      </div>
-  </div>
+    </div>
+</div>
 <script>
     $('.orderModal').on('click', function () {
         var idOrderNew = $(this).data('id_order_new');
@@ -1275,18 +1290,19 @@
         $("#myModal iframe").attr("src", link + '/' + myBookId);
     });
 
-    $('.select2-choice').on('click', function () {
-        var id = $(this).data('id');
-        $(this).parent().toggleClass("select-dropdown-show");
-        console.log(id);
-    });
+    // $('.select2-choice').on('click', function () {
+    //     var id = $(this).data('id');
+    //     $(this).parent().toggleClass("select-dropdown-show");
+    //     console.log(id);
+    // });
     
-    $(".select2-choice, .list-call").click(function(e){
-        e.stopPropagation();
-    });
-    $(document).click(function(e){
-        $(".select-dropdown-show").removeClass('select-dropdown-show');
-    });
+    // $(".select2-choice, .list-call").click(function(e){
+    //     e.stopPropagation();
+    // });
+
+    // $(document).click(function(e){
+    //     $(".select-dropdown-show").removeClass('select-dropdown-show');
+    // });
     
     $("#close-modal-notify").click(function() {
         $('#notify-modal').modal("hide");
@@ -1465,9 +1481,65 @@ let group = $.urlParam('group')
 if (group) {
     $('#group-filter option[value="' + group +'"]').attr('selected','selected');
 }
+
+let status = $.urlParam('status') 
+if (status) {
+$('#status-filter option[value=' + status +']').attr('selected','selected');
+}
 </script>
 
 <script>
+    $('.result-TN').on('change', function() {
+        var  id = $(this).data("id");
+        var value = this.value;
+        var _token   = $("input[name='_token']").val();
+        console.log(value);
+        $.ajax({
+            url: "{{route('update-salecare-result')}}",
+            type: 'POST',
+            data: {
+                _token: _token,
+                id,
+                value
+            },
+            success: function(data) {
+                $('.body').css("opacity", '1');
+                var tr = '.tr_' + id;
+                if (!data.error) {
+                    //update type TN
+                    var trId = 'tr.tr_' + id;
+                    console.log(data.nextTN);
+                    if (data.classHasTN) {
+                        $(trId + ' .type-TN span.fb').removeClass('ttgh7');
+                    } else {
+                        $(trId + ' .type-TN span.fb').addClass('ttgh7');
+                    }
+
+                    
+                    $(trId + ' td.next-TN').text(data.nextTN);
+                    
+                    
+                    $('#notify-modal').modal('show');
+                    if ($('.modal-backdrop-notify').length === 0) {
+                        $('.modal-backdrop').addClass('modal-backdrop-notify');
+                    }
+
+                    $(tr).addClass('success');
+                    setTimeout(function() { 
+                        $('#notify-modal').modal("hide");
+                        $(tr).removeClass('success');
+                    }, 2000);
+                } else {
+                    alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
+                    $(tr).addClass('error');
+                    setTimeout(function() { 
+                        $(tr).removeClass('error');
+                    }, 3000);
+                }
+                $('.loader').hide();
+            }
+        });
+    });
     $('.update-assign-TN-sale').click(function(){
         $('.body').css("opacity", '0.5');
         $('.loader').show();
@@ -1572,55 +1644,6 @@ if (group) {
     window.addEventListener('resize', setZoom);
 </script>
 
-<script type="text/javascript">
-    // var dragCol = null;
-    // function handleDragStart(e) {
-    //     dragCol = this;
-    //     e.dataTransfer.efferAllowed = 'move';
-    //     e.dataTransfer.setData('text/html', this.outerHtml);
-    // }
-
-    // function handleDragOver(e) {
-    //     if (e.preventDefault) {
-    //         e.preventDefault();
-    //     }
-    //     e.dataTransfer.dropEffect = 'move';
-    //     return false;
-    // }
-
-    // function handleDrop(e) {
-    //     if (e.stopPropagation) {
-    //         e.stopPropagation;
-    //     }
-
-    //     if (dragCol !== this) {
-    //         var sourceIndex = Array.from(dragCol.parentNode.children).indexOf(dragCol);
-    //         var targetIndex = Array.from(this.parentNode.children).indexOf(this);
-
-    //         var table = document.getElementById('myTable');
-    //         var rows = table.rows;
-    //         for ( var i = 0; i < rows.length; i++) {
-    //             var sourceCell = rows[i].cells[sourceIndex];
-    //             var targetCell = rows[i].cells[targetIndex];
-
-    //             var tempHTML = sourceCell.innerHTML;
-    //             sourceCell.innerHTML = targetCell.innerHTML;
-    //             targetCell.innerHTML = tempHTML;
-    //         }
-    //     }
-    //     return false;
-    // }
-
-    // var cols = document.querySelectorAll('th');
-    // [].forEach.call(cols, function(col) {
-    //     col.addEventListener('dragstart', handleDragStart, false);
-    //     col.addEventListener('dragover', handleDragOver, false);
-    //     col.addEventListener('drop', handleDrop, false);
-    // });
-
-</script>
-
-
 {{-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
 <script>
@@ -1634,5 +1657,6 @@ if (group) {
         $('#resultTN').select2();
         $('#statusOrderShip').select2();
         $('#statusDeal').select2();
+        $('.result-TN').select2();
     });
 </script>

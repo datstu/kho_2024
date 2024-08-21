@@ -843,4 +843,9 @@ class Helper
             return Group::find($page->id);
         }
     }
+
+    public static function listCallByTypeTN($id)
+    {
+        return  Call::where('if_call', $id)->where('status', 1)->get();
+    }
 }

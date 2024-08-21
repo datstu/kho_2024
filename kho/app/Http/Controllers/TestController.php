@@ -17,7 +17,8 @@ use PHPUnit\TextUI\Help;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 use function PHPUnit\Framework\assertFalse;
-
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\UsersExport;
 // setlocale(LC_TIME, 'vi_VN.utf8');
 // setlocale(LC_TIME, "vi_VN");
 class TestController extends Controller
@@ -797,7 +798,7 @@ class TestController extends Controller
             // }
             $assgin_user = 50;
             //cskh 4128471334
-            $chatId = '-4286962864';
+            $chatId = '-4558910780';
           }
           
         
@@ -829,11 +830,116 @@ class TestController extends Controller
     }
   }
 
-  public function saveDataHiep()
+  public function export()
   {
-    dd('hi');
+    $sale     = new SaleController();
+
+    // $req = new Request();
+    $req['daterange'] = ['01/07/2024', '31/07/2024'];
+    $req['sale'] = '50';
+
+    $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
+    $list->whereNull('id_order_new');
+    $list->where('old_customer', '!=' , 1);
+    $list->where('group_id', '5');
+    $dataExport[] = [
+      'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
+    ];
+
+    foreach ($list->get() as $data) {
+      // echo 'name: ' . $data->full_name . '<br>';
+      // echo 'phone: ' . $data->phone . '<br>';
+      // echo 'message: : ' . $data->TN_can . '<br>';
+      // echo 'date: ' . $data->created_at . '<br>';
+      $dataExport[] = [
+        $data->full_name,
+        $data->phone,
+        $data->messages,
+        $data->TN_can,
+        date_format($data->created_at,"H:i d-m-Y "),
+      ];
+    }
+
+    // dd($dataExport);
+    return Excel::download(new UsersExport($dataExport), 'invoices.xlsx');
+
+  }
+
+  public function wakeUp() 
+  {
+    $listSc = SaleCare::whereNotNull('result_call')
+      ->whereNotNull('type_TN')
+      ->where('result_call', '!=', 0)
+      ->where('result_call', '!=', -1)
+      ->where('has_TN', 1)
+      ->get();
+
+    // dd($listSc);
+    foreach ($listSc as $sc) {
+      // echo "$sc->id ";
+      $call = $sc->call;
+      $time       = $call->time;
+      $nameCall   = $call->callResult->name;
+      $updatedAt  = $sc->time_update_TN;
+      $isRunjob   = $sc->is_runjob;
+      $TNcan   = $sc->TN_can;
+      $saleAssign   = $sc->user->real_name;
+      
+      if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
+        continue;
+      }
+      
+      //cộng ngày update và time cuộc gọi
+      $newDate = strtotime("+$time hours", strtotime($updatedAt));
+      if ($newDate <= time()) {
+        $nextTN = $call->thenCall;
+       
+        
+        if (!$nextTN) {
+          continue;
+        }
+
+        $chatId         = '-4286962864';
+        $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
+        $group = $sc->group;
+
+
+        if ($group) {
+          $chatId = $group->tele_nhac_TN;
+          $tokenGroupChat =  $group->tele_bot_token;
+        }
+
+        //set lần gọi tiếp theo
+        $sc->type_TN = $nextTN->id;
+        $sc->result_call = 0;
+        $sc->has_TN = 0;
+        $sc->is_runjob = 1;
+        $sc->save();
+
+        //gửi thông báo qua telegram
+        
+
+        // $group = $sc->group;
+    
+        $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+        $client         = new \GuzzleHttp\Client();
+
+        $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
+          . "\nĐã tới thời gian tác nghiệp."
+          . "\nKết quả gọi trước đó: $nameCall"
+          . "\nGhi chú trước: $TNcan"
+          . "\nSale tác nghiệp: $saleAssign"; 
+
+          // dd($notiText);
+        $client->request('GET', $endpoint, ['query' => [
+          'chat_id' => $chatId, 
+          'text' => $notiText,
+        ]]);
+      }
+    }
   }
 }
+
 
 
 

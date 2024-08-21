@@ -131,6 +131,10 @@ return [
             'driver' => 'single',
             'path' => storage_path('logs/your_file_name.log'),
         ],
+        'a' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/a.log'),
+        ],
     ],
 
 ];

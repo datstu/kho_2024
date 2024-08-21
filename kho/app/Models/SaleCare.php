@@ -53,4 +53,14 @@ class SaleCare extends Model
     {
         return $this->belongsTo(Group::class, 'group_id', 'id');
     }
+
+    public function typeTN(): BelongsTo
+    {
+        return $this->belongsTo(CategoryCall::class, 'type_TN', 'id');
+    }
+
+    public function resultCall(): BelongsTo
+    {
+        return $this->belongsTo(Call::class, 'result_call', 'id');
+    }
 }

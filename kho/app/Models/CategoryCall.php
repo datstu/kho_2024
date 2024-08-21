@@ -18,7 +18,7 @@ class CategoryCall extends Model
      *
      * @var string
      */
-    protected $table = 'category_call';
+    protected $table = 'call_category';
 
     // /**
     //  * Get the author of the post.
