@@ -51,7 +51,7 @@ class CategoryCallController extends Controller
         if ($validator->passes()) {
             if (isset($req->id)) {
                 $call = categoryCall::find($req->id);
-                $call->status  = $req->status;
+                
                 $text = 'Cập nhật call thành công.';
             } else {
                 $call = new categoryCall();
@@ -60,6 +60,7 @@ class CategoryCallController extends Controller
             // dd($request->products);
             $call->name = $req->name;
             $call->class = $req->class;
+            $call->status  = $req->status;
             $call->save();
            
             notify()->success($text, 'Thành công!');

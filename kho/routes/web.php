@@ -158,3 +158,5 @@ Route::post('/webhook', [FbWebHookController::class, 'handle']);
 
 Route::get('/xuat-file', [TestController::class, 'export']);
 Route::get('/wake-up', [TestController::class, 'wakeUp']);
+
+Route::get('/fix', [TestController::class, 'fix']);

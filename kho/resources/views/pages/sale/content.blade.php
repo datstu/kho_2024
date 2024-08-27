@@ -197,8 +197,8 @@
         font-family: Arial, Helvetica, sans-serif
     }
     .maintain-filter-main:hover {
-        opacity: 0.2;
-        border: 1px solid #ff0000;
+        /* opacity: 0.2;
+        border: 1px solid #ff0000; */
     }
     textarea.txt-mof {
         position: absolute;
@@ -226,7 +226,7 @@
 
 {{-- update filter --}}
 
-<div class="" title="Sắp rã đông">
+<div>
     <div class="maintain-filter-main" id="dnn_ctr1441_Main_SaleTacNghiep_up1">
             
         <span id="dnn_ctr1441_Main_SaleTacNghiep_lblDownLoad" class="hidden"></span>
@@ -270,15 +270,16 @@
                             </select>
                         </div>
                         <div id="dnn_ctr1441_Main_SaleTacNghiep_divSearch" class="col-sm-3 form-group">
-                            <div style="width: calc(100% - 145px); float: left;">
-                                <input name="dnn$ctr1441$Main$SaleTacNghiep$txtTuKhoa" type="text" id="dnn_ctr1441_Main_SaleTacNghiep_txtTuKhoa" class="form-control" placeholder="Họ tên, số điện thoại">
-                            </div>
-                            <div style="width: 125px; float: right;">
-                                <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_btnSearch" class="btn btn-sm btn-primary" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$btnSearch','')">
-                                    <i class="fa fa-search"></i>Tìm kiếm
-                                </a>
-                                
-                            </div>
+                            <form class ="row tool-bar" action="{{route('search-sale-care')}}" method="get">
+                                <div style="width: calc(100% - 145px); float: left;">
+                                    <input name="search" type="text"  value="{{ isset($search) ? $search : null}}" class="form-control" placeholder="Họ tên, số điện thoại">
+                                </div>
+                                <div style="width: 125px; float: right;">
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="fa fa-search"></i>Tìm kiếm
+                                    </button>
+                                </div>
+                            </form>
                             <div style="clear: both;"></div>
                         </div>
                     </div>
@@ -818,7 +819,7 @@
             <a class="btn btn-outline-danger" href="{{route('sale-index')}}"><strong>X</strong></a>
         </form>
 
-        <div class="row ">
+        {{-- <div class="row ">
             <div class="col-4"></div>
             <div class="col-8 mb-1">
                 <form class ="row tool-bar" action="{{route('search-sale-care')}}" method="get">
@@ -832,7 +833,7 @@
                 </form>
             </div>
             
-        </div>
+        </div> --}}
     
         <div id="createOrder" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-xl" role="document">
@@ -1092,7 +1093,7 @@
                             </td>
                             <td class="no-wrap area2 no-wrap  hidden-xs next-TN" style="min-width:120px">
                                @if ($item->result_call && $item->result_call != -1)
-                               {{$item->resultCall->thenCall->name}}
+                               {{($item->resultCall) ? $item->resultCall->thenCall->name : ''}}
                                @endif
                             </td>
                             <td class="text-center no-wrap area2 hidden-xs" style="min-width:80px">
@@ -1494,6 +1495,7 @@ $('#status-filter option[value=' + status +']').attr('selected','selected');
         var value = this.value;
         var _token   = $("input[name='_token']").val();
         console.log(value);
+        $('.body').css("opacity", '0.5');
         $.ajax({
             url: "{{route('update-salecare-result')}}",
             type: 'POST',
@@ -1524,14 +1526,14 @@ $('#status-filter option[value=' + status +']').attr('selected','selected');
                         $('.modal-backdrop').addClass('modal-backdrop-notify');
                     }
 
-                    $(tr).addClass('success');
+                    // $(tr).addClass('success');
                     setTimeout(function() { 
                         $('#notify-modal').modal("hide");
                         $(tr).removeClass('success');
                     }, 2000);
                 } else {
                     alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
-                    $(tr).addClass('error');
+                    // $(tr).addClass('error');
                     setTimeout(function() { 
                         $(tr).removeClass('error');
                     }, 3000);
@@ -1568,16 +1570,16 @@ $('#status-filter option[value=' + status +']').attr('selected','selected');
                         $('.modal-backdrop').addClass('modal-backdrop-notify');
                     }
 
-                    $(tr).addClass('success');
+                    // $(tr).addClass('success');
                     setTimeout(function() { 
                         $('#notify-modal').modal("hide");
-                        $(tr).removeClass('success');
+                        // $(tr).removeClass('success');
                     }, 2000);
                 } else {
                     alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
-                    $(tr).addClass('error');
+                    // $(tr).addClass('error');
                     setTimeout(function() { 
-                        $(tr).removeClass('error');
+                        // $(tr).removeClass('error');
                     }, 3000);
                 }
                 $('.loader').hide();

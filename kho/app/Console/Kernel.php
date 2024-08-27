@@ -57,77 +57,83 @@ class Kernel extends ConsoleKernel
   }
 
   public function wakeUp() 
-  {
-    $listSc = SaleCare::whereNotNull('result_call')
-      ->whereNotNull('type_TN')
-      ->where('result_call', '!=', 0)
-      ->where('result_call', '!=', -1)
-      ->where('has_TN', 1)
-      ->get();
+  {$listSc = SaleCare::whereNotNull('result_call')
+    ->whereNotNull('type_TN')
+    ->where('result_call', '!=', 0)
+    ->where('result_call', '!=', -1)
+    ->where('has_TN', 1)
+    ->get();
 
-    // dd($listSc);
-    foreach ($listSc as $sc) {
-      // echo "$sc->id ";
-      $call = $sc->call;
-      $time       = $call->time;
-      $nameCall   = $call->callResult->name;
-      $updatedAt  = $sc->time_update_TN;
-      $isRunjob   = $sc->is_runjob;
-      $TNcan   = $sc->TN_can;
-      $saleAssign   = $sc->user->real_name;
+  // dd($listSc);
+  foreach ($listSc as $sc) {
+    // echo "$sc->id " . "<br>";
+    
+    $call = $sc->call;
+    // dd($call);
+
+    if (empty($call->time)) {
+      continue;
+    }
+
+    $time = $call->time;
+    $nameCall   = $call->callResult->name;
+    $updatedAt  = $sc->time_update_TN;
+    $isRunjob   = $sc->is_runjob;
+    $TNcan   = $sc->TN_can;
+    $saleAssign   = $sc->user->real_name;
+    
+    if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
+      continue;
+    }
+    
+    //cộng ngày update và time cuộc gọi
+    $newDate = strtotime("+$time hours", strtotime($updatedAt));
+    if ($newDate <= time()) {
+      $nextTN = $call->thenCall;
+     
       
-      if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
+      if (!$nextTN) {
         continue;
       }
-      
-      //cộng ngày update và time cuộc gọi
-      $newDate = strtotime("+$time hours", strtotime($updatedAt));
-      if ($newDate <= time()) {
-        $nextTN = $call->thenCall;
-       
-        
-        if (!$nextTN) {
-          continue;
-        }
 
-        $chatId         = '-4286962864';
-        $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
-        $group = $sc->group;
+      $chatId         = '-4286962864';
+      $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
+      $group = $sc->group;
 
 
-        if ($group) {
-          $chatId = $group->tele_nhac_TN;
-          $tokenGroupChat =  $group->tele_bot_token;
-        }
-
-        //set lần gọi tiếp theo
-        $sc->type_TN = $nextTN->id;
-        $sc->result_call = 0;
-        $sc->has_TN = 0;
-        $sc->is_runjob = 1;
-        $sc->save();
-
-        //gửi thông báo qua telegram
-        
-
-        // $group = $sc->group;
-    
-        $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
-        $client         = new \GuzzleHttp\Client();
-
-        $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
-          . "\nĐã tới thời gian tác nghiệp."
-          . "\nKết quả gọi trước đó: $nameCall"
-          . "\nGhi chú trước: $TNcan"
-          . "\nSale tác nghiệp: $saleAssign"; 
-
-          // dd($notiText);
-        $client->request('GET', $endpoint, ['query' => [
-          'chat_id' => $chatId, 
-          'text' => $notiText,
-        ]]);
+      if ($group) {
+        $chatId = $group->tele_nhac_TN;
+        $tokenGroupChat =  $group->tele_bot_token;
       }
+
+      //set lần gọi tiếp theo
+      $sc->type_TN = $nextTN->id;
+      $sc->result_call = 0;
+      $sc->has_TN = 0;
+      $sc->is_runjob = 1;
+      $sc->save();
+
+      //gửi thông báo qua telegram
+      
+
+      // $group = $sc->group;
+  
+      $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+      $client         = new \GuzzleHttp\Client();
+
+      $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
+        . "\nĐã tới thời gian tác nghiệp."
+        . "\nKết quả gọi trước đó: $nameCall"
+        . "\nGhi chú trước: $TNcan"
+        . "\nSale tác nghiệp: $saleAssign"; 
+
+        // dd($notiText);
+      $client->request('GET', $endpoint, ['query' => [
+        'chat_id' => $chatId, 
+        'text' => $notiText,
+      ]]);
     }
+  }
   }
 
   public function updateStatusOrderGHN() 
@@ -514,6 +520,7 @@ class Kernel extends ConsoleKernel
     $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
     // dd($orders);
     foreach ($orders as $order) {
+
       $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;
       $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])
         ->post($endpoint, [
@@ -560,9 +567,7 @@ class Kernel extends ConsoleKernel
         //check đơn này đã có data chưa
         $issetOrder = Helper::checkOrderSaleCare($order->id);
 
-        // echo "$order->status $notHasPaulo";
-       
-        // status = 'hoàn tất', tạo data tác nghiệp sale
+        // status = 3 = 'hoàn tất', tạo data tác nghiệp sale
         if ($order->status == 3 && $notHasPaulo) {
 
           $orderTricho = $order->saleCare;
@@ -570,12 +575,11 @@ class Kernel extends ConsoleKernel
           $saleCare = $order->saleCare;
 
           /** dành cho những data TN và đơn hàng khi chưa nhóm group */
-          // dd($order->saleCare);
           if ($order->saleCare && $saleCare->group) {
-            // dd($group);
-            
+
             $group = $saleCare->group;
             $chatId = $group->tele_cskh_data;
+            $groupId = $group->id;
             /** có tick chia đều team cskh thì chạy tìm người để phát data cskh
              *  ngược lại ko tick thì đơn của sale nào người đó care
              * nếu chọn chia đều team CSKH thì mặc định luôn có sale nhận data
@@ -593,27 +597,11 @@ class Kernel extends ConsoleKernel
             //id_CSKH_tricho 4234584362
             $chatId = '-4286962864'; 
             $assgin_user = $order->assign_user;
-            // dd($assgin_user);
-            // echo 'case 1';
           } else {
-            // $assignCSKH = Helper::getAssignCSKH();
-            // echo 'case 2';
-            // if ($assignCSKH) {
-            //   $assgin_user = $assignCSKH->id;
-            //    echo 'case 2.1';
-            // } else {
-            //   $assgin_user = $order->assign_user;
-            //   echo 'case 2.2';
-            // }
             $assgin_user = 50;
             //cskh 4128471334
-            $chatId = '-4128471334';
+            $chatId = '-4558910780';
           }
-          
-        
-          // echo 'sisis';
-         
-        
 
           $sale = new SaleController();
           $data = [
@@ -625,6 +613,7 @@ class Kernel extends ConsoleKernel
             'assgin' => $assgin_user,
             'group_id' => $groupId,
             'chat_id' => $chatId,
+            'type_TN' => 8,  //hard code -value 8: CSKH
           ];
 
           if ($issetOrder || $order->id) {

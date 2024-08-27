@@ -705,6 +705,7 @@ class TestController extends Controller
     $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
     // dd($orders);
     foreach ($orders as $order) {
+
       $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;
       $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])
         ->post($endpoint, [
@@ -751,9 +752,7 @@ class TestController extends Controller
         //check đơn này đã có data chưa
         $issetOrder = Helper::checkOrderSaleCare($order->id);
 
-        // echo "$order->status $notHasPaulo";
-       
-        // status = 'hoàn tất', tạo data tác nghiệp sale
+        // status = 3 = 'hoàn tất', tạo data tác nghiệp sale
         if ($order->status == 3 && $notHasPaulo) {
 
           $orderTricho = $order->saleCare;
@@ -761,12 +760,11 @@ class TestController extends Controller
           $saleCare = $order->saleCare;
 
           /** dành cho những data TN và đơn hàng khi chưa nhóm group */
-          // dd($order->saleCare);
           if ($order->saleCare && $saleCare->group) {
-            // dd($group);
-            
+
             $group = $saleCare->group;
             $chatId = $group->tele_cskh_data;
+            $groupId = $group->id;
             /** có tick chia đều team cskh thì chạy tìm người để phát data cskh
              *  ngược lại ko tick thì đơn của sale nào người đó care
              * nếu chọn chia đều team CSKH thì mặc định luôn có sale nhận data
@@ -784,27 +782,11 @@ class TestController extends Controller
             //id_CSKH_tricho 4234584362
             $chatId = '-4286962864'; 
             $assgin_user = $order->assign_user;
-            // dd($assgin_user);
-            // echo 'case 1';
           } else {
-            // $assignCSKH = Helper::getAssignCSKH();
-            // echo 'case 2';
-            // if ($assignCSKH) {
-            //   $assgin_user = $assignCSKH->id;
-            //    echo 'case 2.1';
-            // } else {
-            //   $assgin_user = $order->assign_user;
-            //   echo 'case 2.2';
-            // }
             $assgin_user = 50;
             //cskh 4128471334
             $chatId = '-4558910780';
           }
-          
-        
-          // echo 'sisis';
-         
-        
 
           $sale = new SaleController();
           $data = [
@@ -816,6 +798,7 @@ class TestController extends Controller
             'assgin' => $assgin_user,
             'group_id' => $groupId,
             'chat_id' => $chatId,
+            'type_TN' => 8,  //hard code -value 8: CSKH
           ];
 
           if ($issetOrder || $order->id) {
@@ -835,17 +818,21 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/07/2024', '31/07/2024'];
-    $req['sale'] = '50';
+    $req['daterange'] = ['01/07/2024', '31/08/2024'];
+    $req['sale'] = '56';
 
     $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
     $list->whereNull('id_order_new');
-    $list->where('old_customer', '!=' , 1);
+    $list->where('old_customer', 1);
     $list->where('group_id', '5');
     $dataExport[] = [
       'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
     ];
 
+    // echo "<pre>";
+    // print_r($list->get());
+    // echo "</pre>";
+    // die();
     foreach ($list->get() as $data) {
       // echo 'name: ' . $data->full_name . '<br>';
       // echo 'phone: ' . $data->phone . '<br>';
@@ -876,9 +863,16 @@ class TestController extends Controller
 
     // dd($listSc);
     foreach ($listSc as $sc) {
-      // echo "$sc->id ";
+      // echo "$sc->id " . "<br>";
+      
       $call = $sc->call;
-      $time       = $call->time;
+      // dd($call);
+
+      if (empty($call->time)) {
+        continue;
+      }
+
+      $time = $call->time;
       $nameCall   = $call->callResult->name;
       $updatedAt  = $sc->time_update_TN;
       $isRunjob   = $sc->is_runjob;
@@ -937,6 +931,91 @@ class TestController extends Controller
         ]]);
       }
     }
+  }
+
+  public function fix()
+  {
+    $from = date('2024-07-01');
+    $to = date('2024-07-31');
+    // $list = Orders::whereNotExists(function ($query) {
+    //   $query->select(\DB::raw('*'))
+    //       ->from('sale_care')
+    //       ->where('sale_care.id', 'orders.sale_care')
+    //       ->where('old_customer', 0)
+    //       ;
+    //   })
+    //   ->where('status', 3)
+    //   ->whereBetween('created_at', [$from, $to])
+    //   ->get();
+
+    $list = \DB::select("SELECT *
+FROM   orders
+WHERE  NOT EXISTS
+  (SELECT *
+   FROM   sale_care
+   WHERE  
+   sale_care.id = orders.sale_care and sale_care.old_customer = 0 
+   
+   ) AND orders.created_at BETWEEN '2024-07-01' 
+                     AND '2024-07-31 23:59:59.993' ORDER BY `id` ASC;");
+
+
+      // dd($list);
+    // echo "<pre>";
+    // print_r($list);
+    // echo "</pre>";
+    //   die();
+      // 
+    foreach ($list as $item) {
+      // dd($item->id);
+      $saleCare = SaleCare::
+        where('phone', 'like', '%' . $item->phone . '%')
+        ->where('old_customer', 0)
+        ->first();
+
+        // dd('hi');
+        // dd($saleCare);
+      // trường hợp có data TN nhưng chưa map => update map
+      if (!$saleCare) {
+        echo $item->phone . "<br>";
+        $sale = new SaleController();
+        $data = [
+          'page_link' => '',
+          'page_name' => '',
+          'sex'       => 0,
+          'old_customer' => 0,
+          'address'   => $item->address,
+          'messages'  => '',
+          'name'      => $item->name,
+          'phone'     => $item->phone,
+          'page_id'   => '',
+          'text'      => '',
+          // 'chat_id'   => $chatId,
+          'm_id'      => '',
+          'assgin'    => $item->assign_user,
+          'is_duplicate' => 0,
+          'id_order_new' => $item->id,
+          'created_at'  => $item->created_at
+        ];
+
+        $request = new \Illuminate\Http\Request();
+        $request->replace($data);
+        $sale->save($request);
+
+      } else {
+        echo $item->phone . "<br>";
+        $order = Orders::find($item->id);
+        if ($order) {
+          $order->sale_care = $saleCare->id;
+          $order->save();
+        }
+       
+      }
+      // dd($saleCare);
+      //trường hợp có đơn hàng nhưng chưa có data TN => create data và map
+    }
+        // dd($list);
+    
   }
 }
 

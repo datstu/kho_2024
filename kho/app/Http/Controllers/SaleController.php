@@ -82,7 +82,7 @@ class SaleController extends Controller
             } else {
                 $saleCare = new SaleCare();
                 $text = 'Tạo tác nghiệp thành công.';
-                $saleCare->type_TN = 1;
+                $saleCare->type_TN = ($req->type_TN) ? $req->type_TN : 1;
             }
 
             $saleCare->id_order             = $req->id_order;
@@ -423,7 +423,9 @@ class SaleController extends Controller
                 $list->where('old_customer', $dataFilter['type_customer']);   
             }
 
-            if (isset($dataFilter['status'])) {
+
+ $routeName = Route::currentRouteName();
+         if (isset($dataFilter['status']) && $routeName != 'filter-total-sales') {
                 $list->whereNotNull('id_order_new');
                 $newSCare = [];
                 foreach ($list->get() as $scare) {

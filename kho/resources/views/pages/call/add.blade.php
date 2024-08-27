@@ -38,7 +38,7 @@
                                             
                                         @if (isset($categoryCall))
                                             @foreach ($categoryCall as $category)
-                                                <option <?= ($category->id == $call->ìf_call) ? "selected" : '';?> value="{{$category->id}}">{{$category->name}}</option>
+                                                <option <?= ($category->id == $call->if_call) ? "selected" : '';?> value="{{$category->id}}">{{$category->name}}</option>
                                             @endforeach
                                         @endif
                                         
