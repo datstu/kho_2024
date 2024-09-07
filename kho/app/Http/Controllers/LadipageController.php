@@ -133,10 +133,11 @@ class LadipageController  extends Controller
             // echo '$group ' . $group->id;
 
             // die();
+            $pageNameLadi = 'Ladi Page. Link: ' . $linkPage;
             $sale = new SaleController();
             $data = [
                 'page_link' => $linkPage,
-                'page_name' => 'Ladi Page',
+                'page_name' => $pageNameLadi,
                 'sex'       => 0,
                 'old_customer' => 0,
                 'address'   => '',
@@ -144,7 +145,7 @@ class LadipageController  extends Controller
                 'name'      => $name,
                 'phone'     => $phone,
                 'page_id'   => '',
-                'text'      => 'Ladi Page',
+                'text'      => $pageNameLadi,
                 'chat_id'   => $chatId,
                 'm_id'      => 'mId',
                 'assgin'    => $assgin_user,
