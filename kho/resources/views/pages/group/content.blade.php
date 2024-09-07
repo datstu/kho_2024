@@ -79,10 +79,20 @@
                   {{($gr->leadSale) ? $gr->leadSale->real_name : "";}}
                 </td>
                 <td>
-
+                  
                 @if ($gr->sales)
+                  <span><b>Data nóng</b></span> <br>
                   @foreach ($gr->sales as $mem)
-                    {{$mem->user->real_name}} <br>
+                    @if ($mem->type_sale == 1)
+                    &nbsp; {{$mem->user->real_name}} <br>
+                    @endif
+                  @endforeach
+
+                  <span><b>Data CSKH</b></span> <br>
+                  @foreach ($gr->sales as $mem)
+                    @if ($mem->type_sale == 2)
+                    &nbsp; {{$mem->user->real_name}} <br>
+                    @endif
                   @endforeach
                 @endif
 

@@ -12,7 +12,7 @@ $listStatus = Helper::getListStatus();
 ?>
 
 <script src="{{asset('public/js/number-format/cleave.min.js')}}"></script>
-<link href="{{ asset('public/css/pages/styleOrders.css'); }}" rel="stylesheet">
+<link href="{{ asset('public/css/pages/styleOrders.css')}}" rel="stylesheet">
 <div class="body flex-grow-1 py-3 px-3">
     <div class="row">
         <div id="notifi-box" class="hidden alert alert-success print-error-msg">
