@@ -70,15 +70,7 @@ class GroupController extends Controller
         // $oldUserOfGroup = DetailUserGroup::where('id_group', $req->id)->pluck('id_user')->toArray();
         // $newUserOfGroup = $req->member;
         $tmp = $remove = $add = [];
-        
 
-        // echo "<pre>";
-        // print_r($oldUserOfGroup);
-        // echo "</pre>";
-
-        // echo "<pre>";
-        // print_r($newUserOfGroup);
-        // echo "</pre>";
         foreach ($oldArray as $user) {
             if (in_array($user, $newArray)) {
                 $tmp[] = $user;
@@ -100,15 +92,30 @@ class GroupController extends Controller
     }
     
 
-    public function updateFieldOfGroup($id_group, $classDetail, $typeCol, $newReq)
+    public function updateFieldOfGroup($id_group, $classDetail, $typeCol, $newReq, $typeSale = null)
     {
         /** clear data user + group */
-        $oldUserOfGroup = $classDetail::where('id_group', $id_group)->pluck($typeCol)->toArray();
-        $newUserOfGroup = $newReq;
+        $typeSaleNumber = 1;
+        if ($typeSale && $typeSale == 'cskh') {
+            $typeSaleNumber = 2;
+            // dd($typeSaleNumber = 2);
+        }
 
+        $oldUserOfGroup = $classDetail::where('id_group', $id_group);
+      
+        if ($typeCol == 'id_user') {
+            $oldUserOfGroup = $oldUserOfGroup->where('type_sale', $typeSaleNumber);
+        }
+       
+      
+        $oldUserOfGroup = $oldUserOfGroup->pluck($typeCol)->toArray();
+        
+        $newUserOfGroup = $newReq;
+        
         $updateUserOfGroup = $this->updateArrayExist($newUserOfGroup, $oldUserOfGroup);
         $remove = $updateUserOfGroup['remove'];
         $add = $updateUserOfGroup['add'];
+
         foreach ($remove as $id) {
             $dtUserGroup = $classDetail::where('id_group', $id_group)->where($typeCol, $id)->first();
             if ($dtUserGroup) {
@@ -120,8 +127,16 @@ class GroupController extends Controller
             $dtUserGroup = new $classDetail();
             $dtUserGroup->id_group = $id_group;
             $dtUserGroup->$typeCol = $id;
+
+            if ($typeCol == 'id_user') {
+                $dtUserGroup->type_sale = $typeSaleNumber;
+            }
+
+            $dtUserGroup->$typeCol = $id;
+           
             $dtUserGroup->save();
         } 
+        // dd('yau');
     }
 
     public function save(Request $req) {
@@ -138,7 +153,7 @@ class GroupController extends Controller
 
                 /** clear data user + group */
                 $classDetail = new DetailUserGroup();
-                $this->updateFieldOfGroup($req->id, $classDetail, 'id_user', $req->member); 
+                $this->updateFieldOfGroup($req->id, $classDetail, 'id_user', $req->member, 'new'); 
 
                 /** clear data product + group */
                 $classDetail = new DetailProductGroup();
@@ -164,21 +179,24 @@ class GroupController extends Controller
                 $gr->lead_sale   = $req->leadSale;
                 
                 $gr->save();
+                // dd('hâhihii');
 
                 /** lưu thôn tin user trong nhóm */
                 if (!isset($req->id)) {
                     $members = $req->member;
-                
+                    // dd( $members);
                     // $tmp = [];
                     foreach ($members as $member) {
                         $detailUser = new DetailUserGroup();
                         $detailUser->id_group = $gr->id;
                         $detailUser->id_user = $member;
+                        $detailUser->type_sale = 1;
                         $detailUser->save();
                         // $tmp[] = $detailUser;
                     }
                 }
-                // dd($tmp);
+
+   
 
                 /** lưu thôn tin nguồn data trong nhóm */
                 $listSrc = $req->src;
@@ -206,15 +224,18 @@ class GroupController extends Controller
                 /** lưu thôn tin sale CSKH nếu isShareData = true*/
                 if ($req->shareDataCskh) {
                     $saleCSKH = $req->memberCSKH;
-                
-                    // $tmp = [];
-                    foreach ($saleCSKH as $member) {
-                        $detailUser = new DetailUserGroup();
-                        $detailUser->id_group = $gr->id;
-                        $detailUser->id_user = $member;
-                        $detailUser->type_sale = 2;
-                        $detailUser->save();
-                    }
+                    // dd($saleCSKH);
+                    $idGr = $gr->id;
+                    $classDetail = new DetailUserGroup();
+                    $this->updateFieldOfGroup($idGr, $classDetail, 'id_user', $req->memberCSKH, 'cskh'); 
+                    // // $tmp = [];
+                    // foreach ($saleCSKH as $member) {
+                    //     $detailUser = new DetailUserGroup();
+                    //     $detailUser->id_group = $gr->id;
+                    //     $detailUser->id_user = $member;
+                    //     $detailUser->type_sale = 2;
+                    //     $detailUser->save();
+                    // }
                 }
 
             } catch (\Throwable $th) {
