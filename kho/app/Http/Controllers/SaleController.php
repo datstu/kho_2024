@@ -60,21 +60,16 @@ class SaleController extends Controller
      *  2: sale tự tạo data - hotline
      * 
      */
-    public function save(Request $req) {
-        // dd($req->all());
+    public function save(Request $req) 
+    {
         $validator      = Validator::make($req->all(), [
             'name'      => 'required',
-            // 'address'   => 'required',
             'phone'     => 'required',
-            // 'id_order'  => 'numeric',
         ],[
             'name.required' => 'Nhập tên khách hàng',
-            // 'address.required' => 'Nhập địa chỉ',
             'phone.required' => 'Nhập số điện thoại',
-            // 'id_order.numeric' => 'Chỉ được nhập số',
         ]);
 
-        // dd($validator->errors());
         if ($validator->passes()) {
             if (isset($req->id)) {
                 $saleCare = SaleCare::find($req->id);
@@ -95,35 +90,29 @@ class SaleController extends Controller
             $saleCare->reason_not_buy       = $req->reason_not_buy;
             $saleCare->note_info_customer   = $req->note_info_customer;
             $saleCare->assign_user          = $req->assgin;
-            
             $saleCare->messages             = $req->messages;
             $saleCare->old_customer         = ($req->old_customer) ?: 0;
-           
             $saleCare->m_id                 = $req->m_id;
             $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
             $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
             $saleCare->group_id             = $req->group_id;
             
             $srcId = $req->src;
-            // dd($req->all());
             if ($srcId) {
                 $src = Helper::getSrcById($srcId);
-                // dd($src);
+
                 $saleCare->page_name            = $src->name;
                 $saleCare->page_id              = $src->id_page;
                 $saleCare->page_link            = $src->link;
-                // dd('hi');
 
                 //những nguồn chưa chọn nhóm, tất cả đổ tạm thời về vui tricho
                 $chatId = env('id_VUI_tricho');
-                // dd($chatId);
                 if ($src->id_page == 'tricho') {
                     $saleCare->group_id            = $src->id_page;
                     $saleCare->save();   
                 } 
                 
                 if ($src->group) {
-                    // dd($src->group);
                     $chatId = $src->group->tele_hot_data;
                     $saleCare->group_id = $src->id_group;
                     $saleCare->save();   
@@ -134,9 +123,8 @@ class SaleController extends Controller
                 $saleCare->page_id              = $req->page_id;
                 $saleCare->page_link            = $req->page_link;
             }
-            // dd($chatId);
-            $saleCare->save();
 
+            $saleCare->save();
             if (!isset($req->id)) {
                 $tProduct = Helper::getListProductByOrderId( $saleCare->id_order);
                 //gửi thông báo qua telegram
@@ -145,20 +133,6 @@ class SaleController extends Controller
                     $tokenGroupChat = $telegram->token;
 
                     $chatId = (!empty($chatId)) ? $chatId : $req->chat_id;
-                    // $saleTricho = $saleCare->user->name;
-                    // // dd($saleTricho);
-                    // if ((($saleTricho == 'sale.hiep' || $saleTricho == 'sale') && $req->group_id == 'tricho')
-                    //     ||  $saleCare->group_id == 'tricho') {
-                    //     if (($chatId &&  $chatId == 'id_VUI_tricho') || $saleCare->page_id == 'tricho') {
-                    //         $chatId = env('id_VUI_tricho');
-                    //     } else {
-                    //         $chatId = env('id_CSKH_tricho');
-                    //     }
-                    // } else if (($chatId &&  $chatId == 'id_VUI') || $saleCare->old_customer == 0) {
-                    //     $chatId = $telegram->id_VUI;
-                    // } else {
-                    //     $chatId = $telegram->id_CSKH;
-                    // }
 
                     if ($req->phone == '0973409613') {
                         $chatId = '-4286962864'; //auto về nhóm test
@@ -173,8 +147,7 @@ class SaleController extends Controller
                     $notiText       = "Khách hàng: $saleCare->full_name"
                         . "\nSố điện thoại: $saleCare->phone"
                         . "\nNội dung: $saleCare->messages";
-                       
-                       
+
                     $name =  $saleCare->user->real_name ?: $saleCare->user->name;
                     if ($saleCare->old_customer == 1) {
                         $notiText .= "Đã nhận được hàng."  . "\nĐơn mua: " . $tProduct; 
@@ -198,8 +171,7 @@ class SaleController extends Controller
                             'chat_id' => $chatId, 
                             'text' => $notiText,
                         ]]);
-                    }
-                    
+                    } 
                 }
             }
             $routeName = \Request::route();
@@ -210,24 +182,9 @@ class SaleController extends Controller
             if ($routeName && $routeName->getName() == 'sale-care-save') {
                 notify()->success($text, 'Thành công!');
             }
-           
-           
+
         } else {
-            // dd($validator->errors()->getMessages());
             notify()->error('Lỗi khi tạo tác nghiệp mới', 'Thất bại!');
-
-            // foreach ($validator->errors()->getMessages() as $kE => $err) {
-            //     if ($kE == 'id_order') {
-            //         $kE = 'Mã đơn hàng';
-            //     }
-            //     foreach ($err as $k => $val) {
-            //         echo $kE . ' ' . $val;
-
-            //     }
-            // }
-            // echo die();
-            // notify()->error('Lỗi khi tạo tác nghiệp mới', 'Thất bại!');
-            //  return response()->json(['errors'=>$validator->errors()]);
             return back()->withErrors($validator->errors());
         }
 

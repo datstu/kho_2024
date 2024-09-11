@@ -549,7 +549,6 @@ class OrdersController extends Controller
                         $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
                         $chatId = '-4167465219';
                     }
-                   
                 }
 
                 //gửi thông báo qua telegram
@@ -585,8 +584,24 @@ class OrdersController extends Controller
                 //check đơn này đã có data chưa
                 $issetOrder = Helper::checkOrderSaleCare($order->id);
                 // status = 'hoàn tất', tạo data tác nghiệp sale
-                // dd($issetOrder);
+
                 if ($order->status == 3 && $isFertilizer && !$issetOrder) {
+
+                    $pageName = $order->saleCare->page_name;
+                    $pageId = $order->saleCare->page_id;
+                    $pageLink = $order->saleCare->page_link;
+
+                    $group = $order->saleCare->group;
+                    $groupId = $group->id;
+                    $chatId = $group->tele_cskh_data;
+
+                    if ($group->is_share_data_cskh) {
+                        $assgin_user = Helper::getAssignCskhByGroup($group, 'cskh')->id_user;
+                        // dd( $assgin_user);
+                    } else {
+                        $assgin_user = $order->saleCare->assign_user;
+                    }
+
                     $sale = new SaleController();
                     $data = [
                         'id_order' => $order->id,
@@ -594,8 +609,16 @@ class OrdersController extends Controller
                         'name' => $order->name,
                         'phone' => $order->phone,
                         'address' => $order->address,
-                        'assign_user' => $order->assign_user,
+                        'assgin' => $assgin_user,
+                        'page_name' => $pageName,
+                        'page_id' => $pageId,
+                        'page_link' => $pageLink,
+                        'group_id' => $groupId,
+                        'chat_id' => $chatId,
+                        'type_TN' => 8, 
+                        'old_customer' => 1
                     ];
+
                     $request = new \Illuminate\Http\Request();
                     $request->replace($data);
 
