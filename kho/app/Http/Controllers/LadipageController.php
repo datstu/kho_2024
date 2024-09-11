@@ -103,8 +103,10 @@ class LadipageController  extends Controller
         
         if (str_contains($linkPage, 'tricho-bacillus-km')) {
             $linkPage = 'https://www.nongnghiepsachvn.net/tricho-bacillus-km';
-        } else  if (str_contains($linkPage, 'uudai45')) {
+        } else if (str_contains($linkPage, 'uudai45')) {
             $linkPage = 'https://www.phanbonorganic.com/uudai45';
+        } else if (str_contains($linkPage, 'uudai-trichoderma')) {
+            $linkPage = 'https://www.phanbonorganic.com/uudai-trichoderma';
         }
         Log::info($linkPage);
         $group = Helper::getGroupByLinkLadi($linkPage);
@@ -153,7 +155,7 @@ class LadipageController  extends Controller
                 'group_id'  => $group->id,
             ];
 
-Log::info( $data);
+            Log::info( $data);
             $request = new \Illuminate\Http\Request();
             $request->replace($data);
             $sale->save($request);
