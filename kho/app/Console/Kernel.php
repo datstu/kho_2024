@@ -25,10 +25,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->call(function() {
-          // $this->wakeUp();
-        //   $this->updateStatusOrderGHN();
-        $this->updateStatusOrderGhnV2();
-          Log::channel('new')->info('run updateStatusOrderGHN');
+          $this->updateStatusOrderGhnV2();
+            Log::channel('new')->info('run updateStatusOrderGHN');
         })->everyMinute();
 
         // $schedule->call(function() {
@@ -40,7 +38,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function() {
           // $this->wakeUp();
         //   $this->crawlerPancakeTricho();
-        $this->crawlerGroup();
+          $this->crawlerGroup();
           Log::channel('new')->info('run craw pancake tricho');
         })->everyMinute();
         
@@ -56,84 +54,85 @@ class Kernel extends ConsoleKernel
       require base_path('routes/console.php');
   }
 
-  public function wakeUp() 
-  {$listSc = SaleCare::whereNotNull('result_call')
-    ->whereNotNull('type_TN')
-    ->where('result_call', '!=', 0)
-    ->where('result_call', '!=', -1)
-    ->where('has_TN', 1)
-    ->get();
+  public function wakeUp()
+  {
+    $listSc = SaleCare::whereNotNull('result_call')
+      ->whereNotNull('type_TN')
+      ->where('result_call', '!=', 0)
+      ->where('result_call', '!=', -1)
+      ->where('has_TN', 1)
+      ->get();
 
-  // dd($listSc);
-  foreach ($listSc as $sc) {
-    // echo "$sc->id " . "<br>";
-    
-    $call = $sc->call;
-    // dd($call);
+    foreach ($listSc as $sc) {
+      // echo "$sc->id " . "<br>";
+      // if ($sc->id != 7623) {
+      //   continue;
+      // }
 
-    if (empty($call->time)) {
-      continue;
-    }
+      $call = $sc->call;
 
-    $time = $call->time;
-    $nameCall   = $call->callResult->name;
-    $updatedAt  = $sc->time_update_TN;
-    $isRunjob   = $sc->is_runjob;
-    $TNcan   = $sc->TN_can;
-    $saleAssign   = $sc->user->real_name;
-    
-    if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
-      continue;
-    }
-    
-    //cộng ngày update và time cuộc gọi
-    $newDate = strtotime("+$time hours", strtotime($updatedAt));
-    if ($newDate <= time()) {
-      $nextTN = $call->thenCall;
-     
-      
-      if (!$nextTN) {
+      if (empty($call->time)) {
         continue;
       }
 
-      $chatId         = '-4286962864';
-      $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
-      $group = $sc->group;
-
-
-      if ($group) {
-        $chatId = $group->tele_nhac_TN;
-        $tokenGroupChat =  $group->tele_bot_token;
-      }
-
-      //set lần gọi tiếp theo
-      $sc->type_TN = $nextTN->id;
-      $sc->result_call = 0;
-      $sc->has_TN = 0;
-      $sc->is_runjob = 1;
-      $sc->save();
-
-      //gửi thông báo qua telegram
+      $time = $call->time;
+      $nameCall   = $call->callResult->name;
+      $updatedAt  = $sc->time_update_TN;
+      $isRunjob   = $sc->is_runjob;
+      $TNcan   = $sc->TN_can;
+      $saleAssign   = $sc->user->real_name;
       
+      if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
+        continue;
+      }
+      
+      //cộng ngày update và time cuộc gọi
+      $newDate = strtotime("+$time hours", strtotime($updatedAt));
+      if ($newDate <= time()) {
 
-      // $group = $sc->group;
-  
-      $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
-      $client         = new \GuzzleHttp\Client();
+        $nextTN = $call->thenCall;
+        if (!$nextTN) {
+          continue;
+        }
 
-      $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
-        . "\nĐã tới thời gian tác nghiệp."
-        . "\nKết quả gọi trước đó: $nameCall"
-        . "\nGhi chú trước: $TNcan"
-        . "\nSale tác nghiệp: $saleAssign"; 
+        $chatId         = '-4286962864';
+        $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
+        $group = $sc->group;
 
-        // dd($notiText);
-      $client->request('GET', $endpoint, ['query' => [
-        'chat_id' => $chatId, 
-        'text' => $notiText,
-      ]]);
+        if ($group) {
+          $chatId = $group->tele_nhac_TN;
+          $tokenGroupChat =  $group->tele_bot_token;
+        }
+
+        //set lần gọi tiếp theo
+        if ($sc->type_TN != $nextTN->id) {
+          $sc->result_call = 0;
+        }
+
+        $sc->type_TN = $nextTN->id;
+        $sc->has_TN = 0;
+        $sc->is_runjob = 1;
+        $sc->save();
+
+        //gửi thông báo qua telegram
+        $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+        $client         = new \GuzzleHttp\Client();
+
+        $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
+          . "\nĐã tới thời gian tác nghiệp."
+          . "\nKết quả gọi trước đó: $nameCall"
+          . "\nGhi chú trước: $TNcan"
+          . "\nSale tác nghiệp: $saleAssign"; 
+
+        if ($chatId) {
+          $client->request('GET', $endpoint, ['query' => [
+            'chat_id' => $chatId, 
+            'text' => $notiText,
+          ]]);
+        }
+        
+      }
     }
-  }
   }
 
   public function updateStatusOrderGHN() 
