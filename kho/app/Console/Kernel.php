@@ -517,7 +517,7 @@ class Kernel extends ConsoleKernel
   public function updateStatusOrderGhnV2() 
   {
     $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
-    // dd($orders);
+
     foreach ($orders as $order) {
 
       $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;
@@ -600,7 +600,13 @@ class Kernel extends ConsoleKernel
             $assgin_user = 50;
             //cskh 4128471334
             $chatId = '-4558910780';
+            // $chatId = '-4128471334';
           }
+
+          $typeCSKH = Helper::getTypeCSKH($order);
+          $pageName = $order->saleCare->page_name;
+          $pageId = $order->saleCare->page_id;
+          $pageLink = $order->saleCare->page_link;
 
           $sale = new SaleController();
           $data = [
@@ -610,9 +616,13 @@ class Kernel extends ConsoleKernel
             'phone' => $order->phone,
             'address' => $order->address,
             'assgin' => $assgin_user,
+            'page_name' => $pageName,
+            'page_id' => $pageId,
+            'page_link' => $pageLink,
             'group_id' => $groupId,
             'chat_id' => $chatId,
-            'type_TN' => 8,  //hard code -value 8: CSKH
+            'type_TN' => $typeCSKH, 
+            // 'old_customer' => 1
           ];
 
           if ($issetOrder || $order->id) {
