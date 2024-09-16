@@ -602,6 +602,7 @@ class OrdersController extends Controller
                         $assgin_user = $order->saleCare->assign_user;
                     }
 
+                    $typeCSKH = Helper::getTypeCSKH($order);
                     $sale = new SaleController();
                     $data = [
                         'id_order' => $order->id,
@@ -615,7 +616,7 @@ class OrdersController extends Controller
                         'page_link' => $pageLink,
                         'group_id' => $groupId,
                         'chat_id' => $chatId,
-                        'type_TN' => 8, 
+                        'type_TN' => $typeCSKH, 
                         'old_customer' => 1
                     ];
 

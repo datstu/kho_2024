@@ -848,4 +848,23 @@ class Helper
     {
         return  Call::where('if_call', $id)->where('status', 1)->get();
     }
+
+    public static function getTypeCSKH($order)
+    {
+        $type = 8; //hardcode cskh
+        $listProduct = json_decode($order->id_product, true);
+        
+        if ($listProduct) {
+            foreach ($listProduct as $product) {
+
+                /** hardcode set cskh tricho */
+                if ($product['id'] == 56) {
+                    $type = 17;
+                    break;
+                }
+            }
+        }
+
+        return $type;
+    }
 }
