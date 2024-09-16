@@ -877,7 +877,7 @@
                                     <input id="dnn_ctr1441_Main_SaleTacNghiep_chkItem" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem">
                                     <label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
                             </th>
-                            <th style="top: 0.5px;">Mã đơn</th>
+                            {{-- <th style="top: 0.5px;">Mã đơn</th> --}}
                             <th class="text-center hidden" style="width: 50px; top: 0px;">
                                 <span class="chk-all"><input id="dnn_ctr1441_Main_SaleTacNghiep_chkAll" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkAll"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkAll">&nbsp;</label></span></th>
                             <th style="width: 60px; top: 0px;" class="text-center hidden">Id</th>
@@ -926,16 +926,7 @@
                                 <span class="chk-item"><input id="" type="checkbox" name="">
                                     <label for="">&nbsp;</label></span>
                             </td>
-                            <td class="text-center">
-                                <span id="" class="item-md" style="color: #007bff; font-weight: bold;"></span>
-                                {{-- <a onclick="show_view_contact_log(112155407,&quot;&quot;);return false;" class="btn-icon aoh" title="Xem lịch sử xem thông tin số">
-                                    <i style="font-size:14px;" class="fa fa-history"></i>
-                                </a> --}}
-                                @if (isset($item->id_order_new))
-                                <a target="_blank" class="btn-icon aoh" href="{{route('view-order', ['id' => $item->id_order_new])}}" title="Xem lịch sử xem thông tin số"><i style="font-size:14px;" class="fa fa-history"></i></a>
-                                @endif
-
-                            </td>
+                           
                             <td class="text-center area5 hidden-xs">
                                 <span class="span-col span-col-width cancel-col">
                                     <a target="_blank" href="{{$item->page_link}}">{{$item->page_name}}</a>
@@ -1060,11 +1051,17 @@
                                 <div style="clear: both;"></div>
                                 <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__LastMessage_0" class="item-noidung-other"></span>
                             </td>
+
+                            <?php $order = $item->orderNew ?>
+
                             <td class="area2 no-wrap fix_brower_continue_let_off" style="min-width:100px">
                                 <div class="text-right">
-                                    <a onclick="" title="Lịch sử tác nghiệp" class="btn-icon aoh">
+                                    {{-- <a onclick="" title="Lịch sử tác nghiệp" class="btn-icon aoh">
                                         <i class="fa fa-history"></i>
-                                    </a>
+                                    </a> --}}
+                                    @if (isset($item->id_order_new))
+                                    <a target="_blank" class="btn-icon aoh" href="{{route('view-order', ['id' => $item->id_order_new])}}" title="Xem lịch sử xem thông tin số"><i style="font-size:14px;" class="fa fa-history"></i></a>
+                                    @endif
                                 </div>
                                 @if ($item->type_TN)
                                 <?php 
@@ -1086,15 +1083,18 @@
                                 @endif
 
                                 <div class="small-tip text-left">
-                                    
+                                    @if ($order)
+                                        <br>{{date_format($order->created_at,"H:i d-m-Y ")}}
+                                    @endif
                                     <a class="btn-icon invisible">&nbsp;</a>
                                 </div>
                                 
                             </td>
+
                             <td class="no-wrap area2 no-wrap  hidden-xs next-TN" style="min-width:120px">
-                               @if ($item->result_call && $item->result_call != -1)
-                               {{($item->resultCall) ? $item->resultCall->thenCall->name : ''}}
-                               @endif
+                                @if ($item->result_call && $item->result_call != -1)
+                                {{($item->resultCall) ? $item->resultCall->thenCall->name : ''}}
+                                @endif
                             </td>
                             <td class="text-center no-wrap area2 hidden-xs" style="min-width:80px">
                                 <div class="text-right">
@@ -1110,13 +1110,14 @@
                                     <span class="sau-bao-lau-con-lai"></span>
                                 </span>
                             </td>
+
                             <td class="text-left area3 hidden-xs">
                                 <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonhangTenSanPhams_0">
                                     <table class="tb-in-sp">
                                         <tbody>
                                             
-                                            @if ($item->order)
-                                            <?php $order = $item->order ?>
+                                            @if ($order)
+                                           
                                             @foreach (json_decode($order->id_product) as $product)
                                             <?php $productModel = getProductByIdHelper($product->id)?>
                                                 @if ($productModel)
@@ -1131,27 +1132,17 @@
                                     </table></span>
                             </td>
                             <td class="no-wrap area3 text-right hidden-xs">
-                                <table class="tb-in-sp hidden">
-                                    <tbody><tr>
-                                        <td>
-                                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangTongThanhTien_0" title="Thành tiền"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangChietKhau_0" title="Chiết khấu"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangGiaCOD_0" title="Phí VC"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangTongTien_0" title="Tổng tiền đơn hàng" style="font-weight: bold; font-size: 13px;"></span>&nbsp;
-                                            
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                @if ($order)
+                                <table class="tb-in-sp ">
+                                    <tbody>
+                                        <tr>
+                                            <td title="Tổng tiền đơn hàng" style="font-weight: bold; font-size: 13px;">
+                                                {{number_format($order->total)}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                @endif
                             </td>
                             <td class="no-wrap area3 text-right hidden-xs">
                                 <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonHangDatCoc_0"></span>
