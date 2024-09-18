@@ -71,9 +71,6 @@ class LadipageController  extends Controller
 
     public function index(Request $r) 
     {
-        Log::info('sao z');
-        // Log::channel('webhook')->info('run api ladipage');
-        // dd($r->all());
         $phone = $r->phone;
         $name = $r->name;
         // $email = $r->email;
@@ -111,7 +108,7 @@ class LadipageController  extends Controller
         Log::info($linkPage);
         $group = Helper::getGroupByLinkLadi($linkPage);
         
-        if ($group) {
+        if ($group && $phone != '0344411068') {
             $chatId = $group->tele_hot_data;
             $phone = Helper::getCustomPhoneNum($phone);
             $isOldDataLadi = Helper::isOldDataLadi($phone, $assgin_user);
