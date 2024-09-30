@@ -395,10 +395,16 @@ class Helper
         $saleCare = SaleCare::where('phone', $phone)->first();
 
         if ($saleCare) {
-            $assign = $saleCare->assign_user;
-            return true;
+
+            $userAssign = $saleCare->assign_user;
+            $user = User::find($userAssign);
+           
+            if ($user && $user->status == 1) {
+                $assign = $userAssign;
+                return true;
+            }   
         }
-       
+
         return false;
     }
 
@@ -819,6 +825,7 @@ class Helper
     {
         $list = User::where('status', 1);
         $result = [];
+
         /** lấy ra danh sách lead sale */
         foreach ($list->get() as $user) {
             if (in_array(4, json_decode($user->role, true))) {
@@ -866,5 +873,18 @@ class Helper
         }
 
         return $type;
+    }
+
+    public static function getListMktUser()
+    {
+        $list = User::where('status', 1)->where('is_digital', 1)
+            ->orWhere('role', 'like', '%' . '1' . '%')->orderBy('id','DESC');
+        return $list;
+    }
+
+    public static function getListGroup()
+    {
+        $list = Group::where('status', 1)->orderBy('id','DESC');;
+        return $list;
     }
 }

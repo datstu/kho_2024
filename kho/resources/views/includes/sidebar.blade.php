@@ -13,7 +13,7 @@
 
     @if ($checkAll)
 
-    <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
+    {{-- <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
             <svg class="nav-icon">
                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-puzzle')}}"></use>
             </svg> Robot</a>
@@ -23,7 +23,7 @@
             <li class="nav-item"><a class="nav-link" href="base/breadcrumb.html"><span class="nav-icon"></span> Cấu hình
                     FB</a></li>
         </ul>
-    </li>
+    </li> --}}
 
     @endif
 
@@ -55,11 +55,11 @@
     @if ($checkAll)
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
         <svg class="nav-icon">
-            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-voice-over-record')}}"></use>
-        </svg>Digital Marketing</a>
+            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-chart-line')}}"></use>
+        </svg>Marketing</a>
         <ul class="nav-group-items">
-            <li class="nav-item"><a class="nav-link" href="{{route('sale-index')}}"><span class="nav-icon"></span>Ladipage</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{route('sale-index')}}"><span class="nav-icon"></span>Fanpge</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{route('marketing-TN')}}"><span class="nav-icon"></span>Marketing Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{route('marketing-src')}}"><span class="nav-icon"></span>QL nguồn</a></li>
         </ul>
     </li>
     @endif

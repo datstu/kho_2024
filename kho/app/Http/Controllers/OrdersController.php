@@ -46,7 +46,6 @@ class OrdersController extends Controller
     {
         $roles  = $user->role;
         $list   = Orders::orderBy('id', 'desc');
-  
         if ($dataFilter) {
             if (isset($dataFilter['daterange'])) {
                 $time       = $dataFilter['daterange'];
@@ -96,19 +95,19 @@ class OrdersController extends Controller
 
                 $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
             }
-              
+
             /**
              * 1: nhóm Tricho
              * 2: nhóm Lúa
              */
             if (isset($dataFilter['group'])) {
+                $ids = [];
                 if ($dataFilter['group'] == 1) {
                     $productTricho = [
                         58 => '1kg humic',
                         57 => 'Xô Tricho 10kg',
                         56 => '	1 xô Tricho + 3kg Humic'
                     ];
-                    $ids = [];
                 
                     // dd($list->get());
                     foreach ($list->get() as $order) {
@@ -128,7 +127,6 @@ class OrdersController extends Controller
                         53 => 'OG rước đòng',
                         43 => 'S400'
                     ];
-                    $ids = [];
                 
                     // dd($list->get());
                     foreach ($list->get() as $order) {
@@ -146,6 +144,7 @@ class OrdersController extends Controller
                 $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
                 // $list->whereStatus($dataFilter['status']);
             }
+
 
             /** mrNguyen = 1
              *  mrTien = 2
@@ -214,7 +213,7 @@ class OrdersController extends Controller
             } 
         } 
         // dd($list->get());
-        
+
         if ($user->is_digital == 1){
             // $today  = date("Y-m-d", time());
             // $dateBegin  = date('Y-m-d',strtotime("$today"));

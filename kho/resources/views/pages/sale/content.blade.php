@@ -290,7 +290,7 @@
 
     </div>
     <div class="maintain-filter-main" id="dnn_ctr1441_Main_SaleTacNghiep_UpdatePanel1">
-        <div class="box-body " style="padding-bottom: 0px;">
+        <div class="box-body " style="padding-bottom: 0px; opacity:0.5;">
             <div class="row">
                 <div class="col-sm-4 form-group daterange">
                     <input id="daterange" class="btn" type="text" name="daterange" />
@@ -749,7 +749,7 @@
                 @endif
                 @if ($checkAll)
                 
-                <div class="src-filter col-2 form-group mb-1">
+                <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
                     <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
                         <option value="999">--Chọn nguồn--</option>
                     <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
@@ -771,7 +771,7 @@
 
                     </select>
                 </div>
-                <div class="col-2 form-group mb-1">
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
                     <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
                         <option value="999">--chọn Marketing--</option>
                         <option value="1">a.Nguyên</option>
@@ -781,7 +781,7 @@
                 @endif
 
                 @if ($checkAll || $isLeadSale)
-                <div class="col-2 form-group mb-1">
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
                     <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
 
                     @if ($checkAll)<option value="999">--Chọn Sale--</option> @endif
@@ -795,7 +795,7 @@
                 </div>
                 @endif
 
-                <div class="col-2 form-group mb-1">
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
                     <select name="type_customer" id="type_customer-filter" class="form-select">
                         <option value="999">--Tất cả khách--</option>
                         <option value="1">Khách cũ</option>
@@ -1117,7 +1117,6 @@
                                         <tbody>
                                             
                                             @if ($order)
-                                           
                                             @foreach (json_decode($order->id_product) as $product)
                                             <?php $productModel = getProductByIdHelper($product->id)?>
                                                 @if ($productModel)

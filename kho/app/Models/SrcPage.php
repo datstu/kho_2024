@@ -22,4 +22,9 @@ class SrcPage extends Model
     {
         return $this->belongsTo(Group::class, 'id_group', 'id');
     }
+
+    public function userDigital(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_digital', 'id');
+    }
 }

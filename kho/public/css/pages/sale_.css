@@ -590,9 +590,9 @@ a, a:visited { color: #3c8dbc;}
 .select2-container-multi.select2-container-active { border: 1px solid #5897fb; }
     .select2-container-multi.select2-container-active ul.select2-choices { border: none !important; }
 
-input[type="text"] {
+/* input[type="text"] {
     border: none;
-}
+} */
 
 a.tao-don-fixed {
     display: block;

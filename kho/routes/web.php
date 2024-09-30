@@ -18,6 +18,7 @@ use App\Http\Controllers\LadipageController;
 use App\Http\Controllers\SrcPageController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\CallResultController;
+use App\Http\Controllers\MarketingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +132,14 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/cap-nhat-nhom/{id}',  [GroupController::class, 'update'])->name('update-group');
     Route::post('/luu-nhom',  [GroupController::class, 'save'])->name('save-group');
     Route::get('/xoa-nhom/{id}',  [GroupController::class, 'delete'])->name('delete-group');
+
+    Route::get('/marketing-tac-nghiep',  [MarketingController::class, 'index'])->name('marketing-TN');
+    Route::get('/marketing-nguon',  [MarketingController::class, 'srcPage'])->name('marketing-src');
+    Route::get('/marketing-them-nguon',  [MarketingController::class, 'marketingSrcAdd'])->name('marketing-src-add');
+    Route::post('/marketing-luu-nguon',  [MarketingController::class, 'marketingSrcSave'])->name('marketing-src-save');
+    Route::get('/marketing-cap-nhat-nguon/{id}',  [MarketingController::class, 'marketingSrcUpdate'])->name('marketing-src-update');
+    Route::get('/marketing-tim-nguon',  [MarketingController::class, 'marketingSrcSearch'])->name('marketing-src-search');
+    // Route::get('/marketing-tim-kiem',  [MarketingController::class, 'marketingSearch'])->name('marketing-search');
 });
 
 Route::get('/login',  [UserController::class, 'login'])->name('login');
