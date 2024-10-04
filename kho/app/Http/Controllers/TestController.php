@@ -788,6 +788,12 @@ class TestController extends Controller
             $chatId = '-4558910780';
           }
 
+          $typeCSKH = Helper::getTypeCSKH($order);
+          $pageName = $order->saleCare->page_name;
+          $pageId = $order->saleCare->page_id;
+          $pageLink = $order->saleCare->page_link;
+
+          // dd($order->saleCare);
           $sale = new SaleController();
           $data = [
             'id_order' => $order->id,
@@ -796,9 +802,13 @@ class TestController extends Controller
             'phone' => $order->phone,
             'address' => $order->address,
             'assgin' => $assgin_user,
+            'page_name' => $pageName,
+            'page_id' => $pageId,
+            'page_link' => $pageLink,
             'group_id' => $groupId,
             'chat_id' => $chatId,
-            'type_TN' => 8,  //hard code -value 8: CSKH
+            'type_TN' => $typeCSKH, 
+            // 'old_customer' => 1
           ];
 
           if ($issetOrder || $order->id) {
@@ -818,16 +828,36 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/07/2024', '31/08/2024'];
+    $req['daterange'] = ['01/08/2024', '31/08/2024'];
     $req['sale'] = '56';
 
     $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
-    $list->whereNull('id_order_new');
-    $list->where('old_customer', 1);
-    $list->where('group_id', '5');
+    // $list->whereNull('id_order_new');
+    // $list->where('old_customer', 1);
+    // $list->where('group_id', '7');
+    // $list->where('page_id', '7');
+    $src = ['424411670749761', '398822199987832', '397050860162599', 'https://www.phanbonorganic.com/uudai45', 'Hotline Aplus'];
+    $list = $list->where(function($query) use ($src) {
+      foreach ($src as $term) {
+        if (is_numeric($term)) {
+            $query->orWhere('page_id', 'like', '%' . $term . '%');
+        } else {
+            $query->orWhere('page_link', 'like', '%' . $term . '%');
+        }
+
+        if (str_contains($term, 'Tricho') || str_contains($term, 'line')) {
+            $query->orWhere('page_name', 'like', '%' . $term . '%');
+        }
+        // $query->orWhere('page_id', 'like', '%' . $term . '%');
+      }
+    });
+    // dd($list->get());
+
     $dataExport[] = [
       'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
     ];
+
+    
 
     // echo "<pre>";
     // print_r($list->get());
@@ -852,7 +882,7 @@ class TestController extends Controller
 
   }
 
-  public function wakeUp() 
+  public function wakeUp()
   {
     $listSc = SaleCare::whereNotNull('result_call')
       ->whereNotNull('type_TN')
@@ -861,12 +891,10 @@ class TestController extends Controller
       ->where('has_TN', 1)
       ->get();
 
-    // dd($listSc);
     foreach ($listSc as $sc) {
       // echo "$sc->id " . "<br>";
-      
+
       $call = $sc->call;
-      // dd($call);
 
       if (empty($call->time)) {
         continue;
@@ -886,9 +914,8 @@ class TestController extends Controller
       //cộng ngày update và time cuộc gọi
       $newDate = strtotime("+$time hours", strtotime($updatedAt));
       if ($newDate <= time()) {
+
         $nextTN = $call->thenCall;
-       
-        
         if (!$nextTN) {
           continue;
         }
@@ -897,24 +924,22 @@ class TestController extends Controller
         $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
         $group = $sc->group;
 
-
         if ($group) {
           $chatId = $group->tele_nhac_TN;
           $tokenGroupChat =  $group->tele_bot_token;
         }
 
         //set lần gọi tiếp theo
+        if ($sc->type_TN != $nextTN->id) {
+          $sc->result_call = 0;
+        }
+
         $sc->type_TN = $nextTN->id;
-        $sc->result_call = 0;
         $sc->has_TN = 0;
         $sc->is_runjob = 1;
         $sc->save();
 
         //gửi thông báo qua telegram
-        
-
-        // $group = $sc->group;
-    
         $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
         $client         = new \GuzzleHttp\Client();
 
@@ -924,11 +949,13 @@ class TestController extends Controller
           . "\nGhi chú trước: $TNcan"
           . "\nSale tác nghiệp: $saleAssign"; 
 
-          // dd($notiText);
-        $client->request('GET', $endpoint, ['query' => [
-          'chat_id' => $chatId, 
-          'text' => $notiText,
-        ]]);
+        if ($chatId) {
+          $client->request('GET', $endpoint, ['query' => [
+            'chat_id' => $chatId, 
+            'text' => $notiText,
+          ]]);
+        }
+        
       }
     }
   }

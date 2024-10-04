@@ -16,27 +16,34 @@ use App\Models\SrcPage;
 
 class MarketingController extends Controller
 {
-    public function marketingSearch($req)
+    public function getDataMkt($req)
     {
         $list = SrcPage::orderBy('id', 'desc');
 
-        if ($req->mkt_user) {
+        if ($req->mkt_user && $req->mkt_user != -1) {
             $list = $list->where('user_digital', $req->mkt_user);
         }
 
-        if ($req->group) {
-            $list = $list->where('id_group', $req->group);
-        }
-
+        // dd($req->all());
         /** lấy data report(contact) từ list nguồn */
         $listFiltrSrc = $this->getListMktReportByListSrc($list, $req);
-        // dd($listFiltrSrc);
+       
         $listFiltrSrc = $this->transferKey($listFiltrSrc);
-        // dd($listFiltrSrc);
-        // dd($listFiltrSrc);
+
         $rs = $this->getListMktReportOrder($req, $listFiltrSrc);
+        if ($rs) {
+            $rs = $this->cleanDataMktReport($rs);
+        }
+
+        return $rs;
+    }
+
+    public function marketingSearch($req)
+    {
+        $rs = $this->getDataMkt($req);
         // dd($rs);
-        $rs = $this->cleanDataMktReport($rs);
+
+       
         $listMktUser = Helper::getListMktUser();
         $listGroup = Helper::getListGroup();
         
@@ -76,7 +83,6 @@ class MarketingController extends Controller
 
     public function cleanDataMktReport($data)
     {
-        //  dd($data);
         foreach ($data as $key => $item) {
             // if (isset($item['order']) && $item['order'] == 0 && $item['contact'] == 0) {
             //     unset($data[$key]);
@@ -195,14 +201,19 @@ class MarketingController extends Controller
 
         $listOrders = $ordersController->getListOrderByPermisson($userAdmin, $dataFilter);
 
-        // dd($listOrders->get());
-        // dd($listOrders->sum('total'));
+        
+        // dd($req->type_customer);
         $listOrderKeySrc = [];
         foreach ($listOrders->get() as $order) {
             // dd($order->saleCare)
             // if ($order->id != 2148) {
             //     continue;
             // }
+
+            if ($req->type_customer && $req->type_customer != -1 
+                && $order->saleCare->old_customer != $req->type_customer) {
+                continue;
+            }
 
             // dd($order->saleCare);
             $srcPage = $this->getSrcPageFromSaleCare($order->saleCare);
@@ -217,6 +228,14 @@ class MarketingController extends Controller
             }
         }
 
+        /** lọc loại khách hàng */
+        // dd($listSrc);
+        if ($req->type_customer && $req->type_customer != -1) {
+            //khách mới
+            if ($req->type_customer == 0) {
+               
+            }
+        }
         // dd($listOrderKeySrc);
         /* gộp 2 mảng: 1 mảng src chỉ có số contact trong thời gian chỉ định và
         1 mảng có data order thuộc src
@@ -308,17 +327,17 @@ class MarketingController extends Controller
     }
     public function getListMktReportByListSrc($list, $req)
     {
+        // dd($list->get());
         $data = [];
         foreach ($list->get() as $item) {
             // echo $item->id . "<br>";
-            // if ($item->id != 7) {
+            // if ($item->id != 9) {
             //     continue;
             // }
             $dataReport = $this->getDataReportBySrcId($item, $req);
             $data[]= $dataReport;
         }
 
-        // dd($data);
         return $data;
     }
 
@@ -340,12 +359,21 @@ class MarketingController extends Controller
             $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
             $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
 
-            $saleCare->whereDate('created_at', '>=', $dateBegin)
+            $saleCare = $saleCare->whereDate('created_at', '>=', $dateBegin)
                 ->whereDate('created_at', '<=', $dateEnd);
         }
+        
+        if (isset($req->type_customer) && (int)$req->type_customer != -1) {
+            $saleCare = $saleCare->where('old_customer', $req->type_customer);
+        }
+        // dd($saleCare->get());
+        $scNoSrc = [];
 
-   
-        // dd($item->type);
+        foreach ($saleCare->get() as $sale) {
+            if (!$sale->page_id && !$sale->page_name && !$sale->page_link) {
+                $scNoSrc[] = $sale;
+            }
+        }
         // $src = ['389136690940452', '378087158713964', '381180601741468', 'Hotline - Tricho', 'Khách Cũ Tricho'];
         if ($item->type == 'pc') {
             $saleCare = $saleCare->where('page_id', $item->id_page);
@@ -359,7 +387,13 @@ class MarketingController extends Controller
         } else {
             $saleCare = $saleCare->where('page_id', 'tricho');
         }
+
+        // dd($scNoSrc);
+        // dd( $saleCare->get());
+        // dd($req->type_customer && (int)$req->type_customer != -1);
+       
         // dd($saleCare->get());
+
         $countSaleCare   = $saleCare->count();
 
         $result = [

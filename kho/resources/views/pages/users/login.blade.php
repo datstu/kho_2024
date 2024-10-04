@@ -30,7 +30,7 @@
                       <h1>Đăng nhập</h1>
                       <p class="text-medium-emphasis">Đăng nhập vào tài khoản của bạn</p>
                       <form action="{{route('login-post')}}" method="POST">
-                        @csrf
+                        {{ csrf_field() }}
                         <div class="input-group mb-3"><span class="input-group-text">
                             <svg class="icon">
                                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-use')}}r"></use>

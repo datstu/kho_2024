@@ -20,16 +20,17 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $toMonth      = date("Y-m-d", time());
+        $toMonth      = date("d/m/Y", time());
 
         /**set tmp */
-        // $toMonth = '2024-08-05';
+        // $toMonth = '02/10/2024';
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataSale = $this->getReportHomeSale($toMonth);
 
         // dd($dataSale);
-        $dataDigital = $this->getReportHomeDigital($toMonth);
+        // $dataDigital = $this->getReportHomeDigital($toMonth);
+        $dataDigital = $this->getReportHomeDigitalV2($toMonth);
 
         $category   = Category::where('status', 1)->get();
         $sales   = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
@@ -345,13 +346,13 @@ class HomeController extends Controller
             $dataFilter['type_customer'] = 1;    
         }
 
-      
+    //   dd($dataFilter);
         $listOrder      = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter);
         $countOrders    = $listOrder->count();
         $ordersSum      = $listOrder->sum('total');
         $sumProduct     = $listOrder->sum('qty');
 
-        // dd( $dataFilter);
+        // dd( $listOrder->get());
         if ($countOrders > 0) {
             $avgOrders = round($ordersSum / $countOrders, 0);
         }
@@ -359,8 +360,8 @@ class HomeController extends Controller
         // dd($dataFilter);
         $ordersCtl = new SaleController();
         $saleCare  = $ordersCtl->getListSalesByPermisson(Auth::user(), $dataFilter);
-        
-        // dd($saleCare->get());
+
+       
         if ($type == 'new') {
             $saleCare->where('old_customer', 0);    
         } else if ($type == 'old') {
@@ -376,6 +377,7 @@ class HomeController extends Controller
             $rateSuccess = $countOrders / $countSaleCare * 100;
         }
         
+        // dd($ordersSum);
         $result = [
             'contact' => $countSaleCare,
             'order' => $countOrders,
@@ -398,11 +400,14 @@ class HomeController extends Controller
         if ($checkAll || $isLeadSale) {
             // dd($listSale->get());
             foreach ($listSale->get() as $sale) {
-                    $data = $this->getReportUserSale($sale, $dataFilter);
-                    $result[] = $data;   
+                // if ($sale->id != 50) {
+                //     continue;
+                // }
+                $data = $this->getReportUserSaleV2($sale, $dataFilter);
+                $result[] = $data;   
             }
         } else if (Auth::user()->is_CSKH || Auth::user()->is_sale) {
-            $result[] = $this->getReportUserSale(Auth::user(), $dataFilter);
+            $result[] = $this->getReportUserSaleV2(Auth::user(), $dataFilter);
         }
 
        
@@ -445,6 +450,55 @@ class HomeController extends Controller
                 'avg' => 0,
             ];
         }  
+        
+        $totalSum = $newTotal + $oldTotal;
+        if ($newCountOrder != 0 || $oldCountOrder != 0) {
+            $avgSum = $totalSum / ($newCountOrder + $oldCountOrder);
+        }
+
+        $data['summary_total'] = [
+            'total' => round($totalSum, 0),
+            'avg' => round($avgSum, 0),
+        ];
+
+        return $data;
+    }
+
+    public function getReportUserSaleV2($user, $dataFilter)
+    {
+        $data = ['name' => ($user->real_name) ?: ''];
+        $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
+        $dataFilter['sale'] = $user->id;
+        // dd($dataFilter);
+   
+        $newCustomer = $this->getSaleByType($dataFilter, 'new');
+        $data['new_customer'] = $newCustomer;
+
+        $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
+        $newCountOrder = $newCustomer['order'];
+
+        // $data['old_customer'] = [
+        //     'contact' => 0,
+        //     'order' => 0,
+        //     'rate' => 0,
+        //     'product' => 0,
+        //     'total' => 0,
+        //     'avg' => 0,
+        // ];
+
+        $oldCustomer = $this->getSaleByType($dataFilter, 'old');
+        $data['old_customer'] = $oldCustomer;
+        $oldTotal = Helper::stringToNumberPrice($oldCustomer['total']);
+        $oldCountOrder = $oldCustomer['order'];
+
+        // $data['new_customer'] = [
+        //     'contact' => 0,
+        //     'order' => 0,
+        //     'rate' => 0,
+        //     'product' => 0,
+        //     'total' => 0,
+        //     'avg' => 0,
+        // ];
         
         $totalSum = $newTotal + $oldTotal;
         if ($newCountOrder != 0 || $oldCountOrder != 0) {
@@ -885,6 +939,71 @@ class HomeController extends Controller
 
         // dd($resultDigital['trSum']);
         $result['data_digital'] = $resultDigital;
+        return $result;
+    }
+
+    public function getReportHomeDigitalV2($time)
+    {
+        $result = [];
+
+        $listDigital = User::where('status', 1)->where('is_digital', 1)->orderBy('id', 'DESC');
+        // dd($listDigital->get());
+        foreach ($listDigital->get() as $k => $digital) {
+            
+            $result[$k]['name'] = $digital->real_name;
+            // dd($req->all()); 'name' => $digital->real_name,
+            $result[$k]['new_customer'] = $this->getDataDigitalInHome($digital->id, 0, $time);
+            $result[$k]['old_customer'] = $this->getDataDigitalInHome($digital->id, 1, $time);
+            // dd($result);
+            // $req->merge(input: ['type_cusomer' => 1]);
+            // $result[]['old'] = $mktController->marketingSearch($req);
+
+        }
+        
+        // dd($result);
+
+        return $result;
+    }
+
+    public function getDataDigitalInHome($id, $typeCustomer, $time)
+    {
+        $dataFilter['daterange'] = "$time - $time";
+        $req = new Request();
+        $req->merge(['daterange' => $dataFilter['daterange']]);
+        $req->merge(['mkt_user' => $id]);
+        $req->merge(input: ['type_customer' => $typeCustomer]);
+        // dd($req->all());
+        $mktController = new MarketingController();
+        $data = $mktController->getDataMkt($req);
+        // dd($data);
+
+        $contact = $countOrders = $rateSuccess = $sumProduct = $ordersSum = $avgOrders = 0;
+        if ($data) {
+            foreach ($data as $item) {
+                $contact += $item['contact'];
+                $countOrders += $item['order'];
+                $sumProduct += $item['product'];
+                $ordersSum += $item['total'];
+            }
+
+            if ($contact > 0) {
+                $rateSuccess = $countOrders/$contact * 100;
+            }
+
+            if ($countOrders > 0) {
+                $avgOrders = $ordersSum/$countOrders;
+            }
+        }
+
+        $result = [
+            'contact' => $contact,
+            'order' => $countOrders,
+            'rate' => round($rateSuccess, 2),
+            'product' => $sumProduct,
+            'total' => round($ordersSum, 0),
+            'avg' => round($avgOrders, 0),
+        ];
+        // dd($result);
         return $result;
     }
 }

@@ -322,8 +322,6 @@
                     </select>
                 </div>
 
-
-                @if ($checkAll)
                 <div class="col-xs-12 col-sm-6 col-md-2 hidden-xs form-group">
                     <select style="display: none;" name="src" id="srcData" class="form-select" aria-label="Default select example">       
                         <option value="999">--Chọn nguồn dữ liệu--</option>
@@ -346,7 +344,7 @@
     
                     </select>
                 </div>
-                @endif
+                
                 <div class="col-xs-12 col-sm-6 col-md-2 hidden-xs form-group">
                     <input id="dnn_ctr1441_Main_SaleTacNghiep_chkHideNoCount" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkHideNoCount"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkHideNoCount">Ẩn tác nghiệp không số</label>
                 </div>
@@ -747,7 +745,7 @@
                   </select>
                 </div>
                 @endif
-                @if ($checkAll)
+           
                 
                 <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
                     <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
@@ -771,6 +769,7 @@
 
                     </select>
                 </div>
+                @if ($checkAll)
                 <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
                     <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
                         <option value="999">--chọn Marketing--</option>

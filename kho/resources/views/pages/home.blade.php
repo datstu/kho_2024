@@ -374,13 +374,19 @@ if ($dataSale && $enableSale) {
     $sumTR = Helper::getSumCustomer($dataSale);
     $sumNewCustomer = $sumTR['sum_new_customer'];
     $sumOldCustomer = $sumTR['sum_old_customer'];
+    // dd($sumOldCustomer);
     $summary = $sumTR['summary'];
+    // dd($summary);
+    $data['summary_total']['total'] = 0;
 
     foreach ($dataSale as $data) {
+      // dd($data);
       if ($data['summary_total']['avg'] > $maxAvgSum) {
           $maxAvgSum = $data['summary_total']['avg'];
       }
+      $data['summary_total']['total'] += $data['summary_total']['total'];
     } 
+    // dd($data['summary_total']);
 ?>      
         <div style="clear: both; margin-bottom: 15px;"></div>
         <div class="dragscroll1 tableFixHead table_sale">
@@ -605,7 +611,7 @@ if ($dataSale && $enableSale) {
                             <?php $perCentTotalOld = ($sumOldCustomer['total'] != 0) ? ($data['old_customer']['total'] / $sumOldCustomer['total'] * 100) : 0;?>
                             <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentTotalOld}}%"></div>
                           </div>
-                          <span class="progress-text">{{$data['old_customer']['total']}}</span>
+                          <span class="progress-text">{{number_format($data['old_customer']['total'])}}</span>
                       </div>
                   </td>
                   <td class="tdProgress tdGiaTriDon">
@@ -615,7 +621,7 @@ if ($dataSale && $enableSale) {
                             <?php $perCentAvgOld = ($sumOldCustomer['avg'] != 0) ? ($data['old_customer']['avg'] / $sumOldCustomer['avg'] * 100) : 0;?>
                             <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentAvgOld}}%"></div>
                           </div>
-                          <span class="progress-text">{{$data['old_customer']['avg']}}</span>
+                          <span class="progress-text">{{number_format($data['old_customer']['avg'])}}</span>
                       </div>
                   </td>
 
@@ -655,19 +661,20 @@ if ($dataSale && $enableSale) {
           <img src="{{asset('public/images/rocket.svg')}}" alt="">
         </span>
   <?php if ($dataDigital && $enableDigital) {
-
+    // dd($dataDigital[0]['new']);
     /** lấy ra trung bình đơn lớn nhất của trong list sale**/
-    $maxAvgSum = $dataDigital[0]['summary_total']['avg'];
+    $maxAvgSum = $dataDigital[0]['new_customer']['avg'];
 
     $sumTR = Helper::getSumCustomer($dataDigital);
+    // dd($sumTR);
     $sumNewCustomer = $sumTR['sum_new_customer'];
     $sumOldCustomer = $sumTR['sum_old_customer'];
     $summary = $sumTR['summary'];
     // dd($sumTR);
     // dd($sumTR);
     foreach ($dataDigital as $data) {
-        if ($data['summary_total']['avg'] > $maxAvgSum) {
-            $maxAvgSum = $data['summary_total']['avg'];
+        if ($data['new_customer']['avg'] > $maxAvgSum) {
+            $maxAvgSum = $data['new_customer']['avg'];
         }
     } 
 ?> 
@@ -741,13 +748,12 @@ if ($dataSale && $enableSale) {
                       <span>{{number_format($summary['avg'])}}</span></td>
 
                   
-              </tr>
+              </tr> 
             </thead>
             
             <tbody id="body-digital">
               <?php $i = 1; 
                 // dd($dataDigital);
-  
                   foreach ($dataDigital as $data) {
                 ?>
                   <tr>
@@ -757,7 +763,9 @@ if ($dataSale && $enableSale) {
                       <div class="box-progress">
                         <div class="progress">
   
-                          <?php $perCentContactNew = ($sumNewCustomer['contact'] != 0) ? ($data['new_customer']['contact'] / $sumNewCustomer['contact'] * 100) : 0;?>
+                          <?php $perCentContactNew = ($sumNewCustomer['contact'] != 0) ? ($data['new_customer']['contact'] / $sumNewCustomer['contact'] * 100) : 0;
+                            // dd($perCentContactNew);
+                          ?>
   
                           <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentContactNew}}%"></div>
                         </div>
@@ -839,23 +847,23 @@ if ($dataSale && $enableSale) {
   
                     <td class="tdProgress tdDoanhSoTong">
                         <div class="box-progress">
+                          <?php $sumTotal = $data['new_customer']['total'] + $data['old_customer']['total'];
+                                $perCentTotalSum = ($summary['total']  != 0) ? ($sumTotal / $summary['total'] * 100) : 0;?>
                             <div class="progress">
-  
-                              <?php $perCentTotalSum = ($summary['total']  != 0) ? ($data['summary_total']['total'] / $summary['total'] * 100) : 0;?>
                               <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentTotalSum}}%"></div>
                             </div>
-                            <span class="progress-text">{{number_format($data['summary_total']['total'])}}</span>
+                            <span class="progress-text">{{number_format($sumTotal)}}</span>
                         </div>
                     </td>
   
                     <td class="tdProgress tdGiaTriDon">
                         <div class="box-progress">
+                          <?php $sumAvg = $data['new_customer']['avg'] + $data['old_customer']['avg'];
+                            $perCentAvgSum = ($maxAvgSum  != 0) ? ($sumAvg / $maxAvgSum * 100) : 0;?>
                             <div class="progress">
-  
-                              <?php $perCentAvgSum = ($maxAvgSum  != 0) ? ($data['summary_total']['avg'] / $maxAvgSum * 100) : 0;?>
                               <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentAvgSum}}%"></div>
                             </div>
-                            <span class="progress-text">{{number_format($data['summary_total']['avg'])}}</span>
+                            <span class="progress-text">{{number_format($sumAvg)}}</span>
                         </div>
                     </td>
                   </tr>    

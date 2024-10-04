@@ -505,7 +505,7 @@ class Helper
                     $oldContact += $data['old_customer']['contact'];
                     $oldOrder += $data['old_customer']['order'];
                     $oldRate += $data['old_customer']['rate'];
-                    $oldProduct += $data['old_customer']['total'];
+                    $oldProduct += $data['old_customer']['product'];
                     $oldTotal += ($data['old_customer']['total']);
                 }
             }

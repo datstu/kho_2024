@@ -30,17 +30,20 @@
 $sumContact = $sumOrder = $sumRate = $sumProduct = $sumTotal = $sumAvg = 0;
 
 // dd($list);
-foreach ($list as $key => $value) {
-    $sumContact += $value['contact'];
-    $sumTotal += $value['total'];
-    $sumProduct += $value['product'];
-   
-    $sumOrder += $value['order'];
+if ($list) {
+    foreach ($list as $key => $value) {
+        $sumContact += $value['contact'];
+        $sumTotal += $value['total'];
+        $sumProduct += $value['product'];
+    
+        $sumOrder += $value['order'];
 
-    if ($sumContact > 0) {
-        $sumRate = round($sumOrder / $sumContact * 100, 2);
+        if ($sumContact > 0) {
+            $sumRate = round($sumOrder / $sumContact * 100, 2);
+        }
     }
 }
+
 if ($sumOrder) {
     $sumAvg = $sumTotal / $sumOrder;
 }
@@ -61,10 +64,17 @@ if ($sumOrder) {
                             <div class="row">
                                 <div class="col-sm-3 form-group">
                                     <select id="mkt_user" name="mkt_user">
-                                        <option selected="selected" value="">--Chọn Marketing--</option>
+                                        <option selected="selected" value="-1">--Chọn Marketing--</option>
                                         @foreach ($listMktUser->get() as $user)
                                             <option value="{{$user->id}}">{{$user->real_name}} </option>
                                         @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-sm-3 form-group">
+                                    <select id="type_customer" name="type_customer">
+                                        <option selected="selected" value="-1">--Tất cả khách--</option>
+                                       <option value="0">Khách mới</option>
+                                       <option value="1">Khách cũ</option>
                                     </select>
                                 </div>
                                 {{-- <div class="col-sm-3 form-group">
@@ -243,6 +253,11 @@ if ($sumOrder) {
     let mkt = $.urlParam('mkt_user') 
     if (mkt) {
         $('#mkt_user option[value="' + mkt +'"]').attr('selected','selected');
+    }
+
+    let type = $.urlParam('type_customer') 
+    if (type) {
+        $('#type_customer option[value="' + type +'"]').attr('selected','selected');
     }
 
     let group = $.urlParam('group') 
