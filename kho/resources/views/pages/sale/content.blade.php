@@ -746,6 +746,28 @@
                 </div>
                 @endif
            
+                <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                    <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
+                        <option value="999">--Chọn nguồn--</option>
+                    <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
+                    if ($pagePanCake) {
+                        $pages = json_decode($pagePanCake);
+                        // dd($pages);
+                        foreach ($pages as $page) {
+                    ?>
+                        <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
+                    <?php   }
+                    }   
+
+                    foreach ($ladiPages as $page) {
+                    ?>
+                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+                    <?php   
+                        }
+                    ?> 
+
+                    </select>
+                </div>
                 
                 <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
                     <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       

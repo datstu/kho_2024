@@ -149,7 +149,7 @@ Route::get('/log-out',  [UserController::class, 'logOut'])->name('log-out');
 Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filter-total');
 // Route::get('/filter-total-sales',  [HomeController::class, 'filterTotalSales'])->name('filter-total-sales');
 Route::get('/filter-total-sales',  [HomeController::class, 'ajaxFilterDashboar'])->name('filter-total-sales');
-Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboardDigital'])->name('filter-total-digital');
+Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboardDigitalV2'])->name('filter-total-digital');
 
 // Route::get('/test',  [TestController::class, 'hi'])->name('test');
 // Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');

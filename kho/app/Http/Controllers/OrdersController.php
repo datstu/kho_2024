@@ -223,7 +223,7 @@ class OrdersController extends Controller
                     
                     if ($typeCutomer == 2) {
                         /** check khách cũ/khách mới khi type = 2 (hotline) */
-                        $typeCutomer = $this->getTypeOfOther($order->saleCare->phone);
+                        $typeCutomer = $this->getTypeOfOther($order->saleCare);
                     }
 
 
@@ -231,14 +231,13 @@ class OrdersController extends Controller
                         $resultFilter[] = $order->id;
                     }
 
-                    // echo "typeCutomer: $typeCutomer, id: $order->id" . '<br>';
                 }
 
                 $list = Orders::whereIn('id', $resultFilter)->orderBy('id', 'desc'); ;
                 
             }
         }
-        // dd($list->get());
+
         $checkAll   = false;
         $listRole   = [];
         $roles      = json_decode($roles);
@@ -323,13 +322,20 @@ class OrdersController extends Controller
         return $list;
     }
 
-    public function getTypeOfOther($phone)
+    public function getTypeOfOther($saleCare)
     {
+        $orderId = $saleCare->id_order_new;
+        $phone = $saleCare->phone;
         $type = 0;
-        $order = Orders::where('phone', 'like', '%' . $phone . '%')->first();
-        if ($order) {
-            $type = 1;
+        $orders = Orders::where('phone', 'like', '%' . $phone . '%');
+
+        foreach ($orders as $order) {
+            if ($order->id != $orderId) {
+                $type = 1;
+                break;
+            }
         }
+
         return $type;
     }
 

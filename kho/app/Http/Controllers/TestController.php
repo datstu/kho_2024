@@ -828,14 +828,16 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/08/2024', '31/08/2024'];
-    $req['sale'] = '56';
+    $req['daterange'] = ['01/08/2024', '30/09/2024'];
+    $req['sale'] = '57';
 
     $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
     // $list->whereNull('id_order_new');
-    // $list->where('old_customer', 1);
+    $list->where('old_customer', 0);
     // $list->where('group_id', '7');
     // $list->where('page_id', '7');
+
+    //aplus
     $src = ['424411670749761', '398822199987832', '397050860162599', 'https://www.phanbonorganic.com/uudai45', 'Hotline Aplus'];
     $list = $list->where(function($query) use ($src) {
       foreach ($src as $term) {
@@ -858,12 +860,22 @@ class TestController extends Controller
     ];
 
     
-
+    // $list->orderBy('id', 'desc');
     // echo "<pre>";
     // print_r($list->get());
     // echo "</pre>";
     // die();
     foreach ($list->get() as $data) {
+
+      // if ($data->phone != '0942727079') {
+      //   continue;
+      // } 
+        
+      $checkOldCustomer = $this->isOldCustomer($data->phone);
+      if ($checkOldCustomer) {
+        continue;
+      }
+      
       // echo 'name: ' . $data->full_name . '<br>';
       // echo 'phone: ' . $data->phone . '<br>';
       // echo 'message: : ' . $data->TN_can . '<br>';
@@ -880,6 +892,16 @@ class TestController extends Controller
     // dd($dataExport);
     return Excel::download(new UsersExport($dataExport), 'invoices.xlsx');
 
+  }
+
+  public function isOldCustomer($phone)
+  {
+    $order = Orders::where('phone', $phone)->first();
+    if ($order) {
+      return true;
+    } 
+
+    return false;
   }
 
   public function wakeUp()

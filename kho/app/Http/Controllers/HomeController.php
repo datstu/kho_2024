@@ -23,7 +23,7 @@ class HomeController extends Controller
         $toMonth      = date("d/m/Y", time());
 
         /**set tmp */
-        // $toMonth = '02/10/2024';
+        // $toMonth = '04/10/2024';
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataSale = $this->getReportHomeSale($toMonth);
@@ -400,7 +400,7 @@ class HomeController extends Controller
         if ($checkAll || $isLeadSale) {
             // dd($listSale->get());
             foreach ($listSale->get() as $sale) {
-                // if ($sale->id != 50) {
+                // if ($sale->id != 56) {
                 //     continue;
                 // }
                 $data = $this->getReportUserSaleV2($sale, $dataFilter);
@@ -409,7 +409,6 @@ class HomeController extends Controller
         } else if (Auth::user()->is_CSKH || Auth::user()->is_sale) {
             $result[] = $this->getReportUserSaleV2(Auth::user(), $dataFilter);
         }
-
        
         return $result;
     }
@@ -573,7 +572,7 @@ class HomeController extends Controller
         */
         if (isset($dataFilter['sale'])) {
             $sale = Helper::getSaleById($dataFilter['sale']);
-            $list[] = $this->getReportUserSale($sale, $dataFilter);
+            $list[] = $this->getReportUserSaleV2($sale, $dataFilter);
         } else {
             /** chọn tất cả sale */
             $listSale = Helper::getListSale();
@@ -581,12 +580,12 @@ class HomeController extends Controller
             $isLeadSale = Helper::isLeadSale(Auth::user()->role);
             if ($checkAll || $isLeadSale) {
                 foreach ($listSale->get() as $sale) {
-                    $data = $this->getReportUserSale($sale, $dataFilter);
+                    $data = $this->getReportUserSaleV2($sale, $dataFilter);
                     $list[] = $data;
                 }
             } else {
                 /**sale đang xem thông tin */
-                $list[] = $this->getReportUserSale(Auth::user(), $dataFilter);
+                $list[] = $this->getReportUserSaleV2(Auth::user(), $dataFilter);
             }
         }
 
@@ -942,6 +941,175 @@ class HomeController extends Controller
         return $result;
     }
 
+    public function ajaxFilterDashboardDigitalV2(Request $req)
+    {
+        $resultDigital = $result =  $dataFilter = $list = [];
+        $dataFilter['daterange'] = $req->date;
+
+        $status = $req->status;
+
+        // dd(($status || $status == 0) && $status != 999 && $status);
+        if (($status || $status == 0) && $status != 999 && $status) {
+            $dataFilter['status'] = $status;
+            $newFilter['status'] = $status;
+        }
+
+        $category = $req->category;
+        if ($category && $category != 999) {
+            $dataFilter['category'] = $category;
+        }
+
+        $product = $req->product;
+        if ($req->product && $product != 999) {
+            $dataFilter['product'] = $product;
+        }
+
+        $sale = $req->sale;
+        if ($sale && $sale != 999) {
+            $dataFilter['sale'] = $req->sale;
+        }
+
+        $mkt = $req->mkt;
+        if ($mkt && $mkt != 999) {
+            $dataFilter['mkt'] = $mkt;
+            $newFilter['mkt'] = $mkt;
+        }
+
+        $src = $req->src;
+        if ($src && $src != 999) {
+            $dataFilter['src'] = $src;
+            $newFilter['src'] = $src;
+        } 
+
+        $group = $req->group;
+        if ($req->group && $group != 999) {
+            $dataFilter['group'] = $group;
+        }
+
+        $listDigital = [
+            [
+                'name' => 'Mr Nguyên',
+                'mkt' => 1,
+            ],
+            [
+                'name' => 'Mr Tiễn',
+                'mkt' => 2,
+            ],
+            [
+                'name' => 'Di Di',
+                'mkt' => 3,
+            ],
+        ];
+
+        $checkAll = isFullAccess(Auth::user()->role);
+        if (!$checkAll && Auth::user()->is_digital == 1) {
+            if (Auth::user()->name == 'digital.tien') {
+                $dataFilter['mkt'] = 2;
+            } else if (Auth::user()->name == 'digital.tien') {
+                $dataFilter['mkt'] = 3;
+            }
+           
+        } 
+
+        $dataDigital = [];
+        $listDigital = User::where('status', 1)->where('is_digital', 1)->orderBy('id', 'DESC');
+        // dd($dataFilter);
+        if (isset($dataFilter['mkt']) ) {
+            if ($dataFilter['mkt'] == 1) {
+                $digital =  [
+                    'name' => 'Mr Nguyên',
+                    'mkt' => 1,
+                ];
+            } else if ($dataFilter['mkt'] == 2) {
+                $digital = [
+                    'name' => 'Mr Tiễn',
+                    'mkt' => 2,
+                ];
+            } else if ($dataFilter['mkt'] == 3) {
+                $digital = [
+                    'name' => 'Di Di',
+                    'mkt' => 3,
+                ];
+            } 
+            
+            // dd('hi');
+            $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
+            $data = [];
+            $data = ['name' => $digital['name']];
+            $dataFilter['mkt'] = $digital['mkt'];
+
+            /** khách mới */
+            $dataFilter['type_customer'] = 0;
+            // dd($dataFilter);
+            $newCustomer = $this->getSaleByType($dataFilter, 'new');
+           
+            $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
+            $newCountOrder = $newCustomer['order'];
+            // dd($newCustomer);
+            // /** khách cũ */
+            $dataFilter['type_customer'] = 1;
+            $oldCustomer = $this->getSaleByType($dataFilter, 'old');
+            $oldTotal = Helper::stringToNumberPrice($oldCustomer['total']);
+            $oldCountOrder = $oldCustomer['order'];
+
+            $data['new_customer'] = $newCustomer;
+            $data['old_customer'] =  $oldCustomer;
+
+            $totalSum = $newTotal + $oldTotal;
+          
+            if ($newCountOrder != 0 || $oldCountOrder != 0) {
+                $avgSum = $totalSum / ($newCountOrder + $oldCountOrder);
+            }
+            // dd($oldCountOrder);
+            $data['summary_total'] = [
+                'total' => round($totalSum, 0),
+                'avg' => round($avgSum, 0),
+            ];
+
+            $resultDigital['data'][] = $data;
+
+        } else {
+            foreach ($listDigital->get() as $digital) {
+                $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
+                $data = ['name' => $digital->real_name];
+                $dataFilter['mkt'] = $digital['mkt'];
+
+                $time = $dataFilter['daterange'];
+               
+                $newCustomer = $this->getDataDigitalAjax($digital->id, 0, $time[0], $time[1]);
+
+                $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
+                $newCountOrder = $newCustomer['order'];
+
+                $oldCustomer = $this->getDataDigitalAjax($digital->id, 1, $time[0], $time[1]);
+                $oldTotal = Helper::stringToNumberPrice($oldCustomer['total']);
+                $oldCountOrder = $oldCustomer['order'];
+ 
+                $data['new_customer'] = $newCustomer;
+                $data['old_customer'] = $oldCustomer;
+
+                $totalSum = $newTotal + $oldTotal;
+                if ($newCountOrder != 0 || $oldCountOrder != 0) {
+                    $avgSum = $totalSum / ($newCountOrder + $oldCountOrder);
+                }
+
+                $data['summary_total'] = [
+                    'total' => round($totalSum, 0),
+                    'avg' => round($avgSum, 0),
+                ];
+
+                $dataDigital[] = $data;
+            }
+
+            $resultDigital['data'] = $dataDigital;
+        }
+
+        $resultDigital['trSum'] = Helper::getSumCustomer($resultDigital['data']);
+
+        $result['data_digital'] = $resultDigital;
+        return $result;
+    }
+
     public function getReportHomeDigitalV2($time)
     {
         $result = [];
@@ -965,13 +1133,37 @@ class HomeController extends Controller
         return $result;
     }
 
+    public function getDataDigitalAjax($id, $typeCustomer, $begin, $after)
+    {
+        $dataFilter['daterange'] = "$begin - $after";
+        $req = new Request();
+        $req->merge(['daterange' => $dataFilter['daterange']]);
+        $req->merge(['mkt_user' => $id]);
+        $req->merge(['type_customer' => $typeCustomer]);
+        // dd($req->all());
+
+        return $this->getDataDigitalV2($req);
+    }
+
     public function getDataDigitalInHome($id, $typeCustomer, $time)
     {
         $dataFilter['daterange'] = "$time - $time";
         $req = new Request();
         $req->merge(['daterange' => $dataFilter['daterange']]);
         $req->merge(['mkt_user' => $id]);
-        $req->merge(input: ['type_customer' => $typeCustomer]);
+        $req->merge(['type_customer' => $typeCustomer]);
+        // dd($req->all());
+
+        return $this->getDataDigitalV2($req);
+    }
+
+    public function getDataDigitalV2($req)
+    {
+        // $dataFilter['daterange'] = "$time - $time";
+        // $req = new Request();
+        // $req->merge(['daterange' => $dataFilter['daterange']]);
+        // $req->merge(['mkt_user' => $id]);
+        // $req->merge(input: ['type_customer' => $typeCustomer]);
         // dd($req->all());
         $mktController = new MarketingController();
         $data = $mktController->getDataMkt($req);
