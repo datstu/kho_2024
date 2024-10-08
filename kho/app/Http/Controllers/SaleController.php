@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use App\Models\SaleCare;
 use App\Helpers\Helper;
+use App\Models\Group;
 use PHPUnit\TextUI\Help;
 use Illuminate\Support\Facades\Route;
 use App\Models\SrcPage;
@@ -33,12 +34,14 @@ class SaleController extends Controller
         $sales      = Helper::getListSale()->get();
        
         $saleCare   = $this->getListSalesByPermisson(Auth::user());
-        $count      = $saleCare->count();
         $saleCare   = $saleCare->paginate(50);
-        // $saleCare   = SaleCare::orderBy('id', 'desc')->where('assign_user', $id)->paginate(50);
+        
+        $listSrc    = SrcPage::orderBy('id', 'desc')->get();
+        $groups     = Group::orderBy('id', 'desc')->get();
 
-        // dd($saleCare);
-        return view('pages.sale.index')->with('count', $count)->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
+        return view('pages.sale.index')->with('listSrc', $listSrc)
+            ->with('groups', $groups)
+            ->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
     }
 
     public function add()
@@ -228,13 +231,16 @@ class SaleController extends Controller
 
     public function getListSalesByPermisson($user, $dataFilter = null) 
     {
-
         $roles  = $user->role;
         $list   = SaleCare::orderBy('id', 'desc');
 
         if ($dataFilter) {
-        //  dd($dataFilter['daterange']);
-            if (isset($dataFilter['daterange'])) {
+            
+            if (isset($dataFilter['search'])) {
+                $list = $list
+                    ->orWhere('full_name', 'like', '%' . $dataFilter['search'] . '%')
+                    ->orWhere('phone', 'like', '%' . $dataFilter['search'] . '%');
+            } else if (isset($dataFilter['daterange'])) {
                 $time       = $dataFilter['daterange'];
                 $timeBegin  = str_replace('/', '-', $time[0]);
                 $timeEnd    = str_replace('/', '-', $time[1]);
@@ -248,8 +254,8 @@ class SaleController extends Controller
             /**
              * 1: nhóm Tricho
              * 2: nhóm Lúa
-             */
-            if (isset($dataFilter['group'])) {
+             * */
+            /*if (isset($dataFilter['group'])) {
                 if ($dataFilter['group'] == 1) {
                     $src = ['389136690940452', '378087158713964', '381180601741468', 'Hotline - Tricho', 'Khách Cũ Tricho'];
                     $list = $list->where(function($query) use ($src) {
@@ -283,16 +289,33 @@ class SaleController extends Controller
 
                 }
             }
+            */
 
-            
             /** có chọn 1 nguồn */
             if (isset($dataFilter['src'])) {
-                if (is_numeric($dataFilter['src'])) {
+                /*if (is_numeric($dataFilter['src'])) {
                     $list->where('page_id', 'like', '%' . $dataFilter['src'] . '%');
                 } else {
                     $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
+                }*/
+
+                $src =SrcPage::find($dataFilter['src']);
+                if (!$src) {
+                    return ;
                 }
-            } 
+
+                if ($src->type == 'pc') {
+                    $list = $list->where('page_id', $src->id_page);
+                } else if ($src->type == 'ladi') {
+                    $list = $list->where('page_link', $src->link);
+                } else if ($src->type == 'hotline') {
+                    $list = $list->where('page_id', 'like', '%' . $src->id_page .'%');
+                } else if  ($src->type == 'old') {
+                    $list = $list->where('page_name', $src->name);
+                } else {
+                    $list = $list->where('page_id', 'tricho');
+                }
+            }
          
             if (isset($dataFilter['mkt'])) {
                 /** mrNguyen = 1
@@ -367,7 +390,6 @@ class SaleController extends Controller
                         }
                     });
                 }
-              
                
             }
 
@@ -383,24 +405,22 @@ class SaleController extends Controller
                 $list->where('old_customer', $dataFilter['type_customer']);   
             }
 
-
- $routeName = Route::currentRouteName();
-         if (isset($dataFilter['status']) && $routeName != 'filter-total-sales') {
-                $list->whereNotNull('id_order_new');
-                $newSCare = [];
-                foreach ($list->get() as $scare) {
-                    // dd($scare);
-                    $order = $scare->orderNew;
-                    // dd($order->get());
-                    if ($order && $order->status == $dataFilter['status']) {
-                        $newSCare[] = $scare->id;
+            $routeName = Route::currentRouteName();
+            if (isset($dataFilter['status']) && $routeName != 'filter-total-sales') {
+                    $list->whereNotNull('id_order_new');
+                    $newSCare = [];
+                    foreach ($list->get() as $scare) {
+                        // dd($scare);
+                        $order = $scare->orderNew;
+                        // dd($order->get());
+                        if ($order && $order->status == $dataFilter['status']) {
+                            $newSCare[] = $scare->id;
+                        }
                     }
+                    // dd($newSCare);
+                    $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
                 }
-                // dd($newSCare);
-                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
             }
-        }
-            
 
         $checkAll   = false;
         $listRole   = [];
@@ -491,6 +511,9 @@ class SaleController extends Controller
     {
         // dd($req->all());
         $dataFilter = [];
+        if ($req->search) {
+            $dataFilter['search'] = $req->search;
+        }
 
         // dd($req->all());
         if ($req->daterange) {
@@ -514,6 +537,7 @@ class SaleController extends Controller
             $dataFilter['src'] = $src;
         }
 
+        // dd($dataFilter);
         $group = $req->group;
         if ($req->group && $group != 999) {
             $dataFilter['group'] = $group;
@@ -535,20 +559,20 @@ class SaleController extends Controller
         // dd($dataFilter['type_customer']);
         try {
             $data       = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
-            $count      = $data->count();
             $saleCare   = $data->paginate(50);
-            $sales      = User::where('status', 1)->where('is_sale', 1)
-            ->orWhere('is_cskh', 1)->get();
 
             $helper     = new Helper();
             $listCall   = $helper->getListCall()->get();
+            $sales      = Helper::getListSale()->get();
+            $listSrc    = SrcPage::orderBy('id', 'desc')->get();
+            $groups     = Group::orderBy('id', 'desc')->get();
 
-            // dd($data->get());
-            return view('pages.sale.index')->with('count', $count)->with('sales', $sales)
+            return view('pages.sale.index')->with('listSrc', $listSrc)
+                ->with('sales', $sales)->with('groups', $groups)
                 ->with('saleCare', $saleCare)->with('listCall', $listCall);
         } catch (\Exception $e) {
             // return $e;
-            dd($e);
+            // dd($e);
             return redirect()->route('home');
         }
     }

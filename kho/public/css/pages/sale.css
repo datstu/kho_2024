@@ -14,11 +14,11 @@
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3p
+    border-bottom-left-radius: 3px;
 }
-input[type="text"] {
+/* input[type="text"] {
     border: none;
-}
+} */
 .tao-don-fixed i {
     font-size: 20px;
 }

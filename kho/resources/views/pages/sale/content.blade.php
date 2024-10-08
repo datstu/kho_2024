@@ -214,493 +214,91 @@
         border: none;
     }
 
-    .select-assign, .result-TN {
-        background-color: transparent;
+
+    .home-sale-index:hover span{
+        text-decoration: green wavy underline;
+    }
+
+    /* .select2-selection__rendered { */
+    .result-TN-col .select-assign, .result-TN-col .select2-container--default .select2-selection--single , .result-TN {
+        background-color: inherit !important;
         border: none;
     }
 
-    .select2-container--default .select2-selection--single {
+    /* .result-TN-col .select2-container--default .select2-selection--single {
         border: none;
+    } */
+
+    .selectedClass .select2-container {
+        box-shadow: rgb(0, 123, 255) 0px 1px 1px 1px;
     }
 </style>
 
 {{-- update filter --}}
 
 <div>
-    <div class="maintain-filter-main" id="dnn_ctr1441_Main_SaleTacNghiep_up1">
-            
-        <span id="dnn_ctr1441_Main_SaleTacNghiep_lblDownLoad" class="hidden"></span>
-        <input name="dnn$ctr1441$Main$SaleTacNghiep$_UserId" type="text" value="-1" id="dnn_ctr1441_Main_SaleTacNghiep__UserId" class="sale-user-id hidden">
-        <input name="dnn$ctr1441$Main$SaleTacNghiep$_HighLightListId" type="text" id="dnn_ctr1441_Main_SaleTacNghiep__HighLightListId" class="list-id-hl hidden">
-        <input name="dnn$ctr1441$Main$SaleTacNghiep$_StickyId" type="text" id="dnn_ctr1441_Main_SaleTacNghiep__StickyId" class="sticky-id hidden">
-        <input name="dnn$ctr1441$Main$SaleTacNghiep$_OneItemId" type="text" id="dnn_ctr1441_Main_SaleTacNghiep__OneItemId" class="item-one-id hidden">
-        <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_btnReloadOneItem" class="btn-item-one-reload hidden" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$btnReloadOneItem','')">
-            <i class="fa fa-refresh"></i>
-        </a>
-        <div id="dnn_ctr1441_Main_SaleTacNghiep_pnSearch">
-
-            <div class="m-header-wrap">
-                <div class="m-header" style="top: 150px;">
-                    <div class="row">
-                        <div id="dnn_ctr1441_Main_SaleTacNghiep_divTitle" class="col-sm-2 form-group">
-                            <span id="dnn_ctr1441_Main_SaleTacNghiep_lblModuleTitle" class="text">Sale tác nghiệp</span>
-                        </div>
-                        <div class="col-sm-1 form-group text-right">
-                            
-                        </div>
-                        <div id="dnn_ctr1441_Main_SaleTacNghiep_divLeaderSale" class="col-sm-2 form-group">
-                            
-                            </div>
-                        <div id="dnn_ctr1441_Main_SaleTacNghiep_divNhom" class="col-sm-2 form-group">
-                            <select id="" tabindex="-1">
-                                <option selected="selected" value="-1">--Chọn nhóm--</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-2 form-group">
-                            <select tabindex="-1" title="" id="listSale">
-                                {{-- <option selected="selected" value="-1" >--Tất cả sale--</option> --}}
-                                @if ($checkAll)<option   value="999">--Tất cả Sale--</option> @endif
-            
-                                @if (isset($sales))
-                                    @foreach($sales as $sale)
-                                    <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}} ({{$sale->name}})</option>
-                                    @endforeach
-                                @endif
-
-                            </select>
-                        </div>
-                        <div id="dnn_ctr1441_Main_SaleTacNghiep_divSearch" class="col-sm-3 form-group">
-                            <form class ="row tool-bar" action="{{route('search-sale-care')}}" method="get">
-                                <div style="width: calc(100% - 145px); float: left;">
-                                    <input name="search" type="text"  value="{{ isset($search) ? $search : null}}" class="form-control" placeholder="Họ tên, số điện thoại">
-                                </div>
-                                <div style="width: 125px; float: right;">
-                                    <button class="btn btn-sm btn-primary">
-                                        <i class="fa fa-search"></i>Tìm kiếm
-                                    </button>
-                                </div>
-                            </form>
-                            <div style="clear: both;"></div>
-                        </div>
+    <form action="{{route('sale-index')}}" method="get">
+    
+    <div class="maintain-filter-main">
+        <div class="m-header-wrap">
+            <div class="m-header" style="top: 150px;">
+                <div class="row">
+                    <div id="dnn_ctr1441_Main_SaleTacNghiep_divTitle" class="col-sm-2 form-group">
+                        <a class="home-sale-index" href="{{{route('sale-index')}}}"><span id="dnn_ctr1441_Main_SaleTacNghiep_lblModuleTitle" class="text">Sale tác nghiệp</span></a>
                     </div>
-                </div>
-            </div>
+                    <div class="col-sm-1 form-group text-right">
+                        
+                    </div>
+                    <div id="dnn_ctr1441_Main_SaleTacNghiep_divLeaderSale" class="col-sm-2 form-group">
+                        
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                        {{-- <select name="group" id="group-filter">
+                        <option value="999">--Chọn nhóm--</option>
+                        
+                        @foreach ($groups as $gr)
+                        <option value="{{$gr->id}}">{{$gr->name}}</option>
+                        @endforeach
+                        </select> --}}
+                    </div>
+                    
+                    <div class="col-sm-2 form-group"> 
+                        
+                        @if ($checkAll  || $isLeadSale)
+                        <select name="sale" id="sale-filter" class="hidden">
+                            {{-- <option selected="selected" value="-1" >--Tất cả sale--</option> --}}
+                            <option   value="999">--Tất cả Sale--</option> 
         
-        </div>
+                            @if (isset($sales))
+                                @foreach($sales as $sale)
+                                <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
+                                @endforeach
+                            @endif
+                            
 
-    </div>
-    <div class="maintain-filter-main" id="dnn_ctr1441_Main_SaleTacNghiep_UpdatePanel1">
-        <div class="box-body " style="padding-bottom: 0px; opacity:0.5;">
-            <div class="row">
-                <div class="col-sm-4 form-group daterange">
-                    <input id="daterange" class="btn" type="text" name="daterange" />
-                </div>
-                
-                <div class="col-sm-2 form-group">
-                    <select style="display: none;" tabindex="-1" title="" id="typeData">
-                        <option selected="selected" value="-1">--Kiểu ngày--</option>
-                        <option value="SaleNgayNhanData">Ngày sale nhận data</option>
-                        <option value="NgayTao">Ngày data về hệ thống</option>
-                        <option value="SaleTacNghiepNgayCapNhat">Ngày sale tác nghiệp</option>
-                        <option value="DonHangNgayChot">Ngày sale chốt đơn</option>
-                        <option value="NgayDangDon">Ngày đăng đơn</option>
-                        <option value="NgayChoXuat">Ngày sale tác nghiệp tiếp</option>
-                        <option value="NgayCapNhatTrangThaiGiaoHang">Ngày cập nhật trạng thái giao hàng</option>
-                        <option value="NgayGiaoHang">Ngày muốn nhận hàng</option>
-                    </select>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select style="display: none;" id="careOrder" tabindex="-1">
-                        <option selected="selected" value="-1">--Care đơn--</option>
-                        <option value="0">Chờ care đơn</option>
-                        <option value="1">Giao ngay</option>
-                        <option value="2">Chờ giao</option>
-                        <option value="3">Hoãn giao hàng</option>
-                        <option value="4">Sale vừa cứu đơn</option>
-                        <option value="5">Khách hàng khiếu nại</option>
-                        <option value="6">Hoàn tất xử lý khiếu nại</option>
-                    </select>
-                </div>
-
-                <div class="col-xs-12 col-sm-6 col-md-2 hidden-xs form-group">
-                    <select style="display: none;" name="src" id="srcData" class="form-select" aria-label="Default select example">       
-                        <option value="999">--Chọn nguồn dữ liệu--</option>
-                    <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
-                    if ($pagePanCake) {
-                        $pages = json_decode($pagePanCake);
-                        // dd($pages);
-                        foreach ($pages as $page) {
-                    ?>
-                        <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
-                    <?php   }
-                    }   
-    
-                    foreach ($ladiPages as $page) {
-                    ?>
-                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
-                    <?php   
-                        }
-                    ?> 
-    
-                    </select>
-                </div>
-                
-                <div class="col-xs-12 col-sm-6 col-md-2 hidden-xs form-group">
-                    <input id="dnn_ctr1441_Main_SaleTacNghiep_chkHideNoCount" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkHideNoCount"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkHideNoCount">Ẩn tác nghiệp không số</label>
-                </div>
-            </div>
-            <div class="row">
-                
-                <div class="col-xs-12 col-sm-6 col-md-2 hidden-xs form-group">
-                    <select id="productFilter" tabindex="-1" style="display: none;">
-                        <option selected="selected" value="-1">--Chọn sản phẩm--</option>
-                        <option value="0">Chờ care đơn</option>
-                        <option value="1">Giao ngay</option>
-                        <option value="2">Chờ giao</option>
-                        <option value="3">Hoãn giao hàng</option>
-                        <option value="4">Sale vừa cứu đơn</option>
-                        <option value="5">Khách hàng khiếu nại</option>
-                        <option value="6">Hoàn tất xử lý khiếu nại</option>
-                    </select>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select id="statusTN" class="chosen chosen-x" tabindex="-1" title="" style="display: none;">
-                        <option selected="selected" value="-1">--Chọn trạng thái tác nghiệp--</option>
-                        <option value="0">Chưa tác nghiệp</option>
-                        <option value="1">Đã tác nghiệp</option>
-
-                    </select>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select id="resultTN" class="id-ket-qua-tac-nghiep chosen chosen-x" tabindex="-1" title="" style="display: none;">
-                        <option selected="selected" value="-1">--Chọn kết quả tác nghiệp--</option>
-                        <option value="96908">Chốt đơn</option>
-                        <option value="96909">Không nghe máy</option>
-                        <option value="96910">Máy bận </option>
-                        <option value="96911">Gọi lại sau</option>
-                        <option value="96912">Trùng số</option>
-                        <option value="96913">Sai số/ Nhầm số</option>
-                        <option value="96914">Thuê bao</option>
-                        <option value="96915">Suy nghĩ thêm</option>
-                        <option value="96916">Không có nhu cầu</option>
-                        <option value="96917">Khách hàng hẹn giao</option>
-                        <option value="96918">Đã nhận đơn</option>
-                        <option value="96919">Hiệu quả tốt</option>
-                        <option value="96920">Hiệu quả kém</option>
-                        <option value="96921">Chưa mua tiếp</option>
-                        <option value="96922">CSKH sau 7 ngày</option>
-                        <option value="96923">CSKH sau 15 ngày</option>
-                        <option value="96924">CSKH sau 21 ngày</option>
-                        <option value="97072">CSKH sau 21 ngày</option>
-                        <option value="97073">CSKH sau 30 ngày</option>
-                        <option value="97114">Tham khảo</option>
-                        <option value="97240">Chưa Sử Dụng</option>
-                        <option value="98477">Tương Tác Zalo</option>
-                        <option value="100384">Mới Dùng Sản Phẩm</option>
-                        <option value="100405">Hẹn Ngày Chốt Đơn</option>
-                    </select>
-                </div>
-                
-                        <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                        <select id="statusDeal" class="chosen chosen-x" tabindex="-1" title="" style="display: none;">
-                            <option selected="selected" value="-1">--Trạng thái chốt đơn--</option>
-                            <option value="1">Đã chốt đơn</option>
-                            <option value="0">Chưa chốt đơn</option>
                         </select>
+                        @endif
                     </div>
-                
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select id="statusOrderShip" class="chosen chosen-x" tabindex="-1" title="" style="display: none;">
-                        <option selected="selected" value="-1">--Chọn trạng thái giao hàng--</option>
-                        <option value="50">Bồi hoàn</option>
-                        <option value="41">Đã hoàn</option>
-                        <option value="40">Đang hoàn</option>
-                        <option value="35">Giao hàng một phần</option>
-                        <option value="34">Yêu cầu giao lại</option>
-                        <option value="33">Không giao được</option>
-                        <option value="32">Đã thanh toán</option>
-                        <option value="31">Đã giao hàng</option>
-                        <option value="30">Đang giao hàng</option>
-                        <option value="23">Đang lấy hàng</option>
-                        <option value="22">Không lấy được hàng</option>
-                        <option value="21">Đã lấy hàng</option>
-                        <option value="20">Đã đăng</option>
-                        <option value="5">Hủy đăng đơn</option>
-                        <option value="4">Hủy vận đơn</option>
-                        <option value="3">Hoãn giao hàng</option>
-                        <option value="2">Giao ngay</option>
-                        <option value="1">Chờ vận đơn</option>
-
-                    </select>
+                    <div id="dnn_ctr1441_Main_SaleTacNghiep_divSearch" class="col-sm-3 form-group">
+                        <div class ="row tool-bar" >
+                            <div style="width: calc(100% - 145px); float: left;">
+                                <input name="search" type="text"  value="{{ isset($search) ? $search : null}}" class="form-control" placeholder="Họ tên, số điện thoại">
+                            </div>
+                            <div style="width: 125px; float: right;">
+                                <button class="btn btn-sm btn-primary" type="submit">
+                                    <i class="fa fa-search"></i>Tìm kiếm
+                                </button>
+                            </div>
+                        </div>
+                        <div style="clear: both;"></div>
+                    </div>
                 </div>
-                <div class="col-xs-12 form-group">
-                    
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl00_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89531" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl00$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Data nóng</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_0">(28/2,300)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl01_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89532" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl01$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 2</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_1">(122/1,281)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl02_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89533" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl02$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 3</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_2">(156/1,248)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl03_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89534" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl03$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 4</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_3">(178/1,252)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl04_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89535" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl04$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 5</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_4">(166/1,258)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl05_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89536" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl05$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 6</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_5">(173/993)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl06_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep91233" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl06$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 7</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_6">(210/998)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl07_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep91234" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl07$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 8</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_7">(1,012/2,982)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl08_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89537" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl08$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc khách hàng cũ</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_8">(492/1,830)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl09_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89538" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl09$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 1</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_9">(1,225/2,827)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl10_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89539" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl10$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 2</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_10">(1,133/1,866)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl11_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89703" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl11$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 3</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_11">(200/307)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl12_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep92855" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl12$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 4</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_12">(40/102)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl13_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep92856" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl13$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 5</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_13">(93/271)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl14_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89656" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl14$btnChonTacNghiep','')">
-                                <span class="flag level-3"></span>
-                                <span class="text">Khách hàng hẹn giao</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_14">(2/18)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl15_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep92990" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl15$btnChonTacNghiep','')">
-                                <span class="flag level-1"></span>
-                                <span class="text">Hẹn Ngày Chốt Đơn</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_15">(3/3)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl16_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89540" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl16$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">Bỏ qua</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_16">(326/327)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl17_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89698" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl17$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">CSKH sau 30 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_17">(6/48)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl18_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89699" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl18$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">CSKH sau 45 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_18">(3/35)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl19_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89700 selected" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl19$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">CSKH sau 60 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_19">(8/35)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl20_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89701" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl20$btnChonTacNghiep','')">
-                                <span class="flag level-3"></span>
-                                <span class="text">CSKH sau 75 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_20">(9/18)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl21_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89702" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl21$btnChonTacNghiep','')">
-                                <span class="flag level-4"></span>
-                                <span class="text">CSKH sau 90 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_21">(107/221)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl22_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89743" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl22$btnChonTacNghiep','')">
-                                <span class="flag level-1"></span>
-                                <span class="text">Tham khảo</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_22"></span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl23_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89865" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl23$btnChonTacNghiep','')">
-                                <span class="flag level-1"></span>
-                                <span class="text">Chưa Sử Dụng</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_23"></span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl24_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep-1" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl24$btnChonTacNghiep','')">
-                                <span class="flag level-"></span>
-                                <span class="text">Chưa có TN</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_24"></span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl25_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep0" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptTacNghiep$ctl25$btnChonTacNghiep','')">
-                                <span class="flag level-"></span>
-                                <span class="text">Tất cả</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_25">(5,692/20,220)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                    
-                </div>
-                <div style="clear: both; border-bottom: 1px solid #ddd;"></div>
             </div>
         </div>
     </div>
+    
     <div class="box-body">
         <div class="loader hidden">
             <img src="{{asset('public/images/new-loader.gif')}}" alt="">
@@ -728,25 +326,24 @@
             </div>
         </div>
     
-        <form action="{{route('sale-index')}}" class="mb-1">
+        {{-- <form action="{{route('sale-index')}}" class="mb-1"> --}}
             @csrf
-            <div class="row mb-1 filter-order">
+            <div class="row mt-1 filter-order">
                 <div class=" col-4 form-group daterange mb-1">
                     <input id="daterange" class="btn" type="text" name="daterange" />
                 </div>
-                
-                <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                @if ($checkAll || Auth::user()->is_digital)
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
-                  <select name="group" id="group-filter" class="form-select">
-                    <option value="999">--Chọn nhóm--</option>
-                    <option value="1">Nhóm Tricho</option>
-                    <option value="2">Nhóm Lúa</option>
-                  </select>
-                </div>
-                @endif
-           
                 <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                    <select name="src" id="src-filter" class="hidden">       
+                        <option value="999">--Chọn nguồn--</option>
+
+                        @foreach ($listSrc as $page) 
+                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+                        @endforeach
+
+                    </select>
+                </div>
+                
+                {{-- <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
                     <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
                         <option value="999">--Chọn nguồn--</option>
                     <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
@@ -767,33 +364,10 @@
                     ?> 
 
                     </select>
-                </div>
-                
-                <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
-                    <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
-                        <option value="999">--Chọn nguồn--</option>
-                    <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
-                    if ($pagePanCake) {
-                        $pages = json_decode($pagePanCake);
-                        // dd($pages);
-                        foreach ($pages as $page) {
-                    ?>
-                        <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
-                    <?php   }
-                    }   
-
-                    foreach ($ladiPages as $page) {
-                    ?>
-                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
-                    <?php   
-                        }
-                    ?> 
-
-                    </select>
-                </div>
+                </div> --}}
                 @if ($checkAll)
                 <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
-                    <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
+                    <select name="mkt" id="mkt-filter" class="hidden" aria-label="Default select example">
                         <option value="999">--chọn Marketing--</option>
                         <option value="1">a.Nguyên</option>
                         <option value="2">a.Tiễn</option>
@@ -801,9 +375,9 @@
                 </div>
                 @endif
 
-                @if ($checkAll || $isLeadSale)
+                {{-- @if ($checkAll || $isLeadSale)
                 <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
-                    <select name="sale" id="sale-filter" class="form-select" aria-label="Default select example">
+                    <select name="sale" id="sale-filter" class="form-select">
 
                     @if ($checkAll)<option value="999">--Chọn Sale--</option> @endif
                     
@@ -814,18 +388,18 @@
                     @endif
                     </select>
                 </div>
-                @endif
+                @endif --}}
 
                 <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
-                    <select name="type_customer" id="type_customer-filter" class="form-select">
+                    <select name="type_customer" id="type_customer-filter" class="hidden">
                         <option value="999">--Tất cả khách--</option>
                         <option value="1">Khách cũ</option>
                         <option value="0">Khách mới</option>
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
-                    <select name="status" id="status-filter" class="form-select" aria-label="Default select example">
-                    <option value="999">--Chọn Trạng Thái--</option>
+                    <select name="status" id="status-filter" class="hidden">
+                    <option value="999">--Chọn trạng Thái giao hàng--</option>
                     <option value="1">Chưa giao vận</option>
                     <option value="2">Đang giao</option>
                     <option value="3">Hoàn tất</option>
@@ -834,11 +408,11 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
+            {{-- <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>
-            </svg>Lọc</button>
-            <a class="btn btn-outline-danger" href="{{route('sale-index')}}"><strong>X</strong></a>
-        </form>
+            </svg>Lọc</button> --}}
+            {{-- <a class="btn btn-outline-danger" href="{{route('sale-index')}}"><strong>X</strong></a> --}}
+        {{-- </form> --}}
 
         {{-- <div class="row ">
             <div class="col-4"></div>
@@ -872,7 +446,7 @@
             </div>
         </div>
 
-        <div class="dragscroll1 tableFixHead" style="height: 819px;">
+        <div class="dragscroll1 tableFixHead" style="height: 819px; margin-top:15px;">
             <div id="dnn_ctr1441_Main_SaleTacNghiep_UpdatePanel2">
                 {{-- thêm TN SALE --}}
                     
@@ -895,7 +469,7 @@
                         <tr class="drags-area">
                             <th style="top: 0.5px;">
                                 <span class="chk-all">
-                                    <input id="dnn_ctr1441_Main_SaleTacNghiep_chkItem" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkItem">
+                                    
                                     <label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
                             </th>
                             {{-- <th style="top: 0.5px;">Mã đơn</th> --}}
@@ -957,7 +531,7 @@
                                 <span class="small-tip">(<span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__NgayTao_0">{{date_format($item->created_at,"H:i d-m-Y ")}}</span>)
                                 </span>
                             </td>
-                            <td class="text-center area5 hidden-xs">
+                            <td class="text-center area5 hidden-xs result-TN-col">
                                 @if ($checkAll || $isLeadSale)
                                 <div class="text-right">
                                     <a onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnXoaContact" title="Xóa data" class="btn-icon aoh">
@@ -1075,7 +649,7 @@
 
                             <?php $order = $item->orderNew ?>
 
-                            <td class="area2 no-wrap fix_brower_continue_let_off" style="min-width:100px">
+                            <td class="result-TN-col area2 no-wrap fix_brower_continue_let_off" style="min-width:100px">
                                 <div class="text-right">
                                     {{-- <a onclick="" title="Lịch sử tác nghiệp" class="btn-icon aoh">
                                         <i class="fa fa-history"></i>
@@ -1208,16 +782,9 @@
             </div>
         </div>
     </div>
+</form>
 </div>
 {{-- end update filter --}}
-
-<div class="box-body">
-    
-        
-        
-    
-</div>
-
 
 {{-- thông báo --}}
 <div class="modal fade" id="notify-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -1447,39 +1014,27 @@ $.urlParam = function(name){
     return 0;
 }
 let sale = $.urlParam('sale') 
-if (sale) {
+if (sale && sale != 999) {
     $('#sale-filter option[value=' + sale +']').attr('selected','selected');
+    $('#sale-filter').parent().addClass('selectedClass');
 }
 
 let mkt = $.urlParam('mkt') 
-if (mkt) {
+if (mkt && mkt != 999) {
     $('#mkt-filter option[value=' + mkt +']').attr('selected','selected');
+    $('#mkt-filter').parent().addClass('selectedClass');
 }
 
 let src = $.urlParam('src') 
-if (src) {
-    // let str = '<option value="999">--Tất cả Nguồn--</option>';
-    // $('.src-filter').show('slow');
-
-    // if (mkt == 1) {
-    //     mrNguyen.forEach (function(item) {
-    //         // console.log(item);
-    //         str += '<option value="' + item.id +'">' + item.name_page +'</option>';
-    //     })
-    //     $(str).appendTo("#src-filter");
-    // } else if (mkt == 2) {
-    //     mrTien.forEach (function(item) {
-    //         // console.log(item);
-    //         str += '<option value="' + item.id +'">' + item.name_page +'</option>';
-    //     })
-    //     $(str).appendTo("#src-filter");
-    // }
+if (src && src != 999) {
     $('#src-filter option[value=' + src +']').attr('selected','selected');
+    $('#src-filter').parent().addClass('selectedClass');
 }
 
 let typeCustomer = $.urlParam('type_customer') 
-if (typeCustomer) {
+if (typeCustomer && typeCustomer != 999) {
     $('#type_customer-filter option[value=' + typeCustomer +']').attr('selected','selected');
+    $('#type_customer-filter').parent().addClass('selectedClass');
 }
 
 let time = $.urlParam('daterange') 
@@ -1490,13 +1045,19 @@ if (time) {
 }
 
 let group = $.urlParam('group') 
-if (group) {
+if (group && group != 999) {
     $('#group-filter option[value="' + group +'"]').attr('selected','selected');
 }
 
 let status = $.urlParam('status') 
-if (status) {
-$('#status-filter option[value=' + status +']').attr('selected','selected');
+if (status && status != 999) {
+    $('#status-filter option[value=' + status +']').attr('selected','selected');
+    $('#status-filter').parent().addClass('selectedClass');
+}
+
+let search = $.urlParam('search') 
+if (search) {
+    $('input[name="search"]').val(search)
 }
 </script>
 
@@ -1661,7 +1222,7 @@ $('#status-filter option[value=' + status +']').attr('selected','selected');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
 <script>
     $(function() {
-        $('#listSale').select2();
+        $('#sale-filter').select2();
         $('#typeData').select2();
         $('#careOrder').select2();
         $('#srcData').select2();
@@ -1671,5 +1232,11 @@ $('#status-filter option[value=' + status +']').attr('selected','selected');
         $('#statusOrderShip').select2();
         $('#statusDeal').select2();
         $('.result-TN').select2();
+        $('#src-filter').select2();
+        $('#mkt-filter').select2();
+        $('#status-filter').select2();
+        $('#type_customer-filter').select2();
+        // $('#group-filter').select2();
+        
     });
 </script>
