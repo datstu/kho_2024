@@ -116,38 +116,36 @@
 
 
 <div class="tbl_mobile body flex-grow-1">
-    <div class="container-fluid ">
 
-        @if ($errors->any())
+    @if ($errors->any())
+    <div class="col-sm-12">
+        <div class="alert  alert-warning alert-dismissible fade show" role="alert">
+            @foreach ($errors->all() as $error)
+                <span><p>{{ $error }}</p></span>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    @if (session('error'))
+    <div id="noti-box ">
         <div class="col-sm-12">
-            <div class="alert  alert-warning alert-dismissible fade show" role="alert">
-                @foreach ($errors->all() as $error)
-                    <span><p>{{ $error }}</p></span>
-                @endforeach
+            <div class="alert  alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
             </div>
         </div>
-        @endif
+    </div>
+    @endif
 
-        @if (session('error'))
-        <div id="noti-box ">
-            <div class="col-sm-12">
-                <div class="alert  alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                </div>
-            </div>
-        </div>
-        @endif
+    <div class="card mb-4">
+        <div class="card-body p-0">
+            <div class="example mt-0">
 
-        <div class="card mb-4">
-            <div class="card-body p-0">
-                <div class="example mt-0">
+            @include('pages.sale.content')
 
-                @include('pages.sale.content')
-
-                </div>
             </div>
         </div>
     </div>

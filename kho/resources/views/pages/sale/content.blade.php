@@ -237,7 +237,7 @@
 {{-- update filter --}}
 
 <div>
-    <form action="{{route('sale-index')}}" method="get">
+    <form action="{{route('sale-index')}}" method="get"class="pb-4">
     
     <div class="maintain-filter-main">
         <div class="m-header-wrap">
@@ -329,7 +329,7 @@
         {{-- <form action="{{route('sale-index')}}" class="mb-1"> --}}
             @csrf
             <div class="row mt-1 filter-order">
-                <div class=" col-4 form-group daterange mb-1">
+                <div class=" col-4 form-group daterange  col-xs-12 col-sm-6 col-md-2 form-group mb-1">
                     <input id="daterange" class="btn" type="text" name="daterange" />
                 </div>
                 <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
@@ -558,7 +558,7 @@
                                 @else
                                 <div>
                                     {{($item->user) ? $item->user->real_name : ''}} 
-                                    <span class="small-tip">({{($item->user->name)}})</span>
+                                    {{-- <span class="small-tip">({{($item->user) ? $item->user->name : ''}})</span> --}}
                                 </div>
                                 @endif
                             </td>
@@ -777,11 +777,11 @@
 
                     </tbody>
                 </table>
-                {{ $saleCare->appends(request()->input())->links('pagination::bootstrap-5') }}
-
             </div>
         </div>
+        {{ $saleCare->appends(request()->input())->links() }}
     </div>
+
 </form>
 </div>
 {{-- end update filter --}}
@@ -1055,8 +1055,11 @@ if (status && status != 999) {
     $('#status-filter').parent().addClass('selectedClass');
 }
 
-let search = $.urlParam('search') 
+
+let search = $.urlParam('search')
 if (search) {
+    search = decodeURIComponent(search);
+    search = search.replaceAll('+', " ");
     $('input[name="search"]').val(search)
 }
 </script>
@@ -1200,6 +1203,11 @@ if (search) {
             }
         });
     });
+
+    $('#daterange').click(function(){
+        console.log('yo')
+        $("input[name='search']").val('');
+    })
 </script>
 
 <script type="text/javascript">

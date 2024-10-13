@@ -109,7 +109,7 @@ class LadipageController  extends Controller
         $group = Helper::getGroupByLinkLadi($linkPage);
         
         if ($group && $phone != '0344411068' && $phone != '0841111116' && $phone != '0841265116' 
-            && $phone != '0918352409' && $phone != '0841265117' && $phone != '0348684430') {
+            && $phone != '0918352409' && $phone != '0841265117' && $phone != '0348684430' && $phone !='0777399687') {
             $chatId = $group->tele_hot_data;
             $phone = Helper::getCustomPhoneNum($phone);
             $isOldDataLadi = Helper::isOldDataLadi($phone, $assgin_user);
