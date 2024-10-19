@@ -264,7 +264,7 @@
                         </select> --}}
                     </div>
                     
-                    <div class="col-sm-2 form-group"> 
+                    <div class="col-xs-12 col-sm-6 col-md-2 form-group" style="padding:0 15px;"> 
                         
                         @if ($checkAll  || $isLeadSale)
                         <select name="sale" id="sale-filter" class="hidden">
@@ -329,10 +329,20 @@
         {{-- <form action="{{route('sale-index')}}" class="mb-1"> --}}
             @csrf
             <div class="row mt-1 filter-order">
-                <div class=" col-4 form-group daterange  col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                <div class="daterange col-xs-12 col-sm-6 col-md-2 form-group">
                     <input id="daterange" class="btn" type="text" name="daterange" />
                 </div>
-                <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                    <select name="typeDate" id="typeDate-filter" class="hidden">       
+                        <option value="999">--Kiểu ngày--</option>
+
+                        @foreach ($typeDate as $type) 
+                        <option value="{{$type['id']}}">{{($type['name']) ? : $type['name']}}</option>
+                        @endforeach
+
+                    </select>
+                </div>
+                <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group">
                     <select name="src" id="src-filter" class="hidden">       
                         <option value="999">--Chọn nguồn--</option>
 
@@ -366,7 +376,7 @@
                     </select>
                 </div> --}}
                 @if ($checkAll)
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
                     <select name="mkt" id="mkt-filter" class="hidden" aria-label="Default select example">
                         <option value="999">--chọn Marketing--</option>
                         <option value="1">a.Nguyên</option>
@@ -390,14 +400,22 @@
                 </div>
                 @endif --}}
 
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                    <select name="resultTN" id="resultTN-filter" class="hidden">
+                        <option value="999">--Tất cả Kết quả Tác nghiệp--</option>
+                        @foreach ($callResults as $rs) 
+                        <option value="{{$rs['id']}}">{{($rs['name']) ? : $rs['name']}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
                     <select name="type_customer" id="type_customer-filter" class="hidden">
                         <option value="999">--Tất cả khách--</option>
                         <option value="1">Khách cũ</option>
                         <option value="0">Khách mới</option>
                     </select>
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
                     <select name="status" id="status-filter" class="hidden">
                     <option value="999">--Chọn trạng Thái giao hàng--</option>
                     <option value="1">Chưa giao vận</option>
@@ -636,11 +654,11 @@
                                 @endif
 
 
-                                <a onclick="showLoader();" data-id="{{$item->id}}"  title="Lưu ghi chú" class="update-TN-sale btn-icon aoh">
+                                <a data-id="{{$item->id}}"  title="Lưu ghi chú" class="update-TN-sale btn-icon aoh">
                                     <i class="fa fa-save"></i>
                                 </a>
                                 <div class="mof-container">
-                                    <textarea id="TNSale_{{$item->id}}" rows="2" cols="20" class="form-control txt-mof txt-dotted" data-length="500"
+                                    <textarea data-id="{{$item->id}}" id="TNSale_{{$item->id}}" rows="2" cols="20" class="form-control txt-mof txt-dotted" data-length="500"
                                         data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" data-original-title="" title="">{{$item->TN_can}}</textarea>
                                 </div>
                                 <div style="clear: both;"></div>
@@ -693,7 +711,7 @@
                             </td>
                             <td class="text-center no-wrap area2 hidden-xs" style="min-width:80px">
                                 <div class="text-right">
-                                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnChuyenTacNghiepTiepAuto" title="Chuyển sang tác nghiệp tiếp (112155407)" class="aoh btn-chuyen-tac-nghiep hidden" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$btnChuyenTacNghiepTiepAuto','')">
+                                    <a id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnChuyenTacNghiepTiepAuto" title="Chuyển sang tác nghiệp tiếp (112155407)" class="aoh btn-chuyen-tac-nghiep hidden" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$btnChuyenTacNghiepTiepAuto','')">
                                         <i class="fa fa-arrow-circle-o-up"></i>
                                     </a><span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__SaleTacNghiepTiepNgayBatDau_0" class="sau-bao-lau-het-han hidden"></span><a onclick="sua_lich_tac_nghiep(112155407);return false;" id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnSuaLichTacNghiep" title="Sửa lịch tác nghiệp" class="btn-icon aoh" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$btnSuaLichTacNghiep','')">
                                         <i class="fa fa-calendar"></i>
@@ -1013,6 +1031,14 @@ $.urlParam = function(name){
     }
     return 0;
 }
+
+
+let resultTN = $.urlParam('resultTN') 
+if (resultTN && resultTN != 999) {
+    $('#resultTN-filter option[value=' + resultTN +']').attr('selected','selected');
+    $('#resultTN-filter').parent().addClass('selectedClass');
+}
+
 let sale = $.urlParam('sale') 
 if (sale && sale != 999) {
     $('#sale-filter option[value=' + sale +']').attr('selected','selected');
@@ -1055,6 +1081,11 @@ if (status && status != 999) {
     $('#status-filter').parent().addClass('selectedClass');
 }
 
+let typeDate = $.urlParam('typeDate') 
+if (typeDate && typeDate != 999) {
+    $('#typeDate-filter option[value="' + typeDate +'"]').attr('selected','selected');
+    $('#typeDate-filter').parent().addClass('selectedClass');
+}
 
 let search = $.urlParam('search')
 if (search) {
@@ -1065,6 +1096,55 @@ if (search) {
 </script>
 
 <script>
+    $.fn.myFunc = function(id, type){
+        
+        if (type == 1) {
+            $('.body').css("opacity", '0.5');
+            $('.loader').show();
+        }
+        
+        // var id = $(this).data("id");
+        var textArea = '#TNSale_' + id;
+        var textTN   = $(textArea).val();
+        var _token   = $("input[name='_token']").val();
+        // console.log('koko', id);
+        // return;
+        $.ajax({
+            url: "{{route('update-salecare-TNcan')}}",
+            type: 'POST',
+            data: {
+                _token: _token,
+                id,
+                textTN
+            },
+            success: function(data) {
+                if (type == 1) {
+                    $('.body').css("opacity", '1');
+
+                    var tr = '.tr_' + id;
+                    if (!data.error) {
+                        $('#notify-modal').modal('show');
+                        if ($('.modal-backdrop-notify').length === 0) {
+                            $('.modal-backdrop').addClass('modal-backdrop-notify');
+                        }
+
+                        $(tr).addClass('success');
+                        setTimeout(function() { 
+                            $('#notify-modal').modal("hide");
+                            $(tr).removeClass('success');
+                        }, 2000);
+                    } else {
+                        alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
+                        $(tr).addClass('error');
+                        setTimeout(function() { 
+                            $(tr).removeClass('error');
+                        }, 3000);
+                    }
+                    $('.loader').hide();
+                }
+            }
+        });
+    }
     $('.result-TN').on('change', function() {
         var  id = $(this).data("id");
         var value = this.value;
@@ -1162,48 +1242,16 @@ if (search) {
         });
     });
     $('.update-TN-sale').click(function(){
-        $('.body').css("opacity", '0.5');
-        $('.loader').show();
         var id = $(this).data("id");
-        var textArea = '#TNSale_' + id;
-        var textTN   = $(textArea).val();
-        var _token   = $("input[name='_token']").val();
-        // console.log('koko', id);
-        // return;
-        $.ajax({
-            url: "{{route('update-salecare-TNcan')}}",
-            type: 'POST',
-            data: {
-                _token: _token,
-                id,
-                textTN
-            },
-            success: function(data) {
-                $('.body').css("opacity", '1');
-                var tr = '.tr_' + id;
-                if (!data.error) {
-                    $('#notify-modal').modal('show');
-                    if ($('.modal-backdrop-notify').length === 0) {
-                        $('.modal-backdrop').addClass('modal-backdrop-notify');
-                    }
-
-                    $(tr).addClass('success');
-                    setTimeout(function() { 
-                        $('#notify-modal').modal("hide");
-                        $(tr).removeClass('success');
-                    }, 2000);
-                } else {
-                    alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
-                    $(tr).addClass('error');
-                    setTimeout(function() { 
-                        $(tr).removeClass('error');
-                    }, 3000);
-                }
-                $('.loader').hide();
-            }
-        });
+        var type = 1
+        $('.body').myFunc(id, type); 
     });
 
+    $("textarea.txt-mof").keyup(function(){
+        var id = $(this).data("id");
+        var type = 2
+        $('.body').myFunc(id, type); 
+    });
     $('#daterange').click(function(){
         console.log('yo')
         $("input[name='search']").val('');
@@ -1244,6 +1292,9 @@ if (search) {
         $('#mkt-filter').select2();
         $('#status-filter').select2();
         $('#type_customer-filter').select2();
+        $('#resultTN-filter').select2();
+        $('#typeDate-filter').select2();
+        
         // $('#group-filter').select2();
         
     });

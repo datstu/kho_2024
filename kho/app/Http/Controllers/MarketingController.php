@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use App\Helpers\Helper;
+use App\Models\CallResult;
 use App\Models\SaleCare;
 use App\Models\SrcPage;
 
@@ -24,6 +25,10 @@ class MarketingController extends Controller
             $list = $list->where('user_digital', $req->mkt_user);
         }
 
+
+        if ($req->src && $req->src != -1) {
+            $list = $list->where('id', $req->src);
+        }
         // dd($req->all());
         /** lấy data report(contact) từ list nguồn */
         $listFiltrSrc = $this->getListMktReportByListSrc($list, $req);
@@ -41,15 +46,14 @@ class MarketingController extends Controller
     public function marketingSearch($req)
     {
         $rs = $this->getDataMkt($req);
-        // dd($rs);
-
        
         $listMktUser = Helper::getListMktUser();
         $listGroup = Helper::getListGroup();
-        
-        // dd($data);
+        $listSrc    = SrcPage::orderBy('id', 'desc')->get();
+
         return view('pages.marketing.index')->with('list', $rs)
             ->with('listMktUser', $listMktUser)
+            ->with('listSrc', $listSrc)
             ->with('listGroup', $listGroup);
     }
 
@@ -327,7 +331,6 @@ class MarketingController extends Controller
     }
     public function getListMktReportByListSrc($list, $req)
     {
-        // dd($list->get());
         $data = [];
         foreach ($list->get() as $item) {
             // echo $item->id . "<br>";

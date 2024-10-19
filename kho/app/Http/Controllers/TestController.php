@@ -25,6 +25,10 @@ class TestController extends Controller
 {
   use WithoutMiddleware;
 
+  public function testBaoKim()
+  {
+    return view('test.index');
+  }
   public function tele() 
   {
     // echo 'hi';
@@ -828,12 +832,13 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/08/2024', '30/09/2024'];
-    $req['sale'] = '57';
+    $req['daterange'] = ['01/09/2024', '31/10/2024'];
+    $req['sale'] = '56';
 
     $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
     // $list->whereNull('id_order_new');
     $list->where('old_customer', 0);
+    $list->where('is_duplicate', 0);
     // $list->where('group_id', '7');
     // $list->where('page_id', '7');
 
@@ -889,6 +894,7 @@ class TestController extends Controller
       ];
     }
 
+    // dd($dataExport);
     // dd($dataExport);
     return Excel::download(new UsersExport($dataExport), 'invoices.xlsx');
 

@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use App\Models\SaleCare;
 use App\Helpers\Helper;
+use App\Models\CallResult;
 use App\Models\Group;
+use App\Models\TypeDate;
 use PHPUnit\TextUI\Help;
 use Illuminate\Support\Facades\Route;
 use App\Models\SrcPage;
@@ -38,9 +40,13 @@ class SaleController extends Controller
         
         $listSrc    = SrcPage::orderBy('id', 'desc')->get();
         $groups     = Group::orderBy('id', 'desc')->get();
+        $callResults = CallResult::orderBy('id', 'desc')->get();
+        $typeDate = TypeDate::orderBy('id', 'desc')->get();
 
         return view('pages.sale.index')->with('listSrc', $listSrc)
             ->with('groups', $groups)
+            ->with('callResults', $callResults)
+            ->with('typeDate', $typeDate)
             ->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
     }
 
@@ -351,10 +357,46 @@ class SaleController extends Controller
         if (isset($dataFilter['search'])) {
             return $this->searchInSaleCare($dataFilter);
         } 
-         
+
         if ($dataFilter) {
-            
-            if (isset($dataFilter['daterange'])) {
+            if (isset($dataFilter['typeDate'])) {
+
+                /* 
+                * 2: ngày sale chốt đơn
+                * 1: ngày data về hệ thống
+                */
+                if ($dataFilter['typeDate'] == 1) {
+                    $time       = $dataFilter['daterange'];
+                    $timeBegin  = str_replace('/', '-', $time[0]);
+                    $timeEnd    = str_replace('/', '-', $time[1]);
+                    $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+                    $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+
+                    $list->whereDate('created_at', '>=', $dateBegin)
+                        ->whereDate('created_at', '<=', $dateEnd);
+                } else if ($dataFilter['typeDate'] == 2) {
+                    $ordersCtl = new OrdersController();
+                    $listOrder = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter);
+                    // dd($listOrder->get());
+                    $listIdSale = [];
+                    foreach ($listOrder->get() as $order) {
+                        $listIdSale[] = $order->sale_care;
+                    }
+
+                    $list = SaleCare::orderBy('id', 'desc')
+                        ->whereIn('id', $listIdSale);
+                }
+            }
+
+            if (isset($dataFilter['daterange']) && !isset($dataFilter['typeDate'])) {
+                $ordersCtl = new OrdersController();
+                $listOrder = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter);
+
+                $listIdSale = [];
+                foreach ($listOrder->get() as $order) {
+                    $listIdSale[] = $order->sale_care;
+                }
+
                 $time       = $dataFilter['daterange'];
                 $timeBegin  = str_replace('/', '-', $time[0]);
                 $timeEnd    = str_replace('/', '-', $time[1]);
@@ -363,9 +405,16 @@ class SaleController extends Controller
 
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
+                
+                // id ngày data về hệ thống
+                $listIdSale2 = $list->pluck('id')->toArray();
+                // gộp mảng và loại bỏ phần tử trùng => sắp xếp
+                $listId = array_unique(array_merge($listIdSale, $listIdSale2));
+                sort($listId);
+
+                $list = SaleCare::orderBy('id', 'desc')->whereIn('id', $listId);
             }
-            
-            
+
             /**
              * 1: nhóm Tricho
              * 2: nhóm Lúa
@@ -414,7 +463,7 @@ class SaleController extends Controller
                     $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
                 }*/
 
-                $src =SrcPage::find($dataFilter['src']);
+                $src = SrcPage::find($dataFilter['src']);
                 if (!$src) {
                     return ;
                 }
@@ -520,6 +569,17 @@ class SaleController extends Controller
                 $list->where('old_customer', $dataFilter['type_customer']);   
             }
 
+            if (isset($dataFilter['resultTN'])) {
+               $idSaleCares = $list->pluck('id')->toArray();
+                $listInFilter = SaleCare:: join('call', 'call.id', '=', 'sale_care.result_call')
+                    ->whereIn('sale_care.id', $idSaleCares)
+                    ->where('call.result_call',$dataFilter['resultTN']);
+                   
+                $newIdSaleCare = $listInFilter->pluck('sale_care.id')->toArray();
+                    // dd($newIdSaleCare);
+                    $list = SaleCare::whereIn('id', $newIdSaleCare);
+            }
+
             $routeName = Route::currentRouteName();
             if (isset($dataFilter['status']) && $routeName != 'filter-total-sales') {
                     $list->whereNotNull('id_order_new');
@@ -556,11 +616,7 @@ class SaleController extends Controller
             }
         }
 
-       
-
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
-
-    
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $sale = Helper::getSaleById($dataFilter['sale']);
@@ -638,6 +694,11 @@ class SaleController extends Controller
             $dataFilter['daterange'] = $arrTime;
         }
 
+        $typeDate = $req->typeDate;
+        if ($typeDate && $typeDate != 999) {
+            $dataFilter['typeDate'] = $typeDate;
+        }
+
         $sale = $req->sale;
         if ($req->sale && $sale != 999) {
             $dataFilter['sale'] = $sale;
@@ -660,19 +721,20 @@ class SaleController extends Controller
         }
 
         $typeCustomer = $req->type_customer;
-        
-        // echo $req->type_customer;
-        // die();
         if ($typeCustomer != 999) {
-            // dd($req->type_customer);
             $dataFilter['type_customer'] = $typeCustomer;
+        }
+
+        $resultTN = $req->resultTN;
+        if ($resultTN != 999) {
+            $dataFilter['resultTN'] = $resultTN;
         }
 
         $status = $req->status;
         if ($status && $status != 999 ||  $status == 0) {
             $dataFilter['status'] = $status;
         }
-        // dd($dataFilter['type_customer']);
+
         try {
             $data       = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
             $saleCare   = $data->paginate(50);
@@ -682,9 +744,13 @@ class SaleController extends Controller
             $sales      = Helper::getListSale()->get();
             $listSrc    = SrcPage::orderBy('id', 'desc')->get();
             $groups     = Group::orderBy('id', 'desc')->get();
+            $callResults = CallResult::orderBy('id', 'desc')->get();
+            $typeDate = TypeDate::orderBy('id', 'desc')->get();
 
             return view('pages.sale.index')->with('listSrc', $listSrc)
                 ->with('sales', $sales)->with('groups', $groups)
+                ->with('callResults', $callResults)
+                ->with('typeDate', $typeDate)
                 ->with('saleCare', $saleCare)->with('listCall', $listCall);
         } catch (\Exception $e) {
             // return $e;

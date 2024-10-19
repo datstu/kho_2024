@@ -62,7 +62,7 @@ if ($sumOrder) {
                         
                         <div class="col-sm-12 col-md-9 form-group">
                             <div class="row">
-                                <div class="col-sm-3 form-group">
+                                <div class="col-xs-12 col-md-2 form-group ">
                                     <select id="mkt_user" name="mkt_user">
                                         <option selected="selected" value="-1">--Chọn Marketing--</option>
                                         @foreach ($listMktUser->get() as $user)
@@ -70,7 +70,9 @@ if ($sumOrder) {
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-sm-3 form-group">
+
+                                
+                                <div class="col-xs-12 col-md-2 form-group">
                                     <select id="type_customer" name="type_customer">
                                         <option selected="selected" value="-1">--Tất cả khách--</option>
                                        <option value="0">Khách mới</option>
@@ -100,9 +102,20 @@ if ($sumOrder) {
 
         <div class="box-body" style="background: #fff;">
             <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
                     <input id="daterange" class="btn" type="text" name="daterange" />
                 </div>
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                    <select name="src" id="src-filter" class="hidden">       
+                        <option value="-1">--Chọn nguồn--</option>
+
+                        @foreach ($listSrc as $page) 
+                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+                        @endforeach
+
+                    </select>
+                </div>
+                
             </div>
         </div>
     </form>
@@ -235,6 +248,9 @@ if ($sumOrder) {
     $(function() {
         $('#mkt_user').select2();
         $('#group').select2();
+        $('#src-filter').select2();
+        $('#type_customer').select2();
+        
     });
 
     $.urlParam = function(name){
@@ -270,6 +286,12 @@ if ($sumOrder) {
         time = decodeURIComponent(time)
         time = time.replace('+-+', ' - ') //loại bỏ khoảng trắng
         $('input[name="daterange"]').val(time)
+    }
+
+    let src = $.urlParam('src') 
+    if (src && src != 999) {
+        $('#src-filter option[value=' + src +']').attr('selected','selected');
+        $('#src-filter').parent().addClass('selectedClass');
     }
 </script>
 
