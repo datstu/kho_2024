@@ -230,7 +230,8 @@ class Helper
             return false;
         } 
         
-        $saleCares = SaleCare::where('old_customer', 0)->where('phone', $phone)->orderBy('id', 'asc')->get();
+        // $saleCares = SaleCare::where('old_customer', 0)->where('phone', $phone)->orderBy('id', 'asc')->get();
+        $saleCares = SaleCare::where('phone', $phone)->orderBy('id', 'asc')->get();
 
         if ($saleCares->count() == 0) {
             return true;
