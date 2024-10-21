@@ -360,7 +360,7 @@ class SaleController extends Controller
 
         if ($dataFilter) {
             if (isset($dataFilter['typeDate'])) {
-
+              
                 /* 
                 * 2: ngày sale chốt đơn
                 * 1: ngày data về hệ thống
@@ -375,9 +375,10 @@ class SaleController extends Controller
                     $list->whereDate('created_at', '>=', $dateBegin)
                         ->whereDate('created_at', '<=', $dateEnd);
                 } else if ($dataFilter['typeDate'] == 2) {
+
                     $ordersCtl = new OrdersController();
                     $listOrder = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter);
-                    // dd($listOrder->get());
+
                     $listIdSale = [];
                     foreach ($listOrder->get() as $order) {
                         $listIdSale[] = $order->sale_care;

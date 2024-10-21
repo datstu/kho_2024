@@ -155,7 +155,18 @@ class OrdersController extends Controller
              */
             $dataFilterSale = [];
             if (isset($dataFilter['src'])) {
-                $dataFilterSale['src'] = $dataFilter['src'];
+
+                $idTmps = [];
+                foreach ($list->get() as $order) {
+                    $mktCtl = new MarketingController();
+                    $srcPage = $mktCtl->getSrcPageFromSaleCare($order->saleCare);
+                    if ($srcPage) {
+                        $idTmps[] = $order->id;
+                    }
+                }
+
+                $list = Orders::orderBy('id', 'desc')
+                    ->whereIn('id', $idTmps);
             }
 
             if (isset($dataFilter['mkt'])) {
@@ -164,10 +175,9 @@ class OrdersController extends Controller
 
             // dd($dataFilterSale);
             if (count($dataFilterSale) > 0 ) {
-                // dd('hi');
                 $phoneFilter = [];
                 $listPhoneOrder = $list->pluck('phone')->toArray();
-                // dd($listPhoneOrder);
+
                 $flag = false;
 
                 // dd($listPhoneOrder);
