@@ -400,7 +400,7 @@ class HomeController extends Controller
         if ($checkAll || $isLeadSale) {
             // dd($listSale->get());
             foreach ($listSale->get() as $sale) {
-                // if ($sale->id != 56) {
+                // if ($sale->id != 57) {
                 //     continue;
                 // }
                 $data = $this->getReportUserSaleV2($sale, $dataFilter);
@@ -468,6 +468,7 @@ class HomeController extends Controller
         $data = ['name' => ($user->real_name) ?: ''];
         $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
         $dataFilter['sale'] = $user->id;
+        $dataFilter['typeDate'] = 1; //ngày data vè hệ thống
         // dd($dataFilter);
    
         $newCustomer = $this->getSaleByType($dataFilter, 'new');
