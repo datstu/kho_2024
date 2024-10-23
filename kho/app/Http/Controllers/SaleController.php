@@ -37,16 +37,18 @@ class SaleController extends Controller
        
         $saleCare   = $this->getListSalesByPermisson(Auth::user());
         $saleCare   = $saleCare->paginate(50);
-        
+
         $listSrc    = SrcPage::orderBy('id', 'desc')->get();
         $groups     = Group::orderBy('id', 'desc')->get();
         $callResults = CallResult::orderBy('id', 'desc')->get();
         $typeDate = TypeDate::orderBy('id', 'desc')->get();
+        $listMktUser = Helper::getListMktUser();
 
         return view('pages.sale.index')->with('listSrc', $listSrc)
             ->with('groups', $groups)
             ->with('callResults', $callResults)
             ->with('typeDate', $typeDate)
+            ->with('listMktUser', $listMktUser)
             ->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
     }
 
@@ -390,8 +392,11 @@ class SaleController extends Controller
             }
 
             if (isset($dataFilter['daterange']) && !isset($dataFilter['typeDate'])) {
+
                 $ordersCtl = new OrdersController();
-                $listOrder = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter);
+                $tmpDataFilter = $dataFilter;
+
+                $listOrder = $ordersCtl->getListOrderByPermisson(Auth::user(), $tmpDataFilter);
 
                 $listIdSale = [];
                 foreach ($listOrder->get() as $order) {
@@ -406,7 +411,7 @@ class SaleController extends Controller
 
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
-                
+
                 // id ngày data về hệ thống
                 $listIdSale2 = $list->pluck('id')->toArray();
                 // gộp mảng và loại bỏ phần tử trùng => sắp xếp
@@ -481,90 +486,41 @@ class SaleController extends Controller
                     $list = $list->where('page_id', 'tricho');
                 }
             }
-            
-            if (isset($dataFilter['mkt'])) {
-                /** mrNguyen = 1
-                 *  mrTien = 2
-                 */
-                if ($dataFilter['mkt'] == 1) {
-                    /** tất cả nguồn */
-                    $src = ['Hotline OG', 'Hotline - Tricho', 'Khách Cũ Tricho', '378087158713964', '381180601741468', '332556043267807', '318167024711625', '341850232325526', 'ruoc-dong', 'mua4tang2', 'giamgia45'];
-                    $list = $list->where(function($query) use ($src) {
-                        foreach ($src as $term) {
-                            if (is_numeric($term)) {
-                                $query->orWhere('page_id', 'like', '%' . $term . '%');
-                            } else {
-                                $query->orWhere('page_link', 'like', '%' . $term . '%');
-                            }
 
-                            if (str_contains($term, 'Tricho') || str_contains($term, 'line')) {
-                                $query->orWhere('page_name', 'like', '%' . $term . '%');
-                            }
-                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        }
-                    });
-                } else if ($dataFilter['mkt'] == 2 || $user->is_digital) {
-                    $src = ['mua4-tang2', '335902056281917', '389136690940452'];
-                    $list = $list->where(function($query) use ($src) {
-                        foreach ($src as $term) {
-                            if (is_numeric($term)) {
-                                $query->orWhere('page_id', 'like', '%' . $term . '%');
-                            } else {
-                                $query->orWhere('page_link', 'like', '%' . $term . '%');
-                            }
-                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        }
-                    });
-                } else if ($dataFilter['mkt'] == 3 || $user->is_digital) {
-                    $src = [ '424411670749761', '398822199987832'];
-                    $list = $list->where(function($query) use ($src) {
-                        foreach ($src as $term) {
-                            if (is_numeric($term)) {
-                                $query->orWhere('page_id', 'like', '%' . $term . '%');
-                            } else {
-                                $query->orWhere('page_link', 'like', '%' . $term . '%');
-                            }
-                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        }
-                    });
+            if (isset($dataFilter['mkt'])) {
+                $listIDSaleCare = $newIdSaleCare = [];
+                $listSrcByMkt = SrcPage::orderBy('id', 'desc')->where('user_digital', $dataFilter['mkt']);
+
+                foreach ($listSrcByMkt->get() as $src) {
+                    $mktContronler = new MarketingController();
+                    $listSC = $mktContronler->getListSaleCareBySrcId($src, $dataFilter);
+
+                    if ($listSC->count() > 0) {
+                        $listIDSaleCare[] = $listSC->pluck('id')->toArray();
+                    }
                 }
-            } else if ($user->is_digital) {
-               
-                if ($user->name == 'digital.tien') {
-                    $src = ['mua4-tang2', '335902056281917', '389136690940452'];
-                    $list = $list->where(function($query) use ($src) {
-                        foreach ($src as $term) {
-                            if (is_numeric($term)) {
-                                $query->orWhere('page_id', 'like', '%' . $term . '%');
-                            } else {
-                                $query->orWhere('page_link', 'like', '%' . $term . '%');
-                            }
-                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        }
-                    });
-                } else if  ($user->name == 'digital.di') {
-                    $src = [ '424411670749761', '398822199987832'];
-                    $list = $list->where(function($query) use ($src) {
-                        foreach ($src as $term) {
-                            if (is_numeric($term)) {
-                                $query->orWhere('page_id', 'like', '%' . $term . '%');
-                            } else {
-                                $query->orWhere('page_link', 'like', '%' . $term . '%');
-                            }
-                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        }
-                    });
+
+                //gộp mảng
+                /* array:3 [
+                  0 => [
+                    0 => 9752
+                    1 => 9733
+                    2 => 9731
+                  ]
+                  1 => array:29 [▶]
+                  2 => array:5 [▶]
+                ]
+                */
+                if ($listIDSaleCare) {
+                    foreach ($listIDSaleCare as $ids) {
+                        foreach ($ids as $id)
+                        $newIdSaleCare[] = $id;
+                    }
                 }
-               
+
+                $newIdSaleCare = array_unique($newIdSaleCare);
+                $list = SaleCare::orderBy('id', 'desc')->whereIn('id', $newIdSaleCare);
             }
-            
-            // if (isset($dataFilter['src'])) {
-            //     if (is_numeric($dataFilter['src'])) {
-            //         $list->where('page_id', 'like', '%' . $dataFilter['src'] . '%');
-            //     } else {
-            //         $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
-            //     }   
-            // }
 
             if (isset($dataFilter['type_customer'])) {
                 $list->where('old_customer', $dataFilter['type_customer']);   
@@ -586,14 +542,12 @@ class SaleController extends Controller
                     $list->whereNotNull('id_order_new');
                     $newSCare = [];
                     foreach ($list->get() as $scare) {
-                        // dd($scare);
                         $order = $scare->orderNew;
-                        // dd($order->get());
                         if ($order && $order->status == $dataFilter['status']) {
                             $newSCare[] = $scare->id;
                         }
                     }
-                    // dd($newSCare);
+
                     $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
                 }
         }
@@ -659,7 +613,6 @@ class SaleController extends Controller
             });
         }
 
-        // dd($list->get());
         return $list;
     }
 
@@ -747,11 +700,13 @@ class SaleController extends Controller
             $groups     = Group::orderBy('id', 'desc')->get();
             $callResults = CallResult::orderBy('id', 'desc')->get();
             $typeDate = TypeDate::orderBy('id', 'desc')->get();
+            $listMktUser = Helper::getListMktUser();
 
             return view('pages.sale.index')->with('listSrc', $listSrc)
                 ->with('sales', $sales)->with('groups', $groups)
                 ->with('callResults', $callResults)
                 ->with('typeDate', $typeDate)
+                ->with('listMktUser', $listMktUser)
                 ->with('saleCare', $saleCare)->with('listCall', $listCall);
         } catch (\Exception $e) {
             // return $e;
@@ -760,10 +715,10 @@ class SaleController extends Controller
         }
     }
 
-    public function updateTNcan(Request $r) {
-        // dd($r->all());
+    public function updateTNcan(Request $r) 
+    {
         $saleCare = SaleCare::find($r->id);
-        // dd( $saleCare);
+
         if ($saleCare) {
             $saleCare->TN_can = $r->textTN;
             $saleCare->save();
@@ -786,10 +741,9 @@ class SaleController extends Controller
         return back();
     }
 
-    public function updateAssignTNSale(Request $r) {
-        // dd($r->all());
+    public function updateAssignTNSale(Request $r) 
+    {
         $saleCare = SaleCare::find($r->id);
-        // dd( $saleCare);
         if ($saleCare) {
             $saleCare->assign_user = $r->assignSale;
             $saleCare->save();

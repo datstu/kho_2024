@@ -25,11 +25,10 @@ class MarketingController extends Controller
             $list = $list->where('user_digital', $req->mkt_user);
         }
 
-
         if ($req->src && $req->src != -1) {
             $list = $list->where('id', $req->src);
         }
-        // dd($req->all());
+
         /** lấy data report(contact) từ list nguồn */
         $listFiltrSrc = $this->getListMktReportByListSrc($list, $req);
        
@@ -172,7 +171,6 @@ class MarketingController extends Controller
             return;
         }
 
-        // dd($listSrc);
         $ordersController = new OrdersController();
 
         $userAdmin = User::find(1);
@@ -344,10 +342,66 @@ class MarketingController extends Controller
         return $data;
     }
 
+    public function getListSaleCareBySrcId($item, $req)
+    {
+        $list   = SaleCare::orderBy('id', 'desc');
+        // dd(isset($req['daterange']) || !empty($req->daterange));
+        if (isset($req['daterange']) || !empty($req->daterange)) {
+            $dateRange = (isset($req['daterange'])) ? $req['daterange'] : $req->daterange;
+
+            $time = $dateRange;
+            if (!is_array($dateRange)) {
+                $time = explode("-",$dateRange); 
+            }
+
+            // dd($time);
+            // $toMonth    = date("Y-m-d", time());
+            // $toMonth    = '2024-09-14';
+            // $time = ['2024-09-01', '2024-09-30'];
+
+            $timeBegin  = str_replace('/', '-', $time[0]);
+            $timeEnd    = str_replace('/', '-', $time[1]);
+            $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+            $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+
+            $list = $list->whereDate('created_at', '>=', $dateBegin)
+                ->whereDate('created_at', '<=', $dateEnd);
+        }
+
+        // dd($list->get());
+        if (isset($req->type_customer) && (int)$req->type_customer != -1) {
+            $list = $list->where('old_customer', $req->type_customer);
+        }
+
+        foreach ($list->get() as $sale) {
+            if (!$sale->page_id && !$sale->page_name && !$sale->page_link) {
+                $scNoSrc[] = $sale;
+            }
+        }
+
+        if ($item->type == 'pc') {
+            $list = $list->where('page_id', $item->id_page);
+        } else if ($item->type == 'ladi') {
+            $list = $list->where('page_link', $item->link);
+        } else if ($item->type == 'hotline') {
+            // $saleCare = $saleCare->where('page_name', $item->type);
+            $list = $list->where('page_id', 'like', '%' . $item->id_page .'%');
+        } else if  ($item->type == 'old') {
+            $list = $list->where('page_name', $item->name);
+        } else {
+            $list = $list->where('page_id', 'tricho');
+        }
+
+        return $list;
+    }
 
     public function getDataReportBySrcId($item, $req)
     {
         $countSaleCare = 0;
+
+        $saleCare = $this->getListSaleCareBySrcId($item, $req);
+        
+        /*
         $saleCare   = SaleCare::orderBy('id', 'desc');
 
         if ($req->daterange) {
@@ -390,12 +444,7 @@ class MarketingController extends Controller
         } else {
             $saleCare = $saleCare->where('page_id', 'tricho');
         }
-
-        // dd($scNoSrc);
-        // dd( $saleCare->get());
-        // dd($req->type_customer && (int)$req->type_customer != -1);
-       
-        // dd($saleCare->get());
+        */
 
         $countSaleCare   = $saleCare->count();
 

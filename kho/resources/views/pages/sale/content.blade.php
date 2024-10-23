@@ -327,104 +327,106 @@
         </div>
     
         {{-- <form action="{{route('sale-index')}}" class="mb-1"> --}}
-            @csrf
-            <div class="row mt-1 filter-order">
-                <div class="daterange col-xs-12 col-sm-6 col-md-2 form-group">
-                    <input id="daterange" class="btn" type="text" name="daterange" />
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select name="typeDate" id="typeDate-filter" class="hidden">       
-                        <option value="999">--Kiểu ngày--</option>
-
-                        @foreach ($typeDate as $type) 
-                        <option value="{{$type['id']}}">{{($type['name']) ? : $type['name']}}</option>
-                        @endforeach
-
-                    </select>
-                </div>
-                <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select name="src" id="src-filter" class="hidden">       
-                        <option value="999">--Chọn nguồn--</option>
-
-                        @foreach ($listSrc as $page) 
-                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
-                        @endforeach
-
-                    </select>
-                </div>
-                
-                {{-- <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
-                    <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
-                        <option value="999">--Chọn nguồn--</option>
-                    <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
-                    if ($pagePanCake) {
-                        $pages = json_decode($pagePanCake);
-                        // dd($pages);
-                        foreach ($pages as $page) {
-                    ?>
-                        <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
-                    <?php   }
-                    }   
-
-                    foreach ($ladiPages as $page) {
-                    ?>
-                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
-                    <?php   
-                        }
-                    ?> 
-
-                    </select>
-                </div> --}}
-                @if ($checkAll)
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select name="mkt" id="mkt-filter" class="hidden" aria-label="Default select example">
-                        <option value="999">--chọn Marketing--</option>
-                        <option value="1">a.Nguyên</option>
-                        <option value="2">a.Tiễn</option>
-                    </select>
-                </div>
-                @endif
-
-                {{-- @if ($checkAll || $isLeadSale)
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
-                    <select name="sale" id="sale-filter" class="form-select">
-
-                    @if ($checkAll)<option value="999">--Chọn Sale--</option> @endif
-                    
-                    @if (isset($sales))
-                        @foreach($sales as $sale)
-                        <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
-                        @endforeach
-                    @endif
-                    </select>
-                </div>
-                @endif --}}
-
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select name="resultTN" id="resultTN-filter" class="hidden">
-                        <option value="999">--Tất cả Kết quả Tác nghiệp--</option>
-                        @foreach ($callResults as $rs) 
-                        <option value="{{$rs['id']}}">{{($rs['name']) ? : $rs['name']}}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select name="type_customer" id="type_customer-filter" class="hidden">
-                        <option value="999">--Tất cả khách--</option>
-                        <option value="1">Khách cũ</option>
-                        <option value="0">Khách mới</option>
-                    </select>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                    <select name="status" id="status-filter" class="hidden">
-                    <option value="999">--Chọn trạng Thái giao hàng--</option>
-                    <option value="1">Chưa giao vận</option>
-                    <option value="2">Đang giao</option>
-                    <option value="3">Hoàn tất</option>
-                    <option value="0">Huỷ</option>
-                    </select>
-                </div>
+        @csrf
+        <div class="row mt-1 filter-order">
+            <div class="daterange col-xs-12 col-sm-6 col-md-2 form-group">
+                <input id="daterange" class="btn" type="text" name="daterange" />
             </div>
+            <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                <select name="typeDate" id="typeDate-filter" class="hidden">       
+                    <option value="999">--Kiểu ngày--</option>
+
+                    @foreach ($typeDate as $type) 
+                    <option value="{{$type['id']}}">{{($type['name']) ? : $type['name']}}</option>
+                    @endforeach
+
+                </select>
+            </div>
+            <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group">
+                <select name="src" id="src-filter" class="hidden">       
+                    <option value="999">--Chọn nguồn--</option>
+
+                    @foreach ($listSrc as $page) 
+                    <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+                    @endforeach
+
+                </select>
+            </div>
+            
+            {{-- <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                <select name="src" id="src-filter" class="form-select" aria-label="Default select example">       
+                    <option value="999">--Chọn nguồn--</option>
+                <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
+                if ($pagePanCake) {
+                    $pages = json_decode($pagePanCake);
+                    // dd($pages);
+                    foreach ($pages as $page) {
+                ?>
+                    <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
+                <?php   }
+                }   
+
+                foreach ($ladiPages as $page) {
+                ?>
+                    <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+                <?php   
+                    }
+                ?> 
+
+                </select>
+            </div> --}}
+            @if ($checkAll)
+            <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                <select name="mkt" id="mkt-filter" class="hidden" aria-label="Default select example">
+                    <option value="999">--chọn Marketing--</option>
+                    
+                    @foreach ($listMktUser->get() as $user)
+                    <option value="{{$user->id}}">{{$user->real_name}} </option>
+                    @endforeach
+                </select>
+            </div>
+            @endif
+
+            {{-- @if ($checkAll || $isLeadSale)
+            <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+                <select name="sale" id="sale-filter" class="form-select">
+
+                @if ($checkAll)<option value="999">--Chọn Sale--</option> @endif
+                
+                @if (isset($sales))
+                    @foreach($sales as $sale)
+                    <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
+                    @endforeach
+                @endif
+                </select>
+            </div>
+            @endif --}}
+
+            <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                <select name="resultTN" id="resultTN-filter" class="hidden">
+                    <option value="999">--Tất cả Kết quả Tác nghiệp--</option>
+                    @foreach ($callResults as $rs) 
+                    <option value="{{$rs['id']}}">{{($rs['name']) ? : $rs['name']}}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                <select name="type_customer" id="type_customer-filter" class="hidden">
+                    <option value="999">--Tất cả khách--</option>
+                    <option value="1">Khách cũ</option>
+                    <option value="0">Khách mới</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                <select name="status" id="status-filter" class="hidden">
+                <option value="999">--Chọn trạng Thái giao hàng--</option>
+                <option value="1">Chưa giao vận</option>
+                <option value="2">Đang giao</option>
+                <option value="3">Hoàn tất</option>
+                <option value="0">Huỷ</option>
+                </select>
+            </div>
+        </div>
 
             {{-- <button type="submit" class="btn btn-outline-primary"><svg class="icon me-2">
                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-filter')}}"></use>

@@ -169,9 +169,10 @@ class OrdersController extends Controller
                     ->whereIn('id', $idTmps);
             }
 
-            if (isset($dataFilter['mkt'])) {
-                $dataFilterSale['mkt'] = $dataFilter['mkt'];
-            }  
+            // dd($dataFilter);
+            // if (isset($dataFilter['mkt'])) {
+            //     $dataFilterSale['mkt'] = $dataFilter['mkt'];
+            // }  
 
             // dd($dataFilterSale);
             if (count($dataFilterSale) > 0 ) {
