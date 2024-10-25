@@ -55,10 +55,6 @@ class OrdersController extends Controller
                 $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
                 $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
 
-                // dd($dataFilter['daterange']);
-                // $dateBegin  = $dataFilter['daterange']['dateBegin']; 
-                // $dateEnd    = $dataFilter['daterange']['dateEnd']; 
-                // dd($dateBegin);
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
             }
@@ -144,7 +140,6 @@ class OrdersController extends Controller
                 // $list->whereStatus($dataFilter['status']);
             }
 
-
             /** mrNguyen = 1
              *  mrTien = 2
              *
@@ -174,14 +169,11 @@ class OrdersController extends Controller
             //     $dataFilterSale['mkt'] = $dataFilter['mkt'];
             // }  
 
-            // dd($dataFilterSale);
             if (count($dataFilterSale) > 0 ) {
                 $phoneFilter = [];
                 $listPhoneOrder = $list->pluck('phone')->toArray();
-
                 $flag = false;
 
-                // dd($listPhoneOrder);
                 foreach ($listPhoneOrder as $phone) {
                     $saleCtl = new SaleController();
                     $listsaleCare = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilterSale);
@@ -214,18 +206,11 @@ class OrdersController extends Controller
                    
             } 
 
-            
-            if (isset($dataFilter['type_customer'])) {
-                
-                // dd($list->get());
+            if (isset($dataFilter['type_customer']) && $dataFilter['type_customer'] != -1) {
+
                 $resultFilter = [];
                 foreach ($list->get() as $k => $order) {
-                    // dd($order->saleCare->type_customer != $dataFilter['type_customer']);
                     /** loại phần tử ko thoả khỏi list order */
-                    // echo "<pre>";
-                    // print_r($order->saleCare);
-                    // echo "</pre>";
-
                     //xử lý type 0,1,2 về 1,2 để so sánh với req->type_customer
                     $typeCutomer = 0;
                     if ($order->saleCare) {
@@ -237,15 +222,12 @@ class OrdersController extends Controller
                         $typeCutomer = $this->getTypeOfOther($order->saleCare);
                     }
 
-
                     if ($typeCutomer == $dataFilter['type_customer']) {
                         $resultFilter[] = $order->id;
                     }
-
                 }
 
-                $list = Orders::whereIn('id', $resultFilter)->orderBy('id', 'desc'); ;
-                
+                $list = Orders::whereIn('id', $resultFilter)->orderBy('id', 'desc');
             }
         }
 

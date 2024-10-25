@@ -23,7 +23,7 @@ class HomeController extends Controller
         $toMonth      = date("d/m/Y", time());
 
         /**set tmp */
-        // $toMonth = '04/10/2024';
+        // $toMonth = '22/10/2024';
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataSale = $this->getReportHomeSale($toMonth);
@@ -1114,22 +1114,13 @@ class HomeController extends Controller
     public function getReportHomeDigitalV2($time)
     {
         $result = [];
-
         $listDigital = User::where('status', 1)->where('is_digital', 1)->orderBy('id', 'DESC');
-        // dd($listDigital->get());
+
         foreach ($listDigital->get() as $k => $digital) {
-            
             $result[$k]['name'] = $digital->real_name;
-            // dd($req->all()); 'name' => $digital->real_name,
             $result[$k]['new_customer'] = $this->getDataDigitalInHome($digital->id, 0, $time);
             $result[$k]['old_customer'] = $this->getDataDigitalInHome($digital->id, 1, $time);
-            // dd($result);
-            // $req->merge(input: ['type_cusomer' => 1]);
-            // $result[]['old'] = $mktController->marketingSearch($req);
-
         }
-        
-        // dd($result);
 
         return $result;
     }

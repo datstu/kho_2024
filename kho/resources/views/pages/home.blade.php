@@ -831,7 +831,7 @@ if ($dataSale && $enableSale) {
                               <?php $perCentTotalOld = ($sumOldCustomer['total'] != 0) ? ($data['old_customer']['total'] / $sumOldCustomer['total'] * 100) : 0;?>
                               <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentTotalOld}}%"></div>
                             </div>
-                            <span class="progress-text">{{$data['old_customer']['total']}}</span>
+                            <span class="progress-text">{{number_format($data['old_customer']['total'])}}</span>
                         </div>
                     </td>
                     <td class="tdProgress tdGiaTriDon">
@@ -841,7 +841,7 @@ if ($dataSale && $enableSale) {
                               <?php $perCentAvgOld = ($sumOldCustomer['avg'] != 0) ? ($data['old_customer']['avg'] / $sumOldCustomer['avg'] * 100) : 0;?>
                               <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: {{$perCentAvgOld}}%"></div>
                             </div>
-                            <span class="progress-text">{{$data['old_customer']['avg']}}</span>
+                            <span class="progress-text">{{number_format($data['old_customer']['avg'])}}</span>
                         </div>
                     </td>
   

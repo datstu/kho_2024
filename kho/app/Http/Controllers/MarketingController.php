@@ -31,7 +31,6 @@ class MarketingController extends Controller
 
         /** lấy data report(contact) từ list nguồn */
         $listFiltrSrc = $this->getListMktReportByListSrc($list, $req);
-       
         $listFiltrSrc = $this->transferKey($listFiltrSrc);
 
         $rs = $this->getListMktReportOrder($req, $listFiltrSrc);
@@ -201,10 +200,12 @@ class MarketingController extends Controller
             $dataFilter['group'] = $group;
         }
 
-        $listOrders = $ordersController->getListOrderByPermisson($userAdmin, $dataFilter);
+        $type_customer = $req->type_customer;
+        if (isset($type_customer) && $type_customer != 999 && $type_customer != -1) {
+            $dataFilter['type_customer'] = $type_customer;
+        }
 
-        
-        // dd($req->type_customer);
+        $listOrders = $ordersController->getListOrderByPermisson($userAdmin, $dataFilter);
         $listOrderKeySrc = [];
         foreach ($listOrders->get() as $order) {
             // dd($order->saleCare)
