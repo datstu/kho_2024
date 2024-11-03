@@ -107,6 +107,7 @@ class SaleController extends Controller
             $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
             $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
             $saleCare->group_id             = $req->group_id;
+            $saleCare->has_old_order        = ($req->has_old_order) ?: 0;
             
             $srcId = $req->src;
             if ($srcId) {
@@ -145,7 +146,7 @@ class SaleController extends Controller
 
                     $chatId = (!empty($chatId)) ? $chatId : $req->chat_id;
 
-                    if ($req->phone == '0973409613') {
+                    if ($req->phone == '0973409613' || $req->phone == '0908361589') {
                         $chatId = '-4286962864'; //auto về nhóm test
                     }
 

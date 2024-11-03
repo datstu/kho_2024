@@ -115,27 +115,15 @@ class LadipageController  extends Controller
         if ($group && !in_array($phone, $blockPhone)) {
                         $chatId = $group->tele_hot_data;
             $phone = Helper::getCustomPhoneNum($phone);
-            $isOldDataLadi = Helper::isOldDataLadi($phone, $assgin_user);
-            if (!$isOldDataLadi) {
+            $hasOldOrder = 0;
+            $isOldDataLadi = Helper::isOldDataLadi($phone, $assgin_user, $group, $hasOldOrder, $is_duplicate);
+            if (!$isOldDataLadi || $assgin_user == 0) {
                 // $assignSale = Helper::getAssignSale();
                 // $assgin_user = $assignSale->id;
                 $assignSale = Helper::getAssignSaleByGroup($group);
                 $assgin_user = $assignSale->id_user;
-                
-            } else {
-                $is_duplicate = 1;
             }
-           
-            // echo '$linkPage ' . $linkPage . '<br>';
-            // echo '$messages ' . $messages . '<br>';
-            // echo '$name ' . $name . '<br>';
-            // echo '$phone ' . $phone . '<br>';
-            // echo '$chatId ' . $chatId . '<br>';
-            // echo '$assgin_user ' . $assgin_user . '<br>';
-            // echo '$is_duplicate ' . $is_duplicate . '<br>';
-            // echo '$group ' . $group->id;
 
-            // die();
             $pageNameLadi = 'Ladi Page. Link: ' . $linkPage;
             $sale = new SaleController();
             $data = [
@@ -154,6 +142,7 @@ class LadipageController  extends Controller
                 'assgin'    => $assgin_user,
                 'is_duplicate' => $is_duplicate,
                 'group_id'  => $group->id,
+                'has_old_order'  => $hasOldOrder,
             ];
 
             Log::info( $data);

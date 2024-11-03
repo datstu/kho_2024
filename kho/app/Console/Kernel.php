@@ -428,86 +428,88 @@ class Kernel extends ConsoleKernel
   }
   public function crawlerPancakePage($page, $group)
   {
-    // dd($page);
     $pIdPan = $page->id_page;
     $token  = $page->token;
     $namePage = $page->name;
     $linkPage = $page->link;
     $chatId = $group->tele_hot_data;
 
-    echo "pIdPan: $pIdPan " . '<br>';
-    echo "token: $token \n" . '<br>';
-    echo "namePage: $namePage \n" . '<br>';
-    echo "linkPage: $linkPage \n" . '<br>';
-    echo "chatId: $chatId \n" . '<br>';
-    // dd('hi');
-    if ($pIdPan != '' && $token != '' && $namePage != '' && $linkPage != '' && $chatId != '') {
-    
+    if ( $pIdPan != '' && $token != '' && $namePage != '' && $linkPage != '' && $chatId != '') {
+
       $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
       $today    = strtotime(date("Y/m/d H:i"));
-      $before   = strtotime ( '-15 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+      $before   = strtotime ( '-10 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
       $before   = date ( 'Y/m/d H:i' , $before );
       $before   = strtotime($before);
 
       $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
       $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
-   
-    //   dd($response);
+
       if ($response->status() == 200) {
         $content  = json_decode($response->body());
         if ($content->success) {
           $data     = $content->conversations;
-          foreach ($data as $item) {
           
-            $recentPhoneNumbers = $item->recent_phone_numbers[0];
-            $mId      = $recentPhoneNumbers->m_id;
-            $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
-            $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
-            $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
+          foreach ($data as $item) {
+            try {
+              $recentPhoneNumbers = $item->recent_phone_numbers[0];
+              $mId      = $recentPhoneNumbers->m_id;
+              
+              $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
+              $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
+              $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
+             
+              $assgin_user = 0;
+              $is_duplicate = false;
+              $phone = Helper::getCustomPhoneNum($phone);
+              
+              $hasOldOrder = 0;
+              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
 
-            $assgin_user = 0;
-            $is_duplicate = false;
-            $phone = Helper::getCustomPhoneNum($phone);
-            
-            $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV2($phone, $mId, $is_duplicate, $assgin_user);
+              if ($name && $checkSaleCareOld) {  
+                if ($assgin_user == 0) {
 
-            // dd($assgin_user);
-            if ($name && $checkSaleCareOld) {  
-              if ($assgin_user == 0) {
+                  $assignSale = Helper::getAssignSaleByGroup($group);
+                  if (!$assignSale) {
+                    break;
+                  }
 
-                $assignSale = Helper::getAssignSaleByGroup($group);
-                if (!$assignSale) {
-                  break;
+                  //assignSale: item in model detail_user_group
+                  $assgin_user = $assignSale->id_user;
                 }
 
-                //assignSale: item in model detail_user_group
-                $assgin_user = $assignSale->id_user;
+                $is_duplicate = ($is_duplicate) ? 1 : 0;
+                $sale = new SaleController();
+                $data = [
+                  'page_link' => $linkPage,
+                  'page_name' => $namePage,
+                  'sex'       => 0,
+                  'old_customer' => 0,
+                  'address'   => '',
+                  'messages'  => $messages,
+                  'name'      => $name,
+                  'phone'     => $phone,
+                  'page_id'   => $pIdPan,
+                  'text'      => 'Page ' . $namePage,
+                  'chat_id'   => $chatId,
+                  'm_id'      => $mId,
+                  'assgin'    => $assgin_user,
+                  'is_duplicate' => $is_duplicate,
+                  'group_id'  => $group->id,
+                  'has_old_order'  => $hasOldOrder,
+                ];
+
+                $request = new \Illuminate\Http\Request();
+                $request->replace($data);
+                $sale->save($request);
               }
-
-              $is_duplicate = ($is_duplicate) ? 1 : 0;
-              $sale = new SaleController();
-              $data = [
-                'page_link' => $linkPage,
-                'page_name' => $namePage,
-                'sex'       => 0,
-                'old_customer' => 0,
-                'address'   => '',
-                'messages'  => $messages,
-                'name'      => $name,
-                'phone'     => $phone,
-                'page_id'   => $pIdPan,
-                'text'      => 'Page ' . $namePage,
-                'chat_id'   => $chatId,
-                'm_id'      => $mId,
-                'assgin'    => $assgin_user,
-                'is_duplicate' => $is_duplicate,
-                'group_id'  => $group->id,
-              ];
-
-              $request = new \Illuminate\Http\Request();
-              $request->replace($data);
-              $sale->save($request);
-            }
+            
+          } catch (\Exception $e) {
+            // return $e;
+            // echo '$phone: ' . $phone;
+            // dd($e);
+            // return redirect()->route('home');
+          }
           }
         }
       }           

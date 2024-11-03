@@ -23,7 +23,7 @@ class HomeController extends Controller
         $toMonth      = date("d/m/Y", time());
 
         /**set tmp */
-        // $toMonth = '22/10/2024';
+        // $toMonth = '21/10/2024';
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataSale = $this->getReportHomeSale($toMonth);

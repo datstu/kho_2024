@@ -607,11 +607,27 @@
                                     
                                 </a>
                                 <span class="span-col text-right" style="width: 85px;">
-                                    @if ($item->old_customer == 1)
+
+                                    <?php 
+                                    /*
+                                    old_customer: 1 -> hiển thị trái tim
+                                    check khách cũ đơn thành công thì hiện trái tim
+                                    */
+                                    $oldCustomer = Helper::isOldCustomer($item->phone, $item->group_id);
+                                    $scOldCutomer = ($oldCustomer) ? $oldCustomer->id : 0;
+                                    ?>
+
+                                    @if ($item->old_customer == 1 || $item->has_old_order == 1)
                                     <a title="Khách cũ, khách cũ" class="btn-icon">
                                         <i class="fa fa-heart" style="color:red;"></i>
                                     </a>
                                     @endif
+
+                                    {{-- @if (Helper::isOldCustomer($item->phone, $item->group_id))
+                                    <a title="Khách cũ, khách cũ" class="btn-icon">
+                                        <i class="fa fa-heart" style="color:red;"></i>
+                                    </a>
+                                    @endif --}}
 
                                     {{-- <a class="btn-icon invisible">&nbsp;</a>
 

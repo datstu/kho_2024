@@ -154,9 +154,11 @@ class OrdersController extends Controller
                 $idTmps = [];
                 foreach ($list->get() as $order) {
                     $mktCtl = new MarketingController();
-                    $srcPage = $mktCtl->getSrcPageFromSaleCare($order->saleCare);
-                    if ($srcPage) {
-                        $idTmps[] = $order->id;
+                    if ($order->saleCare) {
+                        $srcPage = $mktCtl->getSrcPageFromSaleCare($order->saleCare);
+                        if ($srcPage) {
+                            $idTmps[] = $order->id;
+                        }
                     }
                 }
 

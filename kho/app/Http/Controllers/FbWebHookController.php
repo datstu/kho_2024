@@ -69,25 +69,18 @@ class FbWebHookController extends Controller
 
     public function saveDataWebhookFB($group, $pageId, $phone, $name, $mId, $messages, $pageSrc)
     {
-        // foreach ($data as $item) {
-        // $recentPhoneNumbers = $phone;
-        // $mId      = $recentPhoneNumbers->m_id;
-        // $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
-        // $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
-        // $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-
         $assgin_user = 0;
         $is_duplicate = false;
         $phone = Helper::getCustomPhoneNum($phone);
-        $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, $assgin_user, $is_duplicate);
+        $hasOldOrder = 0;
+        $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
 
         $chatId = $group->tele_hot_data;
-        // dd($chatId);
         $linkPage = $pageSrc->link;
         $namePage = $pageSrc->name;
-         Log::channel('a')->info('$namePage' . $namePage);
+        Log::channel('a')->info('$namePage' . $namePage);
         if ($checkSaleCareOld) {  
-            if ($assgin_user == 0 && $group->sales) {
+            if ($assgin_user == 0) {
                 // dd($group);
                 $assignSale = Helper::getAssignSaleByGroup($group);
                 if (!$assignSale) {
@@ -96,7 +89,6 @@ class FbWebHookController extends Controller
                 $assgin_user = $assignSale->id_user;
             }
 
-            // dd($assgin_user);
             $is_duplicate = ($is_duplicate) ? 1 : 0;
             $sale = new SaleController();
             $data = [
@@ -115,13 +107,13 @@ class FbWebHookController extends Controller
                 'assgin'    => $assgin_user,
                 'is_duplicate' => $is_duplicate,
                 'group_id'  => $group->id,
+                'has_old_order'  => $hasOldOrder,
             ];
 
             $request = new \Illuminate\Http\Request();
             $request->replace($data);
             $sale->save($request);
         }
-        //   } 
     }
 
 
@@ -129,21 +121,16 @@ class FbWebHookController extends Controller
     public function handle($data)
     {
         Log::channel('new')->info('run webhook googogo ');
-
-
-          Log::channel('new')->info(($data) ? 'true' : 'false');
+        Log::channel('new')->info(($data) ? 'true' : 'false');
           
         if ($data) {
-           
-          
             $phone = $data['phone'];
             $receivedMessage = $data['receivedMessage'];
             $mid = $data['mid'];
             $name = $data['name'];
             $pageId = $data['pageId'];
             $group = Helper::getGroupByPageId($pageId);
-             
-            // dd($group);
+
             if (!$group) {
                 return;
             }
@@ -162,7 +149,7 @@ class FbWebHookController extends Controller
             $this->saveDataWebhookFB($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
         }
 
-            return response('Sự kiện đã nhận', 200);
+        return response('Sự kiện đã nhận', 200);
     }
 
     public function callDataPc($data)
@@ -211,7 +198,7 @@ class FbWebHookController extends Controller
             return false;
         }
 
- Log::channel('a')->info($response);
+        Log::channel('a')->info($response);
         if (!$response['success'] || !$response['conversations']) {
             Log::channel('a')->info('success repssont is not');
              Log::channel('a')->info($response);

@@ -218,33 +218,30 @@ class MarketingController extends Controller
                 continue;
             }
 
-            // dd($order->saleCare);
-            $srcPage = $this->getSrcPageFromSaleCare($order->saleCare);
-            // dd($srcPage);
-            if ($srcPage) {
-                // dd($order->saleCare);
-                $listOrderKeySrc[$srcPage->id][] = [
-                    'total' => $order->total,
-                    'qty' => $order->qty,
-                    'id' => $order->id,
-                ];
+            if (!empty($order->saleCare)) {
+                $srcPage = $this->getSrcPageFromSaleCare($order->saleCare);
+                if ($srcPage) {
+                    $listOrderKeySrc[$srcPage->id][] = [
+                        'total' => $order->total,
+                        'qty' => $order->qty,
+                        'id' => $order->id,
+                    ];
+                }
             }
+            
         }
 
         /** lọc loại khách hàng */
-        // dd($listSrc);
         if ($req->type_customer && $req->type_customer != -1) {
             //khách mới
             if ($req->type_customer == 0) {
                
             }
         }
-        // dd($listOrderKeySrc);
+
         /* gộp 2 mảng: 1 mảng src chỉ có số contact trong thời gian chỉ định và
         1 mảng có data order thuộc src
         */
-        // dd($listSrc);
-
         $result = [];
         foreach ($listSrc as $k => $src) {
             $countOrder = $total = $qty = $avg = $rate = 0;
@@ -298,14 +295,12 @@ class MarketingController extends Controller
 
     public function getSrcPageFromSaleCare($saleCare)
     {
-        // dd($saleCare);
         // $src = SrcPage::orderBy('id', 'desc');
-        if (!$saleCare->id_src) {
+        if ($saleCare && empty($saleCare->id_src) || !$saleCare->id_src) {
 
             /** đơn hàng đc tạo từ data cskh ko có  page_id/page_name/page_link
              * => lấy data TN ban đầu
              */
-          
             if (!$saleCare->page_id && !$saleCare->page_name && !$saleCare->page_link) {
                 $saleCare = SaleCare::orderBy('id', 'asc')->where('phone', $saleCare->phone)->first();
             }
@@ -321,8 +316,7 @@ class MarketingController extends Controller
             } else {
                 $src = SrcPage::where('id_page', 'tricho');
             }
-            // dd($src->get());
-            // dd($src->first());
+
             if ($first = $src->first()) {
                 return $first;
             }
@@ -346,7 +340,6 @@ class MarketingController extends Controller
     public function getListSaleCareBySrcId($item, $req)
     {
         $list   = SaleCare::orderBy('id', 'desc');
-        // dd(isset($req['daterange']) || !empty($req->daterange));
         if (isset($req['daterange']) || !empty($req->daterange)) {
             $dateRange = (isset($req['daterange'])) ? $req['daterange'] : $req->daterange;
 
