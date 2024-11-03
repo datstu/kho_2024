@@ -346,24 +346,21 @@ class HomeController extends Controller
             $dataFilter['type_customer'] = 1;    
         }
 
-    //   dd($dataFilter);
         $listOrder      = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter);
         $countOrders    = $listOrder->count();
         $ordersSum      = $listOrder->sum('total');
         $sumProduct     = $listOrder->sum('qty');
 
-        // dd( $listOrder->get());
         if ($countOrders > 0) {
             $avgOrders = round($ordersSum / $countOrders, 0);
         }
 
-        // dd($dataFilter);
-        $ordersCtl = new SaleController();
-        $saleCare  = $ordersCtl->getListSalesByPermisson(Auth::user(), $dataFilter);
+        $saleCtl = new SaleController();
+        $saleCare  = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilter);
 
-       
         if ($type == 'new') {
-            $saleCare->where('old_customer', 0);    
+            $typeTmp = [0,2];
+            $saleCare->whereIn('old_customer', $typeTmp);    
         } else if ($type == 'old') {
             $saleCare->where('old_customer', 1);    
         }

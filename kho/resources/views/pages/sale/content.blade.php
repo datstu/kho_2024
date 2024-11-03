@@ -412,9 +412,10 @@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-2 form-group">
                 <select name="type_customer" id="type_customer-filter" class="hidden">
-                    <option value="999">--Tất cả khách--</option>
-                    <option value="1">Khách cũ</option>
-                    <option value="0">Khách mới</option>
+                    <option value="999">--Tất cả Data--</option>
+                    <option value="2">Hotline</option>
+                    <option value="1">Data CSKH</option>
+                    <option value="0">Data nóng</option>
                 </select>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-2 form-group">

@@ -524,7 +524,14 @@ class SaleController extends Controller
             }
 
             if (isset($dataFilter['type_customer'])) {
-                $list->where('old_customer', $dataFilter['type_customer']);   
+
+                $route = \Request::route();
+                if ($route->getName() == 'sale-index' || $dataFilter['type_customer'] == 1) {
+                    $list->where('old_customer', $dataFilter['type_customer']);  
+                } else if ($dataFilter['type_customer'] == 0) {
+                    $typeCustomerTmp = [0, 2];
+                    $list->whereIn('old_customer',  $typeCustomerTmp);  
+                }
             }
 
             if (isset($dataFilter['resultTN'])) {
