@@ -504,6 +504,7 @@ class OrdersController extends Controller
                     $listProductName    .= $product->name;
                     $product->save();
                 }
+                $order->assign_user     = $request->assignSale;
             }
 
             $order->id_product      = $request->products;
@@ -516,7 +517,7 @@ class OrdersController extends Controller
             $order->district        = $request->district;
             $order->ward            = $request->ward;
             $order->qty             = $request->qty;
-            $order->assign_user     = $request->assignSale;
+            
             $order->is_price_sale   = $request->isPriceSale;
             $order->note            = $request->note;
             $order->status          = $request->status;
