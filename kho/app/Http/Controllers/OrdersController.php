@@ -340,30 +340,25 @@ class OrdersController extends Controller
      * @return Response
      */
     public function add()
-    { 
-
+    {
         $saleCareId = request()->get('saleCareId');
         $listProduct = $listSale = [];
-
         $saleCare = SaleCare::find($saleCareId);
+
         if ($saleCare) {
             if ($group = $saleCare->group) {
-                $sales     = $group->sales;
                 $products    = $group->products;
 
                 foreach ($products as $item) {
                     $listProduct[] = $item->product;
                 }
 
-                foreach ($sales as $item) {
-                    $listSale[] = $item->user;
-                }
             } else {
                 //data TN cũ chưa có group => hiển thị toàn bộ list ban đầu
                 $listProduct    = Helper::getListProductByPermisson(Auth::user()->role)->get();
-                $listSale       = $this->getListSale()->get();
             }
-    
+
+            $listSale       = Helper::getListSale()->get();
         }
 
         return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct)
@@ -504,7 +499,6 @@ class OrdersController extends Controller
                     $listProductName    .= $product->name;
                     $product->save();
                 }
-                $order->assign_user     = $request->assignSale;
             }
 
             $order->id_product      = $request->products;
@@ -522,6 +516,7 @@ class OrdersController extends Controller
             $order->note            = $request->note;
             $order->status          = $request->status;
             $order->sale_care       = $request->saleCareId;
+            $order->assign_user     = $request->assignSale;
 
             $order->save();
 
@@ -644,7 +639,7 @@ class OrdersController extends Controller
         $order          = Orders::find($id);
         if($order){
             $listProduct    =  Product::all();
-            $listSale       = $this->getListSale()->get();
+            $listSale       = Helper::getListSale()->get();
 
             return view('pages.orders.addOrUpdate')->with('order', $order)
                 ->with('listSale', $listSale)

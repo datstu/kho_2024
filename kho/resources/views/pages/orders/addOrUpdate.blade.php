@@ -9,6 +9,10 @@
 </style>
 <?php 
 $listStatus = Helper::getListStatus();
+$isLeadSale = Helper::isLeadSale(Auth::user()->role);
+$checkAll = isFullAccess(Auth::user()->role);
+$flagAccess = false;
+
 ?>
 
 <script src="{{asset('public/js/number-format/cleave.min.js')}}"></script>
@@ -91,8 +95,8 @@ $listStatus = Helper::getListStatus();
                                                             </label>
                                                             <p class="error_msg" id="price"></p>
                                                     </div>
-                                        <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                                        @if ($checkAll)
+
+                                        @if ($checkAll || $isLeadSale)
                                             <div class="col-4">
                                                 <label class="form-label" >Chọn Sale</label>
                                                 <select class="form-control" name="assign-sale">
@@ -107,13 +111,11 @@ $listStatus = Helper::getListStatus();
                                                 <p class="error_msg" id="price"></p>
                                             </div>
                                         @else 
-                                        <div class="col-6 hidden">
-                                            <label class="form-label" >Chọn Sale</label>
-                                            <select class="form-control" name="assign-sale">
-                                                <option value="{{Auth::user()->id}}">{{Auth::user()->real_name}}</option>
-                                            </select>
-                                            <p class="error_msg" id="price"></p>
-                                        </div>
+                                            <div class="col-4 hidden">
+                                                <select class="form-control" name="assign-sale">
+                                                    <option value="{{Auth::user()->id}}"></option>
+                                                </select>
+                                            </div>
                                         @endif
                                                 </div>
                                                 <div class="mb-3">
@@ -277,7 +279,7 @@ $listStatus = Helper::getListStatus();
                                     </div>
     
                                     <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                                    @if ($checkAll)
+                                    @if ($checkAll || $isLeadSale)
                                         <div class="col-lg-6">
                                             <label class="form-label">Chọn Sale:</label>
                                             <select class="form-control" name="assign-sale" >
@@ -292,13 +294,11 @@ $listStatus = Helper::getListStatus();
                                             <p class="error_msg" id="price"></p>
                                         </div>
                                     @else 
-                                    <div class="col-lg-6 hidden">
-                                        <label class="form-label">Chọn Sale:</label>
-                                        <select class="form-control" name="assign-sale">
-                                            <option value="{{Auth::user()->id}}">{{Auth::user()->real_name}}</option>
-                                        </select>
-                                        <p class="error_msg" id="price"></p>
-                                    </div>
+                                        <div class="col-6 hidden">
+                                            <select class="form-control" name="assign-sale">
+                                                <option value="{{Auth::user()->id}}"></option>
+                                            </select>
+                                        </div>
                                     @endif
 
                                     <div class="col-12">
@@ -364,7 +364,7 @@ $listStatus = Helper::getListStatus();
 
                         <div class="row products">
                         </div>
-                       
+
                         <button id="submit" class="mb-1 btn btn-primary">Chốt đơn</button>
                     </form>
                 </div>

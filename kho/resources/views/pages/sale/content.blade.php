@@ -3,6 +3,7 @@
     $checkAll = isFullAccess(Auth::user()->role);
     $isLeadSale = Helper::isLeadSale(Auth::user()->role);      
     $flag = false;
+    $flagAccess = false;
 
     if (($listSale->count() > 0 &&  $checkAll) || $isLeadSale) {
         $flag = true;
@@ -584,7 +585,12 @@
                                 @endif
                             </td>
                             <td class="area1" title="FROM_FACEBOOK_MESSAGE">
-                                
+                                <?php
+                                    if ($item->assign_user == Auth::user()->id) {
+                                        $flagAccess = true;
+                                    } 
+                                ?>
+                                @if ($checkAll || $isLeadSale || $flagAccess)
                                 <div class="text-right">
                                     {{-- <a title="Thông tin khách hàng" class="btn-icon aoh">
                                         <i class="fa fa-info" aria-hidden="true"></i>
@@ -596,6 +602,7 @@
                                         <a data-target="#createOrder" data-toggle="modal" title="Chốt đơn" data-tnsale-id="{{$item->id}}" data-address="{{$item->address}}" data-name="{{$item->full_name}}" data-phone="{{$item->phone}}" class="hidden orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>
                                     @endif
                                 </div>
+                                @endif
                            
 
                            
