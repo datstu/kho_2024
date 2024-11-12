@@ -170,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Mckenziearts\Notify\LaravelNotifyServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        'Intervention\Image\ImageServiceProvider'
     ])->toArray(),
 
     /*
@@ -187,6 +188,7 @@ return [
         'Helper'=> App\Helpers\Helper::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         // 'Example' => App\Facades\Example::class,
+        'Image' => 'Intervention\Image\Facades\Image'
     ])->toArray(),
 
 ];

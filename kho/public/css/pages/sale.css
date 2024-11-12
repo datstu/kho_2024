@@ -65,7 +65,8 @@ a.tao-don-fixed {
 }
 .txt-mof:focus, .txt-mof:hover {
     background: #fff;
-    height: 100px;
+    padding: 5px;
+    height: 135px;
     width: 400px;
     z-index: 9999;
     box-shadow: 0 0 10px #ddd;
@@ -92,7 +93,7 @@ div.txt-mof {
 }
 .mof-container, .txt-mof {
     background-color: transparent;
-    height: 45px;
+    /* height: 45px; */
     /* overflow-y: hidden; */
     padding: unset;
     font-size: unset;
@@ -157,20 +158,21 @@ input[type=radio]:checked + label:before, input[type=checkbox]:checked + label:b
 }
 
 
-#myModal .modal-dialog, #createOrder .modal-dialog {
+#myModal .modal-dialog, #createOrder .modal-dialog,.modal-dialog {
     /* margin-top: 5px;
     width: 1280px; */
     /* margin: 10px; */
     height: 90%;
     /* background: #0f0; */
   }
-#myModal .modal-dialog iframe, #createOrder .modal-dialog iframe {
+#myModal .modal-dialog iframe, #createOrder .modal-dialog iframe,
+.modal-dialog iframe {
     /* 100% = dialog height, 120px = header + footer */
     height: 100%;
     overflow-y: scroll;
 }
 
-#myModal .modal-dialog .modal-content, #createOrder .modal-dialog .modal-content {
+#myModal .modal-dialog .modal-content, #createOrder .modal-dialog .modal-content, .modal-dialog .modal-content {
 height: 100%;
 /* overflow: scroll; */
 }

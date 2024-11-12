@@ -97,7 +97,9 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/cap-nhat-assign-TNcan',  [SaleController::class, 'updateAssignTNSale'])->name('update-salecare-assign');
     Route::post('/id-order-new-check',  [SaleController::class, 'getIdOrderNewTNSale'])->name('get-salecare-idorder-new');
     Route::post('/cap-nhat-ket-qua-TN',  [SaleController::class, 'updateTNresult'])->name('update-salecare-result');
-    
+    Route::get('/sale-hien-thi-TN-box/{id}',  [SaleController::class, 'saleViewListTNBox'])->name('sale-view-TN-box');
+    Route::post('/save-box-TN',  [SaleController::class, 'saveBoxTN'])->name('save-box-TN');
+    Route::get('/sale-view-luu-TN-box/{id}',  [SaleController::class, 'saleViewSaveTNBox'])->name('sale-view-save-TN-box');
     Route::get('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
 
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
@@ -140,6 +142,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/marketing-cap-nhat-nguon/{id}',  [MarketingController::class, 'marketingSrcUpdate'])->name('marketing-src-update');
     Route::get('/marketing-tim-nguon',  [MarketingController::class, 'marketingSrcSearch'])->name('marketing-src-search');
     // Route::get('/marketing-tim-kiem',  [MarketingController::class, 'marketingSearch'])->name('marketing-search');
+    
 });
 
 Route::get('/login',  [UserController::class, 'login'])->name('login');

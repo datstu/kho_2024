@@ -13,13 +13,96 @@ use App\Models\SaleCare;
 use App\Helpers\Helper;
 use App\Models\CallResult;
 use App\Models\Group;
+use App\Models\SaleCareHistoryTN;
 use App\Models\TypeDate;
 use PHPUnit\TextUI\Help;
 use Illuminate\Support\Facades\Route;
 use App\Models\SrcPage;
-
+use Illuminate\Support\Facades\File as File2;
+use Image;
 class SaleController extends Controller
 {
+    public function saveBoxTN(Request $req)
+    {
+        $input = $req->all();
+        $validator      = Validator::make($input, [
+            'note'      => 'required',
+        ],[
+            'name.required' => 'Nhập ghi chú cho tác nghiệp',
+        ]
+    );
+
+        if ($validator->passes()) {
+            $files = $files_remove = [];
+            // dd($req->file('filenames'));
+            if ($req->id) {
+                $his = SaleCareHistoryTN::find($req->id); 
+                if (isset($input['images_uploaded'])) {
+                    $files_remove = array_diff(json_decode($input['images_uploaded_origin']), $input['images_uploaded']);
+                    $files = array_merge($input['images_uploaded'], $files);
+                } else if (isset($input['images_uploaded_origin'])) {
+                    $files_remove = json_decode($input['images_uploaded_origin']);
+                }
+            } else {
+                $his = new SaleCareHistoryTN();
+                $his->sale_id = $req->sale_id;
+            }
+
+           
+            if($req->hasfile('filenames'))
+            {
+                foreach($req->file('filenames') as $file)
+                {
+                    $name = time().rand(1,100).'.'.$file->extension();
+                    // $file->move(public_path('files'), $name);  
+                    $path = public_path('files') . "/" . $name;
+                    Image::make($file->getRealPath())->resize(300, 500)->save($path);
+                    $files[] = $name;
+                }
+            }
+
+            $his->img = json_encode($files);
+            $his->note = $req->note;
+            if ($his->save()) {
+                foreach ($files_remove as $file_name) {
+                    File2::delete(public_path("files/" . $file_name));
+                }
+            }
+            // notify()->success('Lưu TN hôm nay thành công', 'Thành công!');
+            return redirect()->back();
+            // return redirect()->route('sale-view-TN-box', ['id' => $req->sale_id]);
+        } else {
+            // dd($validator->errors());
+            // notify()->error('Đã xảy ra lỗi khi lưu tác nghiệp hôm nay', 'Thất bại!');
+            return back()->withErrors($validator->errors());
+        }
+    }
+
+    public function saleViewSaveTNBox($id)
+    {
+        $saleCare = SaleCare::find($id);
+        $history = SaleCareHistoryTN::where('sale_id', $id)
+            ->whereDate('created_at', '=', date('Y-m-d'))
+            ->first();
+        $listHistory = $saleCare->listHistory;
+            // notify()->success('Lưu TN', 'Thành công!');
+        return view('pages.sale.addBoxTN')->with('history', $history)
+            ->with('saleId', $id)->with('saleCare', $saleCare)
+            ->with('listHistory', $listHistory);
+    }
+    public function saleViewListTNBox($id)
+    {
+        $saleCare = SaleCare::find($id);
+
+        if ($saleCare) {
+            $listHistory = $saleCare->listHistory;
+            return view('pages.sale.historyBoxTN')->with('saleId', $id)
+                ->with('listHistory', $listHistory)->with('saleCare', $saleCare);
+        }
+        
+        return redirect('/');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -725,8 +808,30 @@ class SaleController extends Controller
 
     public function updateTNcan(Request $r) 
     {
-        $saleCare = SaleCare::find($r->id);
+        $id = $r->id;
+        $saleCare = SaleCare::find($id);
+        $history = SaleCareHistoryTN::where('sale_id', $id)
+            ->whereDate('created_at', '=', date('Y-m-d'))
+            ->first();
 
+        if (!$saleCare) {
+            return response()->json(['error'=>'Đã có lỗi xảy ra trong quá trình cập nhật']);
+        }
+        if (!$history ) {
+            $history = new SaleCareHistoryTN();
+            $history->sale_id = $id;
+        }
+
+
+        $history->note = $r->textTN;
+        $history->save();
+        return response()->json([
+            'success' => 'Cập nhật TN thành công!',
+            // 'id_his' => $history->id,
+            // 'text_his' => date_format($history->created_at,"d/m") . ' ' . $history->note,
+        ]);
+        /*$saleCare = SaleCare::find($r->id);
+        // dd($r->textTN);
         if ($saleCare) {
             $saleCare->TN_can = $r->textTN;
             $saleCare->save();
@@ -734,6 +839,7 @@ class SaleController extends Controller
         }
 
         return response()->json(['error'=>'Đã có lỗi xảy ra trong quá trình cập nhật']);
+        */
     }
     
     public function delete($id)

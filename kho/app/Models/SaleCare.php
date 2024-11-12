@@ -63,4 +63,9 @@ class SaleCare extends Model
     {
         return $this->belongsTo(Call::class, 'result_call', 'id');
     }
+
+    public function listHistory(): HasMany
+    {
+        return $this->hasMany(SaleCareHistoryTN::class,'sale_id')->orderBy('id', 'desc');;
+    }
 }

@@ -73,6 +73,34 @@
     ];
 ?>
 <style>
+    .border-select-box-se {
+        box-sizing: border-box;
+        cursor: pointer;
+        display: block;
+        height: 28px;
+        user-select: none;
+        -webkit-user-select: none;
+        color: #444;
+        line-height: 28px;
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+    }
+    .mof-container {
+        margin-top: 10px;
+    }
+    .TNModal:hover {
+        cursor: pointer;
+    }
+    .box-TN {
+        margin-left: 10px;
+        height: 45px;
+        overflow: hidden;
+    }
+    .box-TN a {
+        cursor: zoom-out;
+    }
+
     .m-header .text {
         padding: 0 var(--cui-card-cap-padding-x);
         color: #000;
@@ -268,7 +296,7 @@
                     <div class="col-xs-12 col-sm-6 col-md-2 form-group" style="padding:0 15px;"> 
                         
                         @if ($checkAll  || $isLeadSale)
-                        <select name="sale" id="sale-filter" class="hidden">
+                        <select name="sale" id="sale-filter" class="border-select-box-se">
                             {{-- <option selected="selected" value="-1" >--Tất cả sale--</option> --}}
                             <option   value="999">--Tất cả Sale--</option> 
         
@@ -334,7 +362,7 @@
                 <input id="daterange" class="btn" type="text" name="daterange" />
             </div>
             <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                <select name="typeDate" id="typeDate-filter" class="hidden">       
+                <select name="typeDate" id="typeDate-filter" class="border-select-box-se">       
                     <option value="999">--Kiểu ngày--</option>
 
                     @foreach ($typeDate as $type) 
@@ -344,7 +372,7 @@
                 </select>
             </div>
             <div class="src-filter col-xs-12 col-sm-6 col-md-2 form-group">
-                <select name="src" id="src-filter" class="hidden">       
+                <select name="src" id="src-filter" class="border-select-box-se">       
                     <option value="999">--Chọn nguồn--</option>
 
                     @foreach ($listSrc as $page) 
@@ -378,7 +406,7 @@
             </div> --}}
             @if ($checkAll)
             <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                <select name="mkt" id="mkt-filter" class="hidden" aria-label="Default select example">
+                <select name="mkt" id="mkt-filter" class="border-select-box-se">
                     <option value="999">--chọn Marketing--</option>
                     
                     @foreach ($listMktUser->get() as $user)
@@ -404,7 +432,7 @@
             @endif --}}
 
             <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                <select name="resultTN" id="resultTN-filter" class="hidden">
+                <select name="resultTN" id="resultTN-filter" class="border-select-box-se">
                     <option value="999">--Tất cả Kết quả Tác nghiệp--</option>
                     @foreach ($callResults as $rs) 
                     <option value="{{$rs['id']}}">{{($rs['name']) ? : $rs['name']}}</option>
@@ -412,7 +440,7 @@
                 </select>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                <select name="type_customer" id="type_customer-filter" class="hidden">
+                <select name="type_customer" id="type_customer-filter" class="border-select-box-se">
                     <option value="999">--Tất cả Data--</option>
                     <option value="2">Hotline</option>
                     <option value="1">Data CSKH</option>
@@ -420,7 +448,7 @@
                 </select>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                <select name="status" id="status-filter" class="hidden">
+                <select name="status" id="status-filter" class="border-select-box-se">
                 <option value="999">--Chọn trạng Thái giao hàng--</option>
                 <option value="1">Chưa giao vận</option>
                 <option value="2">Đang giao</option>
@@ -464,6 +492,34 @@
     
                 <iframe src="{{route('add-orders')}}" frameborder="0"></iframe>
     
+                </div>
+            </div>
+        </div>
+
+        <div id="TN" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tác nghiệp hôm nay {{date("d-m-Y")}}</h5>
+                    <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <iframe src="" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div id="TNHistory" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content ">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lịch sử Tác Nghiệp</h5>
+                    <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <iframe src="" frameborder="0"></iframe>
                 </div>
             </div>
         </div>
@@ -610,7 +666,7 @@
                                     {{$item->full_name}}
                                 </div>
                                 {{-- <span class="nha-mang">[VIETTEL]</span> --}}
-                                <a href="tel:0987609812" class="span-col" style="width: calc(100% - 90px);">
+                                <a href="tel:{{$item->phone}}" class="span-col" style="width: calc(100% - 90px);">
                                     {{$item->phone}}
                                     
                                 </a>
@@ -660,12 +716,11 @@
                                 </div>
                             </td>
                             <td class="area1 hidden-xs td-5055" style="max-width: 100px;">
-                                
                                 <span style="cursor: pointer;">
                                     {{$item->messages}}
                                 </span>
                             </td>
-                            <td class="area2 hidden-xs type-TN">
+                            <td class="area2 hidden-xs type-TN" style="padding-bottom: 10px;">
 
                                 @if (!$item->type_TN)
                                     @if (!$item->old_customer)
@@ -680,12 +735,24 @@
                                 @endif
 
 
-                                <a data-id="{{$item->id}}"  title="Lưu ghi chú" class="update-TN-sale btn-icon aoh">
+                                {{-- <a data-id="{{$item->id}}"  title="Lưu ghi chú" class="update-TN-sale btn-icon aoh">
                                     <i class="fa fa-save"></i>
-                                </a>
-                                <div class="mof-container">
-                                    <textarea data-id="{{$item->id}}" id="TNSale_{{$item->id}}" rows="2" cols="20" class="form-control txt-mof txt-dotted" data-length="500"
-                                        data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" data-original-title="" title="">{{$item->TN_can}}</textarea>
+                                </a> --}}
+                                <span class="box-TN" >
+                                    <a style="color: rgb(64, 11, 209) !important; text-decoration: underline rgb(64, 11, 209) !important; font-style:italic !important;" class="TNHistoryModal" data-target="#TNHistory" data-tnsale_id="{{$item->id}}" data-toggle="modal" title="Lịch Sử TN">
+                                        <i class="fa fa-history" style="color:rgb(64, 11, 209);"></i></a>
+                                </span>
+                                <div class="mof-container TNModal"  data-target="#TN" data-tnsale_id="{{$item->id}}" data-toggle="modal" title="Tác Nghiệp Ngay">
+                                    <div data-id="{{$item->id}}" id="TNSale_{{$item->id}}" rows="2" cols="20" class="form-control txt-mof txt-dotted"
+                                        data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" data-original-title="" title=""><?php if ($item->listHistory->count() > 0) {
+                                            foreach ($item->listHistory as $key => $value) {
+                                                echo date_format($value->created_at,"d/m") . ' ' . $value->note . "<br>";
+                                                // echo date_format($value->created_at,"d/m") . ' ' . $value->note;
+                                            } 
+                                        } else {
+                                            echo $item->TN_can;
+                                        }
+                                        ?></div>
                                 </div>
                                 <div style="clear: both;"></div>
                                 <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__LastMessage_0" class="item-noidung-other"></span>
@@ -913,6 +980,21 @@
         $("#myModal iframe").attr("src", link + '/' + myBookId);
     });
 
+    $('.TNModal').on('click', function () {
+        var saleId = $(this).data('tnsale_id');
+        var link = "{{URL::to('/sale-view-luu-TN-box')}}";
+        $("#TN iframe").attr("src", link + '/' + saleId);
+    });
+
+    $('.TNHistoryModal').on('click', function () {
+        var saleId = $(this).data('tnsale_id');
+        console.log(saleId)
+        var link = "{{URL::to('/sale-hien-thi-TN-box')}}";
+        console.log(link + '/' + saleId);
+        $("#TNHistory iframe").attr("src", link + '/' + saleId);
+    });
+
+    
     // $('.select2-choice').on('click', function () {
     //     var id = $(this).data('id');
     //     $(this).parent().toggleClass("select-dropdown-show");
@@ -964,7 +1046,7 @@
 
                     setTimeout(function() { 
                         $('#notify-modal').modal("hide");
-                    }, 2000);
+                    }, 20000);
                 } else {
                     alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
                 }
@@ -1279,7 +1361,6 @@ if (search) {
         $('.body').myFunc(id, type); 
     });
     $('#daterange').click(function(){
-        console.log('yo')
         $("input[name='search']").val('');
     })
 </script>
