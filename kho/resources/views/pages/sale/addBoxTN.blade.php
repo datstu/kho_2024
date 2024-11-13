@@ -142,7 +142,7 @@
             <div class="text-right bottom-content">
               <div><button type="submit" id="submit" class="btn btn-primary">Lưu</button></div>
               <div><button type="button" class="back btn">Quay lại</button>
-                {{-- <button type="button" class="refresh btn btn-info">Refresh</button> --}}
+                <button type="button" class="refresh btn btn-info">Tải lại</button>
               </div>
             </div>
 

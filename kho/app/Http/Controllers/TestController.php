@@ -914,9 +914,10 @@ class TestController extends Controller
     $list->where('is_duplicate', 0);
     // $list->where('group_id', '7');
     // $list->where('page_id', '7');
-
+    
     //aplus
-    $src = ['424411670749761', '398822199987832', '397050860162599', 'https://www.phanbonorganic.com/uudai45', 'Hotline Aplus'];
+    $src = ['424411670749761', '398822199987832', '397050860162599', 'https://www.phanbonorganic.com/uudai45', 'Hotline Aplus',
+  '378087158713964', '381180601741468', '389136690940452', '352893387908060', 'https://www.nongnghiepsachvn.net/tricho-bacillus-km'];
 
     // tricho
     // $src = ['378087158713964', '381180601741468', '389136690940452', '352893387908060', 'https://www.nongnghiepsachvn.net/tricho-bacillus-km',];
@@ -935,12 +936,14 @@ class TestController extends Controller
       }
     });
     // dd($list->pluck('phone')->toArray());
-
+    // echo "<pre>";
+    // print_r($list->get());
+    // echo "</pre>";
     $dataExport[] = [
       'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
     ];
 
-    
+    // $list = $list->orderBy('id', 'asc');
     // $list->orderBy('id', 'desc');
     // echo "<pre>";
     // print_r($list->get());
@@ -972,7 +975,7 @@ class TestController extends Controller
 
     // dd($dataExport);
     // dd($dataExport);
-    return Excel::download(new UsersExport($dataExport), 'TRICHO-Hiep-T9.xlsx');
+    return Excel::download(new UsersExport($dataExport), 'TRICHO-Aplus-Hiep-T9.xlsx');
 
   }
 
