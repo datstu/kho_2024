@@ -108,7 +108,7 @@ class LadipageController  extends Controller
         Log::info($linkPage);
         $group = Helper::getGroupByLinkLadi($linkPage);
         
-        $blockPhone = ['0344999668', '0344411068', '0841111116', '0841265116',
+        $blockPhone = ['0963339609','0344999668', '0344411068', '0841111116', '0841265116',
             '0918352409', '0841265117', '0348684430', '0777399687'];
         // if ($group && $phone != '0344411068' && $phone != '0841111116' && $phone != '0841265116' 
         //     && $phone != '0918352409' && $phone != '0841265117' && $phone != '0348684430' && $phone !='0777399687') {

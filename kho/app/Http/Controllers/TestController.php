@@ -905,7 +905,7 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/10/2024', '31/10/2024'];
+    $req['daterange'] = ['01/11/2024', '30/11/2024'];
     $req['sale'] = '56';
 
     $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
@@ -916,11 +916,11 @@ class TestController extends Controller
     // $list->where('page_id', '7');
     
     //aplus
-    $src = ['424411670749761', '398822199987832', '397050860162599', 'https://www.phanbonorganic.com/uudai45', 'Hotline Aplus',
-  '378087158713964', '381180601741468', '389136690940452', '352893387908060', 'https://www.nongnghiepsachvn.net/tricho-bacillus-km'];
+    // $src = ['424411670749761', '398822199987832', '397050860162599', 'https://www.phanbonorganic.com/uudai45', 'Hotline Aplus',];
+  // '378087158713964', '381180601741468', '389136690940452', '352893387908060', 'https://www.nongnghiepsachvn.net/tricho-bacillus-km'];
 
     // tricho
-    // $src = ['378087158713964', '381180601741468', '389136690940452', '352893387908060', 'https://www.nongnghiepsachvn.net/tricho-bacillus-km',];
+    $src = ['378087158713964', '381180601741468', '389136690940452', '352893387908060', 'https://www.nongnghiepsachvn.net/tricho-bacillus-km',];
     $list = $list->where(function($query) use ($src) {
       foreach ($src as $term) {
         if (is_numeric($term)) {
@@ -975,7 +975,7 @@ class TestController extends Controller
 
     // dd($dataExport);
     // dd($dataExport);
-    return Excel::download(new UsersExport($dataExport), 'TRICHO-Aplus-Hiep-T9.xlsx');
+    return Excel::download(new UsersExport($dataExport), 'Tricho-Hiep-T11.xlsx');
 
   }
 

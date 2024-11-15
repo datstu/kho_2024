@@ -158,7 +158,7 @@ Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboar
 // Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');
 // Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
 Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
-Route::get('/updateStatusOrderGhnV2',  [TestController::class, 'updateStatusOrderGhnV2'])->name('test');
+// Route::get('/updateStatusOrderGhnV2',  [TestController::class, 'updateStatusOrderGhnV2'])->name('test');
 // Route::get('/test', [FbWebHookController::class, 'webhook']);
 // Route::get('/test',  [TestController::class, 'testBaoKim'])->name('test');
 
