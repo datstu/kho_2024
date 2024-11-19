@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CategoryCall;
 use Illuminate\Http\Request;
 use App\Models\Orders;
 use Illuminate\Support\Facades\Http;
@@ -27,10 +28,10 @@ class SaleController extends Controller
         $input = $req->all();
         $validator      = Validator::make($input, [
             'note'      => 'required',
-        ],[
-            'name.required' => 'Nhập ghi chú cho tác nghiệp',
-        ]
-    );
+            ],[
+                'name.required' => 'Nhập ghi chú cho tác nghiệp',
+            ]
+        );
 
         if ($validator->passes()) {
             $files = $files_remove = [];
@@ -126,12 +127,14 @@ class SaleController extends Controller
         $callResults = CallResult::orderBy('id', 'desc')->get();
         $typeDate = TypeDate::orderBy('id', 'desc')->get();
         $listMktUser = Helper::getListMktUser();
+        $listTypeTN = CategoryCall::orderBy('id', 'asc')->get();
 
         return view('pages.sale.index')->with('listSrc', $listSrc)
             ->with('groups', $groups)
             ->with('callResults', $callResults)
             ->with('typeDate', $typeDate)
             ->with('listMktUser', $listMktUser)
+            ->with('listTypeTN', $listTypeTN)
             ->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
     }
 
@@ -630,17 +633,33 @@ class SaleController extends Controller
 
             $routeName = Route::currentRouteName();
             if (isset($dataFilter['status']) && $routeName != 'filter-total-sales') {
-                    $list->whereNotNull('id_order_new');
-                    $newSCare = [];
-                    foreach ($list->get() as $scare) {
-                        $order = $scare->orderNew;
-                        if ($order && $order->status == $dataFilter['status']) {
-                            $newSCare[] = $scare->id;
+                $list->whereNotNull('id_order_new');
+                $newSCare = [];
+                foreach ($list->get() as $scare) {
+                    $order = $scare->orderNew;
+                    if ($order && $order->status == $dataFilter['status']) {
+                        $newSCare[] = $scare->id;
+                    }
+                }
+
+                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
+            }
+
+            if (isset($dataFilter['cateCall']) ) {
+                if ($dataFilter['cateCall'] == 7) {
+                    $cancelSaleC = [];
+
+                    foreach ($list->get() as $saleC) {
+                        if ($saleC->result_call && $saleC->result_call != -1 && $saleC->call->then_call == $dataFilter['cateCall']) {
+                            $cancelSaleC[] = $saleC->id;
                         }
                     }
 
-                    $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
+                    $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $cancelSaleC);
+                } else {
+                    $list   = $list->where('type_TN', $dataFilter['cateCall']);
                 }
+            }
         }
             
         $checkAll   = false;
@@ -780,6 +799,11 @@ class SaleController extends Controller
             $dataFilter['status'] = $status;
         }
 
+        // dd($req->cateCall);
+        if ($req->cateCall) {
+            $dataFilter['cateCall'] = $req->cateCall;
+        }
+
         try {
             $data       = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
             $saleCare   = $data->paginate(50);
@@ -792,16 +816,18 @@ class SaleController extends Controller
             $callResults = CallResult::orderBy('id', 'desc')->get();
             $typeDate = TypeDate::orderBy('id', 'desc')->get();
             $listMktUser = Helper::getListMktUser();
+            $listTypeTN = CategoryCall::orderBy('id', 'asc')->get();
 
             return view('pages.sale.index')->with('listSrc', $listSrc)
                 ->with('sales', $sales)->with('groups', $groups)
                 ->with('callResults', $callResults)
                 ->with('typeDate', $typeDate)
                 ->with('listMktUser', $listMktUser)
+                ->with('listTypeTN', $listTypeTN)
                 ->with('saleCare', $saleCare)->with('listCall', $listCall);
         } catch (\Exception $e) {
-            // return $e;
-            // dd($e);
+            return $e;
+            dd($e);
             return redirect()->route('home');
         }
     }

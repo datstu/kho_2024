@@ -338,4 +338,16 @@ a.btn-icon i {
     .modal-xl {
         width: 1140px !important;
     }
+    .header-top-filter {
+        justify-content: space-between; 
+        flex-wrap: nowrap;
+        padding: 0 var(--cui-card-cap-padding-x)
+    }
 }
+@media only screen and (max-width: 1199px) {
+    .box-body {
+        padding: 0;
+    }
+}
+
+

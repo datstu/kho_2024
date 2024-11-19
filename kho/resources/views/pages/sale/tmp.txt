@@ -140,265 +140,265 @@
                 </div>
                 <div class="col-xs-12 form-group">
                     
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl00_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89531">
-                                <span class="flag level-4"></span>
-                                <span class="text">Data nóng</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_0">(28/2,300)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl00_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89531">
+                        <span class="flag level-4"></span>
+                        <span class="text">Data nóng</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_0">(28/2,300)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl01_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89532">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 2</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_1">(122/1,281)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl01_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89532">
+                        <span class="flag level-4"></span>
+                        <span class="text">Gọi lần 2</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_1">(122/1,281)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl02_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89533" >
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 3</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_2">(156/1,248)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl02_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89533" >
+                        <span class="flag level-4"></span>
+                        <span class="text">Gọi lần 3</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_2">(156/1,248)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl03_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89534">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 4</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_3">(178/1,252)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl03_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89534">
+                        <span class="flag level-4"></span>
+                        <span class="text">Gọi lần 4</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_3">(178/1,252)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl04_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89535">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 5</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_4">(166/1,258)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl04_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89535">
+                        <span class="flag level-4"></span>
+                        <span class="text">Gọi lần 5</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_4">(166/1,258)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl05_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89536">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 6</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_5">(173/993)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl05_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89536">
+                        <span class="flag level-4"></span>
+                        <span class="text">Gọi lần 6</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_5">(173/993)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl06_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep91233" >
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 7</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_6">(210/998)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl06_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep91233" >
+                        <span class="flag level-4"></span>
+                        <span class="text">Gọi lần 7</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_6">(210/998)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl07_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep91234">
-                                <span class="flag level-4"></span>
-                                <span class="text">Gọi lần 8</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_7">(1,012/2,982)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl07_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep91234">
+                        <span class="flag level-4"></span>
+                        <span class="text">Gọi lần 8</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_7">(1,012/2,982)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl08_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89537">
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc khách hàng cũ</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_8">(492/1,830)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl08_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89537">
+                        <span class="flag level-4"></span>
+                        <span class="text">Chăm sóc khách hàng cũ</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_8">(492/1,830)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl09_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89538" >
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 1</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_9">(1,225/2,827)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl09_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89538" >
+                        <span class="flag level-4"></span>
+                        <span class="text">Chăm sóc lần 1</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_9">(1,225/2,827)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl10_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89539">
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 2</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_10">(1,133/1,866)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl10_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89539">
+                        <span class="flag level-4"></span>
+                        <span class="text">Chăm sóc lần 2</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_10">(1,133/1,866)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl11_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89703" >
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 3</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_11">(200/307)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl11_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89703" >
+                        <span class="flag level-4"></span>
+                        <span class="text">Chăm sóc lần 3</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_11">(200/307)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl12_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep92855" >
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 4</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_12">(40/102)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl13_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep92856">
-                                <span class="flag level-4"></span>
-                                <span class="text">Chăm sóc lần 5</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_13">(93/271)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl14_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89656">
-                                <span class="flag level-3"></span>
-                                <span class="text">Khách hàng hẹn giao</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_14">(2/18)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl15_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep92990" >
-                                <span class="flag level-1"></span>
-                                <span class="text">Hẹn Ngày Chốt Đơn</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_15">(3/3)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl16_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89540" >
-                                <span class="flag level-4"></span>
-                                <span class="text">Bỏ qua</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_16">(326/327)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl17_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89698" >
-                                <span class="flag level-4"></span>
-                                <span class="text">CSKH sau 30 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_17">(6/48)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl18_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89699" >
-                                <span class="flag level-4"></span>
-                                <span class="text">CSKH sau 45 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_18">(3/35)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl19_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89700 selected">
-                                <span class="flag level-4"></span>
-                                <span class="text">CSKH sau 60 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_19">(8/35)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl20_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89701" >
-                                <span class="flag level-3"></span>
-                                <span class="text">CSKH sau 75 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_20">(9/18)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl21_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89702" >
-                                <span class="flag level-4"></span>
-                                <span class="text">CSKH sau 90 ngày</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_21">(107/221)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl22_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89743">
-                                <span class="flag level-1"></span>
-                                <span class="text">Tham khảo</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_22"></span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl23_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89865" >
-                                <span class="flag level-1"></span>
-                                <span class="text">Chưa Sử Dụng</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_23"></span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl24_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep-1" >
-                                <span class="flag level-"></span>
-                                <span class="text">Chưa có TN</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_24"></span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
-                        
-                            <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl25_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep0" >
-                                <span class="flag level-"></span>
-                                <span class="text">Tất cả</span>
-                                <span class="count">
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_25">(5,692/20,220)</span>
-                                </span>
-                                <span class="live-stream"></span>
-                                <span style="clear: both;"></span>
-                            </a>
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl12_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep92855" >
+                        <span class="flag level-4"></span>
+                        <span class="text">Chăm sóc lần 4</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_12">(40/102)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl13_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep92856">
+                        <span class="flag level-4"></span>
+                        <span class="text">Chăm sóc lần 5</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_13">(93/271)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl14_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89656">
+                        <span class="flag level-3"></span>
+                        <span class="text">Khách hàng hẹn giao</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_14">(2/18)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl15_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep92990" >
+                        <span class="flag level-1"></span>
+                        <span class="text">Hẹn Ngày Chốt Đơn</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_15">(3/3)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl16_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89540" >
+                        <span class="flag level-4"></span>
+                        <span class="text">Bỏ qua</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_16">(326/327)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl17_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89698" >
+                        <span class="flag level-4"></span>
+                        <span class="text">CSKH sau 30 ngày</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_17">(6/48)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl18_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89699" >
+                        <span class="flag level-4"></span>
+                        <span class="text">CSKH sau 45 ngày</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_18">(3/35)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl19_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89700 selected">
+                        <span class="flag level-4"></span>
+                        <span class="text">CSKH sau 60 ngày</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_19">(8/35)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl20_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89701" >
+                        <span class="flag level-3"></span>
+                        <span class="text">CSKH sau 75 ngày</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_20">(9/18)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl21_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89702" >
+                        <span class="flag level-4"></span>
+                        <span class="text">CSKH sau 90 ngày</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_21">(107/221)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl22_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89743">
+                        <span class="flag level-1"></span>
+                        <span class="text">Tham khảo</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_22"></span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl23_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep89865" >
+                        <span class="flag level-1"></span>
+                        <span class="text">Chưa Sử Dụng</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_23"></span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl24_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep-1" >
+                        <span class="flag level-"></span>
+                        <span class="text">Chưa có TN</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_24"></span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
+                
+                    <a onclick="showLoader();" id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep_ctl25_btnChonTacNghiep" title="Chưa tác nghiệp / Tổng contact" class="dm-tac-nghiep dm-tac-nghiep0" >
+                        <span class="flag level-"></span>
+                        <span class="text">Tất cả</span>
+                        <span class="count">
+                            <span id="dnn_ctr1441_Main_SaleTacNghiep_rptTacNghiep__CountText_25">(5,692/20,220)</span>
+                        </span>
+                        <span class="live-stream"></span>
+                        <span style="clear: both;"></span>
+                    </a>
                         
                     
                 </div>
