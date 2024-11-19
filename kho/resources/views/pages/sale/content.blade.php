@@ -418,6 +418,21 @@
                 @endif --}}
 
                 <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                    <select name="product" id="product-filter" class="border-select-box-se">
+                        <option value="999">--Chọn sản phẩm--</option>
+                        @foreach ($listProduct as $product) 
+                        <option value="{{$product->id}}">{{$product->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
+                    <select name="statusTN" id="statusTN-filter" class="border-select-box-se">
+                        <option value="999">--Chọn trạng thái Tác nghiệp--</option>
+                        <option value="1">Chưa Tác Nghiệp</option>
+                        <option value="2">Đã Tác Nghiệp</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-2 form-group">
                     <select name="resultTN" id="resultTN-filter" class="border-select-box-se">
                         <option value="999">--Tất cả Kết quả Tác nghiệp--</option>
                         @foreach ($callResults as $rs) 
@@ -1209,6 +1224,18 @@ if (typeDate && typeDate != 999) {
     $('#typeDate-filter').parent().addClass('selectedClass');
 }
 
+let statusTN = $.urlParam('statusTN') 
+if (statusTN && statusTN != 999) {
+    $('#statusTN-filter option[value="' + statusTN +'"]').attr('selected','selected');
+    $('#statusTN-filter').parent().addClass('selectedClass');
+}
+
+let product = $.urlParam('product') 
+if (product && product != 999) {
+    $('#product-filter option[value="' + product +'"]').attr('selected','selected');
+    $('#product-filter').parent().addClass('selectedClass');
+}
+
 let search = $.urlParam('search')
 if (search) {
     search = decodeURIComponent(search);
@@ -1427,6 +1454,8 @@ if (cateCall) {
         $('#type_customer-filter').select2();
         $('#resultTN-filter').select2();
         $('#typeDate-filter').select2();
+        $('#statusTN-filter').select2();
+        $('#product-filter').select2();
         
         // $('#group-filter').select2();
         

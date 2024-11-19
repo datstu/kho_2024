@@ -14,6 +14,7 @@ use App\Models\SaleCare;
 use App\Helpers\Helper;
 use App\Models\CallResult;
 use App\Models\Group;
+use App\Models\Product;
 use App\Models\SaleCareHistoryTN;
 use App\Models\TypeDate;
 use PHPUnit\TextUI\Help;
@@ -128,6 +129,9 @@ class SaleController extends Controller
         $typeDate = TypeDate::orderBy('id', 'desc')->get();
         $listMktUser = Helper::getListMktUser();
         $listTypeTN = CategoryCall::orderBy('id', 'asc')->get();
+        $listProduct = Product::select('product.*')->orderBy('product.id', 'desc')
+            ->join('detail_product_group','detail_product_group.id_product', '=', 'product.id')
+            ->where('product.status', 1)->distinct()->get();
 
         return view('pages.sale.index')->with('listSrc', $listSrc)
             ->with('groups', $groups)
@@ -135,6 +139,7 @@ class SaleController extends Controller
             ->with('typeDate', $typeDate)
             ->with('listMktUser', $listMktUser)
             ->with('listTypeTN', $listTypeTN)
+            ->with('listProduct', $listProduct)
             ->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
     }
 
@@ -490,6 +495,7 @@ class SaleController extends Controller
                     $listIdSale[] = $order->sale_care;
                 }
 
+                
                 $time       = $dataFilter['daterange'];
                 $timeBegin  = str_replace('/', '-', $time[0]);
                 $timeEnd    = str_replace('/', '-', $time[1]);
@@ -620,15 +626,32 @@ class SaleController extends Controller
                 }
             }
 
+            if (isset($dataFilter['statusTN'])) {
+                $paramFilter = [-1, 'null'];
+                if ($dataFilter['statusTN'] == 1) { //chưa tác nghiệp
+                    // $list =   $list->whereIn('result_call', [-1, 'null']);
+                    $list = $list->where(function($query) use ($paramFilter) {
+                        foreach ($paramFilter as $paramFilter) {
+                            if ($paramFilter == -1) {
+                                $query->orWhere('result_call', -1);
+                            } else {
+                                $query->orWhereNull('result_call');
+                            }
+                        }
+                    });
+                } else {
+                    $list = $list->whereNotNull('result_call');
+                }
+            }
+
             if (isset($dataFilter['resultTN'])) {
-               $idSaleCares = $list->pluck('id')->toArray();
+                $idSaleCares = $list->pluck('id')->toArray();
                 $listInFilter = SaleCare:: join('call', 'call.id', '=', 'sale_care.result_call')
                     ->whereIn('sale_care.id', $idSaleCares)
                     ->where('call.result_call',$dataFilter['resultTN']);
-                   
+                    
                 $newIdSaleCare = $listInFilter->pluck('sale_care.id')->toArray();
-                    // dd($newIdSaleCare);
-                    $list = SaleCare::whereIn('id', $newIdSaleCare);
+                $list = SaleCare::whereIn('id', $newIdSaleCare);
             }
 
             $routeName = Route::currentRouteName();
@@ -659,6 +682,25 @@ class SaleController extends Controller
                 } else {
                     $list   = $list->where('type_TN', $dataFilter['cateCall']);
                 }
+            }
+
+            if (isset($dataFilter['product'])) {
+                $ids = [];
+                $list->whereNotNull('id_order_new');
+                $newSCare = [];
+                foreach ($list->get() as $scare) {
+                    $order = $scare->orderNew;
+
+                    $products = json_decode($order->id_product);
+                    foreach ($products as $product) {
+                        if ($product->id == $dataFilter['product']) {
+                            $newSCare[] = $scare->id;
+                            break;
+                        }
+                    }
+                }
+
+                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
             }
         }
             
@@ -799,9 +841,16 @@ class SaleController extends Controller
             $dataFilter['status'] = $status;
         }
 
-        // dd($req->cateCall);
-        if ($req->cateCall) {
+        if ($req->cateCall && $req->cateCall != 999 ) {
             $dataFilter['cateCall'] = $req->cateCall;
+        }
+
+        if ($req->statusTN && $req->statusTN != 999) {
+            $dataFilter['statusTN'] = $req->statusTN;
+        }
+
+        if ($req->product && $req->product != 999) {
+            $dataFilter['product'] = $req->product;
         }
 
         try {
@@ -817,6 +866,9 @@ class SaleController extends Controller
             $typeDate = TypeDate::orderBy('id', 'desc')->get();
             $listMktUser = Helper::getListMktUser();
             $listTypeTN = CategoryCall::orderBy('id', 'asc')->get();
+            $listProduct = Product::select('product.*')->orderBy('product.id', 'desc')
+                ->join('detail_product_group','detail_product_group.id_product', '=', 'product.id')
+                ->where('product.status', 1)->distinct()->get();
 
             return view('pages.sale.index')->with('listSrc', $listSrc)
                 ->with('sales', $sales)->with('groups', $groups)
@@ -824,10 +876,11 @@ class SaleController extends Controller
                 ->with('typeDate', $typeDate)
                 ->with('listMktUser', $listMktUser)
                 ->with('listTypeTN', $listTypeTN)
+                ->with('listProduct', $listProduct)
                 ->with('saleCare', $saleCare)->with('listCall', $listCall);
         } catch (\Exception $e) {
-            return $e;
-            dd($e);
+            // return $e;
+            // dd($e);
             return redirect()->route('home');
         }
     }
