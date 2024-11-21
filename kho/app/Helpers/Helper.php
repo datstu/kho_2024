@@ -533,6 +533,15 @@ class Helper
         return $sale;
     }
     
+    public static function isMkt($user) 
+    {
+        if ($user->is_digital) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static function isLeadSale($role) 
     {
         $arr = json_decode($role);
@@ -843,22 +852,40 @@ class Helper
         
     }
 
+    public static function refeshSaleAssign($sales, $typeSale)
+    {
+        foreach ($sales as $sale) {
+            if ($sale->$typeSale == 2) {
+                return $sale;
+            }
+        }
+    }
+
     /**
      * active + nhận data + được chỉ định => return user
      */
     public static function getSaleReady($sales, $typeAssgin = 'hot') 
     {
+        $flag = false;
         if ($typeAssgin == 'hot') {
             foreach ($sales as $item) {
                 if ($item->user->status && $item->next_assign_sale == 1) {
                     return $item;
                 }
             }
+
+            if (!$flag) {
+                return Helper::refeshSaleAssign($sales, 'next_assign_sale');
+            }
         } else {
             foreach ($sales as $item) {
                 if ($item->user->status && $item->next_assign_cskh == 1) {
                     return $item;
                 }
+            }
+
+            if (!$flag) {
+                return Helper::refeshSaleAssign($sales, 'next_assign_cskh');
             }
         }
 

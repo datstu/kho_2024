@@ -495,7 +495,6 @@ class SaleController extends Controller
                     $listIdSale[] = $order->sale_care;
                 }
 
-                
                 $time       = $dataFilter['daterange'];
                 $timeBegin  = str_replace('/', '-', $time[0]);
                 $timeEnd    = str_replace('/', '-', $time[1]);

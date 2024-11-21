@@ -140,7 +140,7 @@ if (isset($dataSrc)) {
                                             </div>
                                             <div class="col-sm-10">
                                                 <input required name="name"
-                                                    type="text" maxlength="50"
+                                                    type="text"
                                                     class="form-control validate[required]"
                                                     data-content="Tối đa 50 ký tự"
                                                     data-trigger="focus" data-toggle="popover"
@@ -177,7 +177,7 @@ if (isset($dataSrc)) {
                                             </div>
                                             <div class="col-sm-10">
                                                 <input name="link" value="<?= $data['link']?>"
-                                                    type="text" maxlength="50"
+                                                    type="text"
                                                     class="form-control validate[required]"
                                                     data-content="Tối đa 50 ký tự"
                                                     data-trigger="focus" data-toggle="popover"
@@ -194,7 +194,7 @@ if (isset($dataSrc)) {
                                             <div class="col-sm-10">
                                                 <input
                                                     name="id_page" value="<?= $data['id_page']?>"
-                                                    type="text" maxlength="50"
+                                                    type="text"
                                                     class="form-control validate[required]"
                                                     data-content="Tối đa 50 ký tự"
                                                     data-trigger="focus" data-toggle="popover"
@@ -230,7 +230,7 @@ if (isset($dataSrc)) {
                                             <div class="col-sm-10">
                                                 <input
                                                     name="token" value="<?= $data['token']?>"
-                                                    type="text" maxlength="50"
+                                                    type="text"
                                                     class="form-control validate[required]"
                                                     data-content="Tối đa 50 ký tự"
                                                     data-trigger="focus" data-toggle="popover"

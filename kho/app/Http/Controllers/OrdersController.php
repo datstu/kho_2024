@@ -557,6 +557,9 @@ class OrdersController extends Controller
                         $notiText . "\nLưu ý: $order->note";
                     }
 
+                    if ($order->phone == '0973409613') {
+                        $chatId = '-4211905463';
+                    }
                     //tạo mới order
                     try {
                         $client->request('GET', $endpoint, ['query' => [

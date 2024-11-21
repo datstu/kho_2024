@@ -390,7 +390,7 @@
 
                     </select>
                 </div> --}}
-                @if ($checkAll)
+
                 <div class="col-xs-12 col-sm-6 col-md-2 form-group">
                     <select name="mkt" id="mkt-filter" class="border-select-box-se">
                         <option value="999">--chọn Marketing--</option>
@@ -400,7 +400,7 @@
                         @endforeach
                     </select>
                 </div>
-                @endif
+
 
                 {{-- @if ($checkAll || $isLeadSale)
                 <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">

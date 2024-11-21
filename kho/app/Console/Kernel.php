@@ -29,15 +29,8 @@ class Kernel extends ConsoleKernel
             Log::channel('new')->info('run updateStatusOrderGHN');
         })->everyMinute();
 
-        // $schedule->call(function() {
-        //   // $this->wakeUp();
-        //   $this->crawlerPancake();
-        //   Log::channel('new')->info('run craw pancake');
-        // })->everyMinute();
-
         $schedule->call(function() {
-          // $this->wakeUp();
-        //   $this->crawlerPancakeTricho();
+          $this->wakeUp();
           $this->crawlerGroup();
           Log::channel('new')->info('run craw pancake tricho');
         })->everyMinute();

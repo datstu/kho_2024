@@ -25,10 +25,6 @@ class TestController extends Controller
 {
   use WithoutMiddleware;
 
-  public function testBaoKim()
-  {
-    return view('test.index');
-  }
   public function tele() 
   {
     // echo 'hi';
@@ -414,177 +410,6 @@ class TestController extends Controller
     return view('pages.test');
   }
 
-  public function crawlerPancake_()
-  {
-    $panCake = Helper::getConfigPanCake();
-    if ($panCake->status == 1 && $panCake->page_id != '' && $panCake->token != '') {
-      $pageId = $panCake->page_id;
-      $pages  = json_decode($pageId, 1);
-      $token  = $panCake->token;
-
-      if (count($pages) > 0) {
-        foreach ($pages as $key => $val) {
-          $pIdPan   = $val['id'];
-          $srcModel = SrcPage::where('id_page', $pIdPan)->first();
-          $group = $srcModel->group;
-
-          if ($group && $group->status) {
-            $namePage = $val['name'];
-            $linkPage = $val['link'];
-            $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
-            $today    = strtotime(date("Y/m/d H:i"));
-            $before = strtotime ( '-12 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
-            $before = date ( 'Y/m/d H:i' , $before );
-            $before = strtotime($before);
-
-            $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
-            $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
-      
-              if ($response->status() == 200) {
-                $content  = json_decode($response->body());
-                if ($content->success) {
-                  $data     = $content->conversations;
-                  foreach ($data as $item) {
-                    $recentPhoneNumbers = $item->recent_phone_numbers[0];
-                    $mId      = $recentPhoneNumbers->m_id;
-                    $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
-                    $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
-                    $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-
-                    $assgin_user = 0;
-                    $is_duplicate = false;
-                    $phone = Helper::getCustomPhoneNum($phone);
-                    $checkSaleCareOld = Helper::checkOrderSaleCarebyPhonePage($phone, $val['id'], $mId, $assgin_user, $is_duplicate);
-
-                    if ($name && $checkSaleCareOld) {  
-                      if ($assgin_user == 0 && $srcModel && $group->sales) {
-                        // dd($group);
-                        $assignSale = Helper::getAssignSale();
-                        $assgin_user = $assignSale->id;
-                      }
-
-                      $is_duplicate = ($is_duplicate) ? 1 : 0;
-                      $sale = new SaleController();
-                      $data = [
-                        'page_link' => $linkPage,
-                        'page_name' => $namePage,
-                        'sex'       => 0,
-                        'old_customer' => 0,
-                        'address'   => '',
-                        'messages'  => $messages,
-                        'name'      => $name,
-                        'phone'     => $phone,
-                        'page_id'   => $pIdPan,
-                        'text'      => 'Page ' . $namePage,
-                        'chat_id'   => 'id_VUI',
-                        'm_id'      => $mId,
-                        'assgin'    => $assgin_user,
-                        'is_duplicate' => $is_duplicate
-                      ];
-
-                      $request = new \Illuminate\Http\Request();
-                      $request->replace($data);
-                      $sale->save($request);
-                    }
-                  }
-              }
-            }
-                      
-          }
-        }
-      }
-    }
-  }
-
-  public function crawlerPancake()
-  {
-    $panCake = Helper::getConfigPanCake();
-    if ($panCake->status == 1 && $panCake->page_id != '' && $panCake->token != '') {
-      $pageId = $panCake->page_id;
-      $pages  = json_decode($pageId, 1);
-      $token  = $panCake->token;
-
-      if (count($pages) > 0) {
-        foreach ($pages as $key => $val) {
-          $pIdPan   = $val['id'];
-          $srcModel = SrcPage::where('id_page', $pIdPan)->first();
-          $group = $srcModel->group;
-
-          if ($group && $group->status) {
-            $namePage = $val['name'];
-            $linkPage = $val['link'];
-            $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
-            $today    = strtotime(date("Y/m/d H:i"));
-            $before = strtotime ( '-12 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
-            $before = date ( 'Y/m/d H:i' , $before );
-            $before = strtotime($before);
-
-            $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
-            $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
-      
-              if ($response->status() == 200) {
-                $content  = json_decode($response->body());
-                if ($content->success) {
-                  $data     = $content->conversations;
-                  foreach ($data as $item) {
-                    $recentPhoneNumbers = $item->recent_phone_numbers[0];
-                    $mId      = $recentPhoneNumbers->m_id;
-                    $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
-                    $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
-                    $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-
-                    $assgin_user = 0;
-                    $is_duplicate = false;
-                    $phone = Helper::getCustomPhoneNum($phone);
-                    $hasOldOrder = 0;
-                    $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
-
-                    if ($name && $checkSaleCareOld) {  
-                      if ($assgin_user == 0 && $srcModel && $group->sales) {
-                        $assignSale = Helper::getAssignSaleByGroup($group);
-                        if (!$assignSale) {
-                          return;
-                        }
-                
-                        //assignSale: item in model detail_user_group
-                        $assgin_user = $assignSale->id_user;
-                      }
-
-                      $is_duplicate = ($is_duplicate) ? 1 : 0;
-                      $sale = new SaleController();
-                      $data = [
-                        'page_link' => $linkPage,
-                        'page_name' => $namePage,
-                        'sex'       => 0,
-                        'old_customer' => 0,
-                        'address'   => '',
-                        'messages'  => $messages,
-                        'name'      => $name,
-                        'phone'     => $phone,
-                        'page_id'   => $pIdPan,
-                        'text'      => 'Page ' . $namePage,
-                        'chat_id'   => 'id_VUI',
-                        'm_id'      => $mId,
-                        'assgin'    => $assgin_user,
-                        'is_duplicate' => $is_duplicate,
-                        'group_id'  => $group->id,
-                        'has_old_order'  => $hasOldOrder,
-                      ];
-
-                      $request = new \Illuminate\Http\Request();
-                      $request->replace($data);
-                      $sale->save($request);
-                    }
-                  }
-              }
-            }
-                      
-          }
-        }
-      }
-    }
-  }
-
   public function crawlerPancakeTricho()
   {
     $pages = [
@@ -688,118 +513,23 @@ class TestController extends Controller
 
     foreach ($groups->get() as $group) {
 
+        // if($group->id != 7) {
+        //     continue;
+        // }
       $pages = $group->srcs;
 
-      // dd($pages);
+// dd($pages);
       foreach ($pages as $page) {
-        // if ($page->id_page != '431312173402215') {
-        //   continue;
-        // }
-        // dd($page);
-        if ($page->type == 'pc') {
+        //  if ($page->id != 25) {
+        //      continue;
+        //  }
+        if ($page->type == 'pc' ) {
           $this->crawlerPancakePage($page, $group);
         }
       }
     }
   }
-  public function crawlerPancakePage_($page, $group)
-  {
-    // dd($page);
-    $pIdPan = $page->id_page;
-    $token  = $page->token;
-    $namePage = $page->name;
-    $linkPage = $page->link;
-    $chatId = $group->tele_hot_data;
-
-    echo "pIdPan: $pIdPan " . '<br>';
-    echo "token: $token \n" . '<br>';
-    echo "namePage: $namePage \n" . '<br>';
-    echo "linkPage: $linkPage \n" . '<br>';
-    echo "chatId: $chatId \n" . '<br>';
-    if ( $pIdPan != '' && $token != '' && $namePage != '' && $linkPage != '' && $chatId != '') {
-    
-      $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
-      $today    = strtotime(date("Y/m/d H:i"));
-      $before   = strtotime ( '-15 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
-      $before   = date ( 'Y/m/d H:i' , $before );
-      $before   = strtotime($before);
-
-      $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
-      $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
-   
-      // dd($response);
-      if ($response->status() == 200) {
-        $content  = json_decode($response->body());
-        if ($content->success) {
-          $data     = $content->conversations;
-          // dd($data);
-          
-          foreach ($data as $item) {
-            
-            try {
-              $recentPhoneNumbers = $item->recent_phone_numbers[0];
-              $mId      = $recentPhoneNumbers->m_id;
-              $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
-              $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
-              $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-
-              $assgin_user = 0;
-              $is_duplicate = false;
-              $phone = Helper::getCustomPhoneNum($phone);
-              
-              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user);
-
-              if ($name && $checkSaleCareOld) {  
-                if ($assgin_user == 0) {
-
-                  $assignSale = Helper::getAssignSaleByGroup($group);
-                  if (!$assignSale) {
-                    break;
-                  }
-
-                  //assignSale: item in model detail_user_group
-                  $assgin_user = $assignSale->id_user;
-                }
-
-                $is_duplicate = ($is_duplicate) ? 1 : 0;
-                $sale = new SaleController();
-                $data = [
-                  'page_link' => $linkPage,
-                  'page_name' => $namePage,
-                  'sex'       => 0,
-                  'old_customer' => 0,
-                  'address'   => '',
-                  'messages'  => $messages,
-                  'name'      => $name,
-                  'phone'     => $phone,
-                  'page_id'   => $pIdPan,
-                  'text'      => 'Page ' . $namePage,
-                  'chat_id'   => $chatId,
-                  'm_id'      => $mId,
-                  'assgin'    => $assgin_user,
-                  'is_duplicate' => $is_duplicate,
-                  'group_id'  => $group->id,
-                ];
-
-                dd($data);
-                $request = new \Illuminate\Http\Request();
-                $request->replace($data);
-                $sale->save($request);
-              }
-            
-          } catch (\Exception $e) {
-            // return $e;
-            echo '$phone: ' . $phone;
-            dd($e);
-            // return redirect()->route('home');
-          }
-        }
-        }
-      }           
-    }
-  }
-
-  public function crawlerPancakePage($page, $group)
+   public function crawlerPancakePage($page, $group)
   { 
     $pIdPan = $page->id_page;
     $token  = $page->token;
@@ -823,12 +553,13 @@ class TestController extends Controller
       $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
       $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
    
-      // dd($response);
+    //   dd($response);
       if ($response->status() == 200) {
         $content  = json_decode($response->body());
+        // dd($content);
         if ($content->success) {
           $data     = $content->conversations;
-          // dd($data);
+        //   dd($data);
           
           foreach ($data as $item) {
             
@@ -845,10 +576,14 @@ class TestController extends Controller
               $phone = Helper::getCustomPhoneNum($phone);
               
               $hasOldOrder = 0;
+            //   if ($phone != '0908361589') {
+            //      continue;
+            //   } 
+               
+            //   $mId = 'aaa';
               $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
-              // if ($phone != '0914621542') {
-              //   continue;
-              // }
+              
+              
 
               if ($name && $checkSaleCareOld) {  
                 if ($assgin_user == 0) {
@@ -861,7 +596,7 @@ class TestController extends Controller
                   //assignSale: item in model detail_user_group
                   $assgin_user = $assignSale->id_user;
                 }
-
+// dd($assgin_user);
                 $is_duplicate = ($is_duplicate) ? 1 : 0;
                 $sale = new SaleController();
                 $data = [
@@ -890,8 +625,8 @@ class TestController extends Controller
             
           } catch (\Exception $e) {
             // return $e;
-            echo '$phone: ' . $phone;
-            dd($e);
+            // echo '$phone: ' . $phone;
+            // dd($e);
             // return redirect()->route('home');
           }
         }
@@ -900,261 +635,7 @@ class TestController extends Controller
     }
   }
 
-  public function export()
-  {
-    $sale     = new SaleController();
-
-    // $req = new Request();
-    $req['daterange'] = ['01/07/2024', '30/11/2024'];
-    // $req['sale'] = '56';
-
-    $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
-    $list->whereNull('id_order_new'); //chưa có đơn
-    $list->where('id_order_new');
-    $list->where('old_customer', 1);
-    $list->where('is_duplicate', 0);
-    // $list->where('group_id', '7');
-    // $list->where('page_id', '7');
-    
-    //aplus
-    $src = ['424411670749761', '398822199987832', '397050860162599', 'https://www.phanbonorganic.com/uudai45', 'Hotline Aplus',];
-  // '378087158713964', '381180601741468', '389136690940452', '352893387908060', 'https://www.nongnghiepsachvn.net/tricho-bacillus-km'];
-
-    // tricho
-    // $src = ['378087158713964', '381180601741468', '389136690940452', '352893387908060', 'https://www.nongnghiepsachvn.net/tricho-bacillus-km',];
-    $list = $list->where(function($query) use ($src) {
-      foreach ($src as $term) {
-        if (is_numeric($term)) {
-            $query->orWhere('page_id', 'like', '%' . $term . '%');
-        } else {
-            $query->orWhere('page_link', 'like', '%' . $term . '%');
-        }
-
-        if (str_contains($term, 'Tricho') || str_contains($term, 'line')) {
-            $query->orWhere('page_name', 'like', '%' . $term . '%');
-        }
-        // $query->orWhere('page_id', 'like', '%' . $term . '%');
-      }
-    });
-    // dd($list->pluck('phone')->toArray());
-    // echo "<pre>";
-    // print_r($list->get());
-    // echo "</pre>";
-    $dataExport[] = [
-      'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
-    ];
-
-    // $list = $list->orderBy('id', 'asc');
-    // $list->orderBy('id', 'desc');
-    // echo "<pre>";
-    // print_r($list->get());
-    // echo "</pre>";
-    // die();
-    foreach ($list->get() as $data) {
-
-      // if ($data->phone != '0942727079') {
-      //   continue;
-      // } 
-        
-      // $checkOldCustomer = $this->isOldCustomer($data->phone);
-      // if ($checkOldCustomer) {
-      //   continue;
-      // }
-      
-      // echo 'name: ' . $data->full_name . '<br>';
-      // echo 'phone: ' . $data->phone . '<br>';
-      // echo 'message: : ' . $data->TN_can . '<br>';
-      // echo 'date: ' . $data->created_at . '<br>';
-      $dataExport[] = [
-        $data->full_name,
-        $data->phone,
-        $data->messages,
-        $data->TN_can,
-        date_format($data->created_at,"H:i d-m-Y "),
-      ];
-    }
-
-    // dd($dataExport);
-    // dd($dataExport);
-    return Excel::download(new UsersExport($dataExport), 'Aplus-CSKH.xlsx');
-
-  }
-
-  public function isOldCustomer($phone)
-  {
-    $order = Orders::where('phone', $phone)->first();
-    if ($order) {
-      return $order;
-    } 
-
-    return false;
-  }
-
-  public function wakeUp()
-  {
-    $listSc = SaleCare::whereNotNull('result_call')
-      ->whereNotNull('type_TN')
-      ->where('result_call', '!=', 0)
-      ->where('result_call', '!=', -1)
-      ->where('has_TN', 1)
-      ->get();
-
-    foreach ($listSc as $sc) {
-      // echo "$sc->id " . "<br>";
-
-      $call = $sc->call;
-
-      if (empty($call->time)) {
-        continue;
-      }
-
-      $time = $call->time;
-      $nameCall   = $call->callResult->name;
-      $updatedAt  = $sc->time_update_TN;
-      $isRunjob   = $sc->is_runjob;
-      $TNcan   = $sc->TN_can;
-      $saleAssign   = $sc->user->real_name;
-      
-      if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
-        continue;
-      }
-      
-      //cộng ngày update và time cuộc gọi
-      $newDate = strtotime("+$time hours", strtotime($updatedAt));
-      if ($newDate <= time()) {
-
-        $nextTN = $call->thenCall;
-        if (!$nextTN) {
-          continue;
-        }
-
-        $chatId         = '-4286962864';
-        $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
-        $group = $sc->group;
-
-        if ($group) {
-          $chatId = $group->tele_nhac_TN;
-          $tokenGroupChat =  $group->tele_bot_token;
-        }
-
-        //set lần gọi tiếp theo
-        if ($sc->type_TN != $nextTN->id) {
-          $sc->result_call = 0;
-        }
-
-        $sc->type_TN = $nextTN->id;
-        $sc->has_TN = 0;
-        $sc->is_runjob = 1;
-        $sc->save();
-
-        //gửi thông báo qua telegram
-        $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
-        $client         = new \GuzzleHttp\Client();
-
-        $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
-          . "\nĐã tới thời gian tác nghiệp."
-          . "\nKết quả gọi trước đó: $nameCall"
-          . "\nGhi chú trước: $TNcan"
-          . "\nSale tác nghiệp: $saleAssign"; 
-
-        if ($chatId) {
-          $client->request('GET', $endpoint, ['query' => [
-            'chat_id' => $chatId, 
-            'text' => $notiText,
-          ]]);
-        }
-        
-      }
-    }
-  }
-
-  public function fix()
-  {
-    $from = date('2024-07-01');
-    $to = date('2024-07-31');
-    // $list = Orders::whereNotExists(function ($query) {
-    //   $query->select(\DB::raw('*'))
-    //       ->from('sale_care')
-    //       ->where('sale_care.id', 'orders.sale_care')
-    //       ->where('old_customer', 0)
-    //       ;
-    //   })
-    //   ->where('status', 3)
-    //   ->whereBetween('created_at', [$from, $to])
-    //   ->get();
-
-    $list = \DB::select("SELECT *
-      FROM   orders
-      WHERE  NOT EXISTS
-        (SELECT *
-        FROM   sale_care
-        WHERE  
-        sale_care.id = orders.sale_care and sale_care.old_customer = 0 
-        
-        ) AND orders.created_at BETWEEN '2024-07-01' 
-                          AND '2024-07-31 23:59:59.993' ORDER BY `id` ASC;"
-    );
-
-
-      // dd($list);
-    // echo "<pre>";
-    // print_r($list);
-    // echo "</pre>";
-    //   die();
-      // 
-    foreach ($list as $item) {
-      // dd($item->id);
-      $saleCare = SaleCare::
-        where('phone', 'like', '%' . $item->phone . '%')
-        ->where('old_customer', 0)
-        ->first();
-
-        // dd('hi');
-        // dd($saleCare);
-      // trường hợp có data TN nhưng chưa map => update map
-      if (!$saleCare) {
-        echo $item->phone . "<br>";
-        $sale = new SaleController();
-        $data = [
-          'page_link' => '',
-          'page_name' => '',
-          'sex'       => 0,
-          'old_customer' => 0,
-          'address'   => $item->address,
-          'messages'  => '',
-          'name'      => $item->name,
-          'phone'     => $item->phone,
-          'page_id'   => '',
-          'text'      => '',
-          // 'chat_id'   => $chatId,
-          'm_id'      => '',
-          'assgin'    => $item->assign_user,
-          'is_duplicate' => 0,
-          'id_order_new' => $item->id,
-          'created_at'  => $item->created_at
-        ];
-
-        $request = new \Illuminate\Http\Request();
-        $request->replace($data);
-        $sale->save($request);
-
-      } else {
-        echo $item->phone . "<br>";
-        $order = Orders::find($item->id);
-        if ($order) {
-          $order->sale_care = $saleCare->id;
-          $order->save();
-        }
-       
-      }
-      // dd($saleCare);
-      //trường hợp có đơn hàng nhưng chưa có data TN => create data và map
-    }
-        // dd($list);
-    
-  }
-
-  public function updateStatusOrderGhnV2() 
+   public function updateStatusOrderGhnV2() 
   {
     $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
 
@@ -1277,105 +758,209 @@ class TestController extends Controller
     }
   }
 
-  public function addData()
+  public function export()
   {
+    $sale     = new SaleController();
 
-     //aplus
-     $src = ['424411670749761', '398822199987832', '397050860162599', 'https://www.phanbonorganic.com/uudai45', 'Hotline Aplus'];
+    // $req = new Request();
+    $req['daterange'] = ['01/07/2024', '31/08/2024'];
+    $req['sale'] = '56';
 
-     // tricho
-     // $src = ['378087158713964', '381180601741468', '389136690940452', '352893387908060', 'https://www.nongnghiepsachvn.net/tricho-bacillus-km',];
+    $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
+    $list->whereNull('id_order_new');
+    $list->where('old_customer', 1);
+    $list->where('group_id', '5');
+    $dataExport[] = [
+      'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
+    ];
 
-    $group = Group::find(7);
-    $mId      = 'ss123hbbbssba';
-    $phone    = '0972029968';
-    $name     = 'Hoan Cau Truong tricho 61';
-    $messages = 'Cho xin giá ,398822199987832 page tricho';
-    $linkPage = 'https://www.facebook.com/profile.php?id=61561817156259';
-    $namePage = 'page khác và khác sp';
-    $pIdPan = '389136690940452';
-    $chatId = '-4280564587';
-    $assgin_user = 0;
-    $is_duplicate = false;
-    $phone = Helper::getCustomPhoneNum($phone);
-    $hasOldOrder = 0;
-    $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
-
-    if ($name && $checkSaleCareOld) {  
-      // dd($assgin_user);
-      if ($assgin_user == 0) {
-        $assignSale = Helper::getAssignSaleByGroup($group);
-        if (!$assignSale) {
-          return;
-        }
-
-        //assignSale: item in model detail_user_group
-        $assgin_user = $assignSale->id_user;
-      }
-
-      $is_duplicate = ($is_duplicate) ? 1 : 0;
-
-
-      //       /**
-      //  * chỉ kiểm tra khách hàng cũ khi data trùng
-      //  */
-      // $typeCustomer = 0;
-      // if ($is_duplicate == 1) {
-      //   $typeCustomer = Helper::checkTypeCustomer($phone, $group);
-      // }
-      
-      $sale = new SaleController();
-      $data = [
-        'page_link' => $linkPage,
-        'page_name' => $namePage,
-        'sex'       => 0,
-        'old_customer' => 0,
-        'address'   => '',
-        'messages'  => $messages,
-        'name'      => $name,
-        'phone'     => $phone,
-        'page_id'   => $pIdPan,
-        'text'      => 'Page ' . $namePage,
-        'chat_id'   => $chatId,
-        'm_id'      => $mId,
-        'assgin'    => $assgin_user,
-        'is_duplicate' => $is_duplicate,
-        'group_id'  => $group->id,
-        'has_old_order'  => $hasOldOrder,
+    // echo "<pre>";
+    // print_r($list->get());
+    // echo "</pre>";
+    // die();
+    foreach ($list->get() as $data) {
+      // echo 'name: ' . $data->full_name . '<br>';
+      // echo 'phone: ' . $data->phone . '<br>';
+      // echo 'message: : ' . $data->TN_can . '<br>';
+      // echo 'date: ' . $data->created_at . '<br>';
+      $dataExport[] = [
+        $data->full_name,
+        $data->phone,
+        $data->messages,
+        $data->TN_can,
+        date_format($data->created_at,"H:i d-m-Y "),
       ];
+    }
 
-      // dd($data);
-      $request = new \Illuminate\Http\Request();
-      $request->replace($data);
-      $sale->save($request);
-
-    // $data = [
-    //   "page_link" => "https://www.facebook.com/profile.php?id=61561817156259",
-    //   "page_name" => "Tricho Basilus - 1 Lít Pha 1000 Lít Nước - 0986987791",
-    //   "sex" => 0,
-    //   "old_customer" => 0,
-    //   "address" => "",
-    //   "messages" => "Cho xin giá ,0972029968",
-    //   "name" => "Hoan Cau Truong",
-    //   "phone" => "0972029968",
-    //   "page_id" => "378087158713964",
-    //   "text" => "Page Tricho Basilus - 1 Lít Pha 1000 Lít Nước - 0986987791",
-    //   "chat_id" => "-4280564587",
-    //   "m_id" => "122106881528393905_1587478245525062",
-    //   "assgin" => 56,
-    //   "is_duplicate" => 0,
-    //   "group_id" => 5,
-    //   "old_customer" => 0
-    // ];
-
-    // $sale = new SaleController();
-
-    // $request = new \Illuminate\Http\Request();
-    // $request->replace($data);
-    // $sale->save($request);
+    // dd($dataExport);
+    return Excel::download(new UsersExport($dataExport), 'invoices.xlsx');
 
   }
-}
+
+  public function wakeUp() 
+  {$listSc = SaleCare::whereNotNull('result_call')
+      ->whereNotNull('type_TN')
+      ->where('result_call', '!=', 0)
+      ->where('result_call', '!=', -1)
+      ->where('has_TN', 1)
+      ->get();
+
+    // dd($listSc);
+    foreach ($listSc as $sc) {
+      // echo "$sc->id " . "<br>";
+      
+      $call = $sc->call;
+      // dd($call);
+
+      if (empty($call->time)) {
+        continue;
+      }
+
+      $time = $call->time;
+      $nameCall   = $call->callResult->name;
+      $updatedAt  = $sc->time_update_TN;
+      $isRunjob   = $sc->is_runjob;
+      $TNcan   = $sc->TN_can;
+      $saleAssign   = $sc->user->real_name;
+      
+      if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
+        continue;
+      }
+      
+      //cộng ngày update và time cuộc gọi
+      $newDate = strtotime("+$time hours", strtotime($updatedAt));
+      if ($newDate <= time()) {
+        $nextTN = $call->thenCall;
+       
+        
+        if (!$nextTN) {
+          continue;
+        }
+
+        $chatId         = '-4286962864';
+        $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
+        $group = $sc->group;
+
+
+        if ($group) {
+          $chatId = $group->tele_nhac_TN;
+          $tokenGroupChat =  $group->tele_bot_token;
+        }
+
+        //set lần gọi tiếp theo
+        $sc->type_TN = $nextTN->id;
+        $sc->result_call = 0;
+        $sc->has_TN = 0;
+        $sc->is_runjob = 1;
+        $sc->save();
+
+        //gửi thông báo qua telegram
+        
+
+        // $group = $sc->group;
+    
+        $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+        $client         = new \GuzzleHttp\Client();
+
+        $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
+          . "\nĐã tới thời gian tác nghiệp."
+          . "\nKết quả gọi trước đó: $nameCall"
+          . "\nGhi chú trước: $TNcan"
+          . "\nSale tác nghiệp: $saleAssign"; 
+
+          // dd($notiText);
+        $client->request('GET', $endpoint, ['query' => [
+          'chat_id' => $chatId, 
+          'text' => $notiText,
+        ]]);
+      }
+    }
+  }
+
+  public function fix()
+  {
+    $from = date('2024-07-01');
+    $to = date('2024-07-31');
+    // $list = Orders::whereNotExists(function ($query) {
+    //   $query->select(\DB::raw('*'))
+    //       ->from('sale_care')
+    //       ->where('sale_care.id', 'orders.sale_care')
+    //       ->where('old_customer', 0)
+    //       ;
+    //   })
+    //   ->where('status', 3)
+    //   ->whereBetween('created_at', [$from, $to])
+    //   ->get();
+
+    $list = \DB::select("SELECT *
+FROM   orders
+WHERE  NOT EXISTS
+  (SELECT *
+   FROM   sale_care
+   WHERE  
+   sale_care.id = orders.sale_care and sale_care.old_customer = 0 
+   
+   ) AND orders.created_at BETWEEN '2024-07-01' 
+                     AND '2024-07-31 23:59:59.993' ORDER BY `id` ASC;");
+
+
+      // dd($list);
+    // echo "<pre>";
+    // print_r($list);
+    // echo "</pre>";
+    //   die();
+      // 
+    foreach ($list as $item) {
+      // dd($item->id);
+      $saleCare = SaleCare::
+        where('phone', 'like', '%' . $item->phone . '%')
+        ->where('old_customer', 0)
+        ->first();
+
+        // dd('hi');
+        // dd($saleCare);
+      // trường hợp có data TN nhưng chưa map => update map
+      if (!$saleCare) {
+        echo $item->phone . "<br>";
+        $sale = new SaleController();
+        $data = [
+          'page_link' => '',
+          'page_name' => '',
+          'sex'       => 0,
+          'old_customer' => 0,
+          'address'   => $item->address,
+          'messages'  => '',
+          'name'      => $item->name,
+          'phone'     => $item->phone,
+          'page_id'   => '',
+          'text'      => '',
+          // 'chat_id'   => $chatId,
+          'm_id'      => '',
+          'assgin'    => $item->assign_user,
+          'is_duplicate' => 0,
+          'id_order_new' => $item->id,
+          'created_at'  => $item->created_at
+        ];
+
+        $request = new \Illuminate\Http\Request();
+        $request->replace($data);
+        $sale->save($request);
+
+      } else {
+        echo $item->phone . "<br>";
+        $order = Orders::find($item->id);
+        if ($order) {
+          $order->sale_care = $saleCare->id;
+          $order->save();
+        }
+       
+      }
+      // dd($saleCare);
+      //trường hợp có đơn hàng nhưng chưa có data TN => create data và map
+    }
+        // dd($list);
+    
+  }
 }
 
 

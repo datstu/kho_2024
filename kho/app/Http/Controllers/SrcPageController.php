@@ -398,8 +398,9 @@ class SrcPageController extends Controller
     }
 
     public function updateTNcan(Request $r) {
+        // dd($r->all());
         $saleCare = SaleCare::find($r->id);
-
+        // dd( $saleCare);
         if ($saleCare) {
             $saleCare->TN_can = $r->textTN;
             $saleCare->save();

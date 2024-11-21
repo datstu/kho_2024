@@ -9,6 +9,7 @@
 
 <?php $checkAll = isFullAccess(Auth::user()->role);
     $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+    $isMkt = Helper::isMkt(Auth::user());
 ?>
 
     @if ($checkAll)
@@ -52,7 +53,7 @@
         </ul>
     </li>
 
-    @if ($checkAll)
+    @if ($checkAll || $isMkt)
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-chart-line')}}"></use>

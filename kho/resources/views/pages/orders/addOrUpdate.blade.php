@@ -12,7 +12,6 @@ $listStatus = Helper::getListStatus();
 $isLeadSale = Helper::isLeadSale(Auth::user()->role);
 $checkAll = isFullAccess(Auth::user()->role);
 $flagAccess = false;
-
 ?>
 
 <script src="{{asset('public/js/number-format/cleave.min.js')}}"></script>
