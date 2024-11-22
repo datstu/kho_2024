@@ -132,11 +132,18 @@
     .modal-backdrop-notify.show {
         opacity: 0;
     }
-    #notify-modal .modal-header,#notify-modal .modal-content  {
+    #notify-modal .modal-header {
+        border: unset;
+        border-radius: unset;
         background: #4df54dcc;
+    }
+
+    #notify-modal .modal-content  {
+        background: none;
         border: unset;
         border-radius: unset;
     }
+
     #notify-modal .modal-dialog {
         margin-right: 10px;
         width: 300px;
@@ -1342,7 +1349,7 @@ if (cateCall) {
                         $('.modal-backdrop').addClass('modal-backdrop-notify');
                     }
 
-                    // $(tr).addClass('success');
+                    $(tr).addClass('success');
                     setTimeout(function() { 
                         $('#notify-modal').modal("hide");
                         $(tr).removeClass('success');

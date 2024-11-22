@@ -807,6 +807,9 @@ class TestController extends Controller
 
     // dd($listSc);
     foreach ($listSc as $sc) {
+      if ($sc->id != 11740) {
+        continue;
+      }
       // echo "$sc->id " . "<br>";
       
       $call = $sc->call;
@@ -822,7 +825,12 @@ class TestController extends Controller
       $isRunjob   = $sc->is_runjob;
       $TNcan   = $sc->TN_can;
       $saleAssign   = $sc->user->real_name;
-      
+
+      if ($sc->listHistory->count()) {
+        $sc->listHistory;
+        $TNcan = $sc->listHistory[0]->note;
+      }
+
       if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
         continue;
       }

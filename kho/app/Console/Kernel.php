@@ -57,13 +57,8 @@ class Kernel extends ConsoleKernel
       ->get();
 
     foreach ($listSc as $sc) {
-      // echo "$sc->id " . "<br>";
-      // if ($sc->id != 7623) {
-      //   continue;
-      // }
 
       $call = $sc->call;
-
       if (empty($call->time)) {
         continue;
       }
@@ -75,6 +70,11 @@ class Kernel extends ConsoleKernel
       $TNcan   = $sc->TN_can;
       $saleAssign   = $sc->user->real_name;
       
+      if ($sc->listHistory->count()) {
+        $sc->listHistory;
+        $TNcan = $sc->listHistory[0]->note;
+      }
+
       if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
         continue;
       }
