@@ -31,7 +31,9 @@
                 <div class="col-sm-8">
                     <div class="row">
                         <div class="col-xs-12 col-md-3 form-group">
+                            <a class="home-sale-index" href="{{{route('marketing-src-search')}}}"> 
                             <span id="dnn_ctr1440_Main_MarketingTacNghiep_lblModuleTitle" class="text">Marketing dashboard</span>
+                            </a>
                         </div>
                         <div class="col-sm-12 col-md-9 form-group">
                             <div class="row">

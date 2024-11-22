@@ -1,4 +1,4 @@
-<?php $checkAll = isFullAccess(Auth::user()->role);
+<?php
     $listSale = Helper::getListSale(); 
     $checkAll = isFullAccess(Auth::user()->role);
     $isLeadSale = Helper::isLeadSale(Auth::user()->role);      

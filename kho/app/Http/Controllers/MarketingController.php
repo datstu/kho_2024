@@ -43,11 +43,15 @@ class MarketingController extends Controller
 
     public function marketingSearch($req)
     {
+        // dd($req->all());
         $rs = $this->getDataMkt($req);
        
-        $listMktUser = Helper::getListMktUser();
+        $listMktUser = Helper::getListMktUser(Auth::user());
         $listGroup = Helper::getListGroup();
-        $listSrc    = SrcPage::orderBy('id', 'desc')->get();
+        $listSrc = SrcPage::orderBy('id', 'desc')->get();
+        if (!isFullAccess(Auth::user()->role)) {
+            $listSrc = $listSrc->where('user_digital', $req->mkt_user);
+        }
 
         return view('pages.marketing.index')->with('list', $rs)
             ->with('listMktUser', $listMktUser)
@@ -102,22 +106,24 @@ class MarketingController extends Controller
     }
     public function marketingSrcSearch(Request $req)
     {
+
         $list = SrcPage::orderBy('id', 'desc');
-        
 
         if ($req->search) {
             $list = $list->where('name', 'like', '%' . $req->search . '%');
         }
         
-        if ($req->mkt_user && $req->mkt_user != -1) {
+        if (($req->mkt_user && $req->mkt_user != -1)) {
             $list = $list->where('user_digital', $req->mkt_user);
+        } else if (!isFullAccess(Auth::user()->role)) {
+            $list = $list->where('user_digital', Auth::user()->id);
         }
         
         if ($req->group) {
             $list = $list->where('id_group', $req->group);
         }
 
-        $listMktUser = Helper::getListMktUser();   
+        $listMktUser = Helper::getListMktUser(Auth::user());   
         $listGroup = Helper::getListGroup();
         $list = $list->paginate(30);
 
@@ -511,7 +517,11 @@ class MarketingController extends Controller
     public function srcPage()
     {
         $list = SrcPage::orderBy('id', 'desc')->paginate(30);
-        $listMktUser = Helper::getListMktUser();
+        $checkAll = isFullAccess(Auth::user()->role);
+        if (!$checkAll) {
+            $list = $list->where('user_digital', Auth::user()->id);
+        }
+        $listMktUser = Helper::getListMktUser(Auth::user());
         
         $listGroup = Helper::getListGroup();
         return view('pages.marketing.src.index')->with('list', $list)
@@ -526,8 +536,11 @@ class MarketingController extends Controller
      */
     public function index(Request $r)
     {
-        // dd(count($r->all()));
+        $checkAll = isFullAccess(Auth::user()->role);
         if (count($r->all())) {
+            if (!$checkAll) {
+                $r['mkt_user'] = Auth::user()->id;
+            }
             return $this->marketingSearch($r);
         } 
 
@@ -538,18 +551,25 @@ class MarketingController extends Controller
             'daterange' => $today,
         ];
 
+        
+        if (!$checkAll) {
+            $params['mkt_user'] = Auth::user()->id;
+        }
+
         $request = new \Illuminate\Http\Request();
         $request->replace($params);
-        return $this->marketingSearch($request);
-        // dd('yau');
-        $data = $this->getListMktReport();
-        dd($data);
-        $data = $this->cleanDataMktReport($data);
+       
 
-        $listMktUser = Helper::getListMktUser();
-        $listGroup = Helper::getListGroup();
-        return view('pages.marketing.index')->with('list', $data)
-            ->with('listMktUser', $listMktUser)
-            ->with('listGroup', $listGroup);
+        return $this->marketingSearch($request);
+
+        // $data = $this->getListMktReport();
+        // dd($data);
+        // $data = $this->cleanDataMktReport($data);
+
+        // $listMktUser = Helper::getListMktUser();
+        // $listGroup = Helper::getListGroup();
+        // return view('pages.marketing.index')->with('list', $data)
+        //     ->with('listMktUser', $listMktUser)
+        //     ->with('listGroup', $listGroup);
     }
 }

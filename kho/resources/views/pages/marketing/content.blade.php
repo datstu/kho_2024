@@ -57,12 +57,14 @@ if ($sumOrder) {
                 <div class="col-sm-10">
                     <div class="row">
                         <div class="col-xs-12 col-md-3 form-group">
-                            <span id="dnn_ctr1440_Main_MarketingTacNghiep_lblModuleTitle" class="text">Marketing dashboard</span>
+                            <a class="home-sale-index" href="{{{route('marketing-TN')}}}"> 
+                                <span id="dnn_ctr1440_Main_MarketingTacNghiep_lblModuleTitle" class="text">Marketing dashboard</span>
+                            </a>
                         </div>
                         
                         <div class="col-sm-12 col-md-9 form-group">
                             <div class="row">
-                                <div class="col-xs-12 col-md-2 form-group ">
+                                <div class="col-xs-12 col-md-4 form-group ">
                                     <select id="mkt_user" name="mkt_user">
                                         <option selected="selected" value="-1">--Chọn Marketing--</option>
                                         @foreach ($listMktUser->get() as $user)
@@ -72,7 +74,7 @@ if ($sumOrder) {
                                 </div>
 
                                 
-                                <div class="col-xs-12 col-md-2 form-group">
+                                <div class="col-xs-12 col-md-4 form-group">
                                     <select id="type_customer" name="type_customer">
                                         <option selected="selected" value="-1">--Tất cả khách--</option>
                                        <option value="0">Khách mới</option>

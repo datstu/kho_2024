@@ -44,6 +44,7 @@ class OrdersController extends Controller
 
     public function  getListOrderByPermisson($user, $dataFilter = null) 
     {
+        // dd($dataFilter);
         $roles  = $user->role;
         $list   = Orders::orderBy('id', 'desc');
         if ($dataFilter) {
@@ -208,8 +209,10 @@ class OrdersController extends Controller
                    
             } 
 
+            // dd($dataFilter['type_customer']);
             if (isset($dataFilter['type_customer']) && $dataFilter['type_customer'] != -1) {
 
+                // dd($list->get());
                 $resultFilter = [];
                 foreach ($list->get() as $k => $order) {
                     /** loại phần tử ko thoả khỏi list order */
@@ -251,11 +254,10 @@ class OrdersController extends Controller
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
         $routeName = \Request::route();
 
-        // dd($list->get());
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
-        } else if ((!$checkAll || !$isLeadSale) && !$user->is_digital) {
+        } else if ((!$checkAll || !$isLeadSale) && !$user->is_digital && $user->sale) {
             /** sale đag xem report của mình */
             $list = $list->where('assign_user', $user->id);
         }

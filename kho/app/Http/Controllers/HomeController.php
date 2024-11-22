@@ -984,123 +984,57 @@ class HomeController extends Controller
             $dataFilter['group'] = $group;
         }
 
-        $listDigital = [
-            [
-                'name' => 'Mr Nguyên',
-                'mkt' => 1,
-            ],
-            [
-                'name' => 'Mr Tiễn',
-                'mkt' => 2,
-            ],
-            [
-                'name' => 'Di Di',
-                'mkt' => 3,
-            ],
-        ];
-
         $checkAll = isFullAccess(Auth::user()->role);
         if (!$checkAll && Auth::user()->is_digital == 1) {
-            if (Auth::user()->name == 'digital.tien') {
-                $dataFilter['mkt'] = 2;
-            } else if (Auth::user()->name == 'digital.tien') {
-                $dataFilter['mkt'] = 3;
-            }
-           
+            // if (Auth::user()->name == 'digital.tien') {
+            //     $dataFilter['mkt'] = 2;
+            // } else if (Auth::user()->name == 'digital.tien') {
+            //     $dataFilter['mkt'] = 3;
+            // } 
+            $dataFilter['mkt'] = Auth::user()->id;
         } 
 
         $dataDigital = [];
         $listDigital = User::where('status', 1)->where('is_digital', 1)->orderBy('id', 'DESC');
         // dd($dataFilter);
         if (isset($dataFilter['mkt']) ) {
-            if ($dataFilter['mkt'] == 1) {
-                $digital =  [
-                    'name' => 'Mr Nguyên',
-                    'mkt' => 1,
-                ];
-            } else if ($dataFilter['mkt'] == 2) {
-                $digital = [
-                    'name' => 'Mr Tiễn',
-                    'mkt' => 2,
-                ];
-            } else if ($dataFilter['mkt'] == 3) {
-                $digital = [
-                    'name' => 'Di Di',
-                    'mkt' => 3,
-                ];
-            } 
-            
-            // dd('hi');
+            $listDigital = $listDigital->where('id', $dataFilter['mkt']);
+        }
+
+        foreach ($listDigital->get() as $digital) {
             $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
-            $data = [];
-            $data = ['name' => $digital['name']];
+            $data = ['name' => $digital->real_name];
             $dataFilter['mkt'] = $digital['mkt'];
 
-            /** khách mới */
-            $dataFilter['type_customer'] = 0;
-            // dd($dataFilter);
-            $newCustomer = $this->getSaleByType($dataFilter, 'new');
-           
+            $time = $dataFilter['daterange'];
+            
+            $newCustomer = $this->getDataDigitalAjax($digital->id, 0, $time[0], $time[1]);
+
             $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
             $newCountOrder = $newCustomer['order'];
-            // dd($newCustomer);
-            // /** khách cũ */
-            $dataFilter['type_customer'] = 1;
-            $oldCustomer = $this->getSaleByType($dataFilter, 'old');
+
+            $oldCustomer = $this->getDataDigitalAjax($digital->id, 1, $time[0], $time[1]);
             $oldTotal = Helper::stringToNumberPrice($oldCustomer['total']);
             $oldCountOrder = $oldCustomer['order'];
 
             $data['new_customer'] = $newCustomer;
-            $data['old_customer'] =  $oldCustomer;
+            $data['old_customer'] = $oldCustomer;
 
             $totalSum = $newTotal + $oldTotal;
-          
             if ($newCountOrder != 0 || $oldCountOrder != 0) {
                 $avgSum = $totalSum / ($newCountOrder + $oldCountOrder);
             }
-            // dd($oldCountOrder);
+
             $data['summary_total'] = [
                 'total' => round($totalSum, 0),
                 'avg' => round($avgSum, 0),
             ];
 
-            $resultDigital['data'][] = $data;
-
-        } else {
-            foreach ($listDigital->get() as $digital) {
-                $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
-                $data = ['name' => $digital->real_name];
-                $dataFilter['mkt'] = $digital['mkt'];
-
-                $time = $dataFilter['daterange'];
-               
-                $newCustomer = $this->getDataDigitalAjax($digital->id, 0, $time[0], $time[1]);
-
-                $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
-                $newCountOrder = $newCustomer['order'];
-
-                $oldCustomer = $this->getDataDigitalAjax($digital->id, 1, $time[0], $time[1]);
-                $oldTotal = Helper::stringToNumberPrice($oldCustomer['total']);
-                $oldCountOrder = $oldCustomer['order'];
- 
-                $data['new_customer'] = $newCustomer;
-                $data['old_customer'] = $oldCustomer;
-
-                $totalSum = $newTotal + $oldTotal;
-                if ($newCountOrder != 0 || $oldCountOrder != 0) {
-                    $avgSum = $totalSum / ($newCountOrder + $oldCountOrder);
-                }
-
-                $data['summary_total'] = [
-                    'total' => round($totalSum, 0),
-                    'avg' => round($avgSum, 0),
-                ];
-
-                $dataDigital[] = $data;
-            }
-
-            $resultDigital['data'] = $dataDigital;
+            $dataDigital[] = $data;
         }
+
+        $resultDigital['data'] = $dataDigital;
+        
 
         $resultDigital['trSum'] = Helper::getSumCustomer($resultDigital['data']);
 
@@ -1111,7 +1045,13 @@ class HomeController extends Controller
     public function getReportHomeDigitalV2($time)
     {
         $result = [];
+
+        $checkAll = isFullAccess(Auth::user()->role);
         $listDigital = User::where('status', 1)->where('is_digital', 1)->orderBy('id', 'DESC');
+
+        if (!$checkAll) {
+            $listDigital = $listDigital->where('id', Auth::user()->id);
+        }
 
         foreach ($listDigital->get() as $k => $digital) {
             $result[$k]['name'] = $digital->real_name;

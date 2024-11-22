@@ -992,10 +992,19 @@ class Helper
         return $type;
     }
 
-    public static function getListMktUser()
+    public static function getListMktUser($user = null)
     {
         $list = User::where('status', 1)->where('is_digital', 1)
-            ->orWhere('role', 'like', '%' . '1' . '%')->orderBy('id','DESC');
+            // ->orWhere('role', 'like', '%' . '1' . '%')
+            ->orderBy('id','DESC');
+
+        if ($user && !isFullAccess($user->role)) {
+            // dd($list->get());
+            $list = $list->where('id', $user->id);
+           
+        }    
+
+       
         return $list;
     }
 
