@@ -213,9 +213,10 @@ class MarketingController extends Controller
 
         $listOrders = $ordersController->getListOrderByPermisson($userAdmin, $dataFilter);
         $listOrderKeySrc = [];
+       
         foreach ($listOrders->get() as $order) {
             // dd($order->saleCare)
-            // if ($order->id != 2148) {
+            // if ($order->id != 3231) {
             //     continue;
             // }
 
@@ -310,8 +311,8 @@ class MarketingController extends Controller
             if (!$saleCare->page_id && !$saleCare->page_name && !$saleCare->page_link) {
                 $saleCare = SaleCare::orderBy('id', 'asc')->where('phone', $saleCare->phone)->first();
             }
-           
-            if ($saleCare->page_id && $saleCare->page_id != 'tricho') {
+
+            if ($saleCare->page_id && $saleCare->page_id != 'tricho' && $saleCare->page_id != 'ladi') {
                 $pageId = $saleCare->page_id;
                 $src = SrcPage::where('id_page', $pageId);
             } else if ($saleCare->page_link) {
@@ -547,6 +548,7 @@ class MarketingController extends Controller
         $today = date("Y/m/d") . '-' . date("Y/m/d");
         // $today = date() . '-' . date();
         // dd($today);
+        // $today = '2024/11/21-2024/11/21';
         $params = [
             'daterange' => $today,
         ];
