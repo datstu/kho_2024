@@ -59,7 +59,7 @@ class OrdersController extends Controller
                 $list->whereDate('created_at', '>=', $dateBegin)
                     ->whereDate('created_at', '<=', $dateEnd);
             }
-            
+
             if (isset($dataFilter['status'])) {
                 $list->whereStatus($dataFilter['status']);
             }
@@ -209,10 +209,8 @@ class OrdersController extends Controller
                    
             } 
 
-            // dd($dataFilter['type_customer']);
             if (isset($dataFilter['type_customer']) && $dataFilter['type_customer'] != -1) {
 
-                // dd($list->get());
                 $resultFilter = [];
                 foreach ($list->get() as $k => $order) {
                     /** loại phần tử ko thoả khỏi list order */
@@ -257,7 +255,7 @@ class OrdersController extends Controller
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $list = $list->where('assign_user', $dataFilter['sale']);
-        } else if ((!$checkAll || !$isLeadSale) && !$user->is_digital && $user->sale) {
+        } else if ((!$checkAll || !$isLeadSale) && !$user->is_digital && $user->is_sale) {
             /** sale đag xem report của mình */
             $list = $list->where('assign_user', $user->id);
         }
