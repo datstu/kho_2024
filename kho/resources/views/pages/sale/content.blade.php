@@ -74,7 +74,7 @@
 ?>
 <style>
     .hidden {
-        display: none !important;
+        display: none;
     }
     .border-select-box-se {
         box-sizing: border-box;
@@ -153,8 +153,7 @@
         position: fixed;
         right: 39%;
         top: 50%;
-        height: 80px;
-        border-radius: 50px;
+        z-index: 999;
     }
     .form-select {
         font-size: 14px;
@@ -323,7 +322,7 @@
         
         <div class="box-body">
             <div class="loader hidden">
-                <img src="{{asset('public/images/new-loader.gif')}}" alt="">
+                <img src="{{asset('public/images/rocket.svg')}}">
             </div>
             <!-- Trigger the modal with a button -->
             <a data-toggle="modal" data-target="#myModal" class="tao-don-fixed">
@@ -560,7 +559,7 @@
                         
                     <table class="table table-bordered table-multi-select table-sale">
                         <thead>
-                            <tr class="drags-area hidden-xs hidden">
+                            {{-- <tr class="drags-area hidden-xs hidden">
                                 <th class="text-center no-wrap" colspan="2" style="top: 0px;">
                                     <span class="area5"><span>NGUỒN DỮ LIỆU</span></span>
                                 </th>
@@ -573,7 +572,7 @@
                                 <th class="text-center no-wrap" colspan="3" style="top: 0px;">
                                     <span class="area3"><span>THÔNG TIN ĐƠN HÀNG</span></span>
                                 </th>
-                            </tr>
+                            </tr> --}}
                             <tr class="drags-area">
                                 <th style="top: 0.5px;">
                                     <span class="chk-all">
@@ -585,7 +584,7 @@
                                     <span class="chk-all"><input id="dnn_ctr1441_Main_SaleTacNghiep_chkAll" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkAll"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkAll">&nbsp;</label></span></th>
                                 <th style="width: 60px; top: 0px;" class="text-center hidden">Id</th>
 
-                                <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;"><span class="span-col" style="width: 80px;">Nguồn dữ liệu</span><br>
+                                <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px; " ><span style="display: inline-block; min-width: 200px;" class="span-col">Nguồn dữ liệu</span><br>
                                     Ngày data về</th>
                                 <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;"><span class="span-col" style="width: 120px;">Sale
                                 <br>
@@ -600,7 +599,7 @@
                                 </th>
                                 <th class="text-center no-wrap area1  hidden-xs" style="top: 0.5px;"><span class="span-col td-message td-793">Tin nhắn</span></th>
                                 <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col" style="display: inline-block; min-width: 200px;">TN cần</span></th>
-                                <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; min-width: 150px; max-width: 200px;">Kết quả</span></th>
+                                <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; min-width: 200px;">Kết quả</span></th>
                                 <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col">TN tiếp</span></th>
                                 <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col">Sau</span><br>
                                     Còn lại</th>
@@ -642,7 +641,9 @@
                                 <td class="text-center area5 hidden-xs result-TN-col">
                                     @if ($checkAll || $isLeadSale)
                                     <div class="text-right">
-                                        <a onclick="return confirm('Bạn muốn xóa data này?')" href="{{route('sale-delete',['id'=>$item->id])}}" id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnXoaContact" title="Xóa data" class="btn-icon aoh">
+                                        <a data-id="{{$item->id}}"
+                                        {{-- href="{{route('sale-delete',['id'=>$item->id])}}"  --}}
+                                        title="Xóa data" class="btn-icon aoh removeBtn">
                                             <i class="fa fa-trash"></i>
                                         </a>
                                         <a title="chỉ định Sale nhận data" data-id="{{$item->id}}" class="update-assign-TN-sale btn-icon aoh">
@@ -1294,6 +1295,7 @@ if (cateCall) {
                         $('#notify-modal').modal('show');
                         if ($('.modal-backdrop-notify').length === 0) {
                             $('.modal-backdrop').addClass('modal-backdrop-notify');
+                            $('#notify-modal .modal-title').html('Cập nhật data thành công!');
                         }
 
                         $(tr).addClass('success');
@@ -1319,6 +1321,7 @@ if (cateCall) {
         var _token   = $("input[name='_token']").val();
         console.log(value);
         $('.body').css("opacity", '0.5');
+        $('.loader').show();
         $.ajax({
             url: "{{route('update-salecare-result')}}",
             type: 'POST',
@@ -1331,7 +1334,6 @@ if (cateCall) {
                 $('.body').css("opacity", '1');
                 var tr = '.tr_' + id;
                 if (!data.error) {
-                    //update type TN
                     var trId = 'tr.tr_' + id;
                     console.log(data.nextTN);
                     if (data.classHasTN) {
@@ -1340,26 +1342,21 @@ if (cateCall) {
                         $(trId + ' .type-TN span.fb').addClass('ttgh7');
                     }
 
-                    
                     $(trId + ' td.next-TN').text(data.nextTN);
-                    
                     
                     $('#notify-modal').modal('show');
                     if ($('.modal-backdrop-notify').length === 0) {
-                        $('.modal-backdrop').addClass('modal-backdrop-notify');
-                    }
+                        $('.modal-backdrop').addClass('modal-backdrop-notify');  
+                    } 
 
-                    $(tr).addClass('success');
-                    setTimeout(function() { 
+                    $('#notify-modal .modal-title').text('Cập nhật data thành công!');
+
+                    setTimeout(function() {
+                        $('#notify-modal .modal-title').text('');
                         $('#notify-modal').modal("hide");
-                        $(tr).removeClass('success');
                     }, 2000);
                 } else {
                     alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
-                    // $(tr).addClass('error');
-                    setTimeout(function() { 
-                        $(tr).removeClass('error');
-                    }, 3000);
                 }
                 $('.loader').hide();
             }
@@ -1371,11 +1368,8 @@ if (cateCall) {
         var id = $(this).data("id");
         var textArea = "select[name='assignTNSale_" + id + "']";
         var assignSale  = $(textArea).val();
-        // console.log(assignSale);
-        // var textTN   = $(textArea).val();
         var _token   = $("input[name='_token']").val();
-        // console.log('koko', id);
-        // return;
+
         $.ajax({
             url: "{{route('update-salecare-assign')}}",
             type: 'POST',
@@ -1393,17 +1387,14 @@ if (cateCall) {
                         $('.modal-backdrop').addClass('modal-backdrop-notify');
                     }
 
-                    // $(tr).addClass('success');
-                    setTimeout(function() { 
+                    $('#notify-modal .modal-title').text('Cập nhật data thành công!');
+
+                    setTimeout(function() {
+                        $('#notify-modal .modal-title').text('')
                         $('#notify-modal').modal("hide");
-                        // $(tr).removeClass('success');
                     }, 2000);
                 } else {
                     alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
-                    // $(tr).addClass('error');
-                    setTimeout(function() { 
-                        // $(tr).removeClass('error');
-                    }, 3000);
                 }
                 $('.loader').hide();
             }
@@ -1489,4 +1480,49 @@ if (cateCall) {
             $(this).children('i').addClass('fa-angle-double-up');
         }
     });
+</script>
+
+<script>
+    $('.removeBtn').click(function (event) {
+    if (confirm('Bạn muốn xóa data này?')) {
+        var id = $(this).data("id");
+        var link = "{{URL::to('/xoa-sale-care/')}}/" + id;
+        var _token   = $("input[name='_token']").val();
+
+        $('.body').css("opacity", '0.5');
+        $('.loader').show();
+        $.ajax({
+            url: link,
+            type: "POST",
+            data: {
+                id,
+                _token: _token,
+            },
+            success: function (data) {
+                $('.body').css("opacity", '1');
+                
+                if (!data.error) {
+                    $('#notify-modal').modal('show');
+                    if ($('.modal-backdrop-notify').length === 0) {
+                        $('.modal-backdrop').addClass('modal-backdrop-notify');
+                    }
+
+                    $('#notify-modal .modal-title').html('Xoá data thành công!');
+
+                    setTimeout(function() {
+                        $('#notify-modal .modal-title').text('');
+                        $('#notify-modal').modal("hide");
+                    }, 2000);
+                    
+                    var tr = '.tr_' + id;
+                    $(tr).delay(1000).hide(0);
+                } else {
+                    alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
+                }
+
+                $('.loader').hide();
+            }
+        });
+    }
+});
 </script>

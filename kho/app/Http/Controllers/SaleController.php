@@ -922,14 +922,16 @@ class SaleController extends Controller
     
     public function delete($id)
     {
-        $saleCare = SaleCare::find($id);
-        if($saleCare){
-            $saleCare->delete();
-            notify()->success('Xoá data thành công.', 'Thành công!');            
-        } else {
-            notify()->error('Xoá loại TN thất bại!', 'Thất bại!');
+        if (isFullAccess(Auth::user()->role)) {
+            $saleCare = SaleCare::find($id);
+            if($saleCare){
+                $saleCare->delete();
+                return response()->json(['success' => 'Xoá TN thành công!']);          
+            } else {
+                return response()->json(['error'=>'Xoá TN thất bại']);
+            }
         }
-        
+
         return back();
     }
 
