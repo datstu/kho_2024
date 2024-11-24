@@ -100,7 +100,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/sale-hien-thi-TN-box/{id}',  [SaleController::class, 'saleViewListTNBox'])->name('sale-view-TN-box');
     Route::post('/save-box-TN',  [SaleController::class, 'saveBoxTN'])->name('save-box-TN');
     Route::get('/sale-view-luu-TN-box/{id}',  [SaleController::class, 'saleViewSaveTNBox'])->name('sale-view-save-TN-box');
-    Route::get('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
+    Route::post('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
 
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
     Route::get('/tao-loai-TN-sale',  [CategoryCallController::class, 'add'])->name('category-call-add');
