@@ -199,6 +199,10 @@ class SaleController extends Controller
             $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
             $saleCare->group_id             = $req->group_id;
             $saleCare->has_old_order        = ($req->has_old_order) ?: 0;
+
+            if ($req->src_id) {
+                $saleCare->src_id               = $req->src_id;
+            }
             
             $srcId = $req->src;
             if ($srcId) {
@@ -259,9 +263,10 @@ class SaleController extends Controller
 
                         $textSrcPage = $req->text;
 
-                        $srcPageId = $req->src;
+                        // dd($textSrcPage);
+                        $srcPageId = $req->src_id;
                         $srcPage = SrcPage::find($srcPageId);
-                        if(!$textSrcPage && $srcPage) {
+                        if($srcPage) {
                             $textSrcPage = $srcPage->name;
                         }
 

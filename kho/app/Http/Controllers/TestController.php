@@ -518,6 +518,7 @@ class TestController extends Controller
         // }
       $pages = $group->srcs;
 
+
 // dd($pages);
       foreach ($pages as $page) {
         //  if ($page->id != 25) {
@@ -531,6 +532,8 @@ class TestController extends Controller
   }
    public function crawlerPancakePage($page, $group)
   { 
+    // dd($page);
+    $srcId = $page->id;
     $pIdPan = $page->id_page;
     $token  = $page->token;
     $namePage = $page->name;
@@ -582,8 +585,6 @@ class TestController extends Controller
                
             //   $mId = 'aaa';
               $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
-              
-              
 
               if ($name && $checkSaleCareOld) {  
                 if ($assgin_user == 0) {
@@ -616,6 +617,7 @@ class TestController extends Controller
                   'is_duplicate' => $is_duplicate,
                   'group_id'  => $group->id,
                   'has_old_order'  => $hasOldOrder,
+                  'src_id'  => $srcId,
                 ];
 
                 $request = new \Illuminate\Http\Request();

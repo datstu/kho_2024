@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Response;
 use App\Helpers\Helper;
 use App\Models\Group;
+use App\Models\SrcPage;
 
 class LadipageController  extends Controller
 {
@@ -100,11 +101,20 @@ class LadipageController  extends Controller
         
         if (str_contains($linkPage, 'tricho-bacillus-km')) {
             $linkPage = 'https://www.nongnghiepsachvn.net/tricho-bacillus-km';
+        } else if (str_contains($linkPage, 'uudai45-damtom')) {
+            $linkPage = 'https://www.phanbonorganic.com/uudai45-damtom';
         } else if (str_contains($linkPage, 'uudai45')) {
             $linkPage = 'https://www.phanbonorganic.com/uudai45';
         } else if (str_contains($linkPage, 'uudai-trichoderma')) {
             $linkPage = 'https://www.phanbonorganic.com/uudai-trichoderma';
         }
+
+        $src = SrcPage::where('link', $linkPage)->first();
+
+        if (!$src) {
+            return;
+        }
+
         Log::info($linkPage);
         $group = Helper::getGroupByLinkLadi($linkPage);
         
@@ -143,8 +153,10 @@ class LadipageController  extends Controller
                 'is_duplicate' => $is_duplicate,
                 'group_id'  => $group->id,
                 'has_old_order'  => $hasOldOrder,
+                'src_id' => $src->id,
             ];
 
+            // dd($data);
             Log::info( $data);
             $request = new \Illuminate\Http\Request();
             $request->replace($data);

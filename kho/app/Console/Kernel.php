@@ -230,8 +230,6 @@ class Kernel extends ConsoleKernel
     }
   }
 
-
-  
   public function crawlerPancake()
   {
     $panCake = Helper::getConfigPanCake();
@@ -421,6 +419,7 @@ class Kernel extends ConsoleKernel
   }
   public function crawlerPancakePage($page, $group)
   {
+    $srcId = $page->id;
     $pIdPan = $page->id_page;
     $token  = $page->token;
     $namePage = $page->name;
@@ -490,6 +489,7 @@ class Kernel extends ConsoleKernel
                   'is_duplicate' => $is_duplicate,
                   'group_id'  => $group->id,
                   'has_old_order'  => $hasOldOrder,
+                  'src_id'  => $srcId,
                 ];
 
                 $request = new \Illuminate\Http\Request();

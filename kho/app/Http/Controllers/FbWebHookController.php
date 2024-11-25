@@ -77,6 +77,7 @@ class FbWebHookController extends Controller
 
         $chatId = $group->tele_hot_data;
         $linkPage = $pageSrc->link;
+        $srcId = $pageSrc->id;
         $namePage = $pageSrc->name;
         Log::channel('a')->info('$namePage' . $namePage);
         if ($checkSaleCareOld) {  
@@ -108,6 +109,7 @@ class FbWebHookController extends Controller
                 'is_duplicate' => $is_duplicate,
                 'group_id'  => $group->id,
                 'has_old_order'  => $hasOldOrder,
+                'src_id' => $srcId,
             ];
 
             $request = new \Illuminate\Http\Request();
