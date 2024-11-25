@@ -747,7 +747,10 @@
                                     </div>
                                 </td>
                                 <td class="area1 hidden-xs td-5055" style="max-width: 100px;">
-                                    <span style="cursor: pointer;">
+                                    <span style="cursor: pointer;
+    overflow: hidden;
+    max-height: 100px;
+    display: block;">
                                         {{$item->messages}}
                                     </span>
                                 </td>
