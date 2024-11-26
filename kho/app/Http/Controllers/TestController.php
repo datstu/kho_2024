@@ -748,6 +748,15 @@ class TestController extends Controller
             // 'old_customer' => 1
           ];
 
+          if ($order->saleCare->src_id) {
+            $data['src_id'] = $order->saleCare->src_id;
+          } else if ($order->saleCare->type != 'ladi') {
+            $pageSrc = SrcPage::where('id_page', $order->saleCare->page_id)->first();
+            if ($pageSrc) {
+              $data['src_id'] = $pageSrc->id;
+            }
+          }
+
           if ($issetOrder || $order->id) {
             $data['old_customer'] = 1;
           }
