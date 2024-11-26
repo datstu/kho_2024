@@ -930,6 +930,21 @@ class SaleController extends Controller
         if (isFullAccess(Auth::user()->role)) {
             $saleCare = SaleCare::find($id);
             if($saleCare){
+                if ($saleCare->listHistory->count() > 0) {
+                    foreach ($saleCare->listHistory as $item) {
+
+                        $listImgJson = $item->img;
+                        $listImg = json_decode($listImgJson, true);
+
+                        foreach ($listImg as $img) {
+                            $image_path = public_path("files/" . $img);  // Value is not URL but directory file path
+                            if(File2::exists($image_path)) {
+                                File2::delete($image_path);
+                            }
+                        }
+                    }
+                }
+
                 $saleCare->delete();
                 return response()->json(['success' => 'Xoá TN thành công!']);          
             } else {
@@ -990,5 +1005,20 @@ class SaleController extends Controller
         }
 
         return response()->json(['error' => 'Đã có lỗi xảy ra trong quá trình cập nhật kết quả TN']);
+    }
+
+    public function deleteListSC(Request $r)
+    {
+        $listIdJson = $r->list_id;
+        if ($listIdJson) {
+            $listId = json_decode($listIdJson);
+            $listSc = SaleCare::whereIn('id', $listId)->pluck('id');
+            foreach ($listSc as $id) {
+                $this->delete($id);
+            }
+
+            // return response()->json(['error' => 'Đã có lỗi xảy ra trong quá trình cập nhật kết quả TN']);
+        }
+        
     }
 }

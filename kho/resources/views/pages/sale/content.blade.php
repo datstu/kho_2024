@@ -283,8 +283,13 @@
                     <div class="row header-top-filter" style="">
                         <div id="dnn_ctr1441_Main_SaleTacNghiep_divTitle" class="col-sm-2 form-group">
                             <a class="home-sale-index" href="{{{route('sale-index')}}}"><span id="dnn_ctr1441_Main_SaleTacNghiep_lblModuleTitle" class="text">Sale tác nghiệp</span></a>
+                            
                         </div>
-                        <div class="col-sm-10" style="display: flex; justify-content: flex-end;">
+                        <div class="col-sm-2">
+                            <button class="hidden btn btn-sm btn-primary delete-data-SC" type="button">Xoá <span id="total-val" list_id="[]" data-total="0"></span></button>
+                        </div>
+                        
+                        <div class="col-sm-8" style="display: flex; justify-content: flex-end;">
                             <div class="col-xs-12 col-sm-6 col-md-2 form-group" style="padding:0 15px;"> 
                                 
                                 @if ($checkAll  || $isLeadSale)
@@ -319,7 +324,6 @@
                 </div>
             </div>
         </div>
-        
         <div class="box-body">
             <div class="loader hidden">
                 <img src="{{asset('public/images/rocket.svg')}}">
@@ -559,34 +563,24 @@
                         
                     <table class="table table-bordered table-multi-select table-sale">
                         <thead>
-                            {{-- <tr class="drags-area hidden-xs hidden">
-                                <th class="text-center no-wrap" colspan="2" style="top: 0px;">
-                                    <span class="area5"><span>NGUỒN DỮ LIỆU</span></span>
-                                </th>
-                                <th class="text-center no-wrap" colspan="3" style="top: 0px;">
-                                    <span class="area1"><span>THÔNG TIN KHÁCH HÀNG </span></span>
-                                </th>
-                                <th class="text-center no-wrap" colspan="5" style="top: 0px;">
-                                    <span class="area2"><span>TÁC NGHIỆP SALE</span></span>
-                                </th>
-                                <th class="text-center no-wrap" colspan="3" style="top: 0px;">
-                                    <span class="area3"><span>THÔNG TIN ĐƠN HÀNG</span></span>
-                                </th>
-                            </tr> --}}
                             <tr class="drags-area">
                                 <th style="top: 0.5px;">
-                                    <span class="chk-all">
-                                        
+                                    @if ($checkAll)
+                                    <span class="chk-all" style="display: inline-block; min-width: 40px;">
+                                        <input id="checkAllId" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkAll">
+                                        <label for="checkAllId" ></label></span>
+                                    @else 
+                                        <span class="chk-all" style="display: inline-block; min-width: 40px;">
                                         <label for="dnn_ctr1441_Main_SaleTacNghiep_chkItem">&nbsp;</label></span>
+                                    @endif
                                 </th>
                                 {{-- <th style="top: 0.5px;">Mã đơn</th> --}}
-                                <th class="text-center hidden" style="width: 50px; top: 0px;">
-                                    <span class="chk-all"><input id="dnn_ctr1441_Main_SaleTacNghiep_chkAll" type="checkbox" name="dnn$ctr1441$Main$SaleTacNghiep$chkAll"><label for="dnn_ctr1441_Main_SaleTacNghiep_chkAll">&nbsp;</label></span></th>
-                                <th style="width: 60px; top: 0px;" class="text-center hidden">Id</th>
+                               
+                                {{-- <th style="width: 60px; top: 0px;" class="text-center hidden">Id</th> --}}
 
                                 <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px; " ><span style="display: inline-block; min-width: 200px;" class="span-col">Nguồn dữ liệu</span><br>
                                     Ngày data về</th>
-                                <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;"><span class="span-col" style="width: 120px;">Sale
+                                <th class="text-center no-wrap area5 hidden-xs" style="top: 0.5px;"><span class="span-col" style="display: inline-block; width: 120px;">Sale
                                 <br>
                                     Ngày nhận data</span></th>
 
@@ -621,8 +615,17 @@
                             @foreach ($saleCare as $item)
                             <tr class="contact-row tr_{{$item->id}}">
                                 <td class="text-center">
+
+                                    @if ($checkAll)
                                     <span class="chk-item">
-                                        <input type="checkbox" id=""><label for="">{{$i}}</label></span>
+                                        <input data-id="{{$item->id}}" value="{{$item->id}}" class="chk-item-input" type="checkbox" id="{{$item->id}}">
+                                        <label for="{{$item->id}}">{{$i}}</label>
+                                    </span>
+                                    @else 
+                                    <span class="chk-item">
+                                        {{$i}}
+                                    </span>
+                                    @endif
                                 </td>
                                 <td class="text-center hidden">
                                     <span class="chk-item"><input id="" type="checkbox" name="">
@@ -747,10 +750,7 @@
                                     </div>
                                 </td>
                                 <td class="area1 hidden-xs td-5055" style="max-width: 100px;">
-                                    <span style="cursor: pointer;
-    overflow: hidden;
-    max-height: 100px;
-    display: block;">
+                                    <span style="cursor: pointer; overflow: hidden; max-height: 100px; display: block;">
                                         {{$item->messages}}
                                     </span>
                                 </td>
@@ -1528,4 +1528,126 @@ if (cateCall) {
         });
     }
 });
+</script>
+
+<script>
+    $("#checkAllId").click(function () {
+        $('.chk-item-input:checkbox').not(this).prop('checked', this.checked);
+
+        var $checkboxes = $('.chk-item-input:checkbox');
+        var countCheckedCheckboxes = $checkboxes.filter(':checked').length;
+
+        if (countCheckedCheckboxes > 0 ) {
+            $('.delete-data-SC').show();
+        } else {
+            $('.delete-data-SC').hide();
+        }
+
+        $('#total-val').data( "total", countCheckedCheckboxes );
+        $('#total-val').text('(' + countCheckedCheckboxes + ')');
+
+        var list = [];
+        $('.chk-item-input:checkbox:checked').each(function () {
+            list.push($(this).val());
+        });
+
+        list = list.map((x) => parseInt(x));
+
+        var listIdString = JSON.stringify(list);
+        $('#total-val').attr('list_id', listIdString);
+        console.log(list);
+    });
+
+    $(".chk-item-input").click(function () {
+
+        var total = $('#total-val').data('total');
+        var listId = $('#total-val').attr('list_id');
+
+        var id = $(this).data("id");
+        console.log('listId',listId)
+        console.log('id',id)
+
+        console.log(listId)
+        listId = JSON.parse(listId);
+
+        if ($(this).is(":checked")) {
+            total = parseInt(total) + 1;
+            if (listId.indexOf(id) == -1) {
+                listId.push(id);
+            }
+
+        } else {
+            total = parseInt(total) - 1;
+            if (listId.indexOf(id) > -1) {
+                listId.splice(listId.indexOf(id), 1);
+            }
+        }
+
+        if (total > 0 ) {
+            $('.delete-data-SC').show();
+        } else {
+            $('.delete-data-SC').hide();
+        }
+
+        var listIdString = JSON.stringify(listId);
+        $('#total-val').attr('list_id', listIdString);
+        $('#total-val').data( "total", total );
+        $('#total-val').text('(' + total + ')');
+    });
+
+    
+    $(".delete-data-SC").click(function () {
+        var total = $('#total-val').data('total');
+        var list_id = $('#total-val').attr('list_id');
+        if (confirm('Xác nhận xóa ' + total + ' data?')) {
+
+            var _token   = $("input[name='_token']").val();
+            var link = "{{URL::to('/xoa-danh-sach-sale-care')}}";
+            $('.body').css("opacity", '0.5');
+            $('.loader').show();
+            // console.log(list_id);
+            
+            $.ajax({
+                url: link,
+                type: "POST",
+                data: {
+                    list_id,
+                    _token: _token,
+                },
+                success: function (data) {
+                    $('.body').css("opacity", '1');
+                    
+                    if (!data.error) {
+                        $('#notify-modal').modal('show');
+                        if ($('.modal-backdrop-notify').length === 0) {
+                            $('.modal-backdrop').addClass('modal-backdrop-notify');
+                        }
+
+                        $('#notify-modal .modal-title').html('Xoá data thành công!');
+
+                        setTimeout(function() {
+                            $('#notify-modal .modal-title').text('');
+                            $('#notify-modal').modal("hide");
+                        }, 2000);
+                        
+                        list_id = JSON.parse(list_id);
+                        for ( var i = 0; i < list_id.length; i++) {
+                            console.log(list_id[i]);
+                            var tr = '.tr_' + list_id[i];
+                            $(tr).delay(1000).hide(0);
+                        }
+
+                        $('#total-val').attr('list_id', '[]');
+                        $('#total-val').data( "total", 0 );
+                        $('.delete-data-SC').hide();
+
+                    } else {
+                        alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
+                    }
+                   
+                    $('.loader').hide();
+                }
+            });
+        }
+    });
 </script>

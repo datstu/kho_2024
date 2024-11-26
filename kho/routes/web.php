@@ -101,6 +101,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/save-box-TN',  [SaleController::class, 'saveBoxTN'])->name('save-box-TN');
     Route::get('/sale-view-luu-TN-box/{id}',  [SaleController::class, 'saleViewSaveTNBox'])->name('sale-view-save-TN-box');
     Route::post('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
+    Route::post('/xoa-danh-sach-sale-care',  [SaleController::class, 'deleteListSC'])->name('sale-delete-list');
 
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
     Route::get('/tao-loai-TN-sale',  [CategoryCallController::class, 'add'])->name('category-call-add');
@@ -157,8 +158,8 @@ Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboar
 // Route::get('/test',  [TestController::class, 'hi'])->name('test');
 // Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');
 // Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
-Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
-// Route::get('/updateStatusOrderGhnV2',  [TestController::class, 'updateStatusOrderGhnV2'])->name('test');
+// Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
+Route::get('/test',  [TestController::class, 'updateStatusOrderGhnV2'])->name('test');
 // Route::get('/test', [FbWebHookController::class, 'webhook']);
 // Route::get('/test',  [TestController::class, 'testBaoKim'])->name('test');
 
