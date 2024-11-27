@@ -693,9 +693,7 @@
                                         @endif
                                     </div>
                                     @endif
-                            
 
-                            
                                     <div class="" style="text-overflow: ellipsis;">
                                         {{$item->full_name}}
                                     </div>
@@ -899,7 +897,12 @@
                                         </span>
                                         <div class="small-tip">
                                             @if ($item->orderNew)
-                                            {{$listStatus[$item->orderNew->status]}}
+                                            {{$listStatus[$item->orderNew->status]}} <br>
+
+                                                @if ($item->orderNew->shippingOrder)
+                                                <a  title="sửa" target="blank" href="{{route('detai-shipping-order',['id'=>$item->orderNew->shippingOrder->id])}}" role="button"> {{$item->orderNew->shippingOrder->order_code}}</a>
+                                                @endif
+                                            
                                             @endif
                                         </div>
                                     </span>
