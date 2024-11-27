@@ -450,6 +450,7 @@ class SaleController extends Controller
 
     public function getListSalesByPermisson($user, $dataFilter = null) 
     {
+        // dd($dataFilter);
         $roles  = $user->role;
         $list   = SaleCare::orderBy('id', 'desc');
 
@@ -649,13 +650,19 @@ class SaleController extends Controller
             }
 
             if (isset($dataFilter['resultTN'])) {
+
                 $idSaleCares = $list->pluck('id')->toArray();
                 $listInFilter = SaleCare:: join('call', 'call.id', '=', 'sale_care.result_call')
                     ->whereIn('sale_care.id', $idSaleCares)
                     ->where('call.result_call',$dataFilter['resultTN']);
                     
-                $newIdSaleCare = $listInFilter->pluck('sale_care.id')->toArray();
-                $list = SaleCare::whereIn('id', $newIdSaleCare);
+                    // dd($listInFilter->pluck('sale_care.id')->toArray());
+                /**
+                 * lấy tất cả data từ list sđt lọc ra trong đó có lần 1 lần 2 lần n
+                 * 0961630479
+                 */
+                $newPhone = $listInFilter->pluck('sale_care.phone')->toArray();
+                $list = SaleCare::whereIn('phone', $newPhone)->orderBy('id', 'desc');
             }
 
             $routeName = Route::currentRouteName();
