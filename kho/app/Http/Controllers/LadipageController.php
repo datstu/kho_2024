@@ -99,6 +99,7 @@ class LadipageController  extends Controller
         // $group = Group::where('link', 'like', '%' . $linkPage . '%')->first();
         // Log::channel('webhook')->info('--------------------------');
         
+        // dd( $linkPage);
         if (str_contains($linkPage, 'tricho-bacillus-km')) {
             $linkPage = 'https://www.nongnghiepsachvn.net/tricho-bacillus-km';
         } else if (str_contains($linkPage, 'uudai45-damtom')) {
@@ -109,21 +110,32 @@ class LadipageController  extends Controller
             $linkPage = 'https://www.phanbonorganic.com/uudai-trichoderma';
         }
 
-        $src = SrcPage::where('link', $linkPage)->first();
+        /** lấy list token của nguồn ladi (token = tricho-bacillus-km ....) */
+        $listSrcLadi = SrcPage::where('type', 'ladi')
+        ->whereNotNull("id_page")->get();
+        foreach ($listSrcLadi as $src) {
+            if (str_contains($linkPage, $src->id_page)) {
+                $group = $src->group;
+                // echo $src->id_page;
+                // dd(str_contains($linkPage, $src->id_page));
+                break;
+            }
+        }
 
         if (!$src) {
             return;
         }
 
-        Log::info($linkPage);
-        $group = Helper::getGroupByLinkLadi($linkPage);
+        // Log::info($linkPage);
+        // $group = Helper::getGroupByLinkLadi($linkPage);
         
         $blockPhone = ['0963339609','0344999668', '0344411068', '0841111116', '0841265116',
             '0918352409', '0841265117', '0348684430', '0777399687'];
+            // dd($group && !in_array($phone, $blockPhone));
         // if ($group && $phone != '0344411068' && $phone != '0841111116' && $phone != '0841265116' 
         //     && $phone != '0918352409' && $phone != '0841265117' && $phone != '0348684430' && $phone !='0777399687') {
         if ($group && !in_array($phone, $blockPhone)) {
-                        $chatId = $group->tele_hot_data;
+            $chatId = $group->tele_hot_data;
             $phone = Helper::getCustomPhoneNum($phone);
             $hasOldOrder = 0;
             $isOldDataLadi = Helper::isOldDataLadi($phone, $assgin_user, $group, $hasOldOrder, $is_duplicate);
@@ -156,7 +168,6 @@ class LadipageController  extends Controller
                 'src_id' => $src->id,
             ];
 
-            // dd($data);
             Log::info( $data);
             $request = new \Illuminate\Http\Request();
             $request->replace($data);

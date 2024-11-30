@@ -5,6 +5,7 @@
     @include('includes.head')
     <link href="{{ asset('public/css/pages/styleOrders.css'); }}" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
     .call label {
         display: flex;
@@ -191,10 +192,45 @@ $ladiPages = [
                                     </div>
                                 </div>
 
-                                <div class="row">            
-                                    <div class="col-sm-8 col-lg-6 mb-1">
+                                <div class="row mb-2">
+                                    <div class="col-sm-12 col-lg-3">
+                                        <label class="form-label" for="qtyIP">Chia data</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="shareDataSale" value="1"
+                                                id="flexRadioDefaultCSKH">
+                                            <label class="form-check-label" for="flexRadioDefaultCSKH">
+                                                Chỉ định sale nhận data
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input checked class="form-check-input" type="radio" name="shareDataSale" value="0"
+                                                id="flexRadioDefaultCSKH2" >
+                                            <label  class="form-check-label" for="flexRadioDefaultCSKH2">
+                                                Hệ thống tự chia data
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-lg-6 hidden" id="list-sale-cskh-div">
+                                        <label class="form-label" for="saleCskhIP">Sale Data Nóng</label>
+                                        {{-- <input value="{{$teleCskhData}}" class=" form-control" name="saleCskh" id="saleCskhIP" type="text" required>
+                                        <p class="error_msg" id="name"></p> --}}
+                                        {{-- <label for="like-color">Sale Data nóng</label> --}}
+                                        <div class="" >
+                                            <select name="assgin" id="assgin-filter" class="custom-select">
+                                                @if (isset($listSale))
+                                                @foreach ($listSale as $item)
+                                                    <option value="{{$item->id}}">{{$item->real_name}}</option>
+                                                @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12 col-lg-4 mb-2">
                                         <label class="form-label">Nguồn Data:</label>
-                                        <select name="src" id="src-filter" class="form-control" aria-label="Default select example">       
+                                        <select name="src_id" id="src-filter" class="form-control">       
                                                 
                                         @foreach ($listSrc as $page) 
                                             <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
@@ -202,31 +238,6 @@ $ladiPages = [
                         
                                         </select>
                                     </div>
-
-                                    <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                                    @if ($checkAll || $isLeadSale)
-                                    <div class="col-lg-2">
-                                        <label class="form-label">Chọn Sale:</label>
-                                        <select class="form-control" name="assgin" >
-
-                                        @if (isset($listSale))
-                                        @foreach ($listSale as $item)
-                                            <option value="{{$item->id}}">{{$item->real_name}}</option>
-                                        @endforeach
-                                        @endif
-
-                                        </select>
-                                        <p class="error_msg" id="price"></p>
-                                    </div>
-                                    @else 
-                                    <div class="col-lg-3 hidden">
-                                        <label class="form-label">Chọn Sale:</label>
-                                        <select class="form-control" name="assgin">
-                                            <option value="{{Auth::user()->id}}">{{Auth::user()->name}}</option>
-                                        </select>
-                                        <p class="error_msg" id="price"></p>
-                                    </div>
-                                    @endif
                                 </div>
 
                                 {{-- <div class="loader hidden text-center">
@@ -335,5 +346,25 @@ function deleteCall(val) {
 </script>
     @include('includes.foot')
     <script type="text/javascript" src="{{ asset('public/js/notify.js'); }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+<script>
+    $(function() {
+        $('#src-filter').select2();
+        $('#assgin-filter').select2();
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $("input[name='shareDataSale']").click(function() {
+        if ($(this).val() == 1) {
+            $("#list-sale-cskh-div").show();
+            $("#list-sale-cskh-div").focus();
+        } else {
+            $("#list-sale-cskh-div").hide();
+        }
+        });
+    });
+</script>
 </body>
 </html>
