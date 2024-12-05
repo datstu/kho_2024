@@ -73,7 +73,8 @@ class LadipageController  extends Controller
     public function index(Request $r) 
     {
         $phone = $r->phone;
-        $name = $r->name;
+        $name = ($r->name) ?? 'Không để tên';
+
         // $email = $r->email;
         $item = $r->form_item3209;
         $address = $r->address;
@@ -100,19 +101,23 @@ class LadipageController  extends Controller
         // Log::channel('webhook')->info('--------------------------');
         
         // dd( $linkPage);
-        if (str_contains($linkPage, 'tricho-bacillus-km')) {
-            $linkPage = 'https://www.nongnghiepsachvn.net/tricho-bacillus-km';
-        } else if (str_contains($linkPage, 'uudai45-damtom')) {
-            $linkPage = 'https://www.phanbonorganic.com/uudai45-damtom';
-        } else if (str_contains($linkPage, 'uudai45')) {
-            $linkPage = 'https://www.phanbonorganic.com/uudai45';
-        } else if (str_contains($linkPage, 'uudai-trichoderma')) {
-            $linkPage = 'https://www.phanbonorganic.com/uudai-trichoderma';
-        }
+        // if (str_contains($linkPage, 'tricho-bacillus-km')) {
+        //     $linkPage = 'https://www.nongnghiepsachvn.net/tricho-bacillus-km';
+        // } else if (str_contains($linkPage, 'uudai45-damtom')) {
+        //     $linkPage = 'https://www.phanbonorganic.com/uudai45-damtom';
+        // } else if (str_contains($linkPage, 'uudai45')) {
+        //     $linkPage = 'https://www.phanbonorganic.com/uudai45';
+        // } else if (str_contains($linkPage, 'uudai-trichoderma')) {
+        //     $linkPage = 'https://www.phanbonorganic.com/uudai-trichoderma';
+        // }
 
         /** lấy list token của nguồn ladi (token = tricho-bacillus-km ....) */
         $listSrcLadi = SrcPage::where('type', 'ladi')
         ->whereNotNull("id_page")->get();
+       
+        // echo "<pre>";
+        // print_R($listSrcLadi);
+        // echo "</pre>";
         foreach ($listSrcLadi as $src) {
             if (str_contains($linkPage, $src->id_page)) {
                 $group = $src->group;
@@ -121,6 +126,7 @@ class LadipageController  extends Controller
                 break;
             }
         }
+        // dd($src);
 
         if (!$src) {
             return;
@@ -157,7 +163,7 @@ class LadipageController  extends Controller
                 'messages'  => $messages,
                 'name'      => $name,
                 'phone'     => $phone,
-                'page_id'   => '',
+                'page_id'   => $src->id_page,
                 'text'      => $pageNameLadi,
                 'chat_id'   => $chatId,
                 'm_id'      => 'mId',
@@ -168,7 +174,7 @@ class LadipageController  extends Controller
                 'src_id' => $src->id,
             ];
 
-            Log::info( $data);
+            // Log::info( $data);
             $request = new \Illuminate\Http\Request();
             $request->replace($data);
             $sale->save($request);
