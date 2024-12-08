@@ -308,7 +308,31 @@ class Helper
             $assign = $saleCares[0]->assign_user;
         }
 
-       
+        return true;
+    }
+
+    public static function checkOrderSaleCarebyPhoneV4($phone, $mId, &$is_duplicate, &$assign, $group, &$has_old_order) 
+    {
+        if (!$mId || !$phone || $phone == '0986987791' || $phone == '986987791' || $phone == '0961161760') {
+            return false;
+        } 
+        
+        // $saleCares = SaleCare::where('old_customer', 0)->where('phone', $phone)->orderBy('id', 'asc')->get();
+        $saleCares = SaleCare::where('phone', $phone)->orderBy('id', 'asc')->get();
+
+        if ($saleCares->count() == 0) {
+            return true;
+        }
+    
+        foreach ($saleCares as $item) {
+            if ($item->m_id == $mId) {
+                return false;
+            }
+        }
+
+        /** trùng sđt: set lại assign sale trước đó và set trùng data */
+        $assign = $saleCares[0]->assign_user;
+        $is_duplicate = true;
 
         return true;
     }

@@ -191,39 +191,60 @@ class SaleController extends Controller
             $saleCare->product_request      = $req->product_request;
             $saleCare->reason_not_buy       = $req->reason_not_buy;
             $saleCare->note_info_customer   = $req->note_info_customer;
-            $saleCare->assign_user          = $req->assgin;
+
+            if ($req->assgin) {
+                $saleCare->assign_user       = $req->assgin;
+            }
+            
             $saleCare->messages             = $req->messages;
             $saleCare->old_customer         = ($req->old_customer) ?: 0;
             $saleCare->m_id                 = $req->m_id;
             $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
-            $saleCare->is_duplicate         = ($req->is_duplicate) ?: 0;
             $saleCare->group_id             = $req->group_id;
             $saleCare->has_old_order        = ($req->has_old_order) ?: 0;
-
-            if ($req->src_id) {
-                $saleCare->src_id               = $req->src_id;
-            }
             
-            $srcId = $req->src;
+            $srcId = $req->src_id;
+            
             if ($srcId) {
                 $src = Helper::getSrcById($srcId);
+                $saleCare->src_id            = $req->src_id;
+                $saleCare->page_name         = $src->name;
+                $saleCare->page_id           = $src->id_page;
+                $saleCare->page_link         = $src->link;
 
-                $saleCare->page_name            = $src->name;
-                $saleCare->page_id              = $src->id_page;
-                $saleCare->page_link            = $src->link;
-
-                //những nguồn chưa chọn nhóm, tất cả đổ tạm thời về vui tricho
-                $chatId = env('id_VUI_tricho');
-                if ($src->id_page == 'tricho') {
-                    $saleCare->group_id            = $src->id_page;
-                    $saleCare->save();   
-                } 
-                
                 if ($src->group) {
-                    $chatId = $src->group->tele_hot_data;
+
                     $saleCare->group_id = $src->id_group;
-                    $saleCare->save();   
-                }
+                    $group = $src->group;
+                    if (!$req->chat_id) {
+                        $chatId = $group->tele_hot_data;
+                    }
+
+                    if ($req->shareDataSale && $req->shareDataSale == 1) {
+                        $saleCare->assign_user       = $req->assgin;
+                    } else if ($req->shareDataSale && $req->shareDataSale == 2){
+                        $assgin_user = 0;
+                        $is_duplicate = false;
+                        $phone = Helper::getCustomPhoneNum($req->phone);
+                        $hasOldOrder = 0;
+                        $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV4($phone, 'null', $is_duplicate, $assgin_user, $group, $hasOldOrder);
+
+                        if ($assgin_user == 0 && $checkSaleCareOld) {
+
+                            $assignSale = Helper::getAssignSaleByGroup($group);
+                            if (!$assignSale) {
+                              return;
+                            }
+
+                            $saleCare->assign_user       = $assignSale->id_user;
+                        } else {
+                            $saleCare->assign_user       = $assgin_user;
+                        }
+
+                        $saleCare->is_duplicate         = $is_duplicate;
+                        $saleCare->has_old_order        = $hasOldOrder;
+                    } 
+                } 
             
             } else {
                 $saleCare->page_name            = $req->page_name;
@@ -231,6 +252,7 @@ class SaleController extends Controller
                 $saleCare->page_link            = $req->page_link;
             }
 
+            // dd($saleCare);
             $saleCare->save();
             if (!isset($req->id)) {
                 $tProduct = Helper::getListProductByOrderId( $saleCare->id_order);
@@ -241,6 +263,7 @@ class SaleController extends Controller
 
                     $chatId = (!empty($chatId)) ? $chatId : $req->chat_id;
 
+                    // dd($chatId);
                     if ($req->phone == '0973409613' || $req->phone == '0908361589') {
                         $chatId = '-4286962864'; //auto về nhóm test
                     }
@@ -262,8 +285,6 @@ class SaleController extends Controller
                     } else if ($saleCare->old_customer == 0 || $saleCare->old_customer == 2) {
 
                         $textSrcPage = $req->text;
-
-                        // dd($textSrcPage);
                         $srcPageId = $req->src_id;
                         $srcPage = SrcPage::find($srcPageId);
                         if($srcPage) {
@@ -274,6 +295,7 @@ class SaleController extends Controller
                         $notiText .= "\nSale nhận data: " . $name;
                     }
 
+                    // dd($chatId);
                     if ($chatId) {
                         $response = $client->request('GET', $endpoint, ['query' => [
                             'chat_id' => $chatId, 
@@ -404,22 +426,56 @@ class SaleController extends Controller
                 $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
             }*/
 
-            $src =SrcPage::find($dataFilter['src']);
-            if (!$src) {
-                return ;
-            }
+            $srcType = [
+                'filterByIdSrc' => $dataFilter['src'],
+                'getAll'  => $dataFilter['src']
+            ];
 
-            if ($src->type == 'pc') {
-                $list = $list->where('page_id', $src->id_page);
-            } else if ($src->type == 'ladi') {
-                $list = $list->where('page_link', $src->link);
-            } else if ($src->type == 'hotline') {
-                $list = $list->where('page_id', 'like', '%' . $src->id_page .'%');
-            } else if  ($src->type == 'old') {
-                $list = $list->where('page_name', $src->name);
-            } else {
-                $list = $list->where('page_id', 'tricho');
-            }
+            // dd($dataFilter['src']);
+            $list = $list->where(function($query) use ($srcType) {
+                foreach ($srcType as $k => $term) {
+                    // dd($k);
+                    if ($k == 'filterByIdSrc') {
+                        $query->orWhere('src_id', $term);
+                    } else {
+                        $src = SrcPage::find($term);
+                        if (!$src) {
+                            return ;
+                        }
+
+                        if ($src->type == 'pc') {
+                            $$query->orWhere('page_id', $src->id_page);
+                        } else if ($src->type == 'ladi') {
+                            $query->orWhere('page_link', $src->link);
+                        } else if ($src->type == 'hotline') {
+                            // dd('aa');
+                            $query->orWhere('page_id', $src->id_page);
+                        } else if  ($src->type == 'old') {
+                            $query->orWhere('page_name', $src->name);
+                        } else {
+                            $query->orWhere('page_id', 'tricho');
+                        }
+                    }
+                }
+            });
+
+            // $src = SrcPage::find($dataFilter['src']);
+            // if (!$src) {
+            //     return ;
+            // }
+
+            // if ($src->type == 'pc') {
+            //     $list = $list->where('page_id', $src->id_page);
+            // } else if ($src->type == 'ladi') {
+            //     $list = $list->where('page_link', $src->link);
+            // } else if ($src->type == 'hotline') {
+            //     dd('aa');
+            //     $list = $list->where('page_id', 'like', '%' . $src->id_page .'%');
+            // } else if  ($src->type == 'old') {
+            //     $list = $list->where('page_name', $src->name);
+            // } else {
+            //     $list = $list->where('page_id', 'tricho');
+            // }
         }
 
         if (isset($dataFilter['type_customer'])) {
@@ -516,7 +572,7 @@ class SaleController extends Controller
                 $listId = array_unique(array_merge($listIdSale, $listIdSale2));
                 sort($listId);
 
-                $list = SaleCare::orderBy('id', 'desc')->whereIn('id', $listId);
+                $list = SaleCare::orderBy('id', 'asc')->whereIn('id', $listId);
             }
 
             /**
@@ -567,22 +623,56 @@ class SaleController extends Controller
                     $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
                 }*/
 
-                $src = SrcPage::find($dataFilter['src']);
-                if (!$src) {
-                    return ;
-                }
+                $srcType = [
+                    'filterByIdSrc' => $dataFilter['src'],
+                    'getAll'  => $dataFilter['src']
+                ];
 
-                if ($src->type == 'pc') {
-                    $list = $list->where('page_id', $src->id_page);
-                } else if ($src->type == 'ladi') {
-                    $list = $list->where('page_link', $src->link);
-                } else if ($src->type == 'hotline') {
-                    $list = $list->where('page_id', 'like', '%' . $src->id_page .'%');
-                } else if  ($src->type == 'old') {
-                    $list = $list->where('page_name', $src->name);
-                } else {
-                    $list = $list->where('page_id', 'tricho');
-                }
+                // dd($dataFilter['src']);
+                $list = $list->where(function($query) use ($srcType) {
+                    foreach ($srcType as $k => $term) {
+                        // dd($k);
+                        if ($k == 'filterByIdSrc') {
+                            $query->orWhere('src_id', $term);
+                        } else {
+                            $src = SrcPage::find($term);
+                            if (!$src) {
+                                return ;
+                            }
+
+                            if ($src->type == 'pc') {
+                                $$query->orWhere('page_id', $src->id_page);
+                            } else if ($src->type == 'ladi') {
+                                $query->orWhere('page_link', $src->link);
+                            } else if ($src->type == 'hotline') {
+                                // dd('aa');
+                                $query->orWhere('page_id', $src->id_page);
+                            } else if  ($src->type == 'old') {
+                                $query->orWhere('page_name', $src->name);
+                            } else {
+                                $query->orWhere('page_id', 'tricho');
+                            }
+                        }
+                    }
+                });
+
+                // $src = SrcPage::find($dataFilter['src']);
+                // if (!$src) {
+                //     return ;
+                // }
+
+                // if ($src->type == 'pc') {
+                //     $list = $list->where('page_id', $src->id_page);
+                // } else if ($src->type == 'ladi') {
+                //     $list = $list->where('page_link', $src->link);
+                // } else if ($src->type == 'hotline') {
+                //     dd('aa');
+                //     $list = $list->where('page_id', 'like', '%' . $src->id_page .'%');
+                // } else if  ($src->type == 'old') {
+                //     $list = $list->where('page_name', $src->name);
+                // } else {
+                //     $list = $list->where('page_id', 'tricho');
+                // }
             }
 
             if (isset($dataFilter['mkt'])) {
@@ -676,7 +766,7 @@ class SaleController extends Controller
                     }
                 }
 
-                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
+                $list   = SaleCare::orderBy('id', 'asc')->whereIn('id', $newSCare);
             }
 
             if (isset($dataFilter['cateCall']) ) {
@@ -711,7 +801,7 @@ class SaleController extends Controller
                     }
                 }
 
-                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
+                $list   = SaleCare::orderBy('id', 'asc')->whereIn('id', $newSCare);
             }
         }
             

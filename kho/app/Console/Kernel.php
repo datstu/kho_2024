@@ -456,7 +456,7 @@ class Kernel extends ConsoleKernel
               $phone = Helper::getCustomPhoneNum($phone);
               
               $hasOldOrder = 0;
-              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
+              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV4($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
 
               if ($name && $checkSaleCareOld) {  
                 if ($assgin_user == 0) {

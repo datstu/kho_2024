@@ -203,7 +203,7 @@ $ladiPages = [
                                             </label>
                                         </div>
                                         <div class="form-check">
-                                            <input checked class="form-check-input" type="radio" name="shareDataSale" value="0"
+                                            <input checked class="form-check-input" type="radio" name="shareDataSale" value="2"
                                                 id="flexRadioDefaultCSKH2" >
                                             <label  class="form-check-label" for="flexRadioDefaultCSKH2">
                                                 Hệ thống tự chia data

@@ -584,7 +584,7 @@ class TestController extends Controller
             //   } 
                
             //   $mId = 'aaa';
-              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
+              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV4($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
 
               if ($name && $checkSaleCareOld) {  
                 if ($assgin_user == 0) {
@@ -643,6 +643,10 @@ class TestController extends Controller
 
     foreach ($orders as $order) {
 
+      // if ($order->id != 3304) {
+      //   continue;
+      // }
+
       $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;
       $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])
         ->post($endpoint, [
@@ -681,7 +685,7 @@ class TestController extends Controller
             break;
         }
         
-        $order->save();
+        // $order->save();
         
         /** ko gửi thông báo nếu đơn chỉ có sp paulo */
         $notHasPaulo = Helper::hasAllPaulo($order->id_product);
@@ -706,6 +710,8 @@ class TestController extends Controller
              *  ngược lại ko tick thì đơn của sale nào người đó care
              * nếu chọn chia đều team CSKH thì mặc định luôn có sale nhận data
              */
+
+             
             if ($group->is_share_data_cskh) {
               $assgin_user = Helper::getAssignCskhByGroup($group, 'cskh')->id_user;
               // dd( $assgin_user);
@@ -757,6 +763,8 @@ class TestController extends Controller
             }
           }
 
+          // dd($data);
+
           if ($issetOrder || $order->id) {
             $data['old_customer'] = 1;
           }
@@ -774,13 +782,18 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/07/2024', '31/08/2024'];
-    $req['sale'] = '56';
+    $req['daterange'] = ['01/11/2024', '30/11/2024'];
+    $req['sale'] = '64';
+
+    // $sales = ['64', '59', '62'];
 
     $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
     $list->whereNull('id_order_new');
-    $list->where('old_customer', 1);
-    $list->where('group_id', '5');
+    $list->whereNull('id_order');
+    $list->where('old_customer', 0);
+    $list->where('is_duplicate', 0);
+    $list->where('group_id', '9');
+    // $list->whereIn('assign_user', $sales);
     $dataExport[] = [
       'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
     ];
@@ -792,19 +805,34 @@ class TestController extends Controller
     foreach ($list->get() as $data) {
       // echo 'name: ' . $data->full_name . '<br>';
       // echo 'phone: ' . $data->phone . '<br>';
+      // echo 'gr: ' . $data->group_id . '<br>';
       // echo 'message: : ' . $data->TN_can . '<br>';
       // echo 'date: ' . $data->created_at . '<br>';
+
+      if (Helper::isOldCustomer($data->phone, $data->group_id)) {
+        continue;
+      }
+
+      $tnCan = $data->TN_can;
+      if ($data->listHistory) {
+        // dd($data->listHistory);
+        foreach ($data->listHistory as $his) {
+          $tnCan .= date_format($his->created_at,"d-m-Y ") . ': ' . $his->note . ', ';
+        }
+
+      }
       $dataExport[] = [
         $data->full_name,
         $data->phone,
         $data->messages,
-        $data->TN_can,
+        $tnCan,
         date_format($data->created_at,"H:i d-m-Y "),
       ];
     }
 
+    // print_r($dataExport);
     // dd($dataExport);
-    return Excel::download(new UsersExport($dataExport), 'invoices.xlsx');
+    return Excel::download(new UsersExport($dataExport), 'tom-11-Hiep.xlsx');
 
   }
 

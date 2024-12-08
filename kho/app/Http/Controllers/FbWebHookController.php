@@ -73,7 +73,7 @@ class FbWebHookController extends Controller
         $is_duplicate = false;
         $phone = Helper::getCustomPhoneNum($phone);
         $hasOldOrder = 0;
-        $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV3($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
+        $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV4($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
 
         $chatId = $group->tele_hot_data;
         $linkPage = $pageSrc->link;
