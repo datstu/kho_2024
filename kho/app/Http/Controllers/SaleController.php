@@ -24,6 +24,11 @@ use Illuminate\Support\Facades\File as File2;
 use Image;
 class SaleController extends Controller
 {
+    public function viewlistDuplicateByPhone($phone)
+    {
+        $list = SaleCare::where('phone', $phone)->orderBy('id', 'desc');
+        return view('pages.sale.duplicate')->with('list', $list);
+    }
     public function saveBoxTN(Request $req)
     {
         $input = $req->all();

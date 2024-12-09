@@ -543,6 +543,20 @@
                 </div>
             </div>
 
+            <div id="listDuplicate" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content ">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Danh sách data trùng số điện thoại</h5>
+                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <iframe src="" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+
             <div id="TNHistory" class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content ">
@@ -638,7 +652,7 @@
                                     </span>
                     
                                     <br>
-                                    <span class="small-tip">(<span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__NgayTao_0">{{date_format($item->created_at,"H:i d-m-Y ")}}</span>)
+                                    <span class="small-tip">(<span>{{date_format($item->created_at,"H:i d-m-Y ")}}</span>)
                                     </span>
                                 </td>
                                 <td class="text-center area5 hidden-xs result-TN-col">
@@ -733,7 +747,7 @@
                                             <i class="fa fa-phone" style="color: red;"></i>
                                         </a> --}}
                                         @if ($item->is_duplicate)
-                                        <a title="Trùng só điện thoại" class="btn-icon">
+                                        <a data-target="#listDuplicate" data-toggle="modal" data-phone="{{$item->phone}}" title="Trùng só điện thoại" class="duplicate btn-icon">
                                             <svg  class="icon me-2" style="color: #ff0000">
                                                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-copy')}}"></use>
                                             </svg>
@@ -1031,6 +1045,14 @@
         $("#TNHistory iframe").attr("src", link + '/' + saleId);
     });
 
+    $('.duplicate').on('click', function () {
+        var phone = $(this).data('phone');
+        console.log(phone)
+        var link = "{{URL::to('/danh-sach-so-trung')}}";
+        console.log(link + '/' + phone);
+        $("#listDuplicate iframe").attr("src", link + '/' + phone);
+    });
+    
     
     // $('.select2-choice').on('click', function () {
     //     var id = $(this).data('id');

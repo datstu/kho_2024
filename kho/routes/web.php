@@ -102,6 +102,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/sale-view-luu-TN-box/{id}',  [SaleController::class, 'saleViewSaveTNBox'])->name('sale-view-save-TN-box');
     Route::post('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
     Route::post('/xoa-danh-sach-sale-care',  [SaleController::class, 'deleteListSC'])->name('sale-delete-list');
+    Route::get('/danh-sach-so-trung/{id}',  [SaleController::class, 'viewlistDuplicateByPhone'])->name('sale-list-duplicate');
 
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
     Route::get('/tao-loai-TN-sale',  [CategoryCallController::class, 'add'])->name('category-call-add');

@@ -83,6 +83,11 @@
     td a.btn-ttghcs { color: darkorange; }
 
     @media(max-width:768px) {
+        .icon.me-2 {
+            width: 20px !important;
+            height: 20px !important;
+        }
+
         .contact-row .fa { font-size: 20px; }
 
         .dm-tac-nghiep { width: 48%; min-width: 48%; }
