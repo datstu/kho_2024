@@ -43,6 +43,7 @@
                             <th class="text-center" scope="col" style="top: 0.5px;">Họ tên <br>
                             Số điện thoại</th>
                             <th class="text-center" scope="col" style="top: 0.5px;">Tin nhắn</th>
+                            <th class="text-center" scope="col" style="top: 0.5px;">Note TN</th>
                             <th class="text-center" scope="col" style="top: 0.5px;">Sale</th>
                             <th class="text-center" scope="col" style="top: 0.5px;">Tác nghiệp</th>
                             <th class="text-center" scope="col" style="top: 0.5px;">Kết quả</th>
@@ -85,6 +86,16 @@
                                 @endif
                             </td>
                             <td class="text-center">{{$dup->messages}}</td>
+                            <td class="text-center">
+                                <?php if ($dup->listHistory->count() > 0) {
+                                    foreach ($dup->listHistory as $key => $value) {
+                                        echo date_format($value->created_at,"d/m") . ' ' . $value->note . "<br>";
+                                        // echo date_format($value->created_at,"d/m") . ' ' . $value->note;
+                                    } 
+                                } else {
+                                    echo $dup->TN_can;
+                                }?>
+                            </td>
                             <td class="text-center">{{($dup->user) ? $dup->user->real_name : ''}} </td>
                             <td>
                                 
