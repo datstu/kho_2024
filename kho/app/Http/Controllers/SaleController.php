@@ -363,11 +363,18 @@ class SaleController extends Controller
 
     public function searchInSaleCare($dataFilter)
     {
-        $list   = SaleCare::orderBy('id', 'desc')
+        $listIdHasHis   = SaleCareHistoryTN::join('sale_care', 'sale_care.id', '=', 'sale_care_history_tn.sale_id')
+            ->orwhere('sale_care_history_tn.note', 'like', '%' .  $dataFilter['search']. '%')
+            ->pluck('sale_care.id')->toArray();
+        $listId   = SaleCare::orWhere('full_name', 'like', '%' . $dataFilter['search'] . '%')
+            ->orWhere('phone', 'like', '%' . $dataFilter['search'] . '%')
             ->orWhere('full_name', 'like', '%' . $dataFilter['search'] . '%')
-            ->orWhere('phone', 'like', '%' . $dataFilter['search'] . '%');
-    
-        // dd($list->get());
+            ->pluck('id')->toArray();
+
+        $list   = SaleCare::orWhereIn('id', $listIdHasHis)
+        ->orWhereIn('id', $listId)
+        ->orderBy('id', 'desc');
+
         $ids = $newList = [];
         foreach ($list->get() as $sc) {
             $ids[] = $sc->id;
@@ -376,7 +383,6 @@ class SaleController extends Controller
                     ->pluck('id')->toArray();
 
                 foreach ($newList as $item) {
-                    // dd($item);
                     if ($item != $sc->id) {
                         $ids[] = $item;
                     }
@@ -985,8 +991,8 @@ class SaleController extends Controller
                 ->with('listProduct', $listProduct)
                 ->with('saleCare', $saleCare)->with('listCall', $listCall);
         } catch (\Exception $e) {
-            // return $e;
-            // dd($e);
+            return $e;
+            dd($e);
             return redirect()->route('home');
         }
     }

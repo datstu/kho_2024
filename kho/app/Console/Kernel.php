@@ -580,9 +580,14 @@ class Kernel extends ConsoleKernel
              */
             if ($group->is_share_data_cskh) {
               $assgin_user = Helper::getAssignCskhByGroup($group, 'cskh')->id_user;
-              // dd( $assgin_user);
             } else {
               $assgin_user = $order->saleCare->assign_user;
+              $user = $order->saleCare->user;
+
+              //tài khoản đã khoá hoặc chặn nhận data => tìm sale khác trong nhóm
+              if (!$user->is_receive_data || !$user->status) {
+                $assgin_user = Helper::getAssignSaleByGroup($group)->id_user;
+              }
             }
 
           } else if (!empty($orderTricho->group_id) && $orderTricho->group_id == 'tricho') {

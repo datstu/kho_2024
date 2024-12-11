@@ -521,7 +521,7 @@ class TestController extends Controller
 
 // dd($pages);
       foreach ($pages as $page) {
-        //  if ($page->id != 25) {
+        //  if ($page->id != 28) {
         //      continue;
         //  }
         if ($page->type == 'pc' ) {
@@ -549,7 +549,7 @@ class TestController extends Controller
 
       $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
       $today    = strtotime(date("Y/m/d H:i"));
-      $before   = strtotime ( '-24 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+      $before   = strtotime ( '-9 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
       $before   = date ( 'Y/m/d H:i' , $before );
       $before   = strtotime($before);
 
@@ -595,7 +595,7 @@ class TestController extends Controller
                   }
 
                   //assignSale: item in model detail_user_group
-                  $assgin_user = $assignSale->id_user;
+                  $assgin_user = $assignSale->id_user;        
                 }
 // dd($assgin_user);
                 $is_duplicate = ($is_duplicate) ? 1 : 0;
@@ -685,7 +685,7 @@ class TestController extends Controller
             break;
         }
         
-        // $order->save();
+        $order->save();
         
         /** ko gửi thông báo nếu đơn chỉ có sp paulo */
         $notHasPaulo = Helper::hasAllPaulo($order->id_product);
@@ -711,12 +711,16 @@ class TestController extends Controller
              * nếu chọn chia đều team CSKH thì mặc định luôn có sale nhận data
              */
 
-             
             if ($group->is_share_data_cskh) {
               $assgin_user = Helper::getAssignCskhByGroup($group, 'cskh')->id_user;
-              // dd( $assgin_user);
             } else {
               $assgin_user = $order->saleCare->assign_user;
+              $user = $order->saleCare->user;
+
+              //tài khoản đã khoá hoặc chặn nhận data => tìm sale khác trong nhóm
+              if (!$user->is_receive_data || !$user->status) {
+                $assgin_user = Helper::getAssignSaleByGroup($group)->id_user;
+              }
             }
 
           } else if (!empty($orderTricho->group_id) && $orderTricho->group_id == 'tricho') {
@@ -731,6 +735,7 @@ class TestController extends Controller
             $chatId = '-4558910780';
             // $chatId = '-4128471334';
           }
+          
 
           $typeCSKH = Helper::getTypeCSKH($order);
           $pageName = $order->saleCare->page_name;
@@ -782,7 +787,7 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/11/2024', '30/11/2024'];
+    $req['daterange'] = ['01/12/2024', '10/12/2024'];
     $req['sale'] = '64';
 
     // $sales = ['64', '59', '62'];
@@ -792,7 +797,7 @@ class TestController extends Controller
     $list->whereNull('id_order');
     $list->where('old_customer', 0);
     $list->where('is_duplicate', 0);
-    $list->where('group_id', '9');
+    $list->where('group_id', '5');
     // $list->whereIn('assign_user', $sales);
     $dataExport[] = [
       'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
@@ -832,7 +837,7 @@ class TestController extends Controller
 
     // print_r($dataExport);
     // dd($dataExport);
-    return Excel::download(new UsersExport($dataExport), 'tom-11-Hiep.xlsx');
+    return Excel::download(new UsersExport($dataExport), 'tom-12-Tu.xlsx');
 
   }
 

@@ -29,6 +29,7 @@ class MarketingController extends Controller
             $list = $list->where('id', $req->src);
         }
 
+        // dd($list->get());
         /** lấy data report(contact) từ list nguồn */
         $listFiltrSrc = $this->getListMktReportByListSrc($list, $req);
         $listFiltrSrc = $this->transferKey($listFiltrSrc);
@@ -45,7 +46,7 @@ class MarketingController extends Controller
     {
         // dd($req->all());
         $rs = $this->getDataMkt($req);
-       
+        
         $listMktUser = Helper::getListMktUser(Auth::user());
         $listGroup = Helper::getListGroup();
         $listSrc = SrcPage::orderBy('id', 'desc')->get();
@@ -176,6 +177,7 @@ class MarketingController extends Controller
             return;
         }
 
+        // dd($listSrc);
         $ordersController = new OrdersController();
 
         $userAdmin = User::find(1);
@@ -253,7 +255,7 @@ class MarketingController extends Controller
         foreach ($listSrc as $k => $src) {
             $countOrder = $total = $qty = $avg = $rate = 0;
             // dd($src);
-            // if ($src['id'] != 7) {
+            // if ($src['id'] != 32) {
             //     continue;
             // }
             // echo $k . '<br>';
@@ -334,7 +336,7 @@ class MarketingController extends Controller
         $data = [];
         foreach ($list->get() as $item) {
             // echo $item->id . "<br>";
-            // if ($item->id != 9) {
+            // if ($item->id != 32) {
             //     continue;
             // }
             $dataReport = $this->getDataReportBySrcId($item, $req);
@@ -380,18 +382,48 @@ class MarketingController extends Controller
             }
         }
 
-        if ($item->type == 'pc') {
-            $list = $list->where('page_id', $item->id_page);
-        } else if ($item->type == 'ladi') {
-            $list = $list->where('page_link', $item->link);
-        } else if ($item->type == 'hotline') {
-            // $saleCare = $saleCare->where('page_name', $item->type);
-            $list = $list->where('page_id', 'like', '%' . $item->id_page .'%');
-        } else if  ($item->type == 'old') {
-            $list = $list->where('page_name', $item->name);
-        } else {
-            $list = $list->where('page_id', 'tricho');
-        }
+        $srcType = [
+            'filterByIdSrc' => $item->id,
+            'getAll'  => $item->id
+        ];
+
+        $list = $list->where(function($query) use ($srcType) {
+            foreach ($srcType as $k => $term) {
+                if ($k == 'filterByIdSrc') {
+                    $query->orWhere('src_id', $term);
+                } else {
+                    $src = SrcPage::find($term);
+                    if (!$src) {
+                        return ;
+                    }
+
+                    if ($src->type == 'pc') {
+                        $query->orWhere('page_id', $src->id_page);
+                    } else if ($src->type == 'ladi') {
+                        $query->orWhere('page_link', $src->link);
+                    } else if ($src->type == 'hotline') {
+                        $query->orWhere('page_id', $src->id_page);
+                    } else if  ($src->type == 'old') {
+                        $query->orWhere('page_name', $src->name);
+                    } else {
+                        $query->orWhere('page_id', 'tricho');
+                    }
+                }
+            }
+        });
+
+        // if ($item->type == 'pc') {
+        //     $list = $list->where('page_id', $item->id_page);
+        // } else if ($item->type == 'ladi') {
+        //     $list = $list->where('page_link', $item->link);
+        // } else if ($item->type == 'hotline') {
+        //     // $saleCare = $saleCare->where('page_name', $item->type);
+        //     $list = $list->where('page_id', 'like', '%' . $item->id_page .'%');
+        // } else if  ($item->type == 'old') {
+        //     $list = $list->where('page_name', $item->name);
+        // } else {
+        //     $list = $list->where('page_id', 'tricho');
+        // }
 
         return $list;
     }

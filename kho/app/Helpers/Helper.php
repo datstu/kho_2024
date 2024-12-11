@@ -331,7 +331,13 @@ class Helper
         }
 
         /** trùng sđt: set lại assign sale trước đó và set trùng data */
-        $assign = $saleCares[0]->assign_user;
+        $userAssign = $saleCares[0]->user;
+        if (!$userAssign->is_receive_data || !$userAssign->status) {
+            $assign = Helper::getAssignSaleByGroup($group)->id_user;
+        } else {
+            $assign = $saleCares[0]->assign_user;
+        }
+
         $is_duplicate = true;
 
         return true;
