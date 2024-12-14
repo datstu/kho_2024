@@ -13,10 +13,38 @@ use App\Models\Call;
 use App\Helpers\Helper;
 use App\Models\CategoryCall;
 use App\Models\CallResult;
-
+use App\Models\SaleCare;
 
 class CallResultController extends Controller
 {
+    public function saveUpdateCalendarTN(Request $req)
+    {
+        $saleCare = SaleCare::find($req->id);
+
+        $time       = $req->daterange;
+        $timeBegin  = str_replace('/', '-', $time);
+        $date    = date('Y-m-d H:i',strtotime("$timeBegin"));
+
+        if ($saleCare) {
+            $saleCare->time_wakeup_TN = $date;
+            $saleCare->save();
+            return response()->json([
+                'success' => 'Cập nhật TN thành công!',
+            ]);
+        }
+
+        return response()->json(['error' => 'Đã có lỗi xảy ra trong quá trình cập nhật TN']);
+    }
+
+    public function viewCalendarTN($id)
+    {
+        $saleCare = SaleCare::find($id);
+        if ($saleCare) {
+            return  view('pages.call.result.calendar')->with('id', $id)
+                ->with('saleCare', $saleCare);
+        }
+    }
+
     public function index()
     {
         $callResult = CallResult::orderBy('id', 'desc')->paginate(15);
@@ -64,9 +92,6 @@ class CallResultController extends Controller
                 notify()->error($err[0], 'Thất bại!');
                 break;
             }
-            // die();
-           
-            
             // notify(3)->error('Lỗi khi taaaạo call mới', 'Thất bại!');
            return back();
         }

@@ -116,6 +116,9 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/save-ket-qua-TN-sale',  [CallResultController::class, 'save'])->name('call-result-save');
     Route::get('/cap-nhat-ket-qua-TN-sale/{id}',  [CallResultController::class, 'update'])->name('call-result-update');
     Route::get('/delete-result-call/{id}',  [CallResultController::class, 'delete'])->name('call-result-delete');
+    Route::get('/view-hen-lich-TN/{id}',  [CallResultController::class, 'viewCalendarTN'])->name('view-calendar-TN');
+    Route::post('/update-calendar-TN',  [CallResultController::class, 'saveUpdateCalendarTN'])->name('update-calendar-TN');
+    
     
     Route::get('/call',  [CallController::class, 'index'])->name('call-index');
     Route::get('/tao-call',  [CallController::class, 'add'])->name('call-add');

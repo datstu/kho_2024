@@ -849,15 +849,12 @@ class TestController extends Controller
       ->where('has_TN', 1)
       ->get();
 
-    // dd($listSc);
     foreach ($listSc as $sc) {
-      if ($sc->id != 11740) {
-        continue;
-      }
-      // echo "$sc->id " . "<br>";
+      // if ($sc->id != 13413) {
+      //   continue;
+      // }
       
       $call = $sc->call;
-      // dd($call);
 
       if (empty($call->time)) {
         continue;
@@ -880,11 +877,14 @@ class TestController extends Controller
       }
       
       //cộng ngày update và time cuộc gọi
-      $newDate = strtotime("+$time hours", strtotime($updatedAt));
+      if ($sc->time_wakeup_TN) {
+        $newDate = strtotime($sc->time_wakeup_TN);
+      } else {
+        $newDate = strtotime("+$time hours", strtotime($updatedAt));
+      }
+      
       if ($newDate <= time()) {
         $nextTN = $call->thenCall;
-       
-        
         if (!$nextTN) {
           continue;
         }
@@ -892,7 +892,6 @@ class TestController extends Controller
         $chatId         = '-4286962864';
         $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
         $group = $sc->group;
-
 
         if ($group) {
           $chatId = $group->tele_nhac_TN;

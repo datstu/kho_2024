@@ -78,9 +78,14 @@ class Kernel extends ConsoleKernel
       if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
         continue;
       }
-      
+
       //cộng ngày update và time cuộc gọi
-      $newDate = strtotime("+$time hours", strtotime($updatedAt));
+      if ($sc->time_wakeup_TN) {
+        $newDate = strtotime($sc->time_wakeup_TN);
+      } else {
+        $newDate = strtotime("+$time hours", strtotime($updatedAt));
+      }
+
       if ($newDate <= time()) {
 
         $nextTN = $call->thenCall;

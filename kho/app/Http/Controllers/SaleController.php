@@ -899,7 +899,6 @@ class SaleController extends Controller
 
     public function filterSalesByDate(Request $req) 
     {
-        // dd($req->all());
         $dataFilter = [];
         if ($req->search) {
             $dataFilter['search'] = $req->search;
@@ -1104,6 +1103,14 @@ class SaleController extends Controller
             
             $saleCare->is_runjob = 0;
             $saleCare->time_update_TN = date('Y-m-d H:i:s');
+            $updatedAt =  $saleCare->time_update_TN;
+
+            $call = $saleCare->call;
+            if ($call && $time = $call->time) {
+                $newDateInt = strtotime("+$time hours", strtotime($updatedAt));
+                $saleCare->time_wakeup_TN = date('Y-m-d H:i:s', $newDateInt);
+            }
+
             $saleCare->save();
             return response()->json([
                 'success' => 'Cập nhật kết quả TN thành công!',

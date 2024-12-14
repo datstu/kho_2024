@@ -352,7 +352,7 @@
             </div>
         
             {{-- <form action="{{route('sale-index')}}" class="mb-1"> --}}
-            @csrf
+                {{ csrf_field() }}
             <div class="row mt-1 filter-order hidden">
                 <div class="daterange col-xs-12 col-sm-6 col-md-2 form-group">
                     <input id="daterange" class="btn" type="text" name="daterange" />
@@ -571,6 +571,20 @@
                 </div>
             </div>
 
+            <div id="updateCalendarTN" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content ">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Sửa lịch tác nghiệp</h5>
+                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <iframe frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+            
             <div class="dragscroll1 tableFixHead" style="height: 819px; margin-top:15px;">
                 <div id="dnn_ctr1441_Main_SaleTacNghiep_UpdatePanel2">
                     {{-- thêm TN SALE --}}
@@ -609,8 +623,6 @@
                                 <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col" style="display: inline-block; min-width: 200px;">TN cần</span></th>
                                 <th class="text-center no-wrap area2" style="top: 0.5px;"><span class="span-col" style="display: inline-block; min-width: 200px;">Kết quả</span></th>
                                 <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col">TN tiếp</span></th>
-                                <th class="text-center no-wrap area2 hidden-xs" style="top: 0.5px;"><span class="span-col">Sau</span><br>
-                                    Còn lại</th>
                                 <th class="text-center no-wrap area3 hidden-xs" style="top: 0.5px;"><span class="span-col">Sản phẩm - Số lượng - Đơn giá</span></th>
                                 <th class="text-center no-wrap area3 hidden-xs" style="top: 0.5px;"><span class="span-col">Thành tiền / CK
                                     <br>
@@ -801,7 +813,7 @@
                                             ?></div>
                                     </div>
                                     <div style="clear: both;"></div>
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__LastMessage_0" class="item-noidung-other"></span>
+                                    <span class="item-noidung-other"></span>
                                 </td>
 
                                 <?php $order = $item->orderNew ?>
@@ -843,23 +855,23 @@
                                     
                                 </td>
 
-                                <td class="no-wrap area2 no-wrap  hidden-xs next-TN" style="min-width:120px">
-                                    @if ($item->result_call && $item->result_call != -1)
-                                    {{($item->resultCall) ? $item->resultCall->thenCall->name : ''}}
-                                    @endif
-                                </td>
-                                <td class="text-center no-wrap area2 hidden-xs" style="min-width:80px">
+                                <td class="no-wrap area2 no-wrap  hidden-xs " style="min-width:120px">
+                                    <span class="next-TN">
+                                        @if ($item->result_call && $item->result_call != -1)
+                                        {{($item->resultCall) ? $item->resultCall->thenCall->name : ''}}
+                                        @endif
+                                    </span>
+
                                     <div class="text-right">
-                                        <a id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnChuyenTacNghiepTiepAuto" title="Chuyển sang tác nghiệp tiếp (112155407)" class="aoh btn-chuyen-tac-nghiep hidden" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$btnChuyenTacNghiepTiepAuto','')">
-                                            <i class="fa fa-arrow-circle-o-up"></i>
-                                        </a><span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__SaleTacNghiepTiepNgayBatDau_0" class="sau-bao-lau-het-han hidden"></span><a onclick="sua_lich_tac_nghiep(112155407);return false;" id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnSuaLichTacNghiep" title="Sửa lịch tác nghiệp" class="btn-icon aoh" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$btnSuaLichTacNghiep','')">
+                                        <a title="Sửa lịch tác nghiệp" data-target="#updateCalendarTN" data-toggle="modal"
+                                            data-timeWakeup="{{$item->time_wakeup_TN}}" data-iddd="{{$item->id}}" 
+                                            class="calendarModal btn-icon aoh">
                                             <i class="fa fa-calendar"></i>
                                         </a>
                                     </div>
-                                    <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__SaleTacNghiepSauBaoLauTen_0"></span>
                                     <br>
                                     <span class="span-col small-tip" style="width: calc(100% - 20px);">
-                                        <span class="sau-bao-lau-con-lai"></span>
+                                        {{-- <span class="sau-bao-lau-con-lai">xxxx</span> --}}
                                     </span>
                                 </td>
 
@@ -1052,6 +1064,14 @@
         console.log(link + '/' + phone);
         $("#listDuplicate iframe").attr("src", link + '/' + phone);
     });
+
+    $('.calendarModal').on('click', function () {
+        var id = $(this).data('iddd');
+        console.log(id);
+        var link = "{{URL::to('/view-hen-lich-TN')}}";
+        $("#updateCalendarTN iframe").attr("src", link + '/' + id);
+    });
+    
     
     
     // $('.select2-choice').on('click', function () {
@@ -1370,7 +1390,7 @@ if (cateCall) {
                         $(trId + ' .type-TN span.fb').addClass('ttgh7');
                     }
 
-                    $(trId + ' td.next-TN').text(data.nextTN);
+                    $(trId + ' .next-TN').text(data.nextTN);
                     
                     $('#notify-modal').modal('show');
                     if ($('.modal-backdrop-notify').length === 0) {
