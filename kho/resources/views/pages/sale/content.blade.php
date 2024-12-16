@@ -470,7 +470,7 @@
 
                 @if ($listTypeTN)
                 <div class="col-xs-12 form-group">
-                    
+
                     @foreach ($listTypeTN as $item)
                     {{-- <a class="dm-tac-nghiep" href="{{URL::to('tac-nghiep-sale?cateCall=' . $item->id)}}"> 
                         <span class="flag level-4"></span>
@@ -481,9 +481,9 @@
                     </a> --}}
                     {{-- <div></div> --}}
                     <div class="dm-tac-nghiep">
-                        <input type="radio" id="{{$item->id}}" name="cateCall" value="{{$item->id}}">
+                        <input type="radio" id="{{$item['data']->id}}" name="cateCall" value="{{$item['data']->id}}">
                         <span class="flag level-4"></span>
-                        <label class="text" for="{{$item->id}}">{{$item->name}}</label><br>
+                        <label class="text" for="{{$item['data']->id}}">{{$item['data']->name}} ({{$item['yetTN']}}/{{$item['sum']}})</label><br>
                     </div>
                     @endforeach
 

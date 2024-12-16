@@ -110,6 +110,38 @@ class SaleController extends Controller
         return redirect('/');
     }
 
+    public function getReportCountTNByType($listSaleCare, $listCateCall)
+    {
+        $result = [];
+        
+        $listId = $listSaleCare->pluck('id')->toArray();
+        // dd($listCateCall);
+        foreach ($listCateCall as $cate) {
+            $sum = $this->getCountTNByType($listId, $cate->id);
+            $yetTN = $this->getCountTNByType($listId, $cate->id, false);
+            $result[] = [
+                'data' => $cate,
+                'sum' => $sum,
+                'yetTN' => $yetTN,
+            ];        
+        }
+
+        return $result;
+    }
+
+    public function getCountTNByType($listIdSaleCare, $idTypeCall, $all = true)
+    {
+        $count = 0;
+
+        $data = SaleCare::whereIn('id', $listIdSaleCare)->where('type_TN', $idTypeCall);
+        if (!$all) {
+            $data = $data->where('has_TN', 0);
+        }
+
+        $count = $data->count();
+        return $count;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -125,8 +157,9 @@ class SaleController extends Controller
         $listCall   = $helper->getListCall()->get();
         $sales      = Helper::getListSale()->get();
        
-        $saleCare   = $this->getListSalesByPermisson(Auth::user());
-        $saleCare   = $saleCare->paginate(50);
+        $time       = date('d/m/Y') . '-' . date('d/m/Y');
+        $dataFilter['daterange'] = explode("-",$time); 
+        $saleCare   = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
 
         $listSrc    = SrcPage::orderBy('id', 'desc')->get();
         $groups     = Group::orderBy('id', 'desc')->get();
@@ -137,13 +170,14 @@ class SaleController extends Controller
         $listProduct = Product::select('product.*')->orderBy('product.id', 'desc')
             ->join('detail_product_group','detail_product_group.id_product', '=', 'product.id')
             ->where('product.status', 1)->distinct()->get();
-
+            $dataCountByType = $this->getReportCountTNByType($saleCare, $listTypeTN);
+            $saleCare   = $saleCare->paginate(50);
         return view('pages.sale.index')->with('listSrc', $listSrc)
             ->with('groups', $groups)
             ->with('callResults', $callResults)
             ->with('typeDate', $typeDate)
             ->with('listMktUser', $listMktUser)
-            ->with('listTypeTN', $listTypeTN)
+            ->with('listTypeTN', $dataCountByType)
             ->with('listProduct', $listProduct)
             ->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);
     }
@@ -583,7 +617,7 @@ class SaleController extends Controller
                 $listId = array_unique(array_merge($listIdSale, $listIdSale2));
                 sort($listId);
 
-                $list = SaleCare::orderBy('id', 'asc')->whereIn('id', $listId);
+                $list = SaleCare::orderBy('id', 'desc')->whereIn('id', $listId);
             }
 
             /**
@@ -777,7 +811,7 @@ class SaleController extends Controller
                     }
                 }
 
-                $list   = SaleCare::orderBy('id', 'asc')->whereIn('id', $newSCare);
+                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
             }
 
             if (isset($dataFilter['cateCall']) ) {
@@ -812,7 +846,7 @@ class SaleController extends Controller
                     }
                 }
 
-                $list   = SaleCare::orderBy('id', 'asc')->whereIn('id', $newSCare);
+                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
             }
         }
             
@@ -849,32 +883,6 @@ class SaleController extends Controller
            
         } else if ((!$checkAll || !$isLeadSale ) && !$user->is_digital) {
             $list = $list->where('assign_user', $user->id);
-        }  
-
-        if ($user->is_digital && $user->name == 'digital.tien') {
-            $src = ['mua4-tang2', '335902056281917', '389136690940452'];
-            $list = $list->where(function($query) use ($src) {
-                foreach ($src as $term) {
-                    if (is_numeric($term)) {
-                        $query->orWhere('page_id', 'like', '%' . $term . '%');
-                    } else {
-                        $query->orWhere('page_link', 'like', '%' . $term . '%');
-                    }
-                    // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                }
-            });
-        } else if ($user->is_digital && $user->name == 'digital.di') {
-            $src = [ '424411670749761', '398822199987832'];
-            $list = $list->where(function($query) use ($src) {
-                foreach ($src as $term) {
-                    if (is_numeric($term)) {
-                        $query->orWhere('page_id', 'like', '%' . $term . '%');
-                    } else {
-                        $query->orWhere('page_link', 'like', '%' . $term . '%');
-                    }
-                    // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                }
-            });
         }
 
         return $list;
@@ -966,7 +974,6 @@ class SaleController extends Controller
 
         try {
             $data       = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
-            $saleCare   = $data->paginate(50);
 
             $helper     = new Helper();
             $listCall   = $helper->getListCall()->get();
@@ -981,12 +988,20 @@ class SaleController extends Controller
                 ->join('detail_product_group','detail_product_group.id_product', '=', 'product.id')
                 ->where('product.status', 1)->distinct()->get();
 
+            $dataTmp = $data;
+            if (isset($dataFilter['cateCall'])) {
+                unset($dataFilter['cateCall']);
+                // dd($dataFilter);
+                $dataTmp = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
+            }
+            $dataCountByType = $this->getReportCountTNByType($dataTmp, $listTypeTN);
+            $saleCare   = $data->paginate(50);
             return view('pages.sale.index')->with('listSrc', $listSrc)
                 ->with('sales', $sales)->with('groups', $groups)
                 ->with('callResults', $callResults)
                 ->with('typeDate', $typeDate)
                 ->with('listMktUser', $listMktUser)
-                ->with('listTypeTN', $listTypeTN)
+                ->with('listTypeTN', $dataCountByType)
                 ->with('listProduct', $listProduct)
                 ->with('saleCare', $saleCare)->with('listCall', $listCall);
         } catch (\Exception $e) {
