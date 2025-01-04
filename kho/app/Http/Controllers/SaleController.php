@@ -112,10 +112,9 @@ class SaleController extends Controller
 
     public function getReportCountTNByType($listSaleCare, $listCateCall)
     {
-        $result = [];
-        
+        $result = [];   
         $listId = $listSaleCare->pluck('id')->toArray();
-        // dd($listCateCall);
+
         foreach ($listCateCall as $cate) {
             $sum = $this->getCountTNByType($listId, $cate->id);
             $yetTN = $this->getCountTNByType($listId, $cate->id, false);
@@ -170,8 +169,10 @@ class SaleController extends Controller
         $listProduct = Product::select('product.*')->orderBy('product.id', 'desc')
             ->join('detail_product_group','detail_product_group.id_product', '=', 'product.id')
             ->where('product.status', 1)->distinct()->get();
-            $dataCountByType = $this->getReportCountTNByType($saleCare, $listTypeTN);
-            $saleCare   = $saleCare->paginate(50);
+        $dataCountByType = $this->getReportCountTNByType($saleCare, $listTypeTN);
+        $saleCare   = $saleCare->paginate(50);
+        
+        // $groups = Group::orderBy('id', 'desc')->get();
         return view('pages.sale.index')->with('listSrc', $listSrc)
             ->with('groups', $groups)
             ->with('callResults', $callResults)
@@ -291,7 +292,6 @@ class SaleController extends Controller
                 $saleCare->page_link            = $req->page_link;
             }
 
-            // dd($saleCare);
             $saleCare->save();
             if (!isset($req->id)) {
                 $tProduct = Helper::getListProductByOrderId( $saleCare->id_order);
@@ -302,7 +302,6 @@ class SaleController extends Controller
 
                     $chatId = (!empty($chatId)) ? $chatId : $req->chat_id;
 
-                    // dd($chatId);
                     if ($req->phone == '0973409613' || $req->phone == '0908361589') {
                         $chatId = '-4286962864'; //auto về nhóm test
                     }
@@ -334,7 +333,6 @@ class SaleController extends Controller
                         $notiText .= "\nSale nhận data: " . $name;
                     }
 
-                    // dd($chatId);
                     if ($chatId) {
                         $response = $client->request('GET', $endpoint, ['query' => [
                             'chat_id' => $chatId, 
@@ -532,14 +530,12 @@ class SaleController extends Controller
             $list->whereNotNull('id_order_new');
             $newSCare = [];
             foreach ($list->get() as $scare) {
-                // dd($scare);
                 $order = $scare->orderNew;
-                // dd($order->get());
                 if ($order && $order->status == $dataFilter['status']) {
                     $newSCare[] = $scare->id;
                 }
             }
-            // dd($newSCare);
+
             $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
         }
         
@@ -551,7 +547,6 @@ class SaleController extends Controller
 
     public function getListSalesByPermisson($user, $dataFilter = null) 
     {
-        // dd($dataFilter);
         $roles  = $user->role;
         $list   = SaleCare::orderBy('id', 'desc');
 
@@ -673,10 +668,8 @@ class SaleController extends Controller
                     'getAll'  => $dataFilter['src']
                 ];
 
-                // dd($dataFilter['src']);
                 $list = $list->where(function($query) use ($srcType) {
                     foreach ($srcType as $k => $term) {
-                        // dd($k);
                         if ($k == 'filterByIdSrc') {
                             $query->orWhere('src_id', $term);
                         } else {
@@ -790,8 +783,6 @@ class SaleController extends Controller
                 $listInFilter = SaleCare:: join('call', 'call.id', '=', 'sale_care.result_call')
                     ->whereIn('sale_care.id', $idSaleCares)
                     ->where('call.result_call',$dataFilter['resultTN']);
-                    
-                    // dd($listInFilter->pluck('sale_care.id')->toArray());
                 /**
                  * lấy tất cả data từ list sđt lọc ra trong đó có lần 1 lần 2 lần n
                  * 0961630479
@@ -828,6 +819,10 @@ class SaleController extends Controller
                 } else {
                     $list   = $list->where('type_TN', $dataFilter['cateCall']);
                 }
+            }
+
+            if (isset($dataFilter['group'])) {
+                $list   = $list->where('group_id', $dataFilter['group']);
             }
 
             if (isset($dataFilter['product'])) {
@@ -912,7 +907,6 @@ class SaleController extends Controller
             $dataFilter['search'] = $req->search;
         }
 
-        // dd($req->all());
         if ($req->daterange) {
             $time       = $req->daterange;
             $arrTime    = explode("-",$time); 
@@ -939,7 +933,6 @@ class SaleController extends Controller
             $dataFilter['src'] = $src;
         }
 
-        // dd($dataFilter);
         $group = $req->group;
         if ($req->group && $group != 999) {
             $dataFilter['group'] = $group;
@@ -991,11 +984,76 @@ class SaleController extends Controller
             $dataTmp = $data;
             if (isset($dataFilter['cateCall'])) {
                 unset($dataFilter['cateCall']);
-                // dd($dataFilter);
                 $dataTmp = $this->getListSalesByPermisson(Auth::user(), $dataFilter);
             }
             $dataCountByType = $this->getReportCountTNByType($dataTmp, $listTypeTN);
             $saleCare   = $data->paginate(50);
+
+            if ($req->isAjax) {
+                $tmp = [];
+                foreach ($saleCare as $sale) {
+
+                    $his = $sale->TN_can;
+                    $typeTn = '';
+                    if ($sale->listHistory->count()) {
+                        foreach ($sale->listHistory as $key => $value) {
+                            $his .= date_format($value->created_at,"d/m") . ' ' . $value->note . "<br>";
+                        } 
+                        $sale->history = $his;
+                    }
+
+                    if ($sale->typeTN) {
+                        $typeTn = $sale->typeTN;
+                        $sale->typeTN = $typeTn;
+                    }
+
+                    if ($sale->orderNew) {
+                        $orderNew = $sale->orderNew;
+                        $listProduct = $orderNew->id_product;
+                        $listProductTmp = [];
+
+                        foreach (json_decode($orderNew->id_product) as $product) {
+                            $productModel = getProductByIdHelper($product->id);
+                            if ($productModel) {
+                                $productModel->cartQty = $product->val;
+                                $listProductTmp[] = $productModel;
+                            }
+                        }
+
+                        $orderNew->listProduct = $listProductTmp;
+                        $sale->orderNew = $orderNew;
+                        if ($sale->orderNew->shippingOrder) {
+                            $orderNew = $sale->orderNew->shippingOrder;
+                            $sale->orderNew = $orderNew;
+                        }
+                        // element.orderNew.shippingOrder
+                        // json_decode($order->id_product) as $product)
+                        // $productModel = getProductByIdHelper($product->id)
+                    }
+
+                    if ($sale->type_TN) {
+                        $listCallByTypeTN = Helper::listCallByTypeTN($sale->type_TN);
+                        $tmpListcall = [];
+                        foreach ($listCallByTypeTN as $call) {
+                            $call->name = $call->callResult->name;
+                            $call->thenCallName = $call->thenCall->name;
+                            $tmpListcall[] = $call;
+                        }
+
+                        $sale->listCallByTypeTN = $tmpListcall;
+                    }
+                   
+                    $tmp[] = $sale;
+                }
+
+                $listProduct = Product::orderBy('id', 'desc');
+
+                return response()->json([
+                    'dataSale' => $tmp,
+                    'listProduct' => $listProduct,
+                    'listSale' => Helper::getListSale()->get(),
+                ]);
+            }
             return view('pages.sale.index')->with('listSrc', $listSrc)
                 ->with('sales', $sales)->with('groups', $groups)
                 ->with('callResults', $callResults)
@@ -1035,8 +1093,8 @@ class SaleController extends Controller
             // 'id_his' => $history->id,
             // 'text_his' => date_format($history->created_at,"d/m") . ' ' . $history->note,
         ]);
+
         /*$saleCare = SaleCare::find($r->id);
-        // dd($r->textTN);
         if ($saleCare) {
             $saleCare->TN_can = $r->textTN;
             $saleCare->save();
@@ -1092,7 +1150,7 @@ class SaleController extends Controller
     public function getIdOrderNewTNSale(Request $r)
     {
         $saleCare = SaleCare::find($r->TNSaleId);
-        // dd( $r->all());
+
         if ($saleCare && $saleCare->id_order_new) {
             $link = route('view-order', $saleCare->id_order_new);
             return response()->json([

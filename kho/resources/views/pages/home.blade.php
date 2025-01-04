@@ -114,16 +114,17 @@
       <div class="col-xs-12 col-sm-6 col-md-4 form-group daterange mb-1">
         <input id="daterange" class=" btn btn-outline-secondary" type="text" name="daterange"/>
       </div>
-     
-      @if ($checkAll || $enableDigital)
+
       <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <select name="group" id="group-filter" class="form-select">
-          <option value="999">--Chọn nhóm--</option>
-          <option value="1">Nhóm Tricho</option>
-          <option value="2">Nhóm Lúa</option>
+          <option   value="999">--Chọn nhóm--</option>  
+            @if (isset($groups))
+                @foreach($groups as $group)
+                <option value="{{$group->id}}">{{$group->name}}</option>
+                @endforeach
+            @endif
         </select>
       </div>
-      @endif
 
       <?php $isDigital = Auth::user()->is_digital;?>
       @if ($isDigital)
@@ -162,7 +163,6 @@
             <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
                 if ($pagePanCake) {
                     $pages = json_decode($pagePanCake);
-                    // dd($pages);
                     foreach ($pages as $page) {
             ?>
                         <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
@@ -365,7 +365,7 @@
         </div> --}}
         <div style="clear: both;"></div>
 <?php 
-// dd($dataSale);
+
 if ($dataSale && $enableSale) {
     
     /** lấy ra trung bình đơn lớn nhất của trong list sale**/
@@ -496,8 +496,7 @@ if ($dataSale && $enableSale) {
             
             <tbody id="body-sale">
 
-            <?php $i = 1; 
-            //   dd($dataSale);
+            <?php $i = 1;
 
                 foreach ($dataSale as $data) {
               ?>
@@ -661,17 +660,13 @@ if ($dataSale && $enableSale) {
           <img src="{{asset('public/images/rocket.svg')}}" alt="">
         </span>
   <?php if ($dataDigital && $enableDigital) {
-    // dd($dataDigital[0]['new']);
     /** lấy ra trung bình đơn lớn nhất của trong list sale**/
     $maxAvgSum = $dataDigital[0]['new_customer']['avg'];
-
     $sumTR = Helper::getSumCustomer($dataDigital);
-    // dd($sumTR);
     $sumNewCustomer = $sumTR['sum_new_customer'];
     $sumOldCustomer = $sumTR['sum_old_customer'];
     $summary = $sumTR['summary'];
-    // dd($sumTR);
-    // dd($sumTR);
+
     foreach ($dataDigital as $data) {
         if ($data['new_customer']['avg'] > $maxAvgSum) {
             $maxAvgSum = $data['new_customer']['avg'];
@@ -992,7 +987,6 @@ if ($dataSale && $enableSale) {
                 group
             },
             success: function(data) {
-                // console.log(data)
                 if (data.data.length > 0) {
                     var str = '';
                     var newCusomerTrSum = data.trSum.new_customer;
@@ -1008,9 +1002,6 @@ if ($dataSale && $enableSale) {
                         }
                     });
                     data.data.forEach((element, k) => {
-                        // console.log(element);
-                        // console.log(k);
-                        // console.log((newCusomerTrSum.contact != 0));
                         perCentContactNew = (newCusomerTrSum.contact != 0) ? (element.new_customer.contact / newCusomerTrSum.contact * 100) : 0;
                         perCentOrderNew =  (newCusomerTrSum.order != 0) ? (element.new_customer.order / newCusomerTrSum.order * 100) : 0;
                         perCentProductNew = (newCusomerTrSum.product != 0) ? (element.new_customer.product / newCusomerTrSum.product * 100) : 0;
@@ -1076,7 +1067,6 @@ if ($dataSale && $enableSale) {
                             + '</div><span class="progress-text">' + number_format_js(element.summary_total.avg) + '</span></div></td></tr>';
                         
                     });
-                    // console.log(maxAvcElem);
 
                     $("#body-sale").html(str);
 
@@ -1203,7 +1193,6 @@ if ($dataSale && $enableSale) {
                             + '</div><span class="progress-text">' + number_format_js(element.summary_total.avg) + '</span></div></td></tr>';
                         
                     });
-                    // console.log(maxAvcElem);
 
                     $("#body-digital").html(str);
 
@@ -1235,7 +1224,7 @@ if ($dataSale && $enableSale) {
     });
     
     $("input[name='dateTotal']").change(function () {
-      // console.log($(this).val());
+
       let type    = $('input[name="filterTotal"]:checked').val();
       let date    = $(this).val();
       var _token  = $("input[name='_token']").val();

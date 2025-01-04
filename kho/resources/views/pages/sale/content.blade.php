@@ -64,7 +64,6 @@
     ];
 
     $listStatus = Helper::getListStatus();
-
     $styleStatus = [
         0 => 'red',
         1 => 'white',
@@ -114,9 +113,11 @@
         line-height: 30px;
         display: inline-block;
     }
+
     .modal-backdrop.in {
         opacity: -0.5;
     }
+
     a {
         cursor: pointer;
     }
@@ -151,7 +152,7 @@
     
     .loader img {
         position: fixed;
-        right: 39%;
+        right: 50%;
         top: 50%;
         z-index: 999;
     }
@@ -208,6 +209,27 @@
 
     #sale-filter {
     transition: all 2s ease-out;
+    }
+    
+    .header-filter, .header-filter-wraper {
+        display: flex; justify-content: flex-end;
+    }
+
+    .header-filter-input {
+        padding: 0;
+    }
+
+    @media (max-width: 576px) {
+        .m-header-wrap, .filter-order {
+            padding: 10px;
+        }
+
+        .header-filter-input {
+            padding: 0 15px;
+        }
+        .header-filter, .header-filter-wraper{
+            display: block;
+        }
     }
 
 </style>                  
@@ -270,6 +292,7 @@
     .selectedClass .select2-container {
         box-shadow: rgb(0, 123, 255) 0px 1px 1px 1px;
     }
+
 </style>
 
 {{-- update filter --}}
@@ -281,44 +304,56 @@
             <div class="m-header-wrap">
                 <div class="m-header" style="top: 150px;">
                     <div class="row header-top-filter" style="">
-                        <div id="dnn_ctr1441_Main_SaleTacNghiep_divTitle" class="col-sm-2 form-group">
-                            <a class="home-sale-index" href="{{{route('sale-index')}}}"><span id="dnn_ctr1441_Main_SaleTacNghiep_lblModuleTitle" class="text">Sale tác nghiệp</span></a>
-                            
-                        </div>
-                        <div class="col-sm-2">
-                            <button class="hidden btn btn-sm btn-primary delete-data-SC" type="button">Xoá <span id="total-val" list_id="[]" data-total="0"></span></button>
+                        <div  class="col-sm-2 col-12 form-group">
+                            <a class="home-sale-index" href="{{{route('sale-index')}}}"><span class="text">Sale tác nghiệp</span></a>
                         </div>
                         
-                        <div class="col-sm-8" style="display: flex; justify-content: flex-end;">
-                            <div class="col-xs-12 col-sm-6 col-md-2 form-group" style="padding:0 15px;"> 
-                                
+                        <div class="col-sm-10 col-12 form-group header-filter">
+                            <div class="header-filter-wraper">
                                 @if ($checkAll  || $isLeadSale)
-                                <select name="sale" id="sale-filter" class="border-select-box-se">
-                                    {{-- <option selected="selected" value="-1" >--Tất cả sale--</option> --}}
-                                    <option   value="999">--Tất cả Sale--</option> 
-                
-                                    @if (isset($sales))
-                                        @foreach($sales as $sale)
-                                        <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
-                                        @endforeach
-                                    @endif
-                                    
-
-                                </select>
+                                <div class="col-12 col-sm-3 col-md-3 form-group" style="padding:0 15px;"> 
+                                    <select name="group" id="group-filter" class="border-select-box-se">
+                                        {{-- <option selected="selected" value="-1" >--Tất cả sale--</option> --}}
+                                        <option   value="999">--Chọn nhóm--</option> 
+                    
+                                        @if (isset($groups))
+                                            @foreach($groups as $group)
+                                            <option value="{{$group->id}}">{{$group->name}}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
                                 @endif
-                            </div>
-                            <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                                <input name="search" type="text"  value="{{ isset($search) ? $search : null}}" class="form-control" placeholder="Họ tên, số điện thoại">
-                            </div>
+                                @if ($checkAll  || $isLeadSale)
+                                <div class="col-12 col-sm-3 col-md-3 form-group" style="padding:0 15px;"> 
+                                    <select name="sale" id="sale-filter" class="border-select-box-se">
+                                        {{-- <option selected="selected" value="-1" >--Tất cả sale--</option> --}}
+                                        <option   value="999">--Chọn Sale--</option> 
+                    
+                                        @if (isset($sales))
+                                            @foreach($sales as $sale)
+                                            <option value="{{$sale->id}}">{{($sale->real_name) ? : $sale->name}}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                
+                                </div>
+                                @endif
+                                <div class="header-filter-input col-12 col-sm-6 col-md-4 form-group">
+                                    <input name="search" type="text"  value="{{ isset($search) ? $search : null}}" class="form-control" placeholder="Họ tên, số điện thoại">
+                                </div>
                             
-                            <button class="btn btn-sm btn-primary" type="submit">
-                                <i class="fa fa-search"></i>Tìm kiếm
-                            </button>
-                            <button id="zoom-filter" style="padding: 8px;" class="btn btn-sm btn-primary ml-1" type="button">
-                                <i class="fa fa-angle-double-down" style="margin:0;"></i>
-                            </button>
+                                <div style="min-width: 158px;" class="col-12 col-sm-6 col-md-2 form-group">
+                                    <button class="btn btn-sm btn-primary" type="submit">
+                                        <i class="fa fa-search"></i>Tìm kiếm
+                                    </button>
+                                    <button id="zoom-filter" style="padding: 8px;" class="btn btn-sm btn-primary ml-1" type="button">
+                                        <i class="fa fa-angle-double-down" style="margin:0;"></i>
+                                    </button>
+                                </div>
         
-                            <div style="clear: both;"></div>
+                                <div style="clear: both;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -384,7 +419,7 @@
                     <?php $pagePanCake = Helper::getConfigPanCake()->page_id;
                     if ($pagePanCake) {
                         $pages = json_decode($pagePanCake);
-                        // dd($pages);
+
                         foreach ($pages as $page) {
                     ?>
                         <option value="{{$page->id}}">{{($page->name) ? : $page->name}}</option>
@@ -634,7 +669,7 @@
                                                                         </span></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="tbody-sale">
 
                             {{ csrf_field() }}
                             <?php $i = 1; ?>
@@ -740,24 +775,11 @@
                                         ?>
 
                                         @if ($item->old_customer == 1 || $item->has_old_order == 1)
-                                        <a title="Khách cũ, khách cũ" class="btn-icon">
+                                        <a data-target="#listDuplicate" data-toggle="modal" data-phone="{{$item->phone}}" title="Khách cũ, khách cũ" class="duplicate btn-icon">
                                             <i class="fa fa-heart" style="color:red;"></i>
                                         </a>
                                         @endif
 
-                                        {{-- @if (Helper::isOldCustomer($item->phone, $item->group_id))
-                                        <a title="Khách cũ, khách cũ" class="btn-icon">
-                                            <i class="fa fa-heart" style="color:red;"></i>
-                                        </a>
-                                        @endif --}}
-
-                                        {{-- <a class="btn-icon invisible">&nbsp;</a>
-
-                                        <a id="dnn_ctr1441_Main_SaleTacNghiep_rptData_ctl00_btnHistoryCall" title="Nghe ghi âm" class="btn-icon" href="javascript:__doPostBack('dnn$ctr1441$Main$SaleTacNghiep$rptData$ctl00$btnHistoryCall','')">
-                                            <i class="fa fa-microphone" style="color:red;"></i>
-                                        </a><a onclick="showformCallOmiAjax(this);return false;" style="cursor: pointer;" data-id="112155407" data-saletacnghiepcanid="89532" data-phonecall="0353456700" data-phonecallhidden="0353456700" data-namecallhidden="Phúc Phu">
-                                            <i class="fa fa-phone" style="color: red;"></i>
-                                        </a> --}}
                                         @if ($item->is_duplicate)
                                         <a data-target="#listDuplicate" data-toggle="modal" data-phone="{{$item->phone}}" title="Trùng só điện thoại" class="duplicate btn-icon">
                                             <svg  class="icon me-2" style="color: #ff0000">
@@ -792,10 +814,6 @@
                                     <span class="fb span-col  <?= ($item->has_TN) ?: 'ttgh7' ?>" style="cursor: pointer; width: calc(100% - 60px);"> {{$item->typeTN->name}}</span>
                                     @endif
 
-
-                                    {{-- <a data-id="{{$item->id}}"  title="Lưu ghi chú" class="update-TN-sale btn-icon aoh">
-                                        <i class="fa fa-save"></i>
-                                    </a> --}}
                                     <span class="box-TN" >
                                         <a style="color: rgb(64, 11, 209) !important; text-decoration: underline rgb(64, 11, 209) !important; font-style:italic !important;" class="TNHistoryModal" data-target="#TNHistory" data-tnsale_id="{{$item->id}}" data-toggle="modal" title="Lịch Sử TN">
                                             <i class="fa fa-history" style="color:rgb(64, 11, 209);"></i></a>
@@ -805,7 +823,6 @@
                                             data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" data-original-title="" title=""><?php if ($item->listHistory->count() > 0) {
                                                 foreach ($item->listHistory as $key => $value) {
                                                     echo date_format($value->created_at,"d/m") . ' ' . $value->note . "<br>";
-                                                    // echo date_format($value->created_at,"d/m") . ' ' . $value->note;
                                                 } 
                                             } else {
                                                 echo $item->TN_can;
@@ -820,9 +837,6 @@
 
                                 <td class="result-TN-col area2 no-wrap fix_brower_continue_let_off" style="min-width:100px">
                                     <div class="text-right">
-                                        {{-- <a onclick="" title="Lịch sử tác nghiệp" class="btn-icon aoh">
-                                            <i class="fa fa-history"></i>
-                                        </a> --}}
                                         @if (isset($item->id_order_new))
                                         <a target="_blank" class="btn-icon aoh" href="{{route('view-order', ['id' => $item->id_order_new])}}" title="Xem lịch sử xem thông tin số"><i style="font-size:14px;" class="fa fa-history"></i></a>
                                         @endif
@@ -933,7 +947,7 @@
                                         </div>
                                     </span>
                                     <span class="small-tip"></span>
-                                    <a id="dnn_ctr1441_Main_SaleTacNghiep_rptData__LinkTraCuuMaDonGiaoVan_0" class="item-mdgv" href="javascript:void(0)" style="color: darkorange;"></a>
+                                    <a class="item-mdgv" href="javascript:void(0)" style="color: darkorange;"></a>
                                     
                                     <br>
 
@@ -1051,7 +1065,6 @@
 
     $('.TNHistoryModal').on('click', function () {
         var saleId = $(this).data('tnsale_id');
-        console.log(saleId)
         var link = "{{URL::to('/sale-hien-thi-TN-box')}}";
         console.log(link + '/' + saleId);
         $("#TNHistory iframe").attr("src", link + '/' + saleId);
@@ -1059,9 +1072,7 @@
 
     $('.duplicate').on('click', function () {
         var phone = $(this).data('phone');
-        console.log(phone)
         var link = "{{URL::to('/danh-sach-so-trung')}}";
-        console.log(link + '/' + phone);
         $("#listDuplicate iframe").attr("src", link + '/' + phone);
     });
 
@@ -1071,8 +1082,6 @@
         var link = "{{URL::to('/view-hen-lich-TN')}}";
         $("#updateCalendarTN iframe").attr("src", link + '/' + id);
     });
-    
-    
     
     // $('.select2-choice').on('click', function () {
     //     var id = $(this).data('id');
@@ -1183,133 +1192,133 @@
 </script>
 
 <script>
-const mrNguyen = [
-    {
-        id : '332556043267807',
-        name_page : 'Rước Đòng Organic Rice - Tăng Đòng Gấp 3 Lần',
-    },
-    {
-        id : '318167024711625',
-        name_page : 'Siêu Rước Đòng Organic Rice- Hàm Lượng Cao X3',
-    },
-    {
-        id : '341850232325526',
-        name_page : 'Siêu Rước Đòng Organic Rice - Hiệu Quả 100%',
-    },
-    {
-        id : 'mua4tang2',
-        name_page : 'Ladipage mua4tang2',
-    },
-    {
-        id : 'giamgia45',
-        name_page : 'Ladipage giamgia45',
+    const mrNguyen = [
+        {
+            id : '332556043267807',
+            name_page : 'Rước Đòng Organic Rice - Tăng Đòng Gấp 3 Lần',
+        },
+        {
+            id : '318167024711625',
+            name_page : 'Siêu Rước Đòng Organic Rice- Hàm Lượng Cao X3',
+        },
+        {
+            id : '341850232325526',
+            name_page : 'Siêu Rước Đòng Organic Rice - Hiệu Quả 100%',
+        },
+        {
+            id : 'mua4tang2',
+            name_page : 'Ladipage mua4tang2',
+        },
+        {
+            id : 'giamgia45',
+            name_page : 'Ladipage giamgia45',
+        }
+    ];
+    const mrTien = [
+        {
+            id : 'mua4-tang2',
+            name_page : 'Ladipage mua4-tang2',
+        }
+    ];
+    $.urlParam = function(name){
+        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+        if (results) {
+            return results[1];
+        }
+        return 0;
     }
-];
-const mrTien = [
-    {
-        id : 'mua4-tang2',
-        name_page : 'Ladipage mua4-tang2',
+
+    let token = $.urlParam('_token') 
+    if (token) {
+        $('.filter-order').removeClass('hidden');
+        $('#zoom-filter').children('i').addClass('fa-angle-double-up');
+        $('#zoom-filter').children('i').removeClass('fa-angle-double-down');
     }
-];
-$.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results) {
-        return results[1];
+
+    let resultTN = $.urlParam('resultTN') 
+    if (resultTN && resultTN != 999) {
+        $('#resultTN-filter option[value=' + resultTN +']').attr('selected','selected');
+        $('#resultTN-filter').parent().addClass('selectedClass');
     }
-    return 0;
-}
 
-let token = $.urlParam('_token') 
-if (token) {
-    $('.filter-order').removeClass('hidden');
-    $('#zoom-filter').children('i').addClass('fa-angle-double-up');
-    $('#zoom-filter').children('i').removeClass('fa-angle-double-down');
-}
-
-let resultTN = $.urlParam('resultTN') 
-if (resultTN && resultTN != 999) {
-    $('#resultTN-filter option[value=' + resultTN +']').attr('selected','selected');
-    $('#resultTN-filter').parent().addClass('selectedClass');
-}
-
-let sale = $.urlParam('sale') 
-if (sale && sale != 999) {
-    $('#sale-filter option[value=' + sale +']').attr('selected','selected');
-    $('#sale-filter').parent().addClass('selectedClass');
-}
-
-let mkt = $.urlParam('mkt') 
-if (mkt && mkt != 999) {
-    $('#mkt-filter option[value=' + mkt +']').attr('selected','selected');
-    $('#mkt-filter').parent().addClass('selectedClass');
-}
-
-let src = $.urlParam('src') 
-if (src && src != 999) {
-    $('#src-filter option[value=' + src +']').attr('selected','selected');
-    $('#src-filter').parent().addClass('selectedClass');
-}
-
-let typeCustomer = $.urlParam('type_customer') 
-if (typeCustomer && typeCustomer != 999) {
-    $('#type_customer-filter option[value=' + typeCustomer +']').attr('selected','selected');
-    $('#type_customer-filter').parent().addClass('selectedClass');
-}
-
-let time = $.urlParam('daterange') 
-if (time) {
-    time = decodeURIComponent(time)
-    time = time.replace('+-+', ' - ') //loại bỏ khoảng trắng
-    $('input[name="daterange"]').val(time)
-}
-
-let group = $.urlParam('group') 
-if (group && group != 999) {
-    $('#group-filter option[value="' + group +'"]').attr('selected','selected');
-}
-
-let status = $.urlParam('status') 
-if (status && status != 999) {
-    $('#status-filter option[value=' + status +']').attr('selected','selected');
-    $('#status-filter').parent().addClass('selectedClass');
-}
-
-let typeDate = $.urlParam('typeDate') 
-if (typeDate && typeDate != 999) {
-    $('#typeDate-filter option[value="' + typeDate +'"]').attr('selected','selected');
-    $('#typeDate-filter').parent().addClass('selectedClass');
-}
-
-let statusTN = $.urlParam('statusTN') 
-if (statusTN && statusTN != 999) {
-    $('#statusTN-filter option[value="' + statusTN +'"]').attr('selected','selected');
-    $('#statusTN-filter').parent().addClass('selectedClass');
-}
-
-let product = $.urlParam('product') 
-if (product && product != 999) {
-    $('#product-filter option[value="' + product +'"]').attr('selected','selected');
-    $('#product-filter').parent().addClass('selectedClass');
-}
-
-let search = $.urlParam('search')
-if (search) {
-    search = decodeURIComponent(search);
-    search = search.replaceAll('+', " ");
-    $('input[name="search"]').val(search)
-}
-
-let cateCall = $.urlParam('cateCall')
-if (cateCall) {
-    cateCall = decodeURIComponent(cateCall);
-    var $radios = $('input:radio[name=cateCall]');
-    if($radios.is(':checked') === false) {
-        $radios.filter('[value=' + cateCall +']').prop('checked', true);
+    let sale = $.urlParam('sale') 
+    if (sale && sale != 999) {
+        $('#sale-filter option[value=' + sale +']').attr('selected','selected');
+        $('#sale-filter').parent().addClass('selectedClass');
     }
-    var radioCateCall =  $('input:radio[name="cateCall"]').filter('[value="' + cateCall +'"]');
-    radioCateCall.attr('checked', true);
-    radioCateCall.parent().addClass('selected');
-}
+
+    let mkt = $.urlParam('mkt') 
+    if (mkt && mkt != 999) {
+        $('#mkt-filter option[value=' + mkt +']').attr('selected','selected');
+        $('#mkt-filter').parent().addClass('selectedClass');
+    }
+
+    let src = $.urlParam('src') 
+    if (src && src != 999) {
+        $('#src-filter option[value=' + src +']').attr('selected','selected');
+        $('#src-filter').parent().addClass('selectedClass');
+    }
+
+    let typeCustomer = $.urlParam('type_customer') 
+    if (typeCustomer && typeCustomer != 999) {
+        $('#type_customer-filter option[value=' + typeCustomer +']').attr('selected','selected');
+        $('#type_customer-filter').parent().addClass('selectedClass');
+    }
+
+    let time = $.urlParam('daterange') 
+    if (time) {
+        time = decodeURIComponent(time)
+        time = time.replace('+-+', ' - ') //loại bỏ khoảng trắng
+        $('input[name="daterange"]').val(time)
+    }
+
+    let group = $.urlParam('group') 
+    if (group && group != 999) {
+        $('#group-filter option[value="' + group +'"]').attr('selected','selected');
+    }
+
+    let status = $.urlParam('status') 
+    if (status && status != 999) {
+        $('#status-filter option[value=' + status +']').attr('selected','selected');
+        $('#status-filter').parent().addClass('selectedClass');
+    }
+
+    let typeDate = $.urlParam('typeDate') 
+    if (typeDate && typeDate != 999) {
+        $('#typeDate-filter option[value="' + typeDate +'"]').attr('selected','selected');
+        $('#typeDate-filter').parent().addClass('selectedClass');
+    }
+
+    let statusTN = $.urlParam('statusTN') 
+    if (statusTN && statusTN != 999) {
+        $('#statusTN-filter option[value="' + statusTN +'"]').attr('selected','selected');
+        $('#statusTN-filter').parent().addClass('selectedClass');
+    }
+
+    let product = $.urlParam('product') 
+    if (product && product != 999) {
+        $('#product-filter option[value="' + product +'"]').attr('selected','selected');
+        $('#product-filter').parent().addClass('selectedClass');
+    }
+
+    let search = $.urlParam('search')
+    if (search) {
+        search = decodeURIComponent(search);
+        search = search.replaceAll('+', " ");
+        $('input[name="search"]').val(search)
+    }
+
+    let cateCall = $.urlParam('cateCall')
+    if (cateCall) {
+        cateCall = decodeURIComponent(cateCall);
+        var $radios = $('input:radio[name=cateCall]');
+        if($radios.is(':checked') === false) {
+            $radios.filter('[value=' + cateCall +']').prop('checked', true);
+        }
+        var radioCateCall =  $('input:radio[name="cateCall"]').filter('[value="' + cateCall +'"]');
+        radioCateCall.attr('checked', true);
+        radioCateCall.parent().addClass('selected');
+    }
 </script>
 
 <script>
@@ -1319,13 +1328,12 @@ if (cateCall) {
             $('.body').css("opacity", '0.5');
             $('.loader').show();
         }
-        
+
         // var id = $(this).data("id");
         var textArea = '#TNSale_' + id;
         var textTN   = $(textArea).val();
         var _token   = $("input[name='_token']").val();
-        // console.log('koko', id);
-        // return;
+
         $.ajax({
             url: "{{route('update-salecare-TNcan')}}",
             type: 'POST',
@@ -1502,8 +1510,7 @@ if (cateCall) {
         $('#typeDate-filter').select2();
         $('#statusTN-filter').select2();
         $('#product-filter').select2();
-        
-        // $('#group-filter').select2();
+        $('#group-filter').select2();
         
     });
 </script>
@@ -1516,6 +1523,379 @@ if (cateCall) {
                 $(this).parent().addClass('selected');
             }
     });
+
+    $("input[name='cateCall']") // select the radio by its id
+        .click(function(){ // bind a function to the change event
+
+        var typeTN = $(this).val();
+        var url = window.location.href;
+        paramsString = url.substring(url.lastIndexOf('?') + 1);
+
+        var searchParams = new URLSearchParams(paramsString);
+        var stringParam = '';
+        var flag = false;
+        for (let p of searchParams) {
+            console.log(p)
+            if (p[0] == 'daterange') {
+                stringParam += '&daterange=' + encodeURIComponent(p[1]);
+            } else if (p[1] != 999 && p[1] != '') {
+               
+                if (p[0] == 'cateCall') {
+                    flag = true;
+                    stringParam += '&' + p[0] + '=' + typeTN;
+                } else {
+                    var charStr = '';
+                    if (stringParam == '') {
+                        charStr = '?';
+                        stringParam += charStr
+                    } else {
+                        charStr = '&';
+                    }
+
+                    stringParam += charStr + p[0] + '=' + p[1];
+                }
+            } 
+        }
+
+        var daterange = $("input[name='daterange']").val();
+        var _token   = $("input[name='_token']").val();
+        if (!flag) {
+            if (searchParams.size == 1) {
+                stringParam += '?_token=' + _token + '&daterange=' + encodeURIComponent(daterange);
+            }
+
+            stringParam += '&cateCall=' + typeTN;
+        }
+
+        var baseLink = location.href.slice(0,location.href.lastIndexOf("/"));
+
+        refeshLink = baseLink + '/tac-nghiep-sale' + stringParam;
+        window.history.pushState("object or string", "Title", refeshLink);
+
+        var typeDate = $("#typeDate-filter :selected").val();
+        var src = $("#src-filter :selected").val();
+        var mkt = $("#mkt-filter :selected").val();
+        var product = $("#product-filter :selected").val();
+        var statusTN = $("#statusTN-filter :selected").val();
+        var resultTN = $("#resultTN-filter :selected").val();
+        var type_customer = $("#type_customer-filter :selected").val();
+        var status = $("#status-filter :selected").val();
+        var sale = $("#sale-filter :selected").val();
+
+        var link = "{{URL::to('/tac-nghiep-sale')}}";
+        var isAjax = true;
+
+        $('.body').css("opacity", '0.5');
+        $('.loader').show();
+        var listSale = '<?php echo json_encode($listSale); ?>';
+            $.ajax({
+            url: link,
+            type: "GET",
+            data: {
+                cateCall:typeTN, daterange, typeDate, src, mkt, product, statusTN, resultTN, type_customer, status, sale,
+                isAjax,
+                _token: _token,
+            },
+            success: function (data) {
+                $('.body').css("opacity", '1');
+
+                var rs = '';
+                var i = 0;
+                if (!data.error) {
+                    var listSale = data.listSale;
+                    data.dataSale.forEach(element => {
+                        i++;
+                        rs += '<tr class="contact-row tr_' + element.id + '">';
+                        rs += '<td class="text-center">';
+                        rs += '<?php $checkAll = true; if ($checkAll) { ?>';
+                        rs +=     '<span class="chk-item">';
+                        rs +=        '<input data-id="' + element.id + '" value="' + element.id + '" class="chk-item-input" type="checkbox" id="' + element.id + '">';
+                        rs +=        '<label for="' + element.id + '">' + i + '</label>';
+                        rs +=    '</span>';
+                        rs +=    '<?php } else { ?> ';
+                        rs +=  '<span class="chk-item">' + i + '</span>'
+                        rs +=    '<?php } ?>';
+                        rs +=    '</td>';
+
+                        rs += '<td class="text-center area5 hidden-xs">'; 
+                        rs += '<span class="span-col span-col-width cancel-col">';
+                        rs +=    '<a target="_blank" href="' + element.page_link + '">' + element.page_name + '</a>';
+                        rs +=            '</span>';
+                
+                        rs += '<br>';
+
+                        var date = new Date(element.created_at);
+                        const formatter = new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric'});
+                        const formattedTime = formatter.format(date);
+
+                        rs += '<span class="small-tip">(<span>' + formattedTime + '</span>)</span>';
+                        rs += '</td>';
+
+                        var AuthId = '<?php echo Auth::user()->id;?>';
+                        var checkAll = '<?php echo isFullAccess(Auth::user()->role)?>';
+                        var isLeadSale = '<?php echo $isLeadSale;?>';
+
+                        rs += '<td class="text-center area5 hidden-xs result-TN-col">';
+
+                        if (checkAll || isLeadSale) {
+                            rs += '<div class="text-right">';
+                            rs += '<a data-id="' + element.id +'" title="Xóa data" class="btn-icon aoh removeBtn">';
+                            rs += '<i class="fa fa-trash"></i>';
+                            rs += '</a>';
+                            rs += '<a title="chỉ định Sale nhận data" data-id="' + element.id +'" class="update-assign-TN-sale btn-icon aoh">';
+                            rs += '<i class="fa fa-save"></i>';
+                            rs += '</a>';
+                            rs += '</div>';
+                            rs += '<div>';
+
+                            rs += '<div class="mof-container">';
+                            rs += '<select class="select-assign bg-dropdown" name="assignTNSale_' + element.id +'">';
+                            var flag = false;
+                            var nameSale = selected = '';
+
+                            listSale.forEach(user => {
+                                if (user.id == element.assign_user) {
+                                    selected = 'selected';
+                                    rs += '<option selected value="' + user.id + '">' + user.real_name + '</option>';
+                                } else {
+                                    rs += '<option value="' + user.id + '">' + user.real_name + '</option>';
+                                }
+
+                                if (user.id == element.assign_user) {
+                                    flag = true;
+                                    // break;
+                                    nameSale = user.real_name;
+                                }
+                            });
+
+                            if (!flag) {
+                                rs += '<option selected value="0">None </option>';
+                            }
+
+                            rs += '</select>';
+                            rs += '</div>';
+                            rs += '<div style="clear: both;"></div>';
+                            rs += '</div>';
+
+                        } else { 
+                            rs += '<div>' + '<?php echo Auth::user()->real_name; ?>' + '</div>';
+                        }
+
+                        rs += '</td>';
+                        rs += '<td class="area1" title="FROM_FACEBOOK_MESSAGE">';
+
+                        if (checkAll || isLeadSale) {
+                            rs += '<div class="text-right">';
+
+                            if (element.id_order_new) {
+                                rs += '<a data-target="#createOrder" data-toggle="modal" title="Sửa đơn"';
+                                rs += 'data-tnsale-id="' + element.id + '" data-id_order_new="' + element.id_order_new;
+                                rs += '" class="orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>';
+                            } else {
+                                rs += '<a data-target="#createOrder" data-toggle="modal" title="Chốt đơn" data-tnsale-id="' + element.id;
+                                rs += '" data-address="' + element.address + '" data-name="' + element.full_name + '" data-phone="' + element.phone;
+                                rs += '" class=" orderModal btn-icon aoh"><i class="fa fa-edit"></i></a>';
+                            }
+                            rs += '</div>';
+                        }
+
+                        rs += '<div class="" style="text-overflow: ellipsis;">' + element.full_name + '</div>';
+                        rs += '<a href="tel:' + element.phone + '" class="span-col" style="width: calc(100% - 90px);">' + element.phone;
+                            
+                        rs += '</a>';
+                        rs += '<span class="span-col text-right" style="width: 85px;">';
+
+                        if (element.old_customer == 1 || element.has_old_order == 1) {
+                            rs += '<a  data-target="#listDuplicate" data-toggle="modal" data-phone="' + element.phone + '" title="Khách cũ, khách cũ" class="duplicate btn-icon">';
+                                rs += '<i class="fa fa-heart" style="color:red;"></i>';
+                            rs += '</a>';
+                        }
+
+                        if (element.is_duplicate) {
+                            rs += '<a data-target="#listDuplicate" data-toggle="modal" data-phone="' + element.phone + '" title="Trùng só điện thoại" class="duplicate btn-icon">';
+                                rs += '<svg  class="icon me-2" style="color: #ff0000">';
+                                    rs += '<use xlink:href="<?php echo asset("public/vendors/@coreui/icons/svg/free.svg#cil-copy")?>"></use>';
+                                rs += '</svg>';
+                            rs += '</a>';
+                        }
+                        
+                        rs += '</span>';
+                        rs += '</div>';
+                        rs += '</td>';
+
+                        rs += '<td class="area1 hidden-xs td-5055" style="max-width: 100px;">';
+                        rs += '<span style="cursor: pointer; overflow: hidden; max-height: 100px; display: block;">';
+                        if (element.messages) {
+                            rs += element.messages
+                        }
+                        
+                        rs += '</span>';
+                        rs += '</td>';
+
+                        rs += '<td class="area2 hidden-xs type-TN" style="padding-bottom: 10px;">';
+                        if (!element.type_TN) {
+                            if (!element.old_customer) {
+                                rs += '<span class="fb span-col ttgh7" style="cursor: pointer; width: calc(100% - 60px);">Data nóng</span>';
+                            } else if (element.old_customer == 1) {
+                                rs += '<span class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">CSKH</span>';
+                            } else if (element.old_customer == 2) {
+                                rs += '<span class="fb span-col" style="cursor: pointer; width: calc(100% - 60px);">Hotline</span>';
+                            }
+                        } else {
+                            var classHasTN = '';
+                            if (!element.has_TN) {
+                                classHasTN = 'ttgh7';
+                            }
+                            rs += '<span class="fb span-col ' + classHasTN + '" style="cursor: pointer; width: calc(100% - 60px);">';
+                            rs += element.typeTN.name + '</span>';
+                        }
+
+                        rs += '<span class="box-TN" >';
+                        rs += '<a style="color: rgb(64, 11, 209) !important; text-decoration: underline rgb(64, 11, 209) !important; font-style:italic !important;" class="TNHistoryModal" data-target="#TNHistory"';
+                        rs += 'data-tnsale_id="' + element.id + '" data-toggle="modal" title="Lịch Sử TN">';
+                        rs += '<i class="fa fa-history" style="color:rgb(64, 11, 209);"></i></a>';
+                        rs += '</span>';
+                        rs += '<div class="mof-container TNModal"  data-target="#TN" data-tnsale_id="' + element.id + '" data-toggle="modal" title="Tác Nghiệp Ngay">';
+                        rs += '<div data-id="' + element.id + '" id="TNSale_' + element.id + '" rows="2" cols="20" class="form-control txt-mof txt-dotted"';
+                        rs += 'data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover">';
+                                
+                        if (element.history) {
+                            rs += element.history;
+                        } 
+                        rs += '</div>';
+                        rs += '</div>';
+                        rs += '<div style="clear: both;"></div>';
+                        rs += '</td>';
+
+                        rs += '<td class="result-TN-col area2 no-wrap fix_brower_continue_let_off" style="min-width:100px">';
+                        rs += '<div class="text-right">';
+
+                        if (element.id_order_new) {
+                            rs += '<a target="_blank" class="btn-icon aoh" href="<?php echo route("view-order", ["id" => ' + element.id_order_new + ']); ?>" title="Xem lịch sử xem thông tin số">';
+                            rs += '<i style="font-size:14px;" class="fa fa-history"></i></a>';
+                        }
+
+                        rs += '</div>';
+                        var thenCallName = '';
+                        if (element.type_TN) {
+
+                            rs += '<select data-id="' + element.id + '" class="hidden result-TN select-assign ddlpb dis_val" tabindex="-1">';
+                            rs += '<option value="-1">--Chọn--</option>';
+
+                            element.listCallByTypeTN.forEach(call => {
+                                if (call.id == element.result_call) {
+                                    thenCallName = call.thenCallName;
+                                    rs += '<option selected value="' + call.id + '">' + call.name + '</option>';
+                                } else {
+                                    rs += '<option  value="' + call.id + '">' + call.name + '</option>';
+                                }
+                            });
+
+                            rs += '</select>';
+                        }
+
+                        rs += '<div class="small-tip text-left">';
+                        if (element.orderNew) {
+                            rs += '<br>' + element.orderNew.created_at;
+                        }
+
+                        rs += '</div>';
+                        rs += '</td>';
+
+                        rs += '<td class="no-wrap area2 no-wrap  hidden-xs " style="min-width:120px">';
+                        rs += '<span class="next-TN">';
+
+                        rs += thenCallName;
+                                       
+                        rs += '</span>';
+
+                        rs += '<div class="text-right">';
+                        rs += '<a title="Sửa lịch tác nghiệp" data-target="#updateCalendarTN" data-toggle="modal"';
+                        rs += 'data-timeWakeup="' + element.time_wakeup_TN + '" data-iddd="' + element.id + '" ';
+                        rs += 'class="calendarModal btn-icon aoh">';
+                        rs += '<i class="fa fa-calendar"></i>';
+                        rs += '</a>';
+                        rs += '</div>';
+                        rs += '<br>';
+                                   
+                        rs += '</td>';
+
+                        rs += '<td class="text-left area3 hidden-xs">';
+                        rs += '<span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonhangTenSanPhams_0">';
+                        rs += '<table class="tb-in-sp">';
+                        rs += '<tbody>';
+              
+                        if (element.order_new) {
+                            element.order_new.listProduct.forEach(order => {
+                                rs += '<tr><td><span class="ten-sp" style="text-overflow:ellipsis">' + order.name + '</span></td>';
+                                rs += '  <td class="text-center no-wrap">&nbsp; x ' + order.cartQty + ' &nbsp;</td><td class="text-right">';
+                                rs += order.price + '</td>';
+                                rs += ' </tr>';
+                            });
+                        }     
+                        rs += ' </tbody>';
+                        rs += '</table></span>';
+                        rs += ' </td>';
+
+                        rs += '<td class="no-wrap area3 text-right hidden-xs">';
+                        if (element.order_new) {
+                            rs += '<table class="tb-in-sp ">';
+                                rs += '<tbody>';
+                                    rs += '<tr>';
+                                        rs += '<td title="Tổng tiền đơn hàng" style="font-weight: bold; font-size: 13px;">';
+                                        rs += new Intl.NumberFormat().format(element.order_new.total);
+                                        rs += '</td>';
+                                    rs += '</tr>';
+                                rs += '</tbody>';
+                            rs += '</table>';
+                        }
+                        rs += '</td>';
+
+                        rs += '<td class="no-wrap area3 text-right hidden-xs">';
+                        rs += '<span></span>';
+                        rs += '</td>';
+
+                        rs += '<td class="text-center area4">';
+                        rs += '<span class="span-col no-wrap">';
+                        rs += '<div class="small-tip">';
+
+                        var listStatus = '<?php echo json_encode($listStatus); ?>';
+                        if (element.order_new) {
+                            rs += JSON.parse(listStatus)[element.order_new.status] + '<br>';
+
+                            if (element.order_new.shipping_order) {
+                                rs += '<a title="sửa" target="blank" href="' + location.href.slice(0,location.href.lastIndexOf("/")) + '/chi-tiet-van-don/' + element.order_new.shipping_order.id + '" role="button">' + element.order_new.shipping_order.order_code + '</a>';
+                        
+                            }
+                        }
+                                    
+                        rs += '</div>';
+                        rs += '</span>';
+                        rs += '</a>';
+                            
+                        rs += '</td>';
+                        rs += '</tr>';
+                       
+                    });
+
+                    setTimeout(function() {
+                        $('.result-TN').select2();
+                    }, 3000);
+                    $('.tbody-sale').html(rs);
+                    
+                    var linkJs = '<?php echo asset("public/js/page/sale.js"); ?>';
+                    $.getScript(linkJs);
+                }
+
+                /**
+                 * cập nhật lại phân trang 
+                */
+                $('.loader').hide();
+            }
+        });
+
+    });
+
 
     $('#zoom-filter').click(function(){
         
@@ -1531,8 +1911,8 @@ if (cateCall) {
 </script>
 
 <script>
-    $('.removeBtn').click(function (event) {
-    if (confirm('Bạn muốn xóa data này?')) {
+    function removeBtnFunction() {
+        if (confirm('Bạn muốn xóa data này?')) {
         var id = $(this).data("id");
         var link = "{{URL::to('/xoa-sale-care/')}}/" + id;
         var _token   = $("input[name='_token']").val();
@@ -1572,6 +1952,51 @@ if (cateCall) {
             }
         });
     }
+    }
+    
+    $(document).ready(function() {
+    $('.removeBtn').click(function (event) {
+        if (confirm('Bạn muốn xóa data này?')) {
+            var id = $(this).data("id");
+            var link = "{{URL::to('/xoa-sale-care/')}}/" + id;
+            var _token   = $("input[name='_token']").val();
+
+            $('.body').css("opacity", '0.5');
+            $('.loader').show();
+            $.ajax({
+                url: link,
+                type: "POST",
+                data: {
+                    id,
+                    _token: _token,
+                },
+                success: function (data) {
+                    $('.body').css("opacity", '1');
+                    
+                    if (!data.error) {
+                        $('#notify-modal').modal('show');
+                        if ($('.modal-backdrop-notify').length === 0) {
+                            $('.modal-backdrop').addClass('modal-backdrop-notify');
+                        }
+
+                        $('#notify-modal .modal-title').html('Xoá data thành công!');
+
+                        setTimeout(function() {
+                            $('#notify-modal .modal-title').text('');
+                            $('#notify-modal').modal("hide");
+                        }, 2000);
+                        
+                        var tr = '.tr_' + id;
+                        $(tr).delay(1000).hide(0);
+                    } else {
+                        alert('Đã xảy ra lỗi trong quá trình cập nhật TN Sale!');
+                    }
+
+                    $('.loader').hide();
+                }
+            });
+        }
+    });
 });
 </script>
 
@@ -1607,20 +2032,14 @@ if (cateCall) {
 
         var total = $('#total-val').data('total');
         var listId = $('#total-val').attr('list_id');
-
         var id = $(this).data("id");
-        console.log('listId',listId)
-        console.log('id',id)
 
-        console.log(listId)
         listId = JSON.parse(listId);
-
         if ($(this).is(":checked")) {
             total = parseInt(total) + 1;
             if (listId.indexOf(id) == -1) {
                 listId.push(id);
             }
-
         } else {
             total = parseInt(total) - 1;
             if (listId.indexOf(id) > -1) {
@@ -1650,7 +2069,6 @@ if (cateCall) {
             var link = "{{URL::to('/xoa-danh-sach-sale-care')}}";
             $('.body').css("opacity", '0.5');
             $('.loader').show();
-            // console.log(list_id);
             
             $.ajax({
                 url: link,

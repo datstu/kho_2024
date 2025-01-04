@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
 use App\Http\Controllers\SaleController;
+use App\Models\Group;
 use App\Models\SaleCare;
 use PhpParser\Node\Stmt\TryCatch;
 
@@ -25,14 +26,10 @@ class OrdersController extends Controller
      */
     public function index(Request $req)
     {
-        // dd($req->all());
         if (count($req->all())) {
             return $this->filterOrderByDate($req);
         }
         $category = Category::where('status', 1)->get();
-        // $list = $this->getListOrderByPermisson(Auth::user())->paginate(50);
-
-        // dd('hiho');
         $data       = $this->getListOrderByPermisson(Auth::user());
         $sumProduct = $data->sum('qty');
         $totalOrder = $data->count();
@@ -44,7 +41,6 @@ class OrdersController extends Controller
 
     public function  getListOrderByPermisson($user, $dataFilter = null) 
     {
-        // dd($dataFilter);
         $roles  = $user->role;
         $list   = Orders::orderBy('id', 'desc');
         if ($dataFilter) {
@@ -93,53 +89,65 @@ class OrdersController extends Controller
                 $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
             }
 
-            /**
-             * 1: nhóm Tricho
-             * 2: nhóm Lúa
-             */
             if (isset($dataFilter['group'])) {
-                $ids = [];
-                if ($dataFilter['group'] == 1) {
-                    $productTricho = [
-                        58 => '1kg humic',
-                        57 => 'Xô Tricho 10kg',
-                        56 => '	1 xô Tricho + 3kg Humic'
-                    ];
-                
-                    // dd($list->get());
-                    foreach ($list->get() as $order) {
-                        $products = json_decode($order->id_product);
-                        foreach ($products as $product) {
-                            if (array_key_exists($product->id, $productTricho)) {
-                                $ids[] = $order->id;
-                                break;
-                            }
-                        }
-                    }
+                $group = Group::find($dataFilter['group']);
+                if ($group) {
 
-                } else if ($dataFilter['group'] == 2){
-                    $productOg = [
-                        55 => 'Xô OG 10kg',
-                        54 => 'OG vô gạo',
-                        53 => 'OG rước đòng',
-                        43 => 'S400'
-                    ];
-                
-                    // dd($list->get());
-                    foreach ($list->get() as $order) {
-                        $products = json_decode($order->id_product);
-                        foreach ($products as $product) {
-                            if (array_key_exists($product->id, $productOg)) {
-                                $ids[] = $order->id;
-                                break;
-                            }
-                        }
-                    }
+                    $listId = $list->pluck('id')->toArray();
+                    $listOrder = Orders::select('orders.*')->join('sale_care', 'orders.sale_care', '=', 'sale_care.id')
+                        ->where('sale_care.group_id', $dataFilter['group'])
+                        ->whereIn('orders.id', $listId);
+                    $list = $list->whereIn('id', $listOrder->pluck('id')->toArray());
                 }
-
-                $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
-                // $list->whereStatus($dataFilter['status']);
             }
+
+            // /**
+            //  * 1: nhóm Tricho
+            //  * 2: nhóm Lúa
+            //  */
+            // if (isset($dataFilter['group'])) {
+            //     $ids = [];
+            //     if ($dataFilter['group'] == 1) {
+            //         $productTricho = [
+            //             58 => '1kg humic',
+            //             57 => 'Xô Tricho 10kg',
+            //             56 => '	1 xô Tricho + 3kg Humic'
+            //         ];
+                
+            //         // dd($list->get());
+            //         foreach ($list->get() as $order) {
+            //             $products = json_decode($order->id_product);
+            //             foreach ($products as $product) {
+            //                 if (array_key_exists($product->id, $productTricho)) {
+            //                     $ids[] = $order->id;
+            //                     break;
+            //                 }
+            //             }
+            //         }
+
+            //     } else if ($dataFilter['group'] == 2){
+            //         $productOg = [
+            //             55 => 'Xô OG 10kg',
+            //             54 => 'OG vô gạo',
+            //             53 => 'OG rước đòng',
+            //             43 => 'S400'
+            //         ];
+                
+            //         // dd($list->get());
+            //         foreach ($list->get() as $order) {
+            //             $products = json_decode($order->id_product);
+            //             foreach ($products as $product) {
+            //                 if (array_key_exists($product->id, $productOg)) {
+            //                     $ids[] = $order->id;
+            //                     break;
+            //                 }
+            //             }
+            //         }
+            //     }
+
+            //     $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
+            //     // $list->whereStatus($dataFilter['status']);
+            // }
 
             /** mrNguyen = 1
              *  mrTien = 2
@@ -167,7 +175,6 @@ class OrdersController extends Controller
                     ->whereIn('id', $idTmps);
             }
 
-            // dd($dataFilter);
             // if (isset($dataFilter['mkt'])) {
             //     $dataFilterSale['mkt'] = $dataFilter['mkt'];
             // }  
@@ -592,7 +599,6 @@ class OrdersController extends Controller
 
                     if ($group->is_share_data_cskh) {
                         $assgin_user = Helper::getAssignCskhByGroup($group, 'cskh')->id_user;
-                        // dd( $assgin_user);
                     } else {
                         $assgin_user = $order->saleCare->assign_user;
                     }
@@ -741,7 +747,6 @@ class OrdersController extends Controller
     public function filterOrderByDate(Request $req) {
         $dataFilter = [];
 
-        // dd($req->daterange);
         if ($req->daterange) {
             $time       = $req->daterange;
             $arrTime    = explode("-",$time); 
@@ -788,7 +793,6 @@ class OrdersController extends Controller
             $totalOrder = $data->count();
           
             $sumProduct = $data->sum('qty');
-            // dd($sumProduct);
             $category   = Category::where('status', 1)->get();
             $list       = $data->paginate(50);
             $sales      = Helper::getListSale()->get();

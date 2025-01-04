@@ -162,7 +162,6 @@
     }
     
     if ($(window ).width() < 600) {
-        console.log($(window ).width());
         $('.tool-bar button').text('Tìm');
     }
     

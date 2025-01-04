@@ -29,32 +29,31 @@
     <div class="col-sm-12">
         <div class="alert  alert-danger alert-dismissible fade show" role="alert">
             {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     </div>
     </div>
 @endif
 
-          <div class="card mb-4">
+        <div class="card mb-4">
             <div class="card-header"><strong>Quản lý đơn hàng</strong> </div>
             <div class="card-body p-0">
-              <div class="example mt-0">
+                <div class="example mt-0">
 
-@include('pages.orders.content')
+                @include('pages.orders.content')
 
-              </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
+    </div>
+</div>
 <script>
   $(document).ready(function() {
     $("#noti-box").slideDown('fast').delay(5000).hide(0);
     
     if ($(window ).width() < 600) {
-        console.log($(window ).width());
         $('.tool-bar button').text('Tìm');
     }
   });

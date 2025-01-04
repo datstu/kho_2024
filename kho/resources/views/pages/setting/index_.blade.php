@@ -54,7 +54,6 @@
     $("#noti-box").slideDown('fast').delay(5000).hide(0);
     
     if ($(window ).width() < 600) {
-        console.log($(window ).width());
         $('.tool-bar button').text('Tìm');
     }
   });

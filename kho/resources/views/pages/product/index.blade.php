@@ -29,12 +29,12 @@
     <div class="col-sm-12">
         <div class="alert  alert-danger alert-dismissible fade show" role="alert">
             {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     </div>
-    </div>
+  </div>
 @endif
 
 <?php
@@ -42,31 +42,31 @@ $active       = '';
 $routeName    = \Route::getCurrentRoute()->uri;
 $asRouteName  = (\Route::getCurrentRoute()->action['as']) ?? null;
 ?>
-          <div class="card mb-4">
-            <div class="card-header"><strong>Quản lý sản phẩm</strong> </div>
-            <div class="card-body">
-              <div class="example mt-0">
-                <ul class="nav nav-tabs" role="tablist">
-                  <li class="nav-item"><a class="nav-link  <?= ($routeName == 'danh-sach-san-pham')?'active':'' ?>"  href="{{URL::to('/danh-sach-san-pham')}}">
-                      <svg class="icon me-2">
-                        <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-media-play')}}"></use>
-                      </svg>Danh sách</a></li>
-                  <li class="nav-item"><a class="nav-link <?= ($asRouteName == 'nhap-hang-theo-thang' || $routeName == 'nhap-hang')?'active':'' ?>" href="{{URL::to('/nhap-hang')}}">
-                      <svg class="icon me-2">
-                        <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-code')}}"></use>
-                      </svg>Nhập hàng</a>
-                  </li>
-                  <li class="nav-item"><a class="nav-link" href="" target="_blank">
-                      <svg class="icon me-2">
-                        <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-code')}}"></use>
-                      </svg>Xuất hàng</a>
-                  </li>
-                  <li class="nav-item"><a class="nav-link" href="" target="_blank">
-                      <svg class="icon me-2">
-                        <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-code')}}"></use>
-                      </svg>Tồn kho</a>
-                  </li>
-                </ul>
+<div class="card mb-4">
+  <div class="card-header"><strong>Quản lý sản phẩm</strong> </div>
+    <div class="card-body">
+      <div class="example mt-0">
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item"><a class="nav-link  <?= ($routeName == 'danh-sach-san-pham')?'active':'' ?>"  href="{{URL::to('/danh-sach-san-pham')}}">
+              <svg class="icon me-2">
+                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-media-play')}}"></use>
+              </svg>Danh sách</a></li>
+          <li class="nav-item"><a class="nav-link <?= ($asRouteName == 'nhap-hang-theo-thang' || $routeName == 'nhap-hang')?'active':'' ?>" href="{{URL::to('/nhap-hang')}}">
+              <svg class="icon me-2">
+                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-code')}}"></use>
+              </svg>Nhập hàng</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="" target="_blank">
+              <svg class="icon me-2">
+                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-code')}}"></use>
+              </svg>Xuất hàng</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="" target="_blank">
+              <svg class="icon me-2">
+                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-code')}}"></use>
+              </svg>Tồn kho</a>
+          </li>
+        </ul>
 <?php
   if ($routeName == 'nhap-hang' || $asRouteName == 'nhap-hang-theo-thang' || $asRouteName == 'nhap-hang-theo-nam') :
 ?>
@@ -84,18 +84,16 @@ $asRouteName  = (\Route::getCurrentRoute()->action['as']) ?? null;
   endif
 ?>
 
-
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 <script>
   $(document).ready(function() {
     $("#noti-box").slideDown('fast').delay(5000).hide(0);
         
     if ($(window ).width() < 600) {
-        console.log($(window ).width());
         $('.tool-bar button').text('Tìm');
     }
   });

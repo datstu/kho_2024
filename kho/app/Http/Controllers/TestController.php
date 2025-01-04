@@ -787,8 +787,8 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/12/2024', '10/12/2024'];
-    $req['sale'] = '64';
+    $req['daterange'] = ['01/12/2024', '30/12/2024'];
+    $req['sale'] = '59';
 
     // $sales = ['64', '59', '62'];
 
@@ -797,7 +797,7 @@ class TestController extends Controller
     $list->whereNull('id_order');
     $list->where('old_customer', 0);
     $list->where('is_duplicate', 0);
-    $list->where('group_id', '5');
+    // $list->where('group_id', '5');
     // $list->whereIn('assign_user', $sales);
     $dataExport[] = [
       'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'

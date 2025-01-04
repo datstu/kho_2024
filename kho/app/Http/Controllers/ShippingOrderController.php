@@ -33,8 +33,8 @@ class ShippingOrderController extends Controller
         $checkAll   = false;
         $listRole   = [];
         // $roles      = json_decode(Auth::user()->role);
-        // dd($roles);
         $roles      = json_decode($roles);
+
         if ($roles) {
             foreach ($roles as $key => $value) {
                 if ($value == 1) {
@@ -76,8 +76,8 @@ class ShippingOrderController extends Controller
         $checkAll   = false;
         $listRole   = [];
         // $roles      = json_decode(Auth::user()->role);
-        // dd($roles);
         $roles      = json_decode($roles);
+
         if ($roles) {
             foreach ($roles as $key => $value) {
                 if ($value == 1) {
@@ -159,7 +159,7 @@ class ShippingOrderController extends Controller
                 $order = new Orders();
                 $text = 'Tạo đơn hàng thành công.';
             }
-            // dd($request->products);
+
             $order->id_product      = $request->products;
             $order->phone           = $request->phone;
             $order->address         = $request->address;
@@ -174,18 +174,14 @@ class ShippingOrderController extends Controller
             $order->is_price_sale   = $request->isPriceSale;
             $order->note            = $request->note;
             $order->status          = $request->status;
-            
-            
-        //    dd($order);
             $order->save();
-            // dd(json_decode($order->id_product));
+
             foreach (json_decode($order->id_product) as $item) {
                 $product = Product::find($item->id);
-                // dd($item->id);
                 $product->qty = $product->qty - $item->val;
                 $product->save();
             }
-            // dd($order->get());
+
             return response()->json(['success'=>$text]);
         }
      
@@ -283,7 +279,6 @@ class ShippingOrderController extends Controller
     }
 
     public function createShipping($id) {
-        // dd($id);
         $orderId = Orders::find($id);
         if ($orderId) {
             return view('pages.orders.shipping')->with('orderId', $id); 
@@ -292,12 +287,12 @@ class ShippingOrderController extends Controller
         return redirect()->route('home');
     }
 
-    public function createShippingHas(Request $req) {
+    public function createShippingHas(Request $req) 
+    {
         $orderCode = trim($req->id_shipping_has);
-        // dd($req->all());
         $ship = ShippingOrder::whereOrderCode($orderCode)->whereOrderId($req->orderId)
-        ->first();
-        // dd($ship);
+            ->first();
+
         if (!$ship) {
             $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail?order_code=" . $orderCode;
             $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])->get($endpoint);
@@ -311,6 +306,7 @@ class ShippingOrderController extends Controller
                 return redirect()->route('order')->with('success', 'Thêm vận đơn thành công!');
             }
         }
+
         return redirect()->back()->with('error', 'Đã xảy ra lỗi khi xoá sản phẩm!');;
     }
 
@@ -337,12 +333,12 @@ class ShippingOrderController extends Controller
        
         $orderCode  = $ship->order_code;
 
-        $endpointTracking   = "https://fe-online-gateway.ghn.vn/order-tracking/public-api/client/tracking-logs?order_code=" . $orderCode;
-        $endpointCall       = "https://fe-online-gateway.ghn.vn/order-tracking/public-api/client/call-logs?order_code=" . $orderCode;
-        $orderLog           = $this->getShippingLog($endpointTracking);
-        $callLogs           = $this->getShippingLog($endpointCall);
+        // $endpointTracking   = "https://fe-online-gateway.ghn.vn/order-tracking/public-api/client/tracking-logs?order_code=" . $orderCode;
+        // $endpointCall       = "https://fe-online-gateway.ghn.vn/order-tracking/public-api/client/call-logs?order_code=" . $orderCode;
+        // $orderLog           = $this->getShippingLog($endpointTracking);
+        // $callLogs           = $this->getShippingLog($endpointCall);
         // $orderInfo          = $orderLog->order_info;
-        $trackingLogs       = $orderLog->tracking_logs;
+        // $trackingLogs       = $orderLog->tracking_logs;
         return view('pages.orders.detailshipping')->with('orderCode' , $orderCode);
         // if ($trackingLogs) {
         //     $str = '';
