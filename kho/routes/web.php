@@ -18,6 +18,8 @@ use App\Http\Controllers\LadipageController;
 use App\Http\Controllers\SrcPageController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\CallResultController;
+use App\Http\Controllers\GroupSaleController;
+use App\Http\Controllers\GroupSaleDetailController;
 use App\Http\Controllers\MarketingController;
 
 /*
@@ -103,6 +105,8 @@ Route::middleware('admin-auth')->group(function () {
     Route::post('/xoa-sale-care/{id}',  [SaleController::class, 'delete'])->name('sale-delete');
     Route::post('/xoa-danh-sach-sale-care',  [SaleController::class, 'deleteListSC'])->name('sale-delete-list');
     Route::get('/danh-sach-so-trung/{id}',  [SaleController::class, 'viewlistDuplicateByPhone'])->name('sale-list-duplicate');
+    Route::get('/bang-xep-hang-sale',  [SaleController::class, 'viewRankSale'])->name('sale-rank');
+    Route::get('/bang-xep-hang-sale-ajax',  [SaleController::class, 'ajaxViewRank'])->name('view-rank-ajax');
 
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
     Route::get('/tao-loai-TN-sale',  [CategoryCallController::class, 'add'])->name('category-call-add');
@@ -139,6 +143,19 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/cap-nhat-nhom/{id}',  [GroupController::class, 'update'])->name('update-group');
     Route::post('/luu-nhom',  [GroupController::class, 'save'])->name('save-group');
     Route::get('/xoa-nhom/{id}',  [GroupController::class, 'delete'])->name('delete-group');
+
+    /** nhóm sale */
+    Route::get('/quan-ly-nhom-sale',  [GroupSaleController::class, 'index'])->name('group-sale');
+    Route::get('/them-nhom-sale',  [GroupSaleController::class, 'add'])->name('add-group-sale');
+    Route::get('/cap-nhat-nhom-sale/{id}',  [GroupSaleController::class, 'update'])->name('update-group-sale');
+    Route::post('/luu-nhom-sale',  [GroupSaleController::class, 'save'])->name('save-group-sale');
+    Route::get('/xoa-nhom-sale/{id}',  [GroupSaleController::class, 'delete'])->name('delete-group-sale');
+
+    // Route::get('/quan-ly-nhom-sale-detail',  [GroupSaleDetailController::class, 'index'])->name('group-sale-detail');
+    // Route::get('/them-nhom-sale-detail',  [GroupSaleDetailController::class, 'add'])->name('add-group-sale-detail');
+    // Route::get('/cap-nhat-nhom-sale-detail/{id}',  [GroupSaleDetailController::class, 'update'])->name('update-group-sale-detail');
+    // Route::post('/luu-nhom-sale-detail',  [GroupSaleDetailController::class, 'save'])->name('save-group-sale-detail');
+    // Route::get('/xoa-nhom-sale-detail/{id}',  [GroupSaleDetailController::class, 'delete'])->name('delete-group-sale-detail');
 
     Route::get('/marketing-tac-nghiep',  [MarketingController::class, 'index'])->name('marketing-TN');
     Route::get('/marketing-nguon',  [MarketingController::class, 'srcPage'])->name('marketing-src');

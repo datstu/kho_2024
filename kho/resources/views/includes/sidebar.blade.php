@@ -50,6 +50,7 @@
         </svg>TeleSale</a>
         <ul class="nav-group-items">
             <li class="nav-item"><a class="nav-link" href="{{route('sale-index')}}"><span class="nav-icon"></span>Tác nghiệp Sale</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{route('sale-rank')}}"><span class="nav-icon"></span>Bảng xếp hạng </a></li>
         </ul>
     </li>
 
@@ -66,10 +67,15 @@
     @endif
     
     @if ($checkAll || $isLeadSale)
-    <li class="nav-item"><a class="nav-link" href="{{route('manage-group')}}">
+    <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-group')}}"></use>
         </svg>QL Nhóm</a>
+        <ul class="nav-group-items">
+            <li class="nav-item"><a class="nav-link" href="{{route('manage-group')}}"><span class="nav-icon"></span>Nhóm hàng</a></li>
+            {{-- <li class="nav-item"><a class="nav-link" href="{{route('group-sale-detail')}}"><span class="nav-icon"></span>Nhóm sale</a></li> --}}
+            <li class="nav-item"><a class="nav-link" href="{{route('group-sale')}}"><span class="nav-icon"></span>Nhóm sale</a></li>
+        </ul>
     </li>
     @endif
     

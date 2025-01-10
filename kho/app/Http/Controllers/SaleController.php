@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Orders;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\AddressController;
+// use App\Http\Controllers\HomeController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Validator;
@@ -24,6 +25,58 @@ use Illuminate\Support\Facades\File as File2;
 use Image;
 class SaleController extends Controller
 {
+    public function ajaxViewRank(Request $r)
+    {
+        $dataFilter['daterange'] = $r->date;
+        $listSale = Helper::getListSale();
+        $list = $dataSort = [];
+        $homeCtl = new HomeController();
+        foreach ($listSale->get() as $sale) {
+            
+            $data = $homeCtl->getReportUserSaleV2($sale, $dataFilter);
+            $list[] = $data;
+        }
+       
+        $dataSort = $this->selection_sort($list);
+
+        return $dataSort;
+    }
+
+    public function viewRankSale()
+    {
+        $toMonth      = date("d/m/Y", time());
+
+        $homeCtl = new HomeController();
+        /**set tmp */
+        // $toMonth = '01/12/2024';
+
+        $dataSale = $homeCtl->getReportHomeSale($toMonth, true);
+        // dd($dataSale);
+        $dataSort = $this->selection_sort($dataSale);
+        return view('pages.sale.rank')->with('dataSort', $dataSort);
+    }
+
+    private function swap_positions($data1, $left, $right) {  
+        $backup_old_data_right_value = $data1[$right];  
+        $data1[$right] = $data1[$left];  
+        $data1[$left] = $backup_old_data_right_value;  
+        return $data1;  
+    } 
+
+    private function selection_sort($data)  
+	{  
+		for($i=0; $i < count($data)-1; $i++) {  
+			$min = $i;  
+			for($j=$i+1; $j < count($data); $j++) {  
+				if ($data[$j]['summary_total']['total'] > $data[$min]['summary_total']['total']) {  
+					$min = $j;  
+				}  
+			}  
+			$data = $this->swap_positions($data, $i, $min);  
+		}  
+		return $data;  
+	}  
+
     public function viewlistDuplicateByPhone($phone)
     {
         $list = SaleCare::where('phone', $phone)->orderBy('id', 'desc');

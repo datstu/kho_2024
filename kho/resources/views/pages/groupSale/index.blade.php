@@ -9,11 +9,11 @@
 <div class="tbl_mobile body flex-grow-1 px-3">
     <div class="container-lg">
         <div class="card mb-4">
-            <div class="card-header"><strong>Quản lý nhóm hàng</strong> </div>
+            <div class="card-header"><strong>Quản lý nhóm Sale</strong> </div>
             <div class="card-body p-0">
                 <div class="example mt-0">
 
-@include('pages.group.content')
+@include('pages.groupSale.content')
 
               </div>
             </div>

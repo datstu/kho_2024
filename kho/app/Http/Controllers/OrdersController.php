@@ -39,7 +39,7 @@ class OrdersController extends Controller
         return view('pages.orders.index')->with('sales', $sales)->with('totalOrder', $totalOrder)->with('sumProduct', $sumProduct)->with('list', $list)->with('category', $category);
     }
 
-    public function  getListOrderByPermisson($user, $dataFilter = null) 
+    public function getListOrderByPermisson($user, $dataFilter = null, $checkAll = false) 
     {
         $roles  = $user->role;
         $list   = Orders::orderBy('id', 'desc');
@@ -100,54 +100,6 @@ class OrdersController extends Controller
                     $list = $list->whereIn('id', $listOrder->pluck('id')->toArray());
                 }
             }
-
-            // /**
-            //  * 1: nhóm Tricho
-            //  * 2: nhóm Lúa
-            //  */
-            // if (isset($dataFilter['group'])) {
-            //     $ids = [];
-            //     if ($dataFilter['group'] == 1) {
-            //         $productTricho = [
-            //             58 => '1kg humic',
-            //             57 => 'Xô Tricho 10kg',
-            //             56 => '	1 xô Tricho + 3kg Humic'
-            //         ];
-                
-            //         // dd($list->get());
-            //         foreach ($list->get() as $order) {
-            //             $products = json_decode($order->id_product);
-            //             foreach ($products as $product) {
-            //                 if (array_key_exists($product->id, $productTricho)) {
-            //                     $ids[] = $order->id;
-            //                     break;
-            //                 }
-            //             }
-            //         }
-
-            //     } else if ($dataFilter['group'] == 2){
-            //         $productOg = [
-            //             55 => 'Xô OG 10kg',
-            //             54 => 'OG vô gạo',
-            //             53 => 'OG rước đòng',
-            //             43 => 'S400'
-            //         ];
-                
-            //         // dd($list->get());
-            //         foreach ($list->get() as $order) {
-            //             $products = json_decode($order->id_product);
-            //             foreach ($products as $product) {
-            //                 if (array_key_exists($product->id, $productOg)) {
-            //                     $ids[] = $order->id;
-            //                     break;
-            //                 }
-            //             }
-            //         }
-            //     }
-
-            //     $list = Orders::whereIn('id', $ids)->orderBy('id', 'desc');
-            //     // $list->whereStatus($dataFilter['status']);
-            // }
 
             /** mrNguyen = 1
              *  mrTien = 2
@@ -241,19 +193,21 @@ class OrdersController extends Controller
             }
         }
 
-        $checkAll   = false;
-        $listRole   = [];
-        $roles      = json_decode($roles);
-        if ($roles) {
-            foreach ($roles as $key => $value) {
-                if ($value == 1 || $value == 4) {
-                    $checkAll = true;
-                    break;
-                } else {
-                    $listRole[] = $value;
+        if (!$checkAll) {
+            $listRole   = [];
+            $roles      = json_decode($roles);
+            if ($roles) {
+                foreach ($roles as $key => $value) {
+                    if ($value == 1 || $value == 4) {
+                        $checkAll = true;
+                        break;
+                    } else {
+                        $listRole[] = $value;
+                    }
                 }
             }
         }
+       
 
         
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);

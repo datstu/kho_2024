@@ -306,9 +306,9 @@
                     <div class="row header-top-filter" style="">
                         <div  class="col-sm-2 col-12 form-group">
                             <a class="home-sale-index" href="{{{route('sale-index')}}}"><span class="text">Sale tác nghiệp</span></a>
-                        </div>
-                        
+                            </div>
                         <div class="col-sm-10 col-12 form-group header-filter">
+                           
                             <div class="header-filter-wraper">
                                 @if ($checkAll  || $isLeadSale)
                                 <div class="col-12 col-sm-3 col-md-3 form-group" style="padding:0 15px;"> 
@@ -619,7 +619,7 @@
                     </div>
                 </div>
             </div>
-            
+            <button class="hidden btn btn-sm btn-primary delete-data-SC" type="button">Xoá <span id="total-val" list_id="[]" data-total="0"></span></button>
             <div class="dragscroll1 tableFixHead" style="height: 819px; margin-top:15px;">
                 <div id="dnn_ctr1441_Main_SaleTacNghiep_UpdatePanel2">
                     {{-- thêm TN SALE --}}
@@ -702,7 +702,7 @@
                                     <span class="small-tip">(<span>{{date_format($item->created_at,"H:i d-m-Y ")}}</span>)
                                     </span>
                                 </td>
-                                <td class="text-center area5 hidden-xs result-TN-col">
+                                <td class="text-center area5 result-TN-col">
                                     @if ($checkAll || $isLeadSale)
                                     <div class="text-right">
                                         <a data-id="{{$item->id}}"
@@ -718,6 +718,10 @@
                                     <div>
                                         <div class="mof-container">
                                             <select class="select-assign bg-dropdown" name="assignTNSale_{{$item->id}}" id="">
+                                                @if ($item->user && $item->user->status == 0) 
+                                                <option> {{$item->user->real_name}} </option>
+                                                @endif
+
                                                 @if (!$item->user)
                                                 <option value="0">None </option>
                                                     @endif

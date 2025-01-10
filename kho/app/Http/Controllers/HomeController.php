@@ -348,7 +348,7 @@ class HomeController extends Controller
             $dataFilter['type_customer'] = 1;    
         }
 
-        $listOrder      = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter);
+        $listOrder      = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter, true);
         $countOrders    = $listOrder->count();
         $ordersSum      = $listOrder->sum('total');
         $sumProduct     = $listOrder->sum('qty');
@@ -387,13 +387,17 @@ class HomeController extends Controller
         return $result;
     }
 
-    public function getReportHomeSale($time)
+    public function getReportHomeSale($time, $checkAll = false)
     {
         $dataFilter['daterange'] = [$time, $time];
         $listSale = Helper::getListSale();
         $result = [];
 
-        $checkAll = isFullAccess(Auth::user()->role);
+        if (!$checkAll) {
+            $checkAll = isFullAccess(Auth::user()->role);
+        }
+       
+        // dd($checkAll);
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
         if ($checkAll || $isLeadSale) {
 
