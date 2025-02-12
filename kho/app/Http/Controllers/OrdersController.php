@@ -15,7 +15,11 @@ use App\Helpers\Helper;
 use App\Http\Controllers\SaleController;
 use App\Models\Group;
 use App\Models\SaleCare;
+use Faker\Core\File;
+use Faker\Provider\File as ProviderFile;
+use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Stmt\TryCatch;
+use Illuminate\Validation\Rule;
 
 class OrdersController extends Controller
 {
@@ -322,10 +326,13 @@ class OrdersController extends Controller
             $listSale       = Helper::getListSale()->get();
         }
 
+        $listProvince = $this->getListProvince();
+
         return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct)
             // ->with('provinces', $provinces)
             ->with('saleCareId', $saleCareId)
-            ->with('listSale', $listSale);
+            ->with('listSale', $listSale)
+            ->with('listProvince', $listProvince);
     }
 
     public function getListProductByPermisson($roles) {
@@ -351,19 +358,25 @@ class OrdersController extends Controller
         return $list;
     }
 
-    public function getProvince(){
-        $endpoint = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province";
-        $response = Http::withHeaders([
-            'token' => 'c0ddcdf9-df81-11ee-b1d4-92b443b7a897',
-        ])->post($endpoint);
-  
-        $provinces  = [];
-        if ( $response->status() == 200) {
-            $content    = json_decode($response->body());
-            $provinces  = $content->data;
+    public function getListProvince(){
+        /** lấy danh sách quận cả nước */
+        $json = file_get_contents(public_path('json/simplified_json_generated_data_vn_units.json'));
+        $data = json_decode($json, true);
+
+        $result  = [];
+        foreach ($data as $kProvince => $item) {
+            foreach ($item as $k => $v) {
+                if ($k == 'District') {
+                    foreach ($v as $kDistric => $disctrict) {
+                        $item[$k][$kDistric]['FullName'] .= ' - ' . $data[$kProvince]['Name'];
+                    }
+
+                    $result = array_merge($result, $item[$k]);
+                }
+            }
         }
 
-        return $provinces;
+        return $result;
     }
     
      /**
@@ -390,18 +403,20 @@ class OrdersController extends Controller
             'price'     => 'required',
             'qty'       => 'required|numeric|min:1',
             'address'   => 'required',
-            'sex'       => 'required',
+            'district'   => 'required|not_in:-1',
+            'ward'       => 'required|not_in:-1',
             'phone'     => 'required',
         ],[
             'name.required' => 'Nhập tên khách hàng',
             'price.required' => 'Nhập tổng tiền',
             'qty.required' => 'Nhập số lượng',
             'address.required' => 'Nhập địa chỉ',
-            'sex.required' => 'Chọn giới tính',
+            'district.not_in' => 'Chọn quận huyện',
+            'ward.not_in' => 'Chọn xã phường',
             'phone.required' => 'Nhập số lượng',
             'qty.min' => 'Vui lòng chọn sản phẩm',
         ]);
-
+        // dd($request->all());
         if ($validator->passes()) {
             if (isset($request->id)) {
                 $order = Orders::find($request->id);
@@ -466,7 +481,7 @@ class OrdersController extends Controller
             $order->phone           = $request->phone;
             $order->address         = $request->address;
             $order->name            = $request->name;
-            $order->sex             = $request->sex;
+            $order->sex             = $request->sex ?? 0;
             $order->total           = $request->price;
             $order->province        = $request->province;
             $order->district        = $request->district;
@@ -510,9 +525,9 @@ class OrdersController extends Controller
                     $client         = new \GuzzleHttp\Client();
 
                     $userAssign     = Helper::getUserByID($order->assign_user)->real_name;
-                    $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị');
+                    // $nameUserOrder  = ($order->sex == 0 ? 'anh' : 'chị');
                     $notiText       = "\nĐơn mua: $order->qty sản phẩm: $tProduct \nTổng: " . number_format($order->total) . "đ miễn phí Ship."
-                        . "\nGửi về địa chỉ: $nameUserOrder $order->name - $order->phone - $order->address";
+                        . "\nGửi về địa chỉ: $order->name - $order->phone - $order->address";
                     
                     if ($order->note) {
                         $notiText . "\nLưu ý: $order->note";
@@ -601,11 +616,29 @@ class OrdersController extends Controller
     {
         $order          = Orders::find($id);
         if($order){
-            $listProduct    =  Product::all();
+            if ($saleCare = $order->saleCare) {
+                if ($group = $saleCare->group) {
+                    $products    = $group->products;
+    
+                    foreach ($products as $item) {
+                        $listProduct[] = $item->product;
+                    }
+    
+                } else {
+                    //data TN cũ chưa có group => hiển thị toàn bộ list ban đầu
+                    $listProduct    = Helper::getListProductByPermisson(Auth::user()->role)->get();
+                }
+            }
+            // $listProduct    =  Product::all();
             $listSale       = Helper::getListSale()->get();
-
+            $listProvince = $this->getListProvince();
+            $addressCtl = new AddressController();
+            $listWard = $addressCtl->getListWardById($order->district);
+            
             return view('pages.orders.addOrUpdate')->with('order', $order)
                 ->with('listSale', $listSale)
+                ->with('listWard', $listWard)
+                ->with('listProvince', $listProvince)
                 ->with('listProduct', $listProduct);
         } 
 

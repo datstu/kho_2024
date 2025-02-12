@@ -1,103 +1,121 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Multiple File Images Upload</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <style>
-    .list-images {
-        width: 50%;
-        margin-top: 20px;
-        display: inline-block;
-    }
-    .hidden { display: none; }
-    .box-image {
-        width: 100px;
-        height: 108px;
-        position: relative;
-        float: left;
-        margin-left: 5px;
-    }
-    .box-image img {
-        width: 100px;
-        height: 100px;
-    }
-    .wrap-btn-delete {
-        position: absolute;
-        top: -8px;
-        right: 0;
-        height: 2px;
-        font-size: 20px;
-        font-weight: bold;
-        color: red;
-    }
-    .btn-delete-image {
-        cursor: pointer;
-    }
-    .table {
-        width: 15%;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autocomplete Address to District</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  .container {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  label {
+    display: block;
+    margin-top: 10px;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .autocomplete-list {
+    border: 1px solid #ccc;
+    border-top: none;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: #fff;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .autocomplete-list li {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .autocomplete-list li:hover {
+    background-color: #f0f0f0;
+  }
+</style>
 </head>
 <body>
-  
-<div class="container lst">
-  
+  <div class="container">
+    <label for="address">Address:</label>
+    <input type="text" id="address" placeholder="Start typing your address...">
+    <ul id="autocomplete-list" class="autocomplete-list"></ul>
 
-  
-   
-    <form method="post" action="{{url('create')}}" enctype="multipart/form-data">
+    <label for="district">District:</label>
+    <select id="district" disabled>
+      <option value="" selected>Select a district</option>
+    </select>
+  </div>
 
-       
-        <div class="input-group hdtuto control-group lst increment" >
-            <div class="list-input-hidden-upload">
-                <input type="file" name="filenames[]" id="file_upload" class="myfrm form-control hidden">
-            </div>
-            <div class="input-group-btn"> 
-                <button class="btn btn-success btn-add-image" type="button"><i class="fldemo glyphicon glyphicon-plus"></i>+Add image</button>
-            </div>
-        </div>
-        <div class="list-images">
-           
-        </div>
-        <div class="button-submit">
-            <button type="submit" class="btn btn-success" style="margin-top:10px">
-              update
-            </button>
-        </div>
-    </form>
-    
-       
-</div>
-  
-<script type="text/javascript">
-    $(document).ready(function() {
-    $(".btn-add-image").click(function(){
-        $('#file_upload').trigger('click');
+  <script>
+    // Sample data for address and district mapping
+const addressToDistrict = {
+  "123 Main St": "Downtown",
+  "456 Elm St": "Uptown",
+  "789 Oak St": "Suburb",
+  "101 Pine St": "Countryside"
+};
+
+const addressInput = document.getElementById('address');
+const autocompleteList = document.getElementById('autocomplete-list');
+const districtSelect = document.getElementById('district');
+
+// Populate the district dropdown based on the selected address
+function populateDistrict(address) {
+  districtSelect.innerHTML = '<option value="" selected>Select a district</option>';
+  const district = addressToDistrict[address];
+  if (district) {
+    districtSelect.innerHTML += `<option value="${district}">${district}</option>`;
+    districtSelect.disabled = false;
+  } else {
+    districtSelect.disabled = true;
+  }
+}
+
+// Generate the autocomplete list
+function generateAutocomplete(value) {
+  autocompleteList.innerHTML = '';
+  if (value) {
+    const matches = Object.keys(addressToDistrict).filter(address =>
+      address.toLowerCase().includes(value.toLowerCase())
+    );
+
+    matches.forEach(match => {
+      const listItem = document.createElement('li');
+      listItem.textContent = match;
+      listItem.addEventListener('click', () => {
+        addressInput.value = match;
+        populateDistrict(match);
+        autocompleteList.innerHTML = '';
+      });
+      autocompleteList.appendChild(listItem);
     });
+  }
+}
 
-    $('.list-input-hidden-upload').on('change', '#file_upload', function(event){
-        let today = new Date();
-        let time = today.getTime();
-        let image = event.target.files[0];
-        let file_name = event.target.files[0].name;
-        let box_image = $('<div class="box-image"></div>');
-        box_image.append('<img src="' + URL.createObjectURL(image) + '" class="picture-box">');
-        box_image.append('<div class="wrap-btn-delete"><span data-id='+time+' class="btn-delete-image">x</span></div>');
-        $(".list-images").append(box_image);
+// Event listeners
+addressInput.addEventListener('input', () => {
+  generateAutocomplete(addressInput.value);
+});
 
-        $(this).removeAttr('id');
-        $(this).attr( 'id', time);
-        let input_type_file = '<input type="file" name="filenames[]" id="file_upload" class="myfrm form-control hidden">';
-        $('.list-input-hidden-upload').append(input_type_file);
-    });
-
-    $(".list-images").on('click', '.btn-delete-image', function(){
-        let id = $(this).data('id');
-        $('#'+id).remove();
-        $(this).parents('.box-image').remove();
-    });
-    });
-</script>
-  
+document.addEventListener('click', (e) => {
+  if (e.target !== addressInput) {
+    autocompleteList.innerHTML = '';
+  }
+});
+  </script>
 </body>
 </html>

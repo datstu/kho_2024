@@ -387,7 +387,7 @@ class Helper
     
     public static function checkOrderSaleCarebyPhonePage($phone, $pageId, $mId, &$assign, &$is_duplicate) 
     {
-        if (!$mId || !$phone || $phone == '0961161760' || $phone == '961161760' || $phone == '0372625799') {
+        if (!$mId || !$phone || $phone == '0866097586' || $phone == '0936566353' || $phone == '0961161760' || $phone == '961161760' || $phone == '0372625799') {
             return false;
         } 
         

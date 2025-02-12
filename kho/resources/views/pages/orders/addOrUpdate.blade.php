@@ -2,10 +2,22 @@
 @section('content')
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
 <style>
     .row {
-        margin-right: unset;
+        margin: unset;
     }
+    .select2-container {
+        width: 100% !important;
+    }
+    .selectedClass .select2-container {
+        box-shadow: rgb(0, 123, 255) 0px 1px 1px 1px;
+    }
+    .select-assign, .select2-container--default .select2-selection--single {
+        background-color: inherit !important;
+        /* border: none; */
+    }
+
 </style>
 <?php 
 $listStatus = Helper::getListStatus();
@@ -16,370 +28,424 @@ $flagAccess = false;
 
 <script src="{{asset('public/js/number-format/cleave.min.js')}}"></script>
 <link href="{{ asset('public/css/pages/styleOrders.css')}}" rel="stylesheet">
-<div class="body flex-grow-1 py-3 px-3">
-    <div class="row">
-        <div id="notifi-box" class="hidden alert alert-success print-error-msg">
-            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-        </div>
-        @if(isset($order))
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header"><span><strong>Cập nhật đơn hàng #{{$order->id}} - {{date_format($order->created_at,"d-m-Y ")}}</strong></span>
+<div class="body flex-grow-1">
+    <form>
+        {{ csrf_field() }}
+        <div class="row">
+            <div id="notifi-box" class="hidden alert alert-success print-error-msg">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            </div>
+            @if(isset($order))
+            <div class="card-body card-orders" style="padding:10px 0;">
+                <input type="hidden" name="id" value="{{$order->id}}">
+                <input value="{{$order->sale_care}}" class="hidden form-control" name="sale-care">
+
+                <div class="row">
+                    <div class="col-sm-12 col-lg-4">
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-6">
+                                <label class="form-label" for="phoneFor">Số điện
+                                    thoại</label>
+                                <input value="{{$order->phone}}" class="form-control"
+                                    name="phone" id="phoneFor" type="text">
+                                <p class="error_msg" id="phone"></p>
+                            </div>
+                            <div class="col-sm-12 col-lg-6">
+                                <label class="form-label" for="nameFor">Tên khách
+                                    hàng</label>
+                                <input value="{{$order->name}}" class="form-control"
+                                    name="name" id="nameFor" type="text">
+                                <p class="error_msg" id="name"></p>
+                            </div>
+                            <div class="col-sm-6 col-md-6 form-group">
+                                <label class="form-label" for="distric-filter">Quận - Huyện<span class="required-input">(*)</span></label>
+                                <select name="district" id="distric-filter" class="form-control">       
+                                    <option value="-1">--Chọn quận/huyện--</option>
+                                    @foreach ($listProvince as $item)
+                                    <option <?= ($item['Code'] == $order->district) ? "selected" : '';?> value="{{$item['Code']}}">{{$item['FullName']}}</option>
+                                    @endforeach
+                                </select>
+                                <p class="error_msg" id="district"></p>
+                            </div>
+                            <div class="col-sm-6 col-md-6 form-group">
+                                <label class="form-label" for="ward-filter">Phường - xã<span class="required-input">(*)</span></label>
+                                <select name="ward" id="ward-filter" class="form-control">
+                                    @if (isset($listWard))
+                                    @foreach ($listWard as $ward)
+                                    <option <?= ($ward['Code'] == $order->ward) ? "selected" : '';?> value="{{$ward['Code']}}">{{$ward['FullName']}}</option>
+                                    @endforeach
+                                    
+                                    @else
+                                    <option value="-1">--Chọn phường/ xã--</option>
+                                    @endif
+                                </select>
+                                <p class="error_msg" id="ward"></p>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="addressFor">Địa chỉ chi tiết</label>
+                                <input value="{{$order->address}}" class="form-control"
+                                    name="address" id="addressFor" type="text">
+                                <label class="error_msg" id="address" for="addressFor"></label>
+                            </div>
+
+                            @if ($checkAll || $isLeadSale)
+                            <div class="col-6">
+                                <label class="form-label" >Chọn Sale</label>
+                                <select class="form-control" name="assign-sale">
+
+                                @if (isset($listSale))
+                                @foreach ($listSale as $item)
+                                    <option <?php echo ($item->id == $order->assign_user) ? 'selected' : '';?> value="{{$item->id}}">{{$item->real_name}}</option>
+                                @endforeach
+                                @endif
+
+                                </select>
+                                <p class="error_msg" id="price"></p>
+                            </div>
+                            @else 
+                            <div class="col-6 hidden">
+                                <select class="form-control" name="assign-sale">
+                                    <option value="{{Auth::user()->id}}"></option>
+                                </select>
+                            </div>
+                            @endif
+                        </div>
+                        <div class="col-12">
+                            <label for="note" class="form-label">Ghi chú:</label>
+                            <textarea name="note" class="form-control" id="note" rows="4">{{$order->note}} </textarea>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label" for="status">Trạng thái:</label>
+                            
+                            <select name="status" id="status"
+                                class="form-control">
+                            
+                                @foreach ($listStatus as $k => $val)
+                                <option <?= (int)$order->status == (int)$k ? 'selected' : ''; ?> value="{{$k}}">{{$val}}</option>
+                                @endforeach
+
+                            </select>
+                            <p class="error_msg" id="sex"></p>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-lg-8">
+                        <div class="row product-list-order">
+                            <div class=" col-8">
+                                <input class="hidden" name="products[]">
+                                <div type="button" onclick="myFunction()" class=" btn btn-outline-secondary">Sản phẩm</div>
+                                @if(isset($listProduct))
+
+                                <div id="myDropdown"
+                                    class="position-absolute dropdown-content">
+                                    <input type="text" placeholder="Search.." id="myInput"
+                                        onkeyup="filterFunction()">
+                                    @foreach ($listProduct as $value)
+                                    <a class="option-product"
+                                        data-product-price="{{$value->price}}"
+                                        data-product-name="{{$value->name}}"
+                                        data-product-id="{{$value->id}}">{{$value->name}}</a>
+
+                                    @endforeach
+                                </div>
+
+                                @endif
+                                <p class="error_msg" id="qty"></p>
+                            </div>
+                            
+                        </div>
+                                
+                        <div class="row">
+                            <div class="col-12">
+                                <div id="list-product-choose"></div>
+                                <table class="table table-bordered table-line" style="margin-bottom:15px; font-size: 13px; ">
+                                    <thead>
+                                        <tr>
+                                            
+                                            <th colspan="1" class="text-center no-wrap col-spname" style="min-width: 155px">Tên sản phẩm</th>           
+                                            <th colspan="1" class="text-center no-wrap">Đơn giá</th>
+                                            <th colspan="1" class="text-center no-wrap">SL Tổng</th>
+                                            <th colspan="1" class="text-center no-wrap">Thành tiền</th>
+                                            <th colspan="1" class="text-center no-wrap"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="list-product-choose">
+                                        <?php $sumQty = $totalTmp = 0;
+                                foreach (json_decode($order->id_product) as $item) {
+                                    $product = getProductByIdHelper($item->id);
+                                    
+                                    if ($product) {
+                                        $sumQty += $item->val;
+                                        $totalTmp += $item->val * $product->price;
+                            ?>
+
+                <tr class="number dh-san-pham product-{{$product->id}}">
+                    <td class="text-left">
+                        <span class="no-combo">{{$product->name}}</span><br>
+                    </td>
+                    <td class="no-wrap" style="width: 80px">{{number_format($product->price)}}</td>
+                    <td class="no-wrap" style="width: 45px">
+                        <button onclick="minus({{$product->id}}, {{$product->price}})" type="button" class=" minus">-</button>
                     
-                    <?php $isMappingShip = Helper::isMappingShippByOrderId($order->id);?>
-                    @if (!$isMappingShip)
-                    <a href="{{URL::to('tao-van-don/'. $order->id)}}" class="btn btn-warning ms-1">+ Tạo vận đơn</a>
-                    @else
-                    <a href="{{URL::to('chi-tiet-van-don/'. $isMappingShip->id)}}" class="btn btn-warning ms-1">Xem vận đơn {{$isMappingShip->vendor_ship}} - {{$isMappingShip->order_code}}</a>
-                    @endif
+                    <input class="qty-input" name="product-{{$product->id}}" data-product_id="{{$product->id}}" readonly type="text" value="{{$item->val}}"/>
+                    <button onclick="plus({{$product->id}}, {{$product->price}})" type="button" class="plus">+</button>
+                    </td>
+                    <td class="no-wrap totalPriceProduct-{{$product->id}}" style="width: 30px">{{number_format($item->val * $product->price)}}</td>
+                    <td class="text-center" style="width: 50px;">
+                        <button onclick="deleteProduct({{$product->id}}, {{$product->price}})" type="button" class="col-2" ><i class="fa fa-trash"></i></button>
+                    </td>
+                </tr>
+                            
+                            <?php
+                                        
+                                    }
+                                    
+                                }
+                            ?>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td class="no-wrap text-right" colspan="2">Tạm tính:</td>
+                                            <td class="no-wrap text-center" colspan="1">
+                                                <input style="text-align: right;" value="{{$sumQty}}" name="sum-qty" class="form-control" readonly
+                                                type="number"></td>
+                                            <td colspan="1" class="no-wrap total-tmp">{{number_format($totalTmp)}}</td>
+                                            <td colspan="1"></td>
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td class="no-wrap text-right" colspan="3">Tổng đơn:
+                                                {{-- <br> --}}
+                                                <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="xxx" class="form-check-input">
+                                                <label class="form-label" for="xxx">Khuyến mãi</label>
+                                            </td>
+                                            <td class="no-wrap" colspan="1">
+                                                <input {{ $order->is_price_sale ? '' : 'readonly' }} value="{{number_format($order->total)}}"
+                                                    class="price_class form-control" name="price"
+                                                    id="priceFor"
+                                                    type="text"
+                                                    data-product-price={{$totalTmp}} /> 
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        
+                                    </tfoot>
+                                </table>
+                            
+                            </div>
+                    <div class="col-12">
+                        <div id="list-product-choose">
+
+                            <?php 
+                                foreach (json_decode($order->id_product) as $item) {
+                                    $product = getProductByIdHelper($item->id);
+                                    if ($product) {
+                            ?>
+
+                            
+                            <?php
+                                        
+                                    }
+                                    
+                                }
+                            ?>
+                            
+                        </div>
+                    </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body card-orders">
-                    <div class="example">
-                        <div class="body flex-grow-1">
-                            <div class="tab-content rounded-bottom">
-                                <form>
-                                    {{ csrf_field() }}
-                                    <input type="hidden" name="id" value="{{$order->id}}">
-                                    <input value="{{$order->sale_care}}" class="hidden form-control" name="sale-care">
-                                    <div class="p-3">
-                                        <div class="row">
-                                            <div class="col-lg-7">
-                                                <div class="row">
-                                                    <div class="col-lg-3 col-sm-12">
-                                                        <label class="form-label" for="phoneFor">Số điện
-                                                            thoại</label>
-                                                        <input value="{{$order->phone}}" class="form-control"
-                                                            name="phone" id="phoneFor" type="text">
-                                                        <p class="error_msg" id="phone"></p>
-                                                    </div>
-                                                    <div class="col-lg-7 col-sm-12">
-                                                        <label class="form-label" for="nameFor">Tên khách
-                                                            hàng</label>
-                                                        <input value="{{$order->name}}" class="form-control"
-                                                            name="name" id="nameFor" type="text">
-                                                        <p class="error_msg" id="name"></p>
-                                                    </div>
-                                                    <div class="col-lg-2 col-sm-12">
-                                                        <label class="form-label" for="sexFor">Giới tính</label>
-                                                        <select name="sex"
-                                                            id="sexFor" class="form-control">
-                                                            <option <?= $order->sex == 0 ? 'selected' : ''; ?> value="0">Nam</option>
-                                                            <option <?= $order->sex == 1 ? 'selected' : ''; ?> value="1">Nữ</option>
-                                                        </select>
-                                                        <p class="error_msg" id="sex"></p>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <label class="form-label" for="addressFor">Địa
-                                                            chỉ/đường</label>
-                                                        <input value="{{$order->address}}" class="form-control"
-                                                            name="address" id="addressFor" type="text">
-                                                        <p class="error_msg" id="address"></p>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <label class="form-label" for="priceFor">Tổng tiền</label>
-                                                        <input {{ $order->is_price_sale ? '' : 'readonly' }} value="{{number_format($order->total)}} đ" value="" data-type="currency"
-                                                            class="price_class form-control" name="price"
-                                                            {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
-                                                            id="priceFor"
-                                                            type="text"
-                                                            data-product-price={{$order->total}}>
-                                                            <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="xxx"> 
-                                                            <label class="form-label" for="xxx">
-                                                                Giá khuyến mãi
-                                                                
-                                                            </label>
-                                                            <p class="error_msg" id="price"></p>
-                                                    </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12" style="text-align: end;">
+                    <button id="submit" class="mb-1 btn btn-primary create-bill">Lưu</button>
+                </div>
+            </div>
+            @else
+            {{-- <div class=""><strong>Thêm đơn hàng mới</strong></div> --}}
 
-                                        @if ($checkAll || $isLeadSale)
-                                            <div class="col-4">
-                                                <label class="form-label" >Chọn Sale</label>
-                                                <select class="form-control" name="assign-sale">
+            <div class="card-body card-orders" style="padding:10px 0;">
+                <div class="body flex-grow-1">
+                    <div class="row">
+                        <div class="col-sm-12 col-lg-4">
+                            <div class="row">
+                                <?php $saleCareId = request()->get('saleCareId');?>
+                                
+                                <input value="<?= ($saleCareId) ?: $saleCareId ?>" class="hidden form-control" name="sale-care">
+                                <div class="col-sm-12 col-lg-6">
+                                    <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
+                                    <input autofocus placeholder="0973409613" class="form-control" name="phone"
+                                        id="phoneFor" type="text">
+                                    <p class="error_msg" id="phone"></p>
+                                </div>
+                                <div class="col-sm-12 col-lg-6">
+                                    <label class="form-label" for="nameFor">Tên khách hàng<span class="required-input">(*)</span></label>
+                                    <input placeholder="Họ và tên" class="form-control" name="name"
+                                        id="nameFor" type="text">
+                                    <p class="error_msg" id="name"></p>
+                                </div>
+                                
+                                <div class="col-xs-12 col-sm-6 col-md-6 form-group">
+                                    <label class="form-label" for="distric-filter">Quận - Huyện<span class="required-input">(*)</span></label>
+                                    <select name="district" id="distric-filter" class="form-control">       
+                                        <option value="-1">--Chọn quận/huyện--</option>
+                                        @foreach ($listProvince as $item)
+                                        <option value="{{$item['Code']}}">{{$item['FullName']}}</option>
 
-                                                @if (isset($listSale))
-                                                @foreach ($listSale as $item)
-                                                    <option <?php echo ($item->id == $order->assign_user) ? 'selected' : '';?> value="{{$item->id}}">{{$item->real_name}}</option>
-                                                @endforeach
-                                                @endif
+                                        @endforeach
+                                    </select>
+                                    <p class="error_msg" id="district"></p>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6 form-group">
+                                    <label class="form-label" for="ward-filter">Phường - xã<span class="required-input">(*)</span></label>
+                                    <select name="ward" id="ward-filter" class="form-control">       
+                                        <option value="-1">--Chọn phường/ xã--</option>
+                                    </select>
+                                    <p class="error_msg" id="ward"></p>
+                                </div>
 
-                                                </select>
-                                                <p class="error_msg" id="price"></p>
-                                            </div>
-                                        @else 
-                                            <div class="col-4 hidden">
-                                                <select class="form-control" name="assign-sale">
-                                                    <option value="{{Auth::user()->id}}"></option>
-                                                </select>
-                                            </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="addressFor">Địa chỉ chi tiết<span class="required-input">(*)</span></label>
+                                    <input placeholder="số nhà - tên đường/ thôn/ ấp" class="form-control" name="address"
+                                        id="addressFor" type="text">
+                                    <label class="error_msg" id="address" for="addressFor"></label>
+                                </div>
+
+                                <?php $checkAll = isFullAccess(Auth::user()->role);?>
+                                @if ($checkAll || $isLeadSale)
+                                    <div class="col-lg-6">
+                                        <label class="form-label">Chọn Sale:</label>
+                                        <select class="form-control" name="assign-sale" >
+
+                                        @if (isset($listSale))
+                                        @foreach ($listSale as $item)
+                                            <option value="{{$item->id}}">{{$item->real_name}}</option>
+                                        @endforeach
                                         @endif
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="note" class="form-label">Ghi chú:</label>
-                                                    <textarea name="note" class="form-control" id="note" rows="3">{{$order->note}} </textarea>
-                                                </div>
-                                                <div class="col-3">
-                                                    <label class="form-label" for="status">Trạng thái:</label>
-                                                    
-                                                    <select name="status" id="status"
-                                                        class="form-control">
-                                                    
-                                                        @foreach ($listStatus as $k => $val)
-                                                        <option <?= (int)$order->status == (int)$k ? 'selected' : ''; ?> value="{{$k}}">{{$val}}</option>
-                                                        @endforeach
 
-                                                    </select>
-                                                    <p class="error_msg" id="sex"></p>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-5">
-                                                <div class="row product-list-order">
-                                                    <div class=" col-8 d-flex align-items-center">
-                                                        <input class="hidden" name="products[]">
-                                                        <div type="button" onclick="myFunction()"
-                                                            class=" btn btn-outline-secondary">Sản phẩm</div>
-                                                        @if(isset($listProduct))
-
-                                                        <div id="myDropdown"
-                                                            class="position-absolute dropdown-content">
-                                                            <input type="text" placeholder="Search.." id="myInput"
-                                                                onkeyup="filterFunction()">
-                                                            @foreach ($listProduct as $value)
-                                                            <a class="option-product"
-                                                                data-product-price="{{$value->price}}"
-                                                                data-product-name="{{$value->name}}"
-                                                                data-product-id="{{$value->id}}">{{$value->name}}</a>
-
-                                                            @endforeach
-                                                        </div>
-
-                                                        @endif
-
-
-                                                        <p class="error_msg" id="qty"></p>
-                                                    </div>
-
-                                                    <div id="sum-qty" class=" col-4">
-                                                        <label class="form-label">Tổng số lượng</label>
-                                                        <input value="{{$order->qty}}" name="sum-qty" class="form-control" readonly
-                                                            type="number">
-                                                        <p class="error_msg" id="qty"></p>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <div id="list-product-choose">
-
-                                                            <?php 
-                                                                foreach (json_decode($order->id_product) as $item) {
-                                                                    $product = getProductByIdHelper($item->id);
-                                                                    if ($product) {
-                                                            ?>
-
-                                                            <div class="row product mb-0">
-                                                                <div class="col-6 name">{{$product->name}}</div>
-                                                                <div id="product-{{$product->id}}" class="text-right col-4 number product-4">
-                                                                    <button onclick="minus({{$product->id}}, {{$product->price}})" type="button" class=" minus">-</button>
-                                                                    <input value="{{$item->val}}" class="qty-input" data-product_id="{{$product->id}}" readonly="" type="text" value="1">
-                                                                    <button onclick="plus({{$product->id}}, {{$product->price}})" type="button" class="plus">+</button>
-                                                                </div>
-                                                                <button onclick="deleteProduct({{$product->id}}, {{$product->price}})" type="button" class="col-2 del">X</button>
-                                                            </div>
-                                                            <?php
-                                                                        
-                                                                    }
-                                                                    
-                                                                }
-                                                            ?>
-                                                            
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row products">
-                                        </div>
-                                        {{-- <div class="loader hidden">
-                                            <img src="{{asset('public/images/loader.gif')}}" alt="">
-                                        </div> --}}
-                                        <button id="submit" class="btn btn-primary">Update</button>
+                                        </select>
+                                        <p class="error_msg" id="price"></p>
                                     </div>
-                                </form>
+                                @else 
+                                    <div class="col-6 hidden">
+                                        <select class="form-control" name="assign-sale">
+                                            <option value="{{Auth::user()->id}}"></option>
+                                        </select>
+                                    </div>
+                                @endif
+
+                                <div class="col-12">
+                                    <label for="note" class="form-label">Ghi chú:</label>
+                                    <textarea name="note" class="form-control" id="note" rows="4"></textarea>
+                                    <p></p>
+                                </div>
+
+                                <div class="col-lg-6 col-sm-12">
+                                    <label class="form-label" for="statusFor">Trạng thái:</label>
+                                    <select name="status" id="statusFor"
+                                        class="form-control">
+
+                                        @foreach ($listStatus as $k => $val)
+                                            <option value="{{$k}}">{{$val}}</option>
+                                        @endforeach
+
+                                    </select>
+                                    <p class="error_msg" id="sex"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-lg-8">
+                            <div class="row product-list-order">
+                                <div class="col-8">
+                                    <input class="hidden" name="products[]">
+                                    <div type="button" onclick="myFunction()" class="btn btn-outline-secondary">--Chọn sản phẩm--<span class="required-input">(*)</span> ⮟</div>
+                                    @if(isset($listProduct))
+
+                                    <div id="myDropdown" class="position-absolute dropdown-content">
+                                        <input type="text" placeholder="--Tìm sản phẩm--" id="myInput"
+                                            onkeyup="filterFunction()">
+                                        @foreach ($listProduct as $value)
+                                        <a class="option-product" data-product-name="{{$value->name}}"
+                                            data-product-id="{{$value->id}}"
+                                            data-product-price="{{$value->price}}"
+                                            >{{$value->name}}</a>
+
+                                        @endforeach
+                                    </div>
+
+                                    @endif
+                                    <p class="error_msg" id="qty"></p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div id="list-product-choose"></div>
+                                    <table class="table table-bordered table-line" style="margin-bottom:15px; font-size: 13px; ">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="1" class="text-center no-wrap col-spname" style="min-width: 155px">Tên sản phẩm</th>           
+                                                <th colspan="1" class="text-center no-wrap">Đơn giá</th>
+                                                <th colspan="1" class="text-center no-wrap">SL Tổng</th>
+                                                <th colspan="1" class="text-center no-wrap">Thành tiền</th>
+                                                <th colspan="1" class="text-center no-wrap"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="list-product-choose">
+                                            
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td class="no-wrap text-right" colspan="2">Tạm tính:</td>
+                                                <td class="no-wrap text-center" colspan="1">
+                                                    <input style="text-align: right;" value="0" name="sum-qty" class="form-control" readonly
+                                                    type="number"></td>
+                                                <td class="no-wrap total-tmp" colspan="1">0</td>
+                                                <td colspan="1"></td>
+                                            </tr>
+                                        
+                                            <tr>
+                                                <td class="no-wrap text-right" colspan="3">Tổng đơn:
+                                                    {{-- <br> --}}
+                                                    <input name="priceSale" type="checkbox" id="xxx" class="form-check-input">
+                                                    <label class="form-label" for="xxx">Khuyến mãi</label>
+                                                </td>
+                                                <td class="no-wrap" colspan="1">
+                                                    <input readonly value="0"
+                                                        class="price_class form-control" name="price"
+                                                        id="priceFor"
+                                                        type="text"
+                                                        data-product-price=0 /> 
+                                                </td>
+                                                <td colspan="1"></td>
+                                            </tr>
+                                            
+                                        </tfoot>
+                                    </table>
+                                
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        @else
-        {{-- <div class=""><strong>Thêm đơn hàng mới</strong></div> --}}
-        <div class="card-body card-orders">
-            <div class="body flex-grow-1">
-                <div class="tab-content rounded-bottom">
-                    <form>
-                        {{ csrf_field() }}
-                        <div class="row">
-                            <div class="col-sm-12 col-lg-5">
-                                <div class="row">
-                                    <?php $saleCareId = request()->get('saleCareId');?>
-                                    
-                                    <input value="<?= ($saleCareId) ?: $saleCareId ?>" class="hidden form-control" name="sale-care">
-                                    <div class="col-sm-12 col-lg-6">
-                                        <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
-                                        <input autofocus placeholder="0973409613" class="form-control" name="phone"
-                                            id="phoneFor" type="text">
-                                        <p class="error_msg" id="phone"></p>
-                                    </div>
-                                    <div class="col-sm-12 col-lg-6">
-                                        <label class="form-label" for="nameFor">Tên khách hàng<span class="required-input">(*)</span></label>
-                                        <input placeholder="Họ và tên" class="form-control" name="name"
-                                            id="nameFor" type="text">
-                                        <p class="error_msg" id="name"></p>
-                                    </div>
-                                    
-                                    <div class="col-8">
-                                        <label class="form-label" for="addressFor">Địa chỉ/đường<span class="required-input">(*)</span></label>
-                                        <input placeholder="180 cao lỗ" class="form-control" name="address"
-                                            id="addressFor" type="text">
-                                        <p class="error_msg" id="address"></p>
-                                    </div>
-                                    <div class="col-sm-6 col-lg-3">
-                                        <label class="form-label" for="sexFor">Giới tính<span class="required-input">(*)</span></label>
-                                        <select theme="google" name="sex" id="sexFor"
-                                            class="form-control">
-                                            <option value="0">Nam</option>
-                                            <option value="1">Nữ</option>
-                                        </select>
-                                        <p class="error_msg" id="sex"></p>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <label class="form-label" for="priceFor">Tổng tiền:</label>
-                                        <input readonly placeholder="199.000 đ"
-                                            class="price_class form-control" name="price"
-                                            {{-- pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$"  --}}
-                                            id="priceFor"
-                                            type="text"
-                                            data-product-price=0>
-                        
-                                            <input name="priceSale" type="checkbox" id="xxx" class="form-check-input">
-                                            <label class="form-label" for="xxx">Giá khuyến mãi</label>
-                                                    
-                                        {{-- <label class="form-label" >
-                                            <input name="priceSale" type="checkbox" id="priceSaleFor">
-                                                Giá khuyến mãi
-                                            
-                                        </label> --}}
-                                        <p class="error_msg" id="price"></p>
-                                        
-                                    </div>
-    
-                                    <?php $checkAll = isFullAccess(Auth::user()->role);?>
-                                    @if ($checkAll || $isLeadSale)
-                                        <div class="col-lg-6">
-                                            <label class="form-label">Chọn Sale:</label>
-                                            <select class="form-control" name="assign-sale" >
-    
-                                            @if (isset($listSale))
-                                            @foreach ($listSale as $item)
-                                                <option value="{{$item->id}}">{{$item->real_name}}</option>
-                                            @endforeach
-                                            @endif
-    
-                                            </select>
-                                            <p class="error_msg" id="price"></p>
-                                        </div>
-                                    @else 
-                                        <div class="col-6 hidden">
-                                            <select class="form-control" name="assign-sale">
-                                                <option value="{{Auth::user()->id}}"></option>
-                                            </select>
-                                        </div>
-                                    @endif
-
-                                    <div class="col-12">
-                                        <label for="note" class="form-label">Ghi chú:</label>
-                                        <textarea name="note" class="form-control" id="note" cols="50" rows="5"></textarea>
-                                        <p></p>
-                                    </div>
-
-                                    <div class="col-lg-6 col-sm-12">
-                                        <label class="form-label" for="statusFor">Trạng thái:</label>
-                                        <select name="status" id="statusFor"
-                                            class="form-control">
-    
-                                            @foreach ($listStatus as $k => $val)
-                                                <option value="{{$k}}">{{$val}}</option>
-                                            @endforeach
-    
-                                        </select>
-                                        <p class="error_msg" id="sex"></p>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                            <div class="col-sm-12 col-lg-7">
-                                <div class="row product-list-order">
-                                    <div class="col-8 d-flex align-items-center">
-                                        <input class="hidden" name="products[]">
-                                        <div type="button" onclick="myFunction()" class=" btn btn-outline-secondary">--Chọn sản phẩm--<span class="required-input">(*)</span> ⮟</div>
-                                        @if(isset($listProduct))
-
-                                        <div id="myDropdown" class="position-absolute dropdown-content">
-                                            <input type="text" placeholder="--Tìm sản phẩm--" id="myInput"
-                                                onkeyup="filterFunction()">
-                                            @foreach ($listProduct as $value)
-                                            <a class="option-product" data-product-name="{{$value->name}}"
-                                                data-product-id="{{$value->id}}"
-                                                data-product-price="{{$value->price}}"
-                                                >{{$value->name}}</a>
-
-                                            @endforeach
-                                        </div>
-
-                                        @endif
-
-
-                                        <p class="error_msg" id="qty"></p>
-                                    </div>
-
-                                    <div id="sum-qty" class=" col-4 ">
-                                        <label class="form-label" for="qtyFor">Tổng số lượng</label>
-                                        <input value=0 name="sum-qty" class="form-control" readonly
-                                            type="number">
-                                        <p class="error_msg" id="qty"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div id="list-product-choose"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row products">
-                        </div>
-
-                        <button id="submit" class="mb-1 btn btn-primary">Chốt đơn</button>
-                    </form>
+            <div class="row">
+                <div class="col-sm-12" style="text-align: end;">
+                    <button id="submit" class="mb-1 btn btn-primary create-bill">Chốt đơn</button>
                 </div>
             </div>
+            @endif
+            
         </div>
-        @endif
-       
-    </div>
-    <div class="row text-right">
+            
+                
+
+    </form>
+    {{-- <div class="row text-right">
         <div><button class="refresh btn btn-info">Refresh</button></div>
-    </div>
+    </div> --}}
     <span class="loader hidden">
         <img src="{{asset('public/images/rocket.svg')}}" alt="">
     </span>
-</div>
-</div>
+
 </div>
 <script type="text/javascript">
 
@@ -388,39 +454,6 @@ function wardClick(name, id) {
     $("#listWard").removeClass('show');
     $("#listWard").addClass('hidden');
     $("#wardFor").attr('data-ward-id', id);
-}
-
-
-function districtClick(name, id) {
-    $("#districtFor").val(name);
-    $("#listDistrict").removeClass('show');
-    $("#listDistrict").addClass('hidden');
-    $("#districtFor").attr('data-district-id', id);
-
-    var _token = $("input[name='_token']").val();
-    $.ajax({
-        url: "{{ route('get-ward-by-id') }}",
-        type: 'GET',
-        data: {
-            _token: _token,
-            id
-        },
-        success: function(data) {
-            if (data.length > 0) {
-                console.log(data);
-                let str = '';
-
-                $.each(data, function(index, value) {
-                    str += '<a onclick="wardClick(\'' + value.WardName + '\', ' + '\'' + value.WardCode +
-                        '\')" class="option-ward" data-ward-name="' + value.WardCode +
-                        '" data-ward-id="' + value.WardCode + '">' + value.WardName +
-                        '</a>';
-                });
-
-                $('#listWard').html(str);
-            }
-        }
-    });
 }
 
 function myFunctionDistrict() {
@@ -553,30 +586,30 @@ function filterFunction() {
 function deleteProduct(id, price) {
 
 
-    var $input = $('#product-' + id).find('input');
+    var $input = $('input[name="product-' + id + '"');
     var count = parseInt($input.val());
 
-    var $inputQty = $('#sum-qty').find('input');
+    var $inputQty = $('input[name="sum-qty"');
     $inputQty.val(parseInt($inputQty.val()) - count);
     $inputQty.change();
     $('#product-' + id).parent().remove();
-
+    $('tr.product-' + id).remove();
     let priceOld = +$("input[name='price']").attr("data-product-price");
         newPrice = priceOld - price*count;
         if (newPrice <= 0) {
             newPrice = 0
         }
 
-        newPriceFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
-            .format(newPrice,);
+        newPriceFormat = new Intl.NumberFormat().format(newPrice,);
         $("input[name='price']").val(newPriceFormat);
         $("input[name='price']").attr('data-product-price', newPrice);
+        $('.total-tmp').html(newPriceFormat);
     return false;
 }
 
 function minus(id, price) {
 
-    var $input = $('#product-' + id).find('input');
+    var $input = $('input[name="product-' + id + '"');
     var count = parseInt($input.val()) - 1;
     // count = count < 1 ? 1 : count;
 
@@ -585,16 +618,21 @@ function minus(id, price) {
         $input.val(count);
         $input.change();
 
-        var $inputQty = $('#sum-qty').find('input');
+        var $inputQty = $('input[name="sum-qty"');
         $inputQty.val(parseInt($inputQty.val()) - 1);
         $inputQty.change();
 
         let priceOld = +$("input[name='price']").attr("data-product-price");
         newPrice = priceOld - price;
-        newPriceFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
-            .format(newPrice,);
+        newPriceFormat = new Intl.NumberFormat().format(newPrice,);
         $("input[name='price']").val(newPriceFormat);
         $("input[name='price']").attr('data-product-price', newPrice);
+        $('.total-tmp').html(newPriceFormat);
+
+        var qty = $input.val();
+        totalPriceByProduct = price * qty;
+        totalPriceByProductFM = new Intl.NumberFormat().format(totalPriceByProduct,);
+        $('.totalPriceProduct-' + id).html(totalPriceByProductFM);
     }
 
     return false;
@@ -602,20 +640,25 @@ function minus(id, price) {
 
 function plus(id, price) {
     event.preventDefault();
-    var $input = $('#product-' + id).find('input');
+    var $input = $('input[name="product-' + id + '"');
     $input.val(parseInt($input.val()) + 1);
     $input.change();
 
-    var $inputQty = $('#sum-qty').find('input');
+    var $inputQty = $('input[name="sum-qty"');
     $inputQty.val(parseInt($inputQty.val()) + 1);
     $inputQty.change();
     
     let priceOld = +$("input[name='price']").attr("data-product-price");
     newPrice = priceOld + price;
-    newPriceFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
-        .format(newPrice,);
+    newPriceFormat = new Intl.NumberFormat().format(newPrice,);
     $("input[name='price']").val(newPriceFormat);
     $("input[name='price']").attr('data-product-price', newPrice);
+    $('.total-tmp').html(newPriceFormat);
+
+    var qty = $input.val();
+    totalPriceByProduct = price * qty;
+    totalPriceByProductFM = new Intl.NumberFormat().format(totalPriceByProduct,);
+    $('.totalPriceProduct-' + id).html(totalPriceByProductFM);
     return false;
 }
 
@@ -635,8 +678,6 @@ $(document).ready(function() {
         var phone       = $("input[name='phone']").val();
         var name        = $("input[name='name']").val();
         var sex         = $("select[name='sex']").val();
-        var province    = $("input[name='province']").attr('data-province-id');
-        var district    = $("input[name='district']").attr('data-district-id');
         var ward        = $("input[name='ward']").attr('data-ward-id');
         var address     = $("input[name='address']").val();
         var qty         = $("input[name='sum-qty']").val();
@@ -645,6 +686,8 @@ $(document).ready(function() {
         var id          = $("input[name='id']").val();
         var status      = $("select[name='status']").val();
         var saleCareId  = $("input[name='sale-care']").val();
+        var district  = $("select[name='district']").val();
+        var ward  = $("select[name='ward']").val();
 
         let listProduct = [];
         $(".number input").each(function(index) {
@@ -686,7 +729,6 @@ $(document).ready(function() {
                 qty,
                 price,
                 address,
-                province,
                 district,
                 ward,
                 assignSale,
@@ -803,43 +845,86 @@ $(document).ready(function() {
     $(".option-product").click(function() {
         let id = $(this).data("product-id");
         let name = $(this).data("product-name");
-        let price = $(this).data("product-price");
+        let productPrice = $(this).data("product-price");
+        productPriceFM = new Intl.NumberFormat().format(productPrice,);
 
         $("input[name='products[]']").val(id);
 
         $("#myDropdown").removeClass('show');
         $("#myDropdown").addClass('hidden');
-
-        priceOld = +$("input[name='price']").attr("data-product-price");
-        newPrice = priceOld + price;
-        newPriceFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
-            .format(newPrice,);
-        $("input[name='price']").val(newPriceFormat);
-        $("input[name='price']").attr('data-product-price', newPrice);
     
-        if ($('#product-' + id).length > 0) {
-            var $input = $('#product-' + id).find('input');
+        var inputQty = $('input[name="sum-qty"');
+        inputQty.val(parseInt(inputQty.val()) + 1);
+        inputQty.change();
+
+        var totalPriceByProduct = 0;
+
+        if ($('.product-' + id).length <= 0) {
+            var newStr = '';
+            newStr += `
+                <tr class="number dh-san-pham product-` + id +`">
+                    
+                    <td class="text-left">
+                        <span class="no-combo">` + name + `</span><br>
+                    </td>
+                    <td class="no-wrap" style="width: 80px">` + productPriceFM + `</td>
+                    <td class="no-wrap" style="width: 45px">
+                        <button onclick="minus(` + id +
+                    ', ' + productPrice + `)" type="button" class=" minus">-</button>
+                    
+                    <input class="qty-input" name="product-` + id + `" data-product_id="` +
+                    id + `" readonly type="text" value="1"/>
+                    <button onclick="plus(` + id +
+                    ', ' + productPrice + `)" type="button" class="plus">+</button>
+                    </td>
+                    <td class="no-wrap totalPriceProduct-` + id + `" style="width: 30px">` + productPriceFM + `</td>
+                    <td class="text-center" style="width: 50px;">
+                        <button onclick="deleteProduct(` + id +
+                    ', ' + productPrice + `)" type="button" class="col-2" ><i class="fa fa-trash"></i></button>
+                    </td>
+                    </tr>`;
+            $(".list-product-choose").append(newStr);
+
+            // let str = '<div class="text-right col-4 number product-' + id +
+            //     '"><button onclick="minus(' + id +
+            //     ', ' + price +
+            //     ')" type="button" class=" minus">-</button><input class="qty-input" name="product-' + id + '" data-product_id="' +
+            //     id + '" readonly type="text" value="1"/><button onclick="plus(' + id +
+            //     ', ' + price +
+            //     ')" type="button" class="plus">+</button></div>';
+            // str += '<button onclick="deleteProduct(' + id +
+            //     ', ' + price +
+            //     ')" type="button" class="col-2 del" >X</button>';
+            // $("#list-product-choose").append('<div class="row product mb-0">' +
+            //     '<div class="col-6 name">' + name +
+            //     '</div>' + str + '</div>');
+            totalPriceByProduct = productPrice;
+        } else {
+            var $input = $('input[name="product-' + id + '"');
             $input.val(parseInt($input.val()) + 1);
             $input.change();
-        } else {
-            let str = '<div id="product-' + id + '" class="text-right col-4 number product-' + id +
-                '"><button onclick="minus(' + id +
-                ', ' + price +
-                ')" type="button" class=" minus">-</button><input class="qty-input" data-product_id="' +
-                id + '" readonly type="text" value="1"/><button onclick="plus(' + id +
-                ', ' + price +
-                ')" type="button" class="plus">+</button></div>';
-            str += '<button onclick="deleteProduct(' + id +
-                ', ' + price +
-                ')" type="button" class="col-2 del" >X</button>';
-            $("#list-product-choose").append('<div class="row product mb-0">' +
-                '<div class="col-6 name">' + name +
-                '</div>' + str + '</div>');
+
+            var qty = $input.val();
+            totalPriceByProduct = productPrice * qty;
+            totalPriceByProductFM = new Intl.NumberFormat().format(totalPriceByProduct,);
+            $('.totalPriceProduct-' + id).html(totalPriceByProductFM);
+
         }
 
-        var $inputQty = $('#sum-qty').find('input');
-        $inputQty.val(parseInt($inputQty.val()) + 1);
-        $inputQty.change();
+        priceOld = $("input[name='price']").attr("data-product-price");
+        
+        // console.log('priceOld', priceOld)
+        // console.log('productPrice', productPrice)
+        newPrice = parseInt(priceOld) + productPrice;
+        newPriceFormat = new Intl.NumberFormat().format(newPrice,);
+            // newPriceFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+            // .format(newPrice,);
+        $("input[name='price']").val(newPriceFormat);
+       
+        $("input[name='price']").attr('data-product-price', newPrice);
+        
+        $('.total-tmp').html(newPriceFormat);
+ 
     });
 
     // $("priceSaleFor").click(function() {
@@ -896,5 +981,55 @@ if (address) {
     address = decodeURIComponent((address + '').replace(/\+/g, '%20'));
     $('input[name="address"]').val(address)
 }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+<script>
+    $(function() {
+        $('#distric-filter').select2();
+        $('#ward-filter').select2();
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        var baseLink = location.href.slice(0,location.href.lastIndexOf("/"));
+        var link = baseLink + '/public/json/simplified_json_generated_data_vn_units.json';
+        var listProvince = fetch(link)
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error
+                        (`HTTP error! Status: ${res.status}`);
+                }
+                return res.json();
+            });
+
+        $('#distric-filter').on('change', function() {
+            var id = this.value;
+            var _token  = $("input[name='_token']").val();
+            $.ajax({
+                url: "{{ route('get-ward-by-id-distric') }}",
+                type: 'GET',
+                data: {
+                    _token: _token,
+                    id
+                },
+                success: function(data) {
+                    if (data.length > 0) {
+                        
+                        let str = '';
+                        $.each(data, function(index, value) {
+                            console.log(value);
+                            str += `<option value="` +value.Code+ `">` + value.FullName + `</option>`;
+                            
+                        });
+
+                        $('#ward-filter').html(str);
+                        $('#ward-filter').select2();
+                    }
+                }
+            });
+        })
+    });
 </script>
 @stop

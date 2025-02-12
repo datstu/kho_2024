@@ -1,4 +1,10 @@
 
+.create-bill {
+    padding: 20px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
 .header {
     display: none;
 }
@@ -129,23 +135,24 @@ span {
 .card-orders .dropbtn,
 .qty-input {
     appearance: auto;
-    font-size: 15px;
+    font-size: 13px;
     padding: 0;
     padding-left: 2px;
 }
 
 .card-orders .form-control {
+    border: dotted 1px #ddd;
     border-radius: 2px;
     border-top: none;
     border-left: none;
     border-right: none;
-    border-bottom-color: #ddd;
 }
 
 .card-orders .form-label {
     margin-bottom: 0.2rem;
     color: #8b8b8b;
     font-style: italic;
+    font-size: 12px;
 }
 
 .card-orders .dropbtn {
@@ -189,9 +196,10 @@ span {
 .product-list-order .btn-outline-secondary {
     width: 100%;
     display: block;
-    padding: unset;
+    padding: 20px;
     border-color: #ddd;
     border-radius: 2px;
+    font-weight: bold;
 }
 
 

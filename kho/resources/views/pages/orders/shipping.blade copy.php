@@ -14,11 +14,11 @@
         /* height:100px;
         width :100px;
         background:red; */
-        /* display:block;
+        display:block;
         opacity:1;
         transition : all .3s;
         -wekit-transition : all .3s;
-        -moz-transition : all .3s; */
+        -moz-transition : all .3s;
     }
     .choose-shipping.active .card-ghn{
         /* opacity: 0; */
@@ -27,58 +27,58 @@
     }
 </style>
 <link href="{{ asset('public/css/pages/styleOrders.css'); }}" rel="stylesheet">
-<div class="body flex-grow-1 p-3">
-    <div class="container">
+<div class="body flex-grow-1 px-3">
+    <div class="container-lg">
         <div class="row choose-shipping">
-            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
-                <label for="" style="font-style: italic">Đơn vị vận chuyển</label>
-                <select name="typeDate" id="typeDate-filter" class="border-select-box-se">       
-                    {{-- <option value="999">-------</option> --}}
-                    <option value="1">Giao hàng nhanh</option>
-                </select>
+            <div id="notifi-box" class="hidden alert alert-success print-error-msg">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
             </div>
-            <div class="col-xs-12 col-sm-6 col-md-4 form-group">
-                <label for="" style="font-style: italic">DS cửa hàng</label>
-                <select name="shop_id" class="border-select-box-se">       
-                    {{-- <option value="999">-------</option> --}}
-                    <option value="1">Shop 2kg</option>
-                    <option value="1">Giao 5kg</option>
-                    <option value="1">Giao 10kg</option>
-                </select>
-            </div>   
-        </div>
-        <div class="row content-ship">
-            <div class="col-xs-12 col-sm-8 col-md-6 form-group">
-                <div class="from-address w-50p m-r-12">
-                    <div class="title-card">Bên gửi</div>
-                    <div class="clo-F26522 fz-14"><span>0986987791 Đạm tôm, Tricho, Aplus</span> <i class="fa fa-phone m-l-8"></i>
-                        <span>0986987791</span></div><div class="clo-404040 fz-14 fw-500">số 4 nguyễn thị chiên nhánh 2</div>
-                        <div class="clo-F26522 fw-500 border-bottom-1 w-fit-content pointer">
-                            <i>Sửa địa chỉ gửi hàng</i></div><br>
+            <div class="p-0 col-3 card-ghn">
+                <div class="card">
+                    <img src="{{asset('public/images/ghn.png')}}" class="card-img-top" alt="...">
+                
+                    <div class="card-body">
+                    <h5 class="card-title ">Giao Hàng Nhanh</h5>
+                    <button id="nextGHN" class="btn btn-primary">Chọn</button>
+                    </div>
                 </div>
             </div>
-            
-            <div class="col-xs-12 col-sm-6 col-md-2 form-group">
-                <label for="" style="font-style: italic">Ca lấy hàng</label>
-                <select name="pick_shift" class="border-select-box-se">       
-                    {{-- <option value="999">-------</option> --}}
-                    <option value="1">Sáng nay</option>
-                    <option value="1">chiều nay</option>
-                    <option value="1">Sáng mai</option>
-                </select>
-            </div>
+        </div>
+        <div class="row content-ship hidden">
+            <div class="mt-1 col-12 ">
+                <div class="card mb-4 ">
+                    <div class="tab-content rounded-bottom">
+                        <div class="tab-pane p-3 active preview" role="tabpanel" id="preview-1000">
+                            <div class=" col-12">
+                                <div class="form-check">
+                                    <input value="yes" checked class="form-check-input" type="radio" name="hasShipping" id="hasShippingFor">
+                                    <label class="form-check-label" for="hasShippingFor">
+                                        Đã tạo đơn giao  vận
+                                    </label>
+                                    <div class="col col-3 mb-3 mt-2">
+                                        <form action="{{route('create-shipping-has')}}" method="post">
+                                            {{ csrf_field() }}
+                                            <input type="hidden" name="vendor_ship">
+                                            <input type="hidden" name="order_id" value="{{$orderId}}">
+                                            <input autofocus required type="text" name="id_shipping_has" class="form-control" placeholder="Nhập mã vận đơn..." aria-label="Username" aria-describedby="basic-addon1">
+                                            <button type="submit" class="mt-2 btn btn-primary">Áp dụng</button>
+                                        </form>
+                                    </div>
+                                </div>
 
-            <div class="col-xs-12 col-sm-8 col-md-6 form-group">
-                <div class="from-address w-50p m-r-12">
-                    <div class="title-card">Bên nhận</div>
-                    <div class="clo-F26522 fz-14"><span>0986987791 Đạm tôm, Tricho, Aplus</span> <i class="fa fa-phone m-l-8"></i>
-                        <span>0986987791</span></div><div class="clo-404040 fz-14 fw-500">số 4 nguyễn thị chiên nhánh 2</div>
-                        <div class="clo-F26522 fw-500 border-bottom-1 w-fit-content pointer">
-                            <i>Sửa địa chỉ gửi hàng</i></div><br>
+                                <div class="form-check">
+                                    <input value="no" class="form-check-input" type="radio" name="hasShipping" id="noShippingFor">
+                                    <label class="form-check-label" for="noShippingFor">
+                                        Chưa có
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
+    </div>
 </div>
 <script type="text/javascript">
 function wardClick(name, id) {

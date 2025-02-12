@@ -185,12 +185,17 @@ class TestController extends Controller
   }
   public function test() {
     $listSc = SaleCare::whereNotNull('next_step')->get();
+
+    dd($listSc);
     foreach ($listSc as $sc) {
+      if ($sc->id != '15967') {
+        continue;
+      }
       $time       = $sc->call->time;
       $nameCall   = $sc->call->name;
       $updatedAt  = $sc->updated_at;
       $isRunjob   = $sc->is_runjob;
-  
+      dd($sc);
       if ($time && !$isRunjob) {
         //cộng ngày update và time cuộc gọi
         $newDate = strtotime("+$time hours", strtotime($updatedAt));
@@ -787,8 +792,9 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/12/2024', '30/12/2024'];
-    $req['sale'] = '59';
+    $req['daterange'] = ['01/01/2025', '31/01/2025'];
+    $req['sale'] = '56';
+    // $req['typeDate'] = '2';
 
     // $sales = ['64', '59', '62'];
 
@@ -797,7 +803,7 @@ class TestController extends Controller
     $list->whereNull('id_order');
     $list->where('old_customer', 0);
     $list->where('is_duplicate', 0);
-    // $list->where('group_id', '5');
+    $list->where('group_id', '9');
     // $list->whereIn('assign_user', $sales);
     $dataExport[] = [
       'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
@@ -814,9 +820,9 @@ class TestController extends Controller
       // echo 'message: : ' . $data->TN_can . '<br>';
       // echo 'date: ' . $data->created_at . '<br>';
 
-      if (Helper::isOldCustomer($data->phone, $data->group_id)) {
-        continue;
-      }
+      // if (Helper::isOldCustomer($data->phone, $data->group_id)) {
+      //   continue;
+      // }
 
       $tnCan = $data->TN_can;
       if ($data->listHistory) {
@@ -837,95 +843,8 @@ class TestController extends Controller
 
     // print_r($dataExport);
     // dd($dataExport);
-    return Excel::download(new UsersExport($dataExport), 'tom-12-Tu.xlsx');
+    return Excel::download(new UsersExport($dataExport), 'tom-01-Hiep.xlsx');
 
-  }
-
-  public function wakeUp() 
-  {$listSc = SaleCare::whereNotNull('result_call')
-      ->whereNotNull('type_TN')
-      ->where('result_call', '!=', 0)
-      ->where('result_call', '!=', -1)
-      ->where('has_TN', 1)
-      ->get();
-
-    foreach ($listSc as $sc) {
-      // if ($sc->id != 13413) {
-      //   continue;
-      // }
-      
-      $call = $sc->call;
-
-      if (empty($call->time)) {
-        continue;
-      }
-
-      $time = $call->time;
-      $nameCall   = $call->callResult->name;
-      $updatedAt  = $sc->time_update_TN;
-      $isRunjob   = $sc->is_runjob;
-      $TNcan   = $sc->TN_can;
-      $saleAssign   = $sc->user->real_name;
-
-      if ($sc->listHistory->count()) {
-        $sc->listHistory;
-        $TNcan = $sc->listHistory[0]->note;
-      }
-
-      if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
-        continue;
-      }
-      
-      //cộng ngày update và time cuộc gọi
-      if ($sc->time_wakeup_TN) {
-        $newDate = strtotime($sc->time_wakeup_TN);
-      } else {
-        $newDate = strtotime("+$time hours", strtotime($updatedAt));
-      }
-      
-      if ($newDate <= time()) {
-        $nextTN = $call->thenCall;
-        if (!$nextTN) {
-          continue;
-        }
-
-        $chatId         = '-4286962864';
-        $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
-        $group = $sc->group;
-
-        if ($group) {
-          $chatId = $group->tele_nhac_TN;
-          $tokenGroupChat =  $group->tele_bot_token;
-        }
-
-        //set lần gọi tiếp theo
-        $sc->type_TN = $nextTN->id;
-        $sc->result_call = 0;
-        $sc->has_TN = 0;
-        $sc->is_runjob = 1;
-        $sc->save();
-
-        //gửi thông báo qua telegram
-        
-
-        // $group = $sc->group;
-    
-        $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
-        $client         = new \GuzzleHttp\Client();
-
-        $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
-          . "\nĐã tới thời gian tác nghiệp."
-          . "\nKết quả gọi trước đó: $nameCall"
-          . "\nGhi chú trước: $TNcan"
-          . "\nSale tác nghiệp: $saleAssign"; 
-
-          // dd($notiText);
-        $client->request('GET', $endpoint, ['query' => [
-          'chat_id' => $chatId, 
-          'text' => $notiText,
-        ]]);
-      }
-    }
   }
 
   public function fix()
@@ -1011,6 +930,104 @@ WHERE  NOT EXISTS
     }
         // dd($list);
     
+  }
+
+  public function wakeUp()
+  {
+    $listSc = SaleCare::whereNotNull('result_call')
+      ->whereNotNull('type_TN')
+      ->where('result_call', '!=', 0)
+      ->where('result_call', '!=', -1)
+      ->where('has_TN', 1)
+      ->get();
+
+      // dd($listSc);
+    foreach ($listSc as $sc) {
+
+      // if ($sc->id != '15967') {
+      //   continue;
+      // }
+      
+      $call = $sc->call;
+      if (empty($call->time)) {
+        continue;
+      }
+
+      $time = $call->time;
+      $nameCall   = $call->callResult->name;
+      $updatedAt  = $sc->time_update_TN;
+      $isRunjob   = $sc->is_runjob;
+      $TNcan   = $sc->TN_can;
+      $saleAssign   = $sc->user->real_name;
+      
+      if ($sc->listHistory->count()) {
+        $sc->listHistory;
+        $TNcan = $sc->listHistory[0]->note;
+      }
+      
+      if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
+        continue;
+      }
+
+      //cộng ngày update và time cuộc gọi
+      if ($sc->time_wakeup_TN) {
+        $newDate = strtotime($sc->time_wakeup_TN);
+      } else {
+        $newDate = strtotime("+$time hours", strtotime($updatedAt));
+      }
+
+      
+      if ($newDate <= time()) {
+
+        $nextTN = $call->thenCall;
+
+        if (!$nextTN) {
+          continue;
+        }
+
+        $chatId         = '-4286962864';
+        $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
+        $group = $sc->group;
+
+        if ($group) {
+          $chatId = $group->tele_nhac_TN;
+          $tokenGroupChat =  $group->tele_bot_token;
+        }
+
+        
+        //set lần gọi tiếp theo
+        if ($sc->type_TN != $nextTN->id) {
+          $sc->result_call = 0;
+        }
+
+        // 24 id: nhắc lại
+        if ($nextTN->id != 24) {
+          $sc->type_TN = $nextTN->id;
+        }
+        
+        $sc->has_TN = 0;
+        $sc->is_runjob = 1;
+        $sc->save();
+
+        //gửi thông báo qua telegram
+        $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
+        $client         = new \GuzzleHttp\Client();
+
+        $notiText       = "Khách hàng $sc->full_name sđt $sc->phone"
+          . "\nĐã tới thời gian tác nghiệp."
+          . "\nKết quả gọi trước đó: $nameCall"
+          . "\nGhi chú trước: $TNcan"
+          . "\nSale tác nghiệp: $saleAssign"; 
+
+        if ($chatId) {
+          $client->request('GET', $endpoint, ['query' => [
+            'chat_id' => $chatId, 
+            'text' => $notiText,
+          ]]);
+        }
+        
+      }
+    }
   }
 }
 

@@ -25,7 +25,7 @@ class HomeController extends Controller
         $toMonth      = date("d/m/Y", time());
 
         /**set tmp */
-        // $toMonth = '21/10/2024';
+        // $toMonth = '05/02/2025';
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataSale = $this->getReportHomeSale($toMonth);
@@ -33,6 +33,7 @@ class HomeController extends Controller
         // $dataDigital = $this->getReportHomeDigital($toMonth);
         $dataDigital = $this->getReportHomeDigitalV2($toMonth);
 
+        // dd($dataDigital);
         $category   = Category::where('status', 1)->get();
         $sales   = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
         $groups     = Group::orderBy('id', 'desc')->get();

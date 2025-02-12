@@ -67,7 +67,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/don-hang',  [OrdersController::class, 'index'])->name('order');
     Route::get('/them-don-hang/{saleId?}',  [OrdersController::class, 'add'])->name('add-orders');
     Route::post('/save-orders',[OrdersController::class,'save'])->name('save-orders');
-    Route::get('/get-ward-by-id',[AddressController::class,'getWardById'])->name('get-ward-by-id');
+    Route::get('/get-ward-by-id-distric',[AddressController::class,'getWardByIdDicstric'])->name('get-ward-by-id-distric');
     Route::get('/get-district-by-id',[AddressController::class,'getDistrictById'])->name('get-district-by-id');
     
     Route::get('/search-order',  [OrdersController::class, 'search'])->name('search-order');
@@ -179,7 +179,7 @@ Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboar
 // Route::get('/test',  [TestController::class, 'hi'])->name('test');
 // Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');
 // Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
-Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
+Route::get('/test',  [TestController::class, 'wakeUp'])->name('test');
 // Route::get('/test',  [TestController::class, 'updateStatusOrderGhnV2'])->name('test');
 // Route::get('/test', [FbWebHookController::class, 'webhook']);
 // Route::get('/test',  [TestController::class, 'testBaoKim'])->name('test');

@@ -607,6 +607,7 @@ class SaleController extends Controller
             return $this->searchInSaleCare($dataFilter);
         } 
 
+
         if ($dataFilter) {
             if (isset($dataFilter['typeDate'])) {
               

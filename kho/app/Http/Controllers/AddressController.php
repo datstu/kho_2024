@@ -52,19 +52,33 @@ class AddressController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getWardById(Request $request)
+    public function getWardByIdDicstric(Request $request)
     {
         if(isset($request->id)){
-            // print ($request->id);
-            $endpoint = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=" . $request->id;
-            $response = Http::withHeaders(['token' => 'c0ddcdf9-df81-11ee-b1d4-92b443b7a897'])->get($endpoint);
-            $wards = [];
-            if ($response->status() == 200) {
-                $content    = json_decode($response->body());
-                $wards  = $content->data;
-                return $wards;
+            $result = $this->getListWardById($request->id);
+            return response()->json($result);
+        }
+    }
+
+    public function getListWardById($id)
+    {
+        $result = [];
+        $json = file_get_contents(public_path('json/simplified_json_generated_data_vn_units.json'));
+        $data = json_decode($json, true);
+        
+        foreach ($data as $item) {
+            foreach ($item as $k => $v) {
+                if ($k == 'District') {
+                    foreach ($v as $distric) {
+                        if ($distric['Code'] == $id) {
+                            $result = array_merge($result, $distric['Ward']);
+                        }
+                    }
+                }
             }
         }
+
+        return $result;
     }
 
      /**
