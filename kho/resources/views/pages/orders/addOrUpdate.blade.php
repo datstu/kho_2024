@@ -24,6 +24,12 @@ $listStatus = Helper::getListStatus();
 $isLeadSale = Helper::isLeadSale(Auth::user()->role);
 $checkAll = isFullAccess(Auth::user()->role);
 $flagAccess = false;
+
+$name = $phone = '';
+if (isset($saleCare)) {
+    $name = $saleCare->full_name;
+    $phone = $saleCare->phone;
+}
 ?>
 
 <script src="{{asset('public/js/number-format/cleave.min.js')}}"></script>
@@ -62,7 +68,7 @@ $flagAccess = false;
                                 <select name="district" id="distric-filter" class="form-control">       
                                     <option value="-1">--Chọn quận/huyện--</option>
                                     @foreach ($listProvince as $item)
-                                    <option <?= ($item['Code'] == $order->district) ? "selected" : '';?> value="{{$item['Code']}}">{{$item['FullName']}}</option>
+                                    <option <?= ($item['id'] == $order->district) ? "selected" : '';?> value="{{$item['id']}}">{{$item['name']}}</option>
                                     @endforeach
                                 </select>
                                 <p class="error_msg" id="district"></p>
@@ -72,7 +78,7 @@ $flagAccess = false;
                                 <select name="ward" id="ward-filter" class="form-control">
                                     @if (isset($listWard))
                                     @foreach ($listWard as $ward)
-                                    <option <?= ($ward['Code'] == $order->ward) ? "selected" : '';?> value="{{$ward['Code']}}">{{$ward['FullName']}}</option>
+                                    <option <?= ($ward['id'] == $order->ward) ? "selected" : '';?> value="{{$ward['id']}}">{{$ward['name']}}</option>
                                     @endforeach
                                     
                                     @else
@@ -274,13 +280,13 @@ $flagAccess = false;
                                 <div class="col-sm-12 col-lg-6">
                                     <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
                                     <input autofocus placeholder="0973409613" class="form-control" name="phone"
-                                        id="phoneFor" type="text">
+                                        id="phoneFor" type="text" value="{{$phone}}">
                                     <p class="error_msg" id="phone"></p>
                                 </div>
                                 <div class="col-sm-12 col-lg-6">
                                     <label class="form-label" for="nameFor">Tên khách hàng<span class="required-input">(*)</span></label>
                                     <input placeholder="Họ và tên" class="form-control" name="name"
-                                        id="nameFor" type="text">
+                                        id="nameFor" type="text" value="{{$name}}">
                                     <p class="error_msg" id="name"></p>
                                 </div>
                                 
@@ -289,7 +295,7 @@ $flagAccess = false;
                                     <select name="district" id="distric-filter" class="form-control">       
                                         <option value="-1">--Chọn quận/huyện--</option>
                                         @foreach ($listProvince as $item)
-                                        <option value="{{$item['Code']}}">{{$item['FullName']}}</option>
+                                        <option value="{{$item['id']}}">{{$item['name']}}</option>
 
                                         @endforeach
                                     </select>
@@ -435,8 +441,6 @@ $flagAccess = false;
             @endif
             
         </div>
-            
-                
 
     </form>
     {{-- <div class="row text-right">
@@ -966,21 +970,6 @@ $.urlParam = function(name){
     return 0;
 }
 
-let phone = $.urlParam('phone') 
-if (phone) {
-    $('input[name="phone"]').val(phone)
-}
-
-let name = $.urlParam('name') 
-if (name) {
-    name = decodeURIComponent((name + '').replace(/\+/g, '%20'));
-    $('input[name="name"]').val(name)
-}
-let address = $.urlParam('address') 
-if (address) {
-    address = decodeURIComponent((address + '').replace(/\+/g, '%20'));
-    $('input[name="address"]').val(address)
-}
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
@@ -994,7 +983,8 @@ if (address) {
 <script>
     $(document).ready(function() {
         var baseLink = location.href.slice(0,location.href.lastIndexOf("/"));
-        var link = baseLink + '/public/json/simplified_json_generated_data_vn_units.json';
+        // var link = baseLink + '/public/json/simplified_json_generated_data_vn_units.json';
+        var link = baseLink + '/public/json/local.json';
         var listProvince = fetch(link)
             .then((res) => {
                 if (!res.ok) {
@@ -1020,7 +1010,7 @@ if (address) {
                         let str = '';
                         $.each(data, function(index, value) {
                             console.log(value);
-                            str += `<option value="` +value.Code+ `">` + value.FullName + `</option>`;
+                            str += `<option value="` +value.id+ `">` + value.name + `</option>`;
                             
                         });
 

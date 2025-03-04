@@ -314,10 +314,15 @@ class OrdersController extends Controller
             if ($group = $saleCare->group) {
                 $products    = $group->products;
 
+                // foreach ($products as $item) {
+                //     $listProduct[] = $item->product;
+                // }
                 foreach ($products as $item) {
-                    $listProduct[] = $item->product;
+                    $listProductIds[] = $item->id_product;
                 }
 
+                $listProduct = Product::whereIn('id', $listProductIds)->orderBy('orderBy', 'desc');
+                
             } else {
                 //data TN cũ chưa có group => hiển thị toàn bộ list ban đầu
                 $listProduct    = Helper::getListProductByPermisson(Auth::user()->role)->get();
@@ -327,12 +332,13 @@ class OrdersController extends Controller
         }
 
         $listProvince = $this->getListProvince();
-
-        return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct)
+ 
+        return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct->get())
             // ->with('provinces', $provinces)
             ->with('saleCareId', $saleCareId)
             ->with('listSale', $listSale)
-            ->with('listProvince', $listProvince);
+            ->with('listProvince', $listProvince)
+            ->with('saleCare', $saleCare);
     }
 
     public function getListProductByPermisson($roles) {
@@ -360,15 +366,18 @@ class OrdersController extends Controller
 
     public function getListProvince(){
         /** lấy danh sách quận cả nước */
-        $json = file_get_contents(public_path('json/simplified_json_generated_data_vn_units.json'));
+        // $json = file_get_contents(public_path('json/simplified_json_generated_data_vn_units.json'));
+        $json = file_get_contents(public_path('json/local.json'));
         $data = json_decode($json, true);
 
         $result  = [];
         foreach ($data as $kProvince => $item) {
             foreach ($item as $k => $v) {
-                if ($k == 'District') {
+                if ($k == 'District' || $k == 'districts') {
+
                     foreach ($v as $kDistric => $disctrict) {
-                        $item[$k][$kDistric]['FullName'] .= ' - ' . $data[$kProvince]['Name'];
+                        $item[$k][$kDistric]['name'] .= ' - ' . $data[$kProvince]['name'];
+                        // $item[$k][$kDistric]['FullName'] .= ' - ' . $data[$kProvince]['Name'];
                     }
 
                     $result = array_merge($result, $item[$k]);
@@ -517,6 +526,12 @@ class OrdersController extends Controller
                         $tokenGroupChat = '7127456973:AAGyw4O4p3B4Xe2YLFMHqPuthQRdexkEmeo';
                         $chatId = '-4167465219';
                     }
+
+                    /** nếu sale là cskh gửi riêng thông báo về nhóm của cskh */
+                    $saler = $saleCare->user;
+                    if ($saler->is_CSKH && $group->tele_create_order_by_cskh) {
+                        $chatId = $group->tele_create_order_by_cskh;
+                    }
                 }
 
                 //gửi thông báo qua telegram
@@ -534,8 +549,9 @@ class OrdersController extends Controller
                     }
 
                     if ($order->phone == '0973409613') {
-                        $chatId = '-4211905463';
+                        $chatId = '-4280564587';
                     }
+
                     //tạo mới order
                     try {
                         $client->request('GET', $endpoint, ['query' => [

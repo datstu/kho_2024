@@ -66,6 +66,8 @@ class ProductController extends Controller
             $product->name          = $request->name;
             $product->qty           = $request->qty;
             $product->price         = $request->price;
+            $product->weight        = $request->weight;
+            $product->orderBy       = $request->orderBy;
             $product->category_id   = $request->category_id;
             $product->roles         = $request->roles;
             $product->save();
@@ -150,7 +152,8 @@ class ProductController extends Controller
     }
 
     public  function getListProductByPermisson($roles) {
-        $list       = Product::orderBy('id', 'desc');
+        $list       = Product::orderBy('orderBy', 'desc');
+
         $checkAll   = false;
         $listRole   = [];
         $roles      = json_decode($roles);

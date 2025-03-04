@@ -30,8 +30,20 @@
                                                 <div class="mb-3 col-4">
                                                     <label class="form-label" for="priceIP">Giá</label>
                                                     <input class="form-control" value="{{$product->price}}" name="price"
-                                                        id="priceIP" type="bumber">
+                                                        id="priceIP">
                                                     <p class="error_msg" id="price"></p>
+                                                </div>
+                                                <div class="mb-3 col-4">
+                                                    <label class="form-label" for="weightIP">Khối lượng (gam)</label>
+                                                    <input class="form-control" value="{{$product->weight}}" name="weight"
+                                                        id="weightIP">
+                                                    <p class="error_msg" id="weight"></p>
+                                                </div>
+                                                <div class="mb-3 col-4">
+                                                    <label class="form-label" for="orderIP">Thứ tự</label>
+                                                    <input class="form-control" value="{{$product->orderBy}}" name="orderBy"
+                                                        id="orderIP">
+                                                    <p class="error_msg" id="orderBy"></p>
                                                 </div>
                                             </div>
                                             @if(isset($listCategory))
@@ -124,6 +136,18 @@
                                             <label class="form-label" for="priceIP">Giá</label>
                                             <input class="form-control" name="price" id="priceIP" type="bumber">
                                             <p class="error_msg" id="price"></p>
+                                        </div>
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label" for="weightIP">Khối lượng (gam)</label>
+                                            <input class="form-control" name="weight"
+                                                id="weightIP" >
+                                            <p class="error_msg" id="weight"></p>
+                                        </div>
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label" for="orderIP">Thứ tự</label>
+                                            <input class="form-control" name="orderBy"
+                                                id="orderIP">
+                                            <p class="error_msg" id="orderBy"></p>
                                         </div>
                                     </div>
                                     @if(isset($listCategory))
@@ -250,7 +274,8 @@ $(document).ready(function() {
         var id = $("input[name='id']").val();
         var category_id = $("select[name='category_id']").val();
         var status = $("input[name='status']:checked").val();
-
+        var weight = $("input[name='weight']").val();
+        var orderBy = $("input[name='orderBy']").val();
         let roles =  $("input[name='role']:checked").val();
         // $("input[name='roles[]']:checked").each(function() {
         //     roles.push($(this).val());
@@ -267,7 +292,9 @@ $(document).ready(function() {
                 id,
                 status,
                 category_id,
-                roles
+                roles,
+                weight,
+                orderBy,
             },
             success: function(data) {
                 console.log(data);
