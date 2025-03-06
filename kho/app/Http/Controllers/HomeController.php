@@ -29,7 +29,7 @@ class HomeController extends Controller
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataSale = $this->getReportHomeSale($toMonth);
-
+        // dd($dataSale);
         // $dataDigital = $this->getReportHomeDigital($toMonth);
         $dataDigital = $this->getReportHomeDigitalV2($toMonth);
 
@@ -933,7 +933,7 @@ class HomeController extends Controller
         $status = $req->status;
 
         // dd(($status || $status == 0) && $status != 999 && $status);
-        if (($status || $status == 0) && $status != 999 && $status) {
+        if (($status || $status == 0) && $status != 999) {
             $dataFilter['status'] = $status;
             $newFilter['status'] = $status;
         }
@@ -994,12 +994,17 @@ class HomeController extends Controller
 
             $time = $dataFilter['daterange'];
             
-            $newCustomer = $this->getDataDigitalAjax($digital->id, 0, $time[0], $time[1]);
+            // if ($digital->id != 67) {
+            //     continue;
+            // }
 
+            $newCustomer = $this->getDataDigitalAjax($digital->id, 0, $time[0], $time[1], $dataFilter);
+            
+            // dd($newCustomer);
             $newTotal = Helper::stringToNumberPrice($newCustomer['total']);
             $newCountOrder = $newCustomer['order'];
 
-            $oldCustomer = $this->getDataDigitalAjax($digital->id, 1, $time[0], $time[1]);
+            $oldCustomer = $this->getDataDigitalAjax($digital->id, 1, $time[0], $time[1], $dataFilter);
             $oldTotal = Helper::stringToNumberPrice($oldCustomer['total']);
             $oldCountOrder = $oldCustomer['order'];
 
@@ -1046,14 +1051,19 @@ class HomeController extends Controller
         return $result;
     }
 
-    public function getDataDigitalAjax($id, $typeCustomer, $begin, $after)
+    public function getDataDigitalAjax($id, $typeCustomer, $begin, $after, $dataFilter)
     {
         $dataFilter['daterange'] = "$begin - $after";
         $req = new Request();
         $req->merge(['daterange' => $dataFilter['daterange']]);
         $req->merge(['mkt_user' => $id]);
         $req->merge(['type_customer' => $typeCustomer]);
+        
+        if (isset($dataFilter['status'])) {
+            $req->merge(['status' => $dataFilter['status']]);
+        }
 
+        // dd($dataFilter);
         return $this->getDataDigitalV2($req);
     }
 

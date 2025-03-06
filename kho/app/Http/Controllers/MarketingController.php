@@ -189,7 +189,7 @@ class MarketingController extends Controller
         // $dataFilter['daterange'] = [$time[0], $time[1]];
 
         $status = $req->status;
-        if (($status || $status == 0) && $status != 999 && $status) {
+        if (($status || $status == 0) && $status != 999) {
             $dataFilter['status'] = $status;
         }
 
