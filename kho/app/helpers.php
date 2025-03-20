@@ -1,8 +1,16 @@
 <?php
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\SaleCareCountActionController;
 use Illuminate\Support\Facades\Http;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+
+if (! function_exists('setDataTNLogHelper')) {
+    function setDataTNLogHelper($idSaleCare, $action) {
+        $scDataCount = new SaleCareCountActionController();
+        return  $scDataCount->setDataTNLog( $idSaleCare, $action);
+    }
+}
 
 if (! function_exists('sayHi')) {
     function sayHi()
