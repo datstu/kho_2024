@@ -43,6 +43,10 @@ class SaleCareCountActionController  extends Controller
             }
         }
 
+        if ($list) {
+            $this->sortByTotalCount($list);
+        }
+
         return $list;
     }
 
@@ -71,6 +75,12 @@ class SaleCareCountActionController  extends Controller
 
         return $result;
     }
+
+    public function sortByTotalCount(&$list)
+    {
+        array_multisort(array_column($list, 'count'), SORT_DESC, $list);
+    }
+
     public function getReportSaleEffect($time, $checkAll = false)
     {
         $dataFilter['daterange'] = "$time - $time";
@@ -95,7 +105,11 @@ class SaleCareCountActionController  extends Controller
                 }
             }
         }
-       
+
+        if ($result) {
+            $this->sortByTotalCount($result);
+        }
+
         return $result;
     }
 
@@ -108,7 +122,6 @@ class SaleCareCountActionController  extends Controller
         // $item = $this->filterByDate('day', $toMonth);
 
         $dataCountSale = $this->getReportSaleEffect($toMonth);
-        // dd($dataCountSale);
         return view('pages.sale.report')->with('dataCountSale', $dataCountSale);
     }
     public function getListDataCount($daterange)
