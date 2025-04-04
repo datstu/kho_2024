@@ -21,6 +21,9 @@ use App\Http\Controllers\CallResultController;
 use App\Http\Controllers\GroupSaleController;
 use App\Http\Controllers\GroupSaleDetailController;
 use App\Http\Controllers\MarketingController;
+use App\Http\Controllers\SaleCareCountActionController;
+use App\Http\Controllers\VoipController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +36,10 @@ use App\Http\Controllers\MarketingController;
 |
 */
 Route::middleware('admin-auth')->group(function () {
+
+    /** call voip */
+    
+    Route::get('view-call-voip', [VoipController::class, 'index'])->name('view-call-voip');
     Route::get('/', [HomeController::class, 'index'])->name('product');
 
     Route::get('/home',  [HomeController::class, 'index'])->name('home');
@@ -64,6 +71,7 @@ Route::middleware('admin-auth')->group(function () {
     // Route::get('/them-danh-muc',  [CategoryController::class, 'add'])->name('add-category');
     
     /** đơn hàng */
+    Route::get('/get-ward-by-id',[AddressController::class,'getWardById'])->name('get-ward-by-id');
     Route::get('/don-hang',  [OrdersController::class, 'index'])->name('order');
     Route::get('/them-don-hang/{saleId?}',  [OrdersController::class, 'add'])->name('add-orders');
     Route::post('/save-orders',[OrdersController::class,'save'])->name('save-orders');
@@ -85,13 +93,19 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/quan-ly-thanh-vien',  [UserController::class, 'index'])->name('manage-user');
     Route::post('/save-user',[UserController::class,'save'])->name('save-user');
 
-    Route::get('/tao-van-don/{id}',  [ShippingOrderController::class, 'createShipping'])->name('create-shipping');
+    /** tạo vận đơn */
+    Route::post('/create-order-GHN',  [ShippingOrderController::class, 'createOrderGHN'])->name('create-order-GHN');
+    Route::get('/api-lay-ten-ghn',  [AddressController::class, 'apiGetDistrictGHNByName'])->name('api-district-by-name-to-GHN');
+    Route::get('/tao-van-don-ghn/{id}',  [ShippingOrderController::class, 'viewCreateShippingGHN'])->name('view-create-shipping-GHN');
+    Route::get('/get-ward-by-id-distric-GHN',[AddressController::class,'getWardByIdDicstricGHN'])->name('get-ward-by-id-distric-GHN');
+    Route::get('/tao-van-don/{id}',  [ShippingOrderController::class, 'indexCreateShipping'])->name('view-create-shipping');
     Route::post('/save-shipping-has',  [ShippingOrderController::class, 'createShippingHas'])->name('create-shipping-has');
     Route::get('/chi-tiet-van-don/{id}',  [ShippingOrderController::class, 'detailShippingOrder'])->name('detai-shipping-order');
-
+    Route::get('/go-van-don/{id}',  [ShippingOrderController::class, 'removeShipingOrderCode'])->name('remove-shipping-order');
+    
     Route::get('/tac-nghiep-sale',  [SaleController::class, 'index'])->name('sale-index');
     Route::get('/tao-tac-nghiep-sale',  [SaleController::class, 'add'])->name('sale-add');
-    Route::post('/tao-tac-nghiep-sale',  [SaleController::class, 'save'])->name('sale-care-save');
+    Route::post('/tao-tac-nghiep-sale',  [SaleController::class, 'saveUI'])->name('sale-care-save');
     Route::get('/cap-nhat-tac-nghiep-sale/{id}',  [SaleController::class, 'update'])->name('sale-care-update');
     Route::post('/cap-nhat-sale-ajax',  [SaleController::class, 'saveAjax'])->name('sale-save-ajax');
     Route::get('/tim-tac-nghiep-sale',  [SaleController::class, 'search'])->name('search-sale-care');
@@ -107,6 +121,10 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/danh-sach-so-trung/{id}',  [SaleController::class, 'viewlistDuplicateByPhone'])->name('sale-list-duplicate');
     Route::get('/bang-xep-hang-sale',  [SaleController::class, 'viewRankSale'])->name('sale-rank');
     Route::get('/bang-xep-hang-sale-ajax',  [SaleController::class, 'ajaxViewRank'])->name('view-rank-ajax');
+    Route::get('/api-sum-TN',  [SaleCareCountActionController::class, 'apiSumTN'])->name('api-sum-TN');
+    Route::get('/bao-cao-cong-viec',  [SaleCareCountActionController::class, 'viewReportEffectTN'])->name('view-sale-report-effect-TN');
+    Route::get('/view-count-dataTN-ajax',  [SaleCareCountActionController::class, 'ajaxViewReportEffect'])->name('view-count-dataTN-ajax');
+    
 
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
     Route::get('/tao-loai-TN-sale',  [CategoryCallController::class, 'add'])->name('category-call-add');
@@ -176,13 +194,8 @@ Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filt
 Route::get('/filter-total-sales',  [HomeController::class, 'ajaxFilterDashboar'])->name('filter-total-sales');
 Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboardDigitalV2'])->name('filter-total-digital');
 
-// Route::get('/test',  [TestController::class, 'hi'])->name('test');
-// Route::get('/test',  [TestController::class, 'updateStatusOrderGHN'])->name('test');
-// Route::get('/test',  [TestController::class, 'crawlerPancake'])->name('test');
-Route::get('/test',  [TestController::class, 'wakeUp'])->name('test');
-// Route::get('/test',  [TestController::class, 'updateStatusOrderGhnV2'])->name('test');
-// Route::get('/test', [FbWebHookController::class, 'webhook']);
-// Route::get('/test',  [TestController::class, 'testBaoKim'])->name('test');
+Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
+
 
 Route::get('/hiep',  [TestController::class, 'saveDataHiep'])->name('hiep');
 

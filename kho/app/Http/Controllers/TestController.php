@@ -515,18 +515,18 @@ class TestController extends Controller
   public function crawlerGroup()
   {
     $groups = Group::where('status', 1);
-
+    
     foreach ($groups->get() as $group) {
 
-        // if($group->id != 7) {
+        // if($group->id != 5) {
         //     continue;
         // }
       $pages = $group->srcs;
 
-
+      // dd($pages);
 // dd($pages);
       foreach ($pages as $page) {
-        //  if ($page->id != 28) {
+        //  if ($page->id_page != 381180601741468) {
         //      continue;
         //  }
         if ($page->type == 'pc' ) {
@@ -535,9 +535,8 @@ class TestController extends Controller
       }
     }
   }
-   public function crawlerPancakePage($page, $group)
+  public function crawlerPancakePage($page, $group)
   { 
-    // dd($page);
     $srcId = $page->id;
     $pIdPan = $page->id_page;
     $token  = $page->token;
@@ -554,23 +553,21 @@ class TestController extends Controller
 
       $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
       $today    = strtotime(date("Y/m/d H:i"));
-      $before   = strtotime ( '-9 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+      $before   = strtotime ( '-10 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
       $before   = date ( 'Y/m/d H:i' , $before );
       $before   = strtotime($before);
 
       $endpoint = "$endpoint?type=PHONE,DATE:$before+-+$today&access_token=$token";
+      // $endpoint = "$endpoint?DATE:$before+-+$today&access_token=$token";
       $response = Http::withHeaders(['access_token' => $token])->get($endpoint);
-   
-    //   dd($response);
+
       if ($response->status() == 200) {
         $content  = json_decode($response->body());
-        // dd($content);
         if ($content->success) {
           $data     = $content->conversations;
-        //   dd($data);
-          
+          // dd($data);
           foreach ($data as $item) {
-            
+           
             try {
               $recentPhoneNumbers = $item->recent_phone_numbers[0];
               $mId      = $recentPhoneNumbers->m_id;
@@ -578,38 +575,34 @@ class TestController extends Controller
               $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
               $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
               $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-             
-              $assgin_user = 0;
-              $is_duplicate = false;
               $phone = Helper::getCustomPhoneNum($phone);
-              
-              $hasOldOrder = 0;
-            //   if ($phone != '0908361589') {
-            //      continue;
-            //   } 
-               
-            //   $mId = 'aaa';
-              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV4($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
 
-              if ($name && $checkSaleCareOld) {  
-                if ($assgin_user == 0) {
-
-                  $assignSale = Helper::getAssignSaleByGroup($group);
-                  if (!$assignSale) {
-                    break;
-                  }
-
-                  //assignSale: item in model detail_user_group
-                  $assgin_user = $assignSale->id_user;        
+              // if ($phone != '0918055005') {
+              //   continue;
+              // }
+              $is_duplicate = $hasOldOrder = $isOldCustomer = $assgin_user = 0;
+              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV5($phone, $mId, $is_duplicate, $hasOldOrder);
+              $typeCSKH = 1;
+             
+              if ($name && $checkSaleCareOld) {
+                $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeCSKH, $isOldCustomer);
+                if (!$assignSale) {
+                  break;
                 }
-// dd($assgin_user);
+                // dd($assignSale);
+                if ($isOldCustomer == 1) {
+                  $chatId = $group->tele_cskh_data;
+                }
+               
+                $assgin_user = $assignSale->id;
                 $is_duplicate = ($is_duplicate) ? 1 : 0;
+                // dd($assignSale);
                 $sale = new SaleController();
                 $data = [
                   'page_link' => $linkPage,
                   'page_name' => $namePage,
                   'sex'       => 0,
-                  'old_customer' => 0,
+                  'old_customer' => $isOldCustomer,
                   'address'   => '',
                   'messages'  => $messages,
                   'name'      => $name,
@@ -623,20 +616,23 @@ class TestController extends Controller
                   'group_id'  => $group->id,
                   'has_old_order'  => $hasOldOrder,
                   'src_id'  => $srcId,
+                  'type_TN' => $typeCSKH, 
                 ];
-
+                
                 $request = new \Illuminate\Http\Request();
                 $request->replace($data);
                 $sale->save($request);
+              } else {
+                echo $phone . " \n";
               }
             
-          } catch (\Exception $e) {
-            // return $e;
-            // echo '$phone: ' . $phone;
-            // dd($e);
-            // return redirect()->route('home');
+            } catch (\Exception $e) {
+              // return $e;
+              // echo '$phone: ' . $phone;
+              // dd($e);
+              // return redirect()->route('home');
+            }
           }
-        }
         }
       }           
     }
@@ -716,7 +712,9 @@ class TestController extends Controller
              * nếu chọn chia đều team CSKH thì mặc định luôn có sale nhận data
              */
 
+            // dd($group);
             if ($group->is_share_data_cskh) {
+              
               $assgin_user = Helper::getAssignCskhByGroup($group, 'cskh')->id_user;
             } else {
               $assgin_user = $order->saleCare->assign_user;
@@ -724,7 +722,7 @@ class TestController extends Controller
 
               //tài khoản đã khoá hoặc chặn nhận data => tìm sale khác trong nhóm
               if (!$user->is_receive_data || !$user->status) {
-                $assgin_user = Helper::getAssignSaleByGroup($group)->id_user;
+                $assgin_user = Helper::getAssignSaleByGroup($group, 'cskh')->id_user;
               }
             }
 
@@ -792,17 +790,17 @@ class TestController extends Controller
     $sale     = new SaleController();
 
     // $req = new Request();
-    $req['daterange'] = ['01/01/2025', '31/01/2025'];
-    $req['sale'] = '56';
+    $req['daterange'] = ['01/03/2025', '31/03/2025'];
+    $req['sale'] = '50';
     // $req['typeDate'] = '2';
 
-    // $sales = ['64', '59', '62'];
+    // $sales = ['56'];
 
     $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
     $list->whereNull('id_order_new');
     $list->whereNull('id_order');
     $list->where('old_customer', 0);
-    $list->where('is_duplicate', 0);
+    // $list->where('is_duplicate', 0);
     $list->where('group_id', '9');
     // $list->whereIn('assign_user', $sales);
     $dataExport[] = [
@@ -843,7 +841,7 @@ class TestController extends Controller
 
     // print_r($dataExport);
     // dd($dataExport);
-    return Excel::download(new UsersExport($dataExport), 'tom-01-Hiep.xlsx');
+    return Excel::download(new UsersExport($dataExport), 'Thu-03.xlsx');
 
   }
 
@@ -939,9 +937,9 @@ WHERE  NOT EXISTS
       ->where('result_call', '!=', 0)
       ->where('result_call', '!=', -1)
       ->where('has_TN', 1)
+      ->where('created_at', '>' , '2024-12-01')
       ->get();
 
-      // dd($listSc);
     foreach ($listSc as $sc) {
 
       // if ($sc->id != '15967') {
@@ -959,7 +957,10 @@ WHERE  NOT EXISTS
       $isRunjob   = $sc->is_runjob;
       $TNcan   = $sc->TN_can;
       $saleAssign   = $sc->user->real_name;
-      
+
+      if (!$sc->user->status || !$sc->user->is_receive_data) {
+        continue;
+      }
       if ($sc->listHistory->count()) {
         $sc->listHistory;
         $TNcan = $sc->listHistory[0]->note;
@@ -976,7 +977,6 @@ WHERE  NOT EXISTS
         $newDate = strtotime("+$time hours", strtotime($updatedAt));
       }
 
-      
       if ($newDate <= time()) {
 
         $nextTN = $call->thenCall;
@@ -994,7 +994,6 @@ WHERE  NOT EXISTS
           $tokenGroupChat =  $group->tele_bot_token;
         }
 
-        
         //set lần gọi tiếp theo
         if ($sc->type_TN != $nextTN->id) {
           $sc->result_call = 0;

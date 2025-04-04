@@ -29,7 +29,6 @@ class MarketingController extends Controller
             $list = $list->where('id', $req->src);
         }
 
-        // dd($list->get());
         /** lấy data report(contact) từ list nguồn */
         $listFiltrSrc = $this->getListMktReportByListSrc($list, $req);
         $listFiltrSrc = $this->transferKey($listFiltrSrc);
@@ -333,6 +332,7 @@ class MarketingController extends Controller
     }
     public function getListMktReportByListSrc($list, $req)
     {
+        // dd($req->all());
         $data = [];
         foreach ($list->get() as $item) {
             // echo $item->id . "<br>";
@@ -369,6 +369,11 @@ class MarketingController extends Controller
 
             $list = $list->whereDate('created_at', '>=', $dateBegin)
                 ->whereDate('created_at', '<=', $dateEnd);
+        }
+
+        if (isset($req['group']) || !empty($req->group)) {
+            $groupId = (isset($req['group'])) ? $req['group'] : $req->group;
+            $list = $list->where('group_id', $groupId);
         }
 
         // dd($list->get());
@@ -433,7 +438,7 @@ class MarketingController extends Controller
         $countSaleCare = 0;
 
         $saleCare = $this->getListSaleCareBySrcId($item, $req);
-        
+
         /*
         $saleCare   = SaleCare::orderBy('id', 'desc');
 
@@ -549,7 +554,7 @@ class MarketingController extends Controller
 
     public function srcPage()
     {
-        $list = SrcPage::orderBy('id', 'desc')->paginate(30);
+        $list = SrcPage::orderBy('id', 'desc')->get();
         $checkAll = isFullAccess(Auth::user()->role);
         if (!$checkAll) {
             $list = $list->where('user_digital', Auth::user()->id);

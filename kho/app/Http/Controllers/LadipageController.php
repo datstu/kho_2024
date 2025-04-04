@@ -14,7 +14,7 @@ class LadipageController  extends Controller
     //
     public function index2(Request $r) 
     {
-        Log::info('run api ladipage');
+        Log::info('run api ladipag 212e');
 
         // dd($r->all());
         $phone = $r->phone;
@@ -72,10 +72,12 @@ class LadipageController  extends Controller
 
     public function index(Request $r) 
     {
+        $all = json_encode($r->all());
+        Log::info($all);
+
         $phone = $r->phone;
         $name = ($r->name) ?? 'Không để tên';
 
-        // $email = $r->email;
         $item = $r->form_item3209;
         $address = $r->address;
         $linkPage = $r->link;
@@ -84,81 +86,65 @@ class LadipageController  extends Controller
         if ( $address) {
             $messages .= "\n" . $address;
         }
+
         $all = json_encode($r->all());
-        // Log::channel('webhook')->info($all);
-        // $str = '{"variant_url":null,"utm_campaign":null,"ip":"58.187.189.59","utm_medium":null,"link":"https:\/\/www.nongnghiepsachvn.net\/tricho-bacillus-km","form_item3209":"T\u00f4i mu\u1ed1n b\u00e1o gi\u00e1 2 x\u00f4","message_id":"ed9dbbde-5005-11ef-a2e3-2325c6b4e731","utm_term":null,"message_time":1722517186337,"phone":"0973409613","url_page":"https:\/\/www.nongnghiepsachvn.net\/tricho-bacillus-km","name":"dattest","ladi_form_id":"FORM14","variant_content":null,"utm_source":null,"utm_content":null}';
         $str = $all;
         $arr = json_decode($str, true);
         $linkPage = $arr['link'];
-        //  Log::channel('webhook')->info('link: ' .$linkPage);
-        // dd($arr);
-        Log::info($all);
 
         $assgin_user = 0;
         $is_duplicate = 0;
 
-        // $group = Group::where('link', 'like', '%' . $linkPage . '%')->first();
-        // Log::channel('webhook')->info('--------------------------');
-        
-        // dd( $linkPage);
-        // if (str_contains($linkPage, 'tricho-bacillus-km')) {
-        //     $linkPage = 'https://www.nongnghiepsachvn.net/tricho-bacillus-km';
-        // } else if (str_contains($linkPage, 'uudai45-damtom')) {
-        //     $linkPage = 'https://www.phanbonorganic.com/uudai45-damtom';
-        // } else if (str_contains($linkPage, 'uudai45')) {
-        //     $linkPage = 'https://www.phanbonorganic.com/uudai45';
-        // } else if (str_contains($linkPage, 'uudai-trichoderma')) {
-        //     $linkPage = 'https://www.phanbonorganic.com/uudai-trichoderma';
-        // }
-
         /** lấy list token của nguồn ladi (token = tricho-bacillus-km ....) */
         $listSrcLadi = SrcPage::where('type', 'ladi')
-        ->whereNotNull("id_page")->get();
-       
-        // echo "<pre>";
-        // print_R($listSrcLadi);
-        // echo "</pre>";
+            ->whereNotNull("id_page")->get();
+        
         foreach ($listSrcLadi as $src) {
             if (str_contains($linkPage, $src->id_page)) {
                 $group = $src->group;
-                // echo $src->id_page;
-                // dd(str_contains($linkPage, $src->id_page));
                 break;
             }
         }
-        // dd($src);
 
         if (!$src) {
             return;
         }
-
-        // Log::info($linkPage);
-        // $group = Helper::getGroupByLinkLadi($linkPage);
         
-        $blockPhone = ['0963339609','0344999668', '0344411068', '0841111116', '0841265116',
+        $blockPhone = ['0963339609','0344999668', '0344411068', '0841111116', '0841265116', '0986987791', '0332783056', '0985767791',
             '0918352409', '0841265117', '0348684430', '0777399687'];
-            // dd($group && !in_array($phone, $blockPhone));
-        // if ($group && $phone != '0344411068' && $phone != '0841111116' && $phone != '0841265116' 
-        //     && $phone != '0918352409' && $phone != '0841265117' && $phone != '0348684430' && $phone !='0777399687') {
+
         if ($group && !in_array($phone, $blockPhone)) {
             $chatId = $group->tele_hot_data;
             $phone = Helper::getCustomPhoneNum($phone);
-            $hasOldOrder = 0;
-            $isOldDataLadi = Helper::isOldDataLadi($phone, $assgin_user, $group, $hasOldOrder, $is_duplicate);
+            $hasOldOrder = $isOldOrder = 0;
+            $typeCSKH = 1;
+            $isOldDataLadi = Helper::isOldDataLadi($phone, $assgin_user, $group, $hasOldOrder, $is_duplicate, $isOldOrder);
+            // dd(!$isOldDataLadi || $assgin_user == 0);
             if (!$isOldDataLadi || $assgin_user == 0) {
-                // $assignSale = Helper::getAssignSale();
-                // $assgin_user = $assignSale->id;
-                $assignSale = Helper::getAssignSaleByGroup($group);
-                $assgin_user = $assignSale->id_user;
+                /** khách mới hoàn toàn */
+                $assignSale = Helper::getAssignSaleByGroup($group)->user;
+                
+            } else {
+                /** khách cũ */
+                $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeCSKH, $isOldOrder);
             }
 
+            if (!$assignSale) {
+                return;
+            }
+
+            if ($isOldOrder == 1) {
+                $chatId = $group->tele_cskh_data;
+            }
+
+            $assgin_user = $assignSale->id;
             $pageNameLadi = 'Ladi Page. Link: ' . $linkPage;
             $sale = new SaleController();
             $data = [
                 'page_link' => $linkPage,
                 'page_name' => $pageNameLadi,
                 'sex'       => 0,
-                'old_customer' => 0,
+                'old_customer' => $isOldOrder,
                 'address'   => '',
                 'messages'  => $messages,
                 'name'      => $name,
@@ -167,14 +153,16 @@ class LadipageController  extends Controller
                 'text'      => $pageNameLadi,
                 'chat_id'   => $chatId,
                 'm_id'      => 'mId',
-                'assgin'    => $assgin_user,
+                'assgin' => $assgin_user,
                 'is_duplicate' => $is_duplicate,
                 'group_id'  => $group->id,
                 'has_old_order'  => $hasOldOrder,
                 'src_id' => $src->id,
+                'type_TN' => $typeCSKH, 
             ];
 
-            // Log::info( $data);
+            // dd($data);
+
             $request = new \Illuminate\Http\Request();
             $request->replace($data);
             $sale->save($request);

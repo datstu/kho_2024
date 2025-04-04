@@ -19,7 +19,7 @@ use Validator;
 class GroupController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource.add
      *
      * @return Response
      */
@@ -165,21 +165,20 @@ class GroupController extends Controller
                 $gr = new Group();
             }
 
-            // dd($req->all());
             try {
                 /** lưu thông tin nhóm */
                 $gr->name   = $req->name;
                 $gr->status = $req->status; 
                 $gr->tele_bot_token = $req->teleBotToken; 
                 $gr->tele_hot_data = $req->teleHotData;         
-                $gr->tele_create_order = $req->teleCreateOrder;         
+                $gr->tele_create_order = $req->teleCreateOrder;
+                $gr->tele_create_order_by_cskh = $req->teleCreateOrderByCSKH;              
                 $gr->tele_cskh_data = $req->teleCskhData;  
                 $gr->is_share_data_cskh = $req->shareDataCskh;
                 $gr->tele_nhac_TN = $req->teleNhacTN;  
                 $gr->lead_sale   = $req->leadSale;
                 
                 $gr->save();
-                // dd('hâhihii');
 
                 /** lưu thôn tin user trong nhóm */
                 if (!isset($req->id)) {
@@ -195,8 +194,6 @@ class GroupController extends Controller
                         // $tmp[] = $detailUser;
                     }
                 }
-
-   
 
                 /** lưu thôn tin nguồn data trong nhóm */
                 $listSrc = $req->src;
@@ -220,11 +217,9 @@ class GroupController extends Controller
                     }
                 }
 
-                // dd($req->all());
                 /** lưu thôn tin sale CSKH nếu isShareData = true*/
                 if ($req->shareDataCskh) {
                     $saleCSKH = $req->memberCSKH;
-                    // dd($saleCSKH);
                     $idGr = $gr->id;
                     $classDetail = new DetailUserGroup();
                     $this->updateFieldOfGroup($idGr, $classDetail, 'id_user', $req->memberCSKH, 'cskh'); 

@@ -51,6 +51,10 @@
         <ul class="nav-group-items">
             <li class="nav-item"><a class="nav-link" href="{{route('sale-index')}}"><span class="nav-icon"></span>Tác nghiệp Sale</a></li>
             <li class="nav-item"><a class="nav-link" href="{{route('sale-rank')}}"><span class="nav-icon"></span>Bảng xếp hạng </a></li>
+        
+            @if ($checkAll || $isLeadSale)
+            <li class="nav-item"><a class="nav-link" href="{{route('view-sale-report-effect-TN')}}"><span class="nav-icon"></span>Báo cáo Sale TN</a></li>
+            @endif
         </ul>
     </li>
 

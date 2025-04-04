@@ -19,30 +19,13 @@
 
 </head>
 <?php 
- $isLeadSale = Helper::isLeadSale(Auth::user()->role);      
+// use Session;
+$isLeadSale = Helper::isLeadSale(Auth::user()->role);      
 
-$ladiPages = [
-    [
-        'name' => 'Ladipage ruoc-dong',
-        'id' => 'ruoc-dong',
-        // 'src' => 'https://www.phanbonlua.xyz/ruoc-dong'
-    ],
-    [
-        'name' => 'Ladipage mua4tang2',
-        'id' => 'mua4tang2',
-        // 'src' => 'https://www.nongnghiepsachvn.net/mua4tang2'
-    ],
-    [
-        'name' => 'Ladipage giamgia45',
-        'id' => 'giamgia45',
-        // 'src' => 'https://www.nongnghiepsachvn.net/giamgia45'
-    ],
-    [
-        'name' => 'Tiễn - Ladipage mua4-tang2 ',
-        'id' => 'mua4-tang2',
-        // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
-    ],
-];
+$name = Session::get('name');
+$phone = Session::get('phone');
+$address = Session::get('address');
+$messages = Session::get('messages');
 ?>
 <body>
     @include('notify::components.notify')
@@ -147,109 +130,104 @@ $ladiPages = [
                     </div>
          
                 @else
-                <div class="card-body card-orders">
-                    <div class="body flex-grow-1">
-                        <div class="tab-content rounded-bottom">
-                            <form method="post" action="{{route('sale-care-save')}}">
-                                <input type="hidden" name="old_customer" value="2">
-                                {{ csrf_field() }}
-                                <div class="row" id="content-add">
-                                    <div class="col-sm-12 col-lg-3">
-                                        <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
-                                        <input required placeholder="0973409613" class="form-control" name="phone"
-                                            id="phoneFor" type="text">
-                                        <p class="error_msg" id="phone"></p>
-                                    </div>
-                                    <div class="col-sm-12 col-lg-3">
-                                        <label class="form-label" for="nameFor">Tên khách hàng<span class="required-input">(*)</span></label>
-                                        <input required placeholder="Họ và tên" class="form-control" name="name"
-                                            id="nameFor" type="text">
-                                        <p class="error_msg" id="name"></p>
-                                    </div>
-                                    
-                                    <div class="col-sm-6 col-lg-4">
-                                        <label class="form-label" for="addressFor">Địa chỉ/đường</label>
-                                        <input placeholder="180 cao lỗ" class="form-control" name="address"
-                                            id="addressFor" type="text">
-                                        <p class="error_msg" id="address"></p>
-                                    </div>
-                                    
-                                    {{-- <div class="col-sm-12 col-lg-4 call">
-                                        <label for="call1" class="form-label ">Gọi lần 1:
-                                            <span class="delete">xoá</span>
+                    <div class="card-body card-orders">
+                        <form method="post" action="{{route('sale-care-save')}}" onsubmit="return validatePhoneNumber()">
+                            {{ csrf_field() }}
+                            <div class="row mb-2" id="content-add">
+                                <div class="col-sm-12 col-lg-3">
+                                    <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
+                                    <input pattern="^(\+84|0)(3[2-9]|5[689]|7[06789]|8[1-5]|9[0-9])[0-9]{7}$" required placeholder="Nhập số điện thoại" class="form-control" name="phone"
+                                        id="phoneFor" type="text" value="{{$phone}}">
+                                    <p class="error_msg" id="phone"></p>
+                                </div>
+                                <div class="col-sm-12 col-lg-3">
+                                    <label class="form-label" for="nameFor">Tên khách hàng</label>
+                                    <input placeholder="Họ và tên" class="form-control" name="name"
+                                        id="nameFor" type="text" value="{{$name}}">
+                                    <p class="error_msg" id="name"></p>
+                                </div>
+                                
+                                <div class="col-sm-6 col-lg-4">
+                                    <label class="form-label" for="addressFor">Địa chỉ/đường</label>
+                                    <input placeholder="Nhập địa chỉ" class="form-control" name="address"
+                                        id="addressFor" type="text" value="{{$address}}">
+                                    <p class="error_msg" id="address"></p>
+                                </div>
+                                
+                                {{-- <div class="col-sm-12 col-lg-4 call">
+                                    <label for="call1" class="form-label ">Gọi lần 1:
+                                        <span class="delete">xoá</span>
+                                    </label>
+                                    <textarea data-id-call=1 name="call[]" class="form-control" id="call1" rows="3"></textarea>
+                                    <p></p>
+                                </div> --}}
+                            </div>
+                            <div class="row mb-2">
+                               
+                                <div class="col-sm-12 col-lg-12">
+                                    <label class="form-label" for="messagesFor">Tin nhắn</label><br>
+                                    <textarea name="messages" id="messagesFor" cols="100" rows="5" style="width:100%">{{$messages}}</textarea>
+                                    <p class="error_msg" id="address"></p>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-sm-12 col-lg-3">
+                                    <label class="form-label" for="qtyIP">Chia data</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="shareDataSale" value="1"
+                                            id="flexRadioDefaultCSKH">
+                                        <label class="form-check-label" for="flexRadioDefaultCSKH">
+                                            Chỉ định sale nhận data
                                         </label>
-                                        <textarea data-id-call=1 name="call[]" class="form-control" id="call1" rows="3"></textarea>
-                                        <p></p>
-                                    </div> --}}
-                                </div>
-                                <div class="row">
-                                    {{-- <input type="text" name="text" value="Sale tự tạo" class="hidden"> --}}
-                                    {{-- <input type="text" name="page_name" value="Sale tự tạo"> --}}
-                                    <div class="col-sm-6 col-lg-12">
-                                        <label class="form-label" for="messagesFor">Tin nhắn</label><br>
-                                        <textarea name="messages" id="messagesFor" cols="100" rows="5" style="width:100%"></textarea>
-                                        <p class="error_msg" id="address"></p>
+                                    </div>
+                                    <div class="form-check">
+                                        <input checked class="form-check-input" type="radio" name="shareDataSale" value="2"
+                                            id="flexRadioDefaultCSKH2" >
+                                        <label  class="form-check-label" for="flexRadioDefaultCSKH2">
+                                            Hệ thống tự chia data
+                                        </label>
                                     </div>
                                 </div>
-
-                                <div class="row mb-2">
-                                    <div class="col-sm-12 col-lg-3">
-                                        <label class="form-label" for="qtyIP">Chia data</label>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="shareDataSale" value="1"
-                                                id="flexRadioDefaultCSKH">
-                                            <label class="form-check-label" for="flexRadioDefaultCSKH">
-                                                Chỉ định sale nhận data
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input checked class="form-check-input" type="radio" name="shareDataSale" value="2"
-                                                id="flexRadioDefaultCSKH2" >
-                                            <label  class="form-check-label" for="flexRadioDefaultCSKH2">
-                                                Hệ thống tự chia data
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12 col-lg-6 hidden" id="list-sale-cskh-div">
-                                        <label class="form-label" for="saleCskhIP">Sale Data Nóng</label>
-                                        {{-- <input value="{{$teleCskhData}}" class=" form-control" name="saleCskh" id="saleCskhIP" type="text" required>
-                                        <p class="error_msg" id="name"></p> --}}
-                                        {{-- <label for="like-color">Sale Data nóng</label> --}}
-                                        <div class="" >
-                                            <select name="assgin" id="assgin-filter" class="custom-select">
-                                                @if (isset($listSale))
-                                                @foreach ($listSale as $item)
-                                                    <option value="{{$item->id}}">{{$item->real_name}}</option>
-                                                @endforeach
-                                                @endif
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-12 col-lg-4 mb-2">
-                                        <label class="form-label">Nguồn Data:</label>
-                                        <select name="src_id" id="src-filter" class="form-control">       
-                                                
-                                        @foreach ($listSrc as $page) 
-                                            <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
-                                        @endforeach 
-                        
+                                <div class="col-sm-12 col-lg-6 hidden" id="list-sale-cskh-div">
+                                    <label class="form-label" for="saleCskhIP">Sale Data Nóng</label>
+                                    {{-- <input value="{{$teleCskhData}}" class=" form-control" name="saleCskh" id="saleCskhIP" type="text" required>
+                                    <p class="error_msg" id="name"></p> --}}
+                                    {{-- <label for="like-color">Sale Data nóng</label> --}}
+                                    <div class="" >
+                                        <select name="assgin" id="assgin-filter" class="custom-select">
+                                            @if (isset($listSale))
+                                            @foreach ($listSale as $item)
+                                                <option value="{{$item->id}}">{{$item->real_name}}</option>
+                                            @endforeach
+                                            @endif
                                         </select>
                                     </div>
                                 </div>
+                            </div>
 
-                                {{-- <div class="loader hidden text-center">
-                                    <img src="{{asset('public/images/loader.gif')}}" alt="">
-                                </div> --}}
-                                {{-- <button id="add" type="button" class="btn btn-danger text-white">Thêm lần gọi</button> --}}
-                                <button id="submit" class="btn btn-primary">Tạo</button>
+                            <div class="row mb-2">
+                                <div class="col-sm-12 col-lg-4 mb-2">
+                                    <label class="form-label">Nguồn Data:</label>
+                                    <select name="src_id" id="src-filter" class="form-control">       
+                                            
+                                    @foreach ($listSrc as $page) 
+                                        <option value="{{$page['id']}}">{{($page['name']) ? : $page['name']}}</option>
+                                    @endforeach 
+                    
+                                    </select>
+                                </div>
                                 
-                            </form>
-                        </div>
+                            </div>
+                           
+                            {{-- <div class="loader hidden text-center">
+                                <img src="{{asset('public/images/loader.gif')}}" alt="">
+                            </div> --}}
+                            {{-- <button id="add" type="button" class="btn btn-danger text-white">Thêm lần gọi</button> --}}
+                            <button id="submit" class="btn btn-primary" onclick="validatePhoneNumber()">Tạo</button>
+                            
+                        </form>
                     </div>
-                </div>
                 @endif
 
                 </div>
@@ -319,7 +297,7 @@ $( document ).ready(function() {
         $phone = $("input[name='phone']").val();
         $name = $("input[name='name']").val();
         $address = $("input[name='address']").val();
-        if ( $phone != '' && $name != '') {
+        if ( $phone != '' && validatePhoneNumber()) {
             $('.loader').show();
             $('.body form').css("opacity", '0.5');
         }
@@ -365,6 +343,21 @@ function deleteCall(val) {
         }
         });
     });
+</script>
+
+<script>
+    function validatePhoneNumber() {
+        const phoneInput = document.getElementById('phoneFor');
+        const errorElement = document.getElementById('phone');
+        if (phoneInput.validity.valid) {
+            errorElement.textContent = '';
+            
+            return true; // Form will submit
+        } else {
+            errorElement.textContent = 'Số điện thoại chưa đúng';
+            return false; // Prevent form submission
+        }
+    }
 </script>
 </body>
 </html>

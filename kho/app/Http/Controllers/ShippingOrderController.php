@@ -14,8 +14,154 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\ShippingOrder;
 use App\Helpers\Helper;
 
+
 class ShippingOrderController extends Controller
 {
+    public function removeShipingOrderCode($id)
+    {
+        $ship = ShippingOrder::find($id);
+
+        if($ship) {
+            $ship->delete();
+            notify()->success('Gỡ vận đơn thành công', 'Thành công!');
+            
+        } else {
+            notify()->error('Không tìm thấy vận đơn trong hệ thống', 'Thất bại!'); 
+        }
+
+        return back();
+    }
+    public function createOrderGHN(Request $req)
+    {
+        $dataReq = $req->all();
+        $orderId = $dataReq['id'];
+        $validator      = Validator::make($dataReq, [
+            'phone'      => 'required',
+            'name'     => 'required',
+            'address'     => 'required',
+            'district'     => 'required|not_in',
+            'ward'     => 'required|not_in',
+            'cod_amount'     => 'required',
+            'products'     => 'required',
+        ],[
+            'phone.required' => 'Nhập số điện thoại',
+            'name.required' => 'Nhập tên khách hàng',
+            'address.required' => 'Nhập địa chỉ nhận hàng',
+            'district.not_in' => 'Chọn quận huyện',
+            'ward.not_in' => 'Chọn xã phường',
+            'cod_amount.required' => 'Nhập số COD',
+            'products.required' => 'Thêm sản phẩm',
+        ]);
+
+        if (!isset($dataReq['products'])) {
+            notify()->error('Thiếu sản phẩm', 'Thất bại!');
+            return back();
+        }
+
+        if ($validator->passes()) {    
+            $totalWeight = 0;
+            $items = [];
+
+            foreach ($dataReq['products'] as $product) {
+                $weight = (int) str_replace(",", "", $product['weight']);
+                $totalWeight += $weight;
+                
+                $items[] = [
+                        "name" => $product['name'],
+                        "quantity" => 1,
+                        "length" => 20,
+                        "width" => 20,
+                        "height" =>20,
+                        "weight" => $weight
+                ];
+                
+            }
+
+            /* service_type_id 
+                5: hàng nặng
+                2: hàng nhẹ
+
+                shopID:
+                4298110: shop 2kg
+                5187355: shop 5kg
+                5187357: shop 10kg
+                190998: test
+             */
+            $serviceTypeId = 5;
+            $shopId = '5187357';
+            if ($totalWeight < 5000) {
+                //set cho shop 2kg
+                $shopId = '4298110';
+                $serviceTypeId = 2;
+            } elseif ($totalWeight < 10000) {
+                //set cho shop 5kg
+                $shopId = '5187355';
+                $serviceTypeId = 2;
+            } else if ($totalWeight < 15000) {
+                $serviceTypeId = 2;
+            }
+
+            $codAmount = (int) str_replace(",", "", $dataReq['cod_amount']);
+
+            $data = [
+                "payment_type_id" => 1, //người bán thanh toán phí ship
+                "note" => $dataReq['note'],
+                "required_note" => "CHOXEMHANGKHONGTHU",
+                "to_name" => $dataReq['name'],
+                "to_phone" => $dataReq['phone'],
+                "to_address" => $dataReq['address'],
+                "to_ward_code" =>  $dataReq['ward'],
+                "to_district_id" => $dataReq['district'],
+                "cod_amount" => $codAmount,
+                "weight" => $totalWeight,
+                "cod_failed_amount" => 50000, 
+                // "deliver_station_id" => null,
+                "service_type_id" => $serviceTypeId,
+                // "coupon" => null,
+                // "pick_shift" => [2],
+                "items" => $items,
+            ];
+
+            /* token test
+            * $shopId = '190998';
+            * token 
+            */
+            $shopId = '190998';
+            $token = 'c0ddcdf9-df81-11ee-b1d4-92b443b7a897zzz';///saitoken 
+            $endpoint = "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create";
+            $response = Http::withHeaders([
+                'token' => $token,
+                'ShopId' => $shopId,
+            ])->withBody(
+                json_encode($data)
+            )->post($endpoint);
+
+            // dd($response->body());
+            if ($response->status() == 200) {
+                $content  = json_decode($response->body());
+                $mess = $content->message_display;
+                $data = $content->data;
+                $orderCode = $data->order_code;
+                $this->saveShippingCodeGHN($orderCode, $orderId);
+                notify()->success($mess, 'Thành công!');
+                
+            } else {
+                // dd($response);
+                notify()->error('Đã xảy ra lỗi!', 'Thất bại!');
+               
+            }
+            return back();
+        } else {
+            foreach ($validator->errors()->messages() as $mes) {
+                notify()->error($mes[0], 'Thất bại!');
+            }
+            return back();
+        }
+
+        return redirect('chi-tiet-don-hang/' . $orderId);
+        
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -278,36 +424,103 @@ class ShippingOrderController extends Controller
         return User::where('status', 1)->where('is_sale', 1);
     }
 
-    public function createShipping($id) {
-        $orderId = Orders::find($id);
-        if ($orderId) {
-            return view('pages.orders.shipping')->with('orderId', $id); 
+    // public function getNameDistrictSystem($id)
+    // {
+    //     $json = file_get_contents(public_path('json/local.json'));
+    //     $data = json_decode($json, true);
+    //     $name  = "";
+
+    //     foreach ($data as $kProvince => $item) {
+    //         foreach ($item as $k => $v) {
+    //             if ($k == 'District' || $k == 'districts') {
+    //                 foreach ($v as $kDistric => $disctrict) {
+    //                     if ($disctrict["id"] == $id) {
+    //                         $name = $disctrict["name"];
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     return $name;
+    // }
+
+    public function indexCreateShipping($id)
+    {
+        $order = Orders::find($id);
+        if ($order) {
+            $ship = ShippingOrder::whereOrderId($id)->first();
+            if ($ship) {
+                // notify()->error('Vận đơn đã được tạo', 'Cảnh báo!'); 
+                return redirect('chi-tiet-don-hang/' . $id);
+            }
+            return view('pages.orders.shipping.index')->with('order', $order); 
         } 
         
         return redirect()->route('home');
     }
 
-    public function createShippingHas(Request $req) 
+    public function viewCreateShippingGHN($id) {
+        $order = Orders::find($id);
+        if ($order) {
+            $ship = ShippingOrder::whereOrderId($id)->first();
+            if ($ship) {
+                // notify()->error('Vận đơn đã được tạo', 'Cảnh báo!'); 
+                return redirect('chi-tiet-don-hang/' . $id);
+            }
+
+            $addressCtl = new AddressController();
+            $listProvince = $addressCtl->getListProvince();
+            $listWard = $addressCtl->getListWardById($order->district);
+            
+            return view('pages.orders.shipping.ghn')->with('order', $order)
+                ->with('listWard', $listWard)
+                ->with('listProvince', $listProvince);
+        } else {
+            notify()->error('Không tìm thấy đơn hàng!', 'Thử lại!');
+        }
+        
+        return redirect()->route('order');
+    } 
+
+    public function saveShippingCodeGHN($orderCode, $orderId)
     {
-        $orderCode = trim($req->id_shipping_has);
-        $ship = ShippingOrder::whereOrderCode($orderCode)->whereOrderId($req->orderId)
+        $orderCode = trim($orderCode);
+        $ship = ShippingOrder::whereOrderCode($orderCode)->whereOrderId($orderId)
             ->first();
 
         if (!$ship) {
-            $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail?order_code=" . $orderCode;
-            $response = Http::withHeaders(['token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55'])->get($endpoint);
+            $link = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail?order_code=";
+            $token = '180d1134-e9fa-11ee-8529-6a2e06bbae55';
+
+            // $link = "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail?order_code=";
+            // $token = 'c0ddcdf9-df81-11ee-b1d4-92b443b7a897';
+            $endpoint = $link . $orderCode;
+            $response = Http::withHeaders(['token' => $token])->get($endpoint);
            
             if ($response->status() == 200) {
                 $shippingNew = new ShippingOrder();
                 $shippingNew->order_code = $orderCode;
-                $shippingNew->order_id = $req->order_id;
-                $shippingNew->vendor_ship = $req->vendor_ship;
+                $shippingNew->order_id = $orderId;
+                $shippingNew->vendor_ship = 'GHN';
                 $shippingNew->save();
-                return redirect()->route('order')->with('success', 'Thêm vận đơn thành công!');
+                return true;
             }
         }
 
-        return redirect()->back()->with('error', 'Đã xảy ra lỗi khi xoá sản phẩm!');;
+        return false;
+    }
+    public function createShippingHas(Request $req) 
+    {
+        if ($this->saveShippingCodeGHN($req->id_shipping_has, $req->order_id)) { 
+            notify()->success('Thêm vận đơn thành công', 'Thành công!');
+            return redirect()->route('order');
+        } else {
+            notify()->error('Mã vận đơn GHN không tồn tại!', 'Thử lại!');
+        }
+
+        return back();
     }
 
     public function getShippingLog($endpoint) {
@@ -328,7 +541,7 @@ class ShippingOrderController extends Controller
         // $view =  view('pages.orders.detailshipping')->with('type', $ship->vendor_ship);
         $orderLog = $orderInfo = $trackingLog = $callLog = [];
         if(!$ship) {
-            return redirect()->back();
+            return back();
         }
        
         $orderCode  = $ship->order_code;

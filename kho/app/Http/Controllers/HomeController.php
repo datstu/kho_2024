@@ -353,7 +353,7 @@ class HomeController extends Controller
         $countOrders    = $listOrder->count();
         $ordersSum      = $listOrder->sum('total');
         $sumProduct     = $listOrder->sum('qty');
-
+        // dd($listOrder->get());
         if ($countOrders > 0) {
             $avgOrders = round($ordersSum / $countOrders, 0);
         }
@@ -368,6 +368,7 @@ class HomeController extends Controller
             $saleCare->where('old_customer', 1);    
         }
 
+        // dd($saleCare->get());
         $countSaleCare = $saleCare->count();
        
         /** tỷ lệ chốt = số đơn/số data */
@@ -584,6 +585,7 @@ class HomeController extends Controller
             }
         }
 
+        // dd($list);
         $result['data'] = $list;
         
         $totalSum = $avgSum = $newContact = $newOrder = $newRate = $newProduct = $newTotal = $oldAvg = $oldTotal = $oldProduct = $oldRate = $newAvg = $oldContact = $oldOrder= 0;
@@ -988,6 +990,7 @@ class HomeController extends Controller
         }
 
         foreach ($listDigital->get() as $digital) {
+
             $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
             $data = ['name' => $digital->real_name];
             $dataFilter['mkt'] = $digital['mkt'];
@@ -1061,6 +1064,10 @@ class HomeController extends Controller
         
         if (isset($dataFilter['status'])) {
             $req->merge(['status' => $dataFilter['status']]);
+        }
+
+        if (isset($dataFilter['group'])) {
+            $req->merge(['group' => $dataFilter['group']]);
         }
 
         // dd($dataFilter);

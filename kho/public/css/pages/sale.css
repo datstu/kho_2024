@@ -93,7 +93,7 @@ div.txt-mof {
 }
 .mof-container, .txt-mof {
     background-color: transparent;
-    /* height: 45px; */
+    height: 45px;
     /* overflow-y: hidden; */
     padding: unset;
     font-size: unset;

@@ -588,8 +588,6 @@ function filterFunction() {
 }
 
 function deleteProduct(id, price) {
-
-
     var $input = $('input[name="product-' + id + '"');
     var count = parseInt($input.val());
 
@@ -670,9 +668,6 @@ $(document).ready(function() {
 
     $("#submit").click(function(e) {
         e.preventDefault();
-
-        // $('.loader').show();
-        // $('.body').css("opacity", '0.5');
 
         $('.body .loader').show();
         $('.body .row').css("opacity", "0.5");
@@ -956,9 +951,9 @@ $(document).ready(function() {
 });
 
 document.querySelectorAll('.price_class').forEach(inp => new Cleave(inp, {
-        numeral: true,
-        numeralThousandsGroupStyle: 'thousand'
-    }));
+    numeral: true,
+    numeralThousandsGroupStyle: 'thousand'
+}));
 
 </script>
 <script>

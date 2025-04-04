@@ -16,7 +16,7 @@ class FbWebHookController extends Controller
         Log::channel('a')->info('api run webhook');
         Log::channel('a')->info($data);
         if ($data) {
-            sleep(5);
+            sleep(seconds: 5);
             $this->callDataPc($data);
         }
     }
@@ -65,6 +65,55 @@ class FbWebHookController extends Controller
         // dd( $user);
         // Trả về tên đầy đủ hoặc chỉ tên riêng
         return $user['last_name'] . ' ' . $user['first_name'];
+    }
+
+    public function saveDataWebhookFBV2($group, $pageId, $phone, $name, $mId, $messages, $pageSrc)
+    {
+        $is_duplicate = $hasOldOrder = $isOldCustomer = $assgin_user = 0;
+        $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV5($phone, $mId, $is_duplicate, $hasOldOrder);
+        $typeCSKH = 1;
+        $srcId = $pageSrc->id;
+        $group = $pageSrc->group;
+        $phone = Helper::getCustomPhoneNum($phone);
+        if ($name && $checkSaleCareOld) {
+            $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeCSKH, $isOldCustomer);
+            if (!$assignSale) {
+              return;
+            }
+
+            $chatId = $group->tele_hot_data;
+            if ($isOldCustomer == 1) {
+              $chatId = $group->tele_cskh_data;
+            }
+
+            $assgin_user = $assignSale->id;
+            $is_duplicate = ($is_duplicate) ? 1 : 0;
+            $sale = new SaleController();
+            $data = [
+            //   'page_link' => $linkPage,
+            //   'page_name' => $namePage,
+              'sex'       => 0,
+              'old_customer' => $isOldCustomer,
+              'address'   => '',
+              'messages'  => $messages,
+              'name'      => $name,
+              'phone'     => $phone,
+              'page_id'   => $pageId,
+            //   'text'      => 'Page ' . $namePage,
+              'chat_id'   => $chatId,
+              'm_id'      => $mId,
+              'assgin'    => $assgin_user,
+              'is_duplicate' => $is_duplicate,
+              'group_id'  => $group->id,
+              'has_old_order'  => $hasOldOrder,
+              'src_id'  => $srcId,
+              'type_TN' => $typeCSKH, 
+            ];
+            
+            $request = new \Illuminate\Http\Request();
+            $request->replace($data);
+            $sale->save($request);
+          }
     }
 
     public function saveDataWebhookFB($group, $pageId, $phone, $name, $mId, $messages, $pageSrc)
@@ -148,7 +197,8 @@ class FbWebHookController extends Controller
                 $name = "Anh 3";
             }
 
-            $this->saveDataWebhookFB($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
+            // $this->saveDataWebhookFB($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
+            $this->saveDataWebhookFBV2($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
         }
 
         return response('Sự kiện đã nhận', 200);
@@ -195,22 +245,20 @@ class FbWebHookController extends Controller
         $responseJson = file_get_contents($endpoint);
         $response = json_decode($responseJson, true);
 
-        if (!$response) {
-            Log::channel('a')->info('no response');
-            return false;
+        $name = 'Loading';
+        if ($response) {
+            if (!$response['success'] || !$response['conversations']) {
+                Log::channel('a')->info('success repssont is not');
+                Log::channel('a')->info($response);
+                $name = 'Loading';
+            } else {
+                $data = $response['conversations'][0];
+                $name = $data['customers'][0]['name'];
+                $this->saveDataWebhookFBV2($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
+            }
         }
-
-        Log::channel('a')->info($response);
-        if (!$response['success'] || !$response['conversations']) {
-            Log::channel('a')->info('success repssont is not');
-             Log::channel('a')->info($response);
-            return false;
-        }
-
-        $data = $response['conversations'][0];
-        $name = $data['customers'][0]['name'];
+        // Log::channel('a')->info('name: ' . $name);
         
-        Log::channel('a')->info('name: ' . $name);
-        $this->saveDataWebhookFB($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
+        
     }
 }

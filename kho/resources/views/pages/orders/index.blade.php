@@ -52,6 +52,10 @@
 <script>
   $(document).ready(function() {
     $("#noti-box").slideDown('fast').delay(5000).hide(0);
+
+    if ($("#laravel-notify").length > 0) {
+        $("#laravel-notify").slideDown('fast').delay(5000).hide(0);
+    }
     
     if ($(window ).width() < 600) {
         $('.tool-bar button').text('Tìm');

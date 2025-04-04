@@ -26,8 +26,7 @@
     }
 </style>
 <link href="{{ asset('public/css/pages/styleShippingOrders.css'); }}" rel="stylesheet">
-<?php 
-?>
+
 <link href="{{ asset('public/css/pages/styleOrders.css'); }}" rel="stylesheet">
 
 {{-- <div class="hidden-iframe"> </div> --}}

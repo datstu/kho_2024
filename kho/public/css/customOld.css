@@ -544,7 +544,21 @@ tr.contact-row { transition: ease 3s all; }
 a, a:visited { color: #3c8dbc;}
 
 .item-noidung {color: #00a65a;}
-.item-noidung-other {color: darkorange;}
+.item-noidung-other {
+    max-height: 50px; /* Initial height showing only a snippet */
+    overflow-y: hidden;
+    transition: max-height 0.3s ease;
+    cursor: pointer; /* Indicates that the text is clickable */
+    color: darkorange;
+}
+.item-noidung-other.open {
+    max-height: 200px; /* Adjust as needed for expanded height */
+  }
+
+.item-noidung-other:hover {
+    background-color: #f9f9f9;
+}
+
 /* width */
 ::-webkit-scrollbar { width: 7px; cursor: pointer; height: 7px; }
 

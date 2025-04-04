@@ -28,6 +28,7 @@
         // dd($members);
         $srcs = $group->srcs->pluck('id')->toArray();
         $products = $group->products->pluck('id_product')->toArray();
+        $teleCreateOderByCSKH = $group->tele_create_order_by_cskh;
         $teleHotData = $group->tele_hot_data;
         $teleCreateOder = $group->tele_create_order;
         $teleCskhData = $group->tele_cskh_data;
@@ -105,6 +106,11 @@
                                     <div class="col-12 form-group">
                                         <label class="form-label" for="botTele">Token Bot Telegram</label>
                                         <input <?= !$checkAll ? 'readonly' : ''; ?>  value="{{$teleBotToken}}" class="form-control" name="teleBotToken" id="botTele" type="text" required>
+                                        <p class="error_msg" id="name"></p>
+                                    </div>
+                                    <div class="col-3  form-group">
+                                        <label class="form-label" for="teleCreateOrderByCSKH">Chat Id Tạo đơn từ nhóm CSKH</label>
+                                        <input <?= !$checkAll ? 'readonly' : ''; ?>  value="{{$teleCreateOderByCSKH}}" class="form-control" name="teleCreateOrderByCSKH" id="teleCreateOrderByCSKH" type="text">
                                         <p class="error_msg" id="name"></p>
                                     </div>
                                     <div class="col-3  form-group">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CategoryCall;
+use App\Models\SaleCareDataCountAction;
 use Illuminate\Http\Request;
 use App\Models\Orders;
 use Illuminate\Support\Facades\Http;
@@ -23,6 +24,9 @@ use Illuminate\Support\Facades\Route;
 use App\Models\SrcPage;
 use Illuminate\Support\Facades\File as File2;
 use Image;
+use Session;
+
+use Illuminate\Support\Facades\Log;
 class SaleController extends Controller
 {
     public function ajaxViewRank(Request $r)
@@ -128,6 +132,8 @@ class SaleController extends Controller
                     File2::delete(public_path("files/" . $file_name));
                 }
             }
+
+            setDataTNLogHelper($req->sale_id, 'Ghi chú TN');
             // notify()->success('Lưu TN hôm nay thành công', 'Thành công!');
             return redirect()->back();
             // return redirect()->route('sale-view-TN-box', ['id' => $req->sale_id]);
@@ -244,8 +250,82 @@ class SaleController extends Controller
 
         $src = new SrcPage();
         $listSrc = $src::orderBy('id', 'desc')->get();
-        // dd($listSrc);
         return view('pages.sale.add')->with('listSale', $listSale)->with('listSrc', $listSrc);
+    }
+
+    public function saveUI(Request $r)
+    {
+        // Log::channel('ladi')->info('run');
+        $linkPage = $namePage = '';
+        $is_duplicate = $hasOldOrder = $isOldOrder = 0;
+        $phone = $r->phone;
+        $messages = $r->messages;
+        $name = $r->name;
+        $typeTN = $r->old_customer;
+        $src_id = $r->src_id;
+        $srcPage = SrcPage::find($src_id);
+        
+        if ($srcPage) {
+            $linkPage = $srcPage->link;
+            $namePage = $srcPage->name;
+            $id_page = $srcPage->id_page;
+            $group = $srcPage->group;
+        }
+        
+        if (SaleCare::where('phone', $phone)->first()) {
+            $is_duplicate = 1;
+        }
+
+        $cskh = Helper::isOldCustomerV2($phone);
+        if ($cskh) {
+            $hasOldOrder = 1;
+        }
+
+        $oldCustomerByGroup = Helper::isOldCustomerByGroup($phone, $group->id);
+        if ($oldCustomerByGroup) {
+            $isOldOrder = 1;
+        }
+
+        if (!$is_duplicate) {
+            /** khách mới hoàn toàn */
+            $assignSale = Helper::getAssignSaleByGroup($group)->user;
+            
+        } else {
+            /** khách cũ */
+            $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeTN, $isOldOrder);
+        }
+
+        $assgin_user = $assignSale->id;
+        $chatId = $group->tele_hot_data;
+        if ($isOldOrder == 1) {
+            $chatId = $group->tele_cskh_data;
+        }
+
+        $data = [
+            'page_link' => $linkPage,
+            'page_name' => $namePage,
+            'sex'       => 0,
+            'old_customer' => $isOldOrder,
+            'address'   => '',
+            'messages'  => $messages,
+            'name'      => 'Không để tên',
+            'phone'     => $phone,
+            'page_id'   => $id_page,
+            'text'      => $messages,
+            'chat_id'   => $chatId,
+            'm_id'      => 'mId',
+            'assgin' => $assgin_user,
+            'is_duplicate' => $is_duplicate,
+            'group_id'  => $group->id,
+            'has_old_order'  => $hasOldOrder,
+            'src_id' => $src_id,
+            'type_TN' => 1, 
+        ];
+
+        $r->replace($data);
+        $save = $this->save($r);
+        // dd($save);
+        return back();
     }
 
     /**
@@ -258,11 +338,11 @@ class SaleController extends Controller
     public function save(Request $req) 
     {
         $validator      = Validator::make($req->all(), [
-            'name'      => 'required',
-            'phone'     => 'required',
+            'phone'     =>  ['required', 'regex:/^(032|033|034|035|036|037|038|039|096|097|098|086|083|084|085|081|082|088|091|094|070|079|077|076|078|090|093|089|056|052|058|092|059|099)[0-9]{7}$/']
+            
         ],[
-            'name.required' => 'Nhập tên khách hàng',
             'phone.required' => 'Nhập số điện thoại',
+            'phone.regex' => 'Định dạng số điện thoại chưa đúng',
         ]);
 
         if ($validator->passes()) {
@@ -355,9 +435,9 @@ class SaleController extends Controller
 
                     $chatId = (!empty($chatId)) ? $chatId : $req->chat_id;
 
-                    if ($req->phone == '0973409613' || $req->phone == '0908361589') {
-                        $chatId = '-4286962864'; //auto về nhóm test
-                    }
+                    // if ($req->phone == '0973409613' || $req->phone == '0908361589') {
+                    //     $chatId = '-4286962864'; //auto về nhóm test
+                    // }
 
                     $endpoint       = "https://api.telegram.org/bot$tokenGroupChat/sendMessage";
                     $client         = new \GuzzleHttp\Client();
@@ -370,18 +450,24 @@ class SaleController extends Controller
                         . "\nNội dung: $saleCare->messages";
 
                     $name =  $saleCare->user->real_name ?: $saleCare->user->name;
-                    if ($saleCare->old_customer == 1) {
-                        $notiText .= "Đã nhận được hàng."  . "\nĐơn mua: " . $tProduct; 
-                        $notiText .= "\nCSKH nhận data: " . $name;    
-                    } else if ($saleCare->old_customer == 0 || $saleCare->old_customer == 2) {
 
-                        $textSrcPage = $req->text;
-                        $srcPageId = $req->src_id;
-                        $srcPage = SrcPage::find($srcPageId);
-                        if($srcPage) {
-                            $textSrcPage = $srcPage->name;
+                    $textSrcPage = $req->text;
+                    $srcPageId = $req->src_id;
+                    $srcPage = SrcPage::find($srcPageId);
+                    if($srcPage) {
+                        $textSrcPage = $srcPage->name;
+                    }
+
+                    if ($saleCare->old_customer == 1) {
+                        if (!$saleCare->has_old_order) {
+                            $notiText .= "\nĐã nhận được hàng."  . "\nĐơn mua: " . $tProduct; 
                         }
 
+                        if ($saleCare->type_TN == 1) {
+                            $notiText .= "\nNguồn data: " . $textSrcPage;
+                        }
+                        $notiText .= "\nCSKH nhận data: " . $name;    
+                    } else if ($saleCare->old_customer == 0 || $saleCare->old_customer == 2) {
                         $notiText .= "\nNguồn data: " . $textSrcPage;
                         $notiText .= "\nSale nhận data: " . $name;
                     }
@@ -403,9 +489,23 @@ class SaleController extends Controller
                 notify()->success($text, 'Thành công!');
             }
 
+            Session::forget('name');
+            Session::forget('phone');
+            Session::forget('address');
+            Session::forget('messages');
         } else {
             notify()->error('Lỗi khi tạo tác nghiệp mới', 'Thất bại!');
-            return back()->withErrors($validator->errors());
+            
+            Session::put('name', $req->name);
+            Session::put('phone', $req->phone);
+            Session::put('address', $req->address);
+            Session::put('messages', $req->messages);
+            foreach ($validator->errors()->messages() as $mes) {
+                // notify()->error($mes[], 'Thất bại!');
+                notify()->error($mes[0], 'Thất bại!');
+                // dd($mes[0]);
+                return false;
+            }
         }
 
         return back();
@@ -607,7 +707,7 @@ class SaleController extends Controller
             return $this->searchInSaleCare($dataFilter);
         } 
 
-
+        // dd($dataFilter);
         if ($dataFilter) {
             if (isset($dataFilter['typeDate'])) {
               
@@ -956,6 +1056,7 @@ class SaleController extends Controller
 
     public function filterSalesByDate(Request $req) 
     {
+        // dd('hihi');
         $dataFilter = [];
         if ($req->search) {
             $dataFilter['search'] = $req->search;
@@ -1163,6 +1264,7 @@ class SaleController extends Controller
     {
         if (isFullAccess(Auth::user()->role)) {
             $saleCare = SaleCare::find($id);
+            // dd($saleCare);
             if($saleCare){
                 if ($saleCare->listHistory->count() > 0) {
                     foreach ($saleCare->listHistory as $item) {
@@ -1170,12 +1272,15 @@ class SaleController extends Controller
                         $listImgJson = $item->img;
                         $listImg = json_decode($listImgJson, true);
 
-                        foreach ($listImg as $img) {
-                            $image_path = public_path("files/" . $img);  // Value is not URL but directory file path
-                            if(File2::exists($image_path)) {
-                                File2::delete($image_path);
+                        if ($listImg) {
+                            foreach ($listImg as $img) {
+                                $image_path = public_path("files/" . $img);  // Value is not URL but directory file path
+                                if(File2::exists($image_path)) {
+                                    File2::delete($image_path);
+                                }
                             }
                         }
+                        
                     }
                 }
 
@@ -1239,6 +1344,8 @@ class SaleController extends Controller
             }
 
             $saleCare->save();
+            setDataTNLogHelper($saleCare->id, 'Cập nhật kết quả TN');
+
             return response()->json([
                 'success' => 'Cập nhật kết quả TN thành công!',
                 'classHasTN' => $saleCare->has_TN,
@@ -1252,6 +1359,7 @@ class SaleController extends Controller
     public function deleteListSC(Request $r)
     {
         $listIdJson = $r->list_id;
+        
         if ($listIdJson) {
             $listId = json_decode($listIdJson);
             $listSc = SaleCare::whereIn('id', $listId)->pluck('id');
@@ -1261,6 +1369,8 @@ class SaleController extends Controller
 
             // return response()->json(['error' => 'Đã có lỗi xảy ra trong quá trình cập nhật kết quả TN']);
         }
+
+        // return response()->json(['error' => 'Đã có lỗi xảy ra trong quá trình cập nhật kết quả TN']);
         
     }
 }

@@ -1,4 +1,7 @@
 <style>
+    #laravel-notify .notify {
+      z-index: 9999;
+  }
   .example-custom {
     font-size: 13px;
   }
@@ -183,13 +186,13 @@
             ?> 
         </select>
       </div>
-      <div class="col-2 form-group mb-1">
+      {{-- <div class="col-2 form-group mb-1">
           <select name="mkt" id="mkt-filter" class="form-select" aria-label="Default select example">
               <option value="999">--Chọn Marketing--</option>
               <option value="1">a.Nguyên</option>
               <option value="2">a.Tiễn</option>
           </select>
-      </div>
+      </div> --}}
       @endif
 
       @if ($checkAll || $isLeadSale)
@@ -207,7 +210,7 @@
 
       <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <select name="status" id="status-filter" class="form-select" aria-label="Default select example">
-          <option value="999">--Trạng Thái (Tất cả)--</option>
+          <option value="999">--Trạng Thái--</option>
           <option value="1">Chưa giao vận</option>
           <option value="2">Đang giao</option>
           <option value="3">Hoàn tất</option>

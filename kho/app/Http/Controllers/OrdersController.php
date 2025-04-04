@@ -172,6 +172,7 @@ class OrdersController extends Controller
                    
             } 
 
+            // dd($list->get());
             if (isset($dataFilter['type_customer']) && $dataFilter['type_customer'] != -1) {
 
                 $resultFilter = [];
@@ -321,19 +322,18 @@ class OrdersController extends Controller
                     $listProductIds[] = $item->id_product;
                 }
 
-                $listProduct = Product::whereIn('id', $listProductIds)->orderBy('orderBy', 'desc');
-                
+                $listProduct = Product::whereIn('id', $listProductIds)->orderBy('orderBy', 'desc')->get();
             } else {
                 //data TN cũ chưa có group => hiển thị toàn bộ list ban đầu
-                $listProduct    = Helper::getListProductByPermisson(Auth::user()->role)->get();
+                $listProduct    = Helper::getListProductByPermisson(Auth::user()->role);
             }
 
             $listSale       = Helper::getListSale()->get();
         }
 
         $listProvince = $this->getListProvince();
- 
-        return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct->get())
+
+        return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct)
             // ->with('provinces', $provinces)
             ->with('saleCareId', $saleCareId)
             ->with('listSale', $listSale)
@@ -582,10 +582,16 @@ class OrdersController extends Controller
                     $groupId = $group->id;
                     $chatId = $group->tele_cskh_data;
 
-                    if ($group->is_share_data_cskh) {
+                    if ($group->is_share_data_cskh && $order->saleCare->old_customer != 1) {
                         $assgin_user = Helper::getAssignCskhByGroup($group, 'cskh')->id_user;
                     } else {
                         $assgin_user = $order->saleCare->assign_user;
+                        $user = $order->saleCare->user;
+
+                        //tài khoản đã khoá hoặc chặn nhận data => tìm sale khác trong nhóm
+                        if (!$user->is_receive_data || !$user->status) {
+                            $assgin_user = Helper::getAssignSaleByGroup($group, 'cskh')->id_user;
+                        }
                     }
 
                     $typeCSKH = Helper::getTypeCSKH($order);
@@ -611,6 +617,10 @@ class OrdersController extends Controller
 
                     $sale->save($request);
                 }
+            }
+
+            if ($order->assign_user && $order->sale_care) {
+                setDataTNLogHelper( $order->sale_care, 'Thao tác với đơn hàng');
             }
 
             $link = route('update-order', $order->id);
@@ -741,6 +751,7 @@ class OrdersController extends Controller
 
     public function view($id) {
         $order = Orders::find($id);
+        // notify()->success('Gỡ vận đơn thành công', 'Thành công!');
         if($order){
             return view('pages.orders.detail')->with('order', $order); 
         } 

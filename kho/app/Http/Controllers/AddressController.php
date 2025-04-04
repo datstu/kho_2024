@@ -10,6 +10,111 @@ use App\Models\Orders;
 use Illuminate\Support\Facades\Http;
 class AddressController extends Controller
 {
+    public function getNameAddressSystem($districId, $wardId)
+    {
+        $json = file_get_contents(public_path('json/local.json'));
+        $data = json_decode($json, true);
+        $districtName = $wardName = "";
+
+        foreach ($data as $kProvince => $item) {
+            foreach ($item as $k => $v) {
+                if ($k == 'District' || $k == 'districts') {
+                    foreach ($v as $kDistric => $disctrict) {
+                        if ($disctrict["id"] == $districId) {
+                            $districtName = $disctrict["name"];
+                            foreach ($disctrict['wards'] as $ward) {
+                                if ($ward['id'] == $wardId) {
+                                    $wardName = $ward['name'];
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return [$districtName, $wardName];
+    }
+
+    public function apiGetDistrictGHNByName(Request $req)
+    {
+        $id = $req->id;
+        $order = Orders::find($id);
+        /** danh sach quận huyện - ghn */
+        $listDistricGhn = $this->getListDistrictGHN();
+        $nameAddress = $this->getNameAddressSystem($order->district, $order->ward);
+        
+        $nameDistrictSystem = $nameAddress[0];
+        $nameWardSystem = $nameAddress[1];
+        $idDistrictToGetWardsGHN = $idWardToGetWardsGHN = 0;
+        $listWardGHN = [];
+        // dd($listDistricGhn);
+        if ($listDistricGhn) {
+            foreach ($listDistricGhn as $distric) {
+                if(strpos($distric->DistrictName, $nameDistrictSystem) !== FALSE) {  
+                    $idDistrictToGetWardsGHN = $distric->DistrictID;
+                    break;
+                }
+            }
+
+            if ($idDistrictToGetWardsGHN > 0) {
+                $listWardGHN = $this->getListWardGHNById($idDistrictToGetWardsGHN);
+            }
+
+            // dd($listWardGHN);
+            return response()->json([
+                'idDistrictToGetWardsGHN' => $idDistrictToGetWardsGHN,
+                'idWardToGetWardsGHN' => $idWardToGetWardsGHN,
+                'nameWardSystem' => $nameWardSystem,
+                'nameDistrictSystem' => $nameDistrictSystem,
+                'listWardGHN' => $listWardGHN,
+                'listDistricGhn' => $listDistricGhn,
+            ]);
+        } 
+    }
+    
+    public function getWardByIdDicstricGHN(Request $req)
+    {
+        if(isset($req->id)){
+            $result = $this->getListWardGHNById($req->id);
+            return response()->json($result);
+        }
+    }
+
+    public function getListWardGHNById($id)
+    {
+        $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=" . $id;
+        $response = Http::withHeaders([
+            'token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55',
+        ])->get($endpoint);
+  
+        $wards  = [];
+        if ( $response->status() == 200) {
+            $content    = json_decode($response->body());
+            $wards  = $content->data;
+        }
+
+        return $wards;
+    }
+
+    public function getListDistrictGHN()
+    {
+        $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
+        $response = Http::withHeaders([
+            'token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55',
+        ])->get($endpoint);
+  
+        $districts  = [];
+        if ( $response->status() == 200) {
+            $content    = json_decode($response->body());
+            $districts  = $content->data;
+        }
+
+        return $districts;
+    }
+
     // /**
     //  * Display a listing of the resource.
     //  *
@@ -60,18 +165,44 @@ class AddressController extends Controller
         }
     }
 
+    public function getListProvince(){
+        /** lấy danh sách quận cả nước */
+        // $json = file_get_contents(public_path('json/simplified_json_generated_data_vn_units.json'));
+        $json = file_get_contents(public_path('json/local.json'));
+        $data = json_decode($json, true);
+
+        $result  = [];
+        foreach ($data as $kProvince => $item) {
+            foreach ($item as $k => $v) {
+                if ($k == 'District' || $k == 'districts') {
+
+                    foreach ($v as $kDistric => $disctrict) {
+                        $item[$k][$kDistric]['name'] .= ' - ' . $data[$kProvince]['name'];
+                        // $item[$k][$kDistric]['FullName'] .= ' - ' . $data[$kProvince]['Name'];
+                    }
+
+                    $result = array_merge($result, $item[$k]);
+                }
+            }
+        }
+
+        return $result;
+    }
+
     public function getListWardById($id)
     {
         $result = [];
-        $json = file_get_contents(public_path('json/simplified_json_generated_data_vn_units.json'));
+        // $json = file_get_contents(public_path('json/simplified_json_generated_data_vn_units.json'));
+        $json = file_get_contents(public_path('json/local.json'));
         $data = json_decode($json, true);
         
         foreach ($data as $item) {
             foreach ($item as $k => $v) {
-                if ($k == 'District') {
+                if ($k == 'District' || $k == 'districts') {
+                    // dd($v);
                     foreach ($v as $distric) {
-                        if ($distric['Code'] == $id) {
-                            $result = array_merge($result, $distric['Ward']);
+                        if ($distric['id'] == $id) {
+                            $result = array_merge($result, $distric['wards']);
                         }
                     }
                 }

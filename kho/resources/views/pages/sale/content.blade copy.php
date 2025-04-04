@@ -1574,8 +1574,32 @@ function myFunc(id, type) {
     window.addEventListener('resize', setZoom);
 </script>
 
-{{-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> --}}
-
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+<script>
+    $(function() {
+        $('#sale-filter').select2();
+        $('#typeData').select2();
+        $('#careOrder').select2();
+        $('#srcData').select2();
+        $('#productFilter').select2();
+        $('#statusTN').select2();
+        $('#resultTN').select2();
+        $('#statusOrderShip').select2();
+        $('#statusDeal').select2();
+        $('.result-TN').select2();
+        $('#src-filter').select2();
+        $('#mkt-filter').select2();
+        $('#status-filter').select2();
+        $('#type_customer-filter').select2();
+        $('#resultTN-filter').select2();
+        $('#typeDate-filter').select2();
+        $('#statusTN-filter').select2();
+        $('#product-filter').select2();
+        $('#group-filter').select2();
+        
+    });
+</script>
 
 <script>
     $("input[name='cateCall']") // select the radio by its id
@@ -2408,30 +2432,4 @@ $(document).ready(function() {
     }
     
 });
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
-<script>
-    $(function() {
-        $('#sale-filter').select2();
-        $('#typeData').select2();
-        $('#careOrder').select2();
-        $('#srcData').select2();
-        $('#productFilter').select2();
-        $('#statusTN').select2();
-        $('#resultTN').select2();
-        $('#statusOrderShip').select2();
-        $('#statusDeal').select2();
-        $('.result-TN').select2();
-        $('#src-filter').select2();
-        $('#mkt-filter').select2();
-        $('#status-filter').select2();
-        $('#type_customer-filter').select2();
-        $('#resultTN-filter').select2();
-        $('#typeDate-filter').select2();
-        $('#statusTN-filter').select2();
-        $('#product-filter').select2();
-        $('#group-filter').select2();
-        
-    });
 </script>

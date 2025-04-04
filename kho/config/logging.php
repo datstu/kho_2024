@@ -135,6 +135,10 @@ return [
             'driver' => 'single',
             'path' => storage_path('logs/a.log'),
         ],
+        'b' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/ladi.log'),
+        ],
     ],
 
 ];

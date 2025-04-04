@@ -343,6 +343,33 @@ class Helper
         return true;
     }
 
+    public static function checkOrderSaleCarebyPhoneV5($phone, $mId, &$is_duplicate, &$has_old_order) 
+    {
+        if (!$mId || !$phone || $phone == '0986987791' || $phone == '986987791' || $phone == '0961161760') {
+            return false;
+        } 
+        
+        // $saleCares = SaleCare::where('old_customer', 0)->where('phone', $phone)->orderBy('id', 'asc')->get();
+        $saleCares = SaleCare::where('phone', $phone)->orderBy('id', 'asc')->get();
+
+        if ($saleCares->count() == 0) {
+            return true;
+        }
+    
+        foreach ($saleCares as $item) {
+            if ($item->m_id == $mId) {
+                return false;
+            }
+        }
+
+        $is_duplicate = true;
+
+        if (Helper::isOldCustomerV2($phone)) {
+            $has_old_order = 1;
+        }
+
+        return true;
+    }
     public static function isOldCustomer($phone, $group_id)
     {
         /*khách hàng có đơn và đã hoàn tất
@@ -351,6 +378,41 @@ class Helper
         $saleCSKH = SaleCare::where('phone', $phone)
             ->where('old_customer', 1)
             ->where('group_id', $group_id)
+            ->first();
+
+        if ($saleCSKH) {
+            return $saleCSKH;
+        }
+    
+        return false;
+    }
+
+    public static function isOldCustomerByGroup($phone, $group_id)
+    {
+        /*khách hàng có đơn và đã hoàn tất
+        * đã có data đổ về cskh -> old_customer = 1 
+        */
+        $saleCSKH = SaleCare::where('phone', $phone)
+            ->where('old_customer', 1)
+            ->where('group_id', $group_id)
+            ->whereNotNull('id_order')
+            ->first();
+
+        if ($saleCSKH) {
+            return $saleCSKH;
+        }
+    
+        return false;
+    }
+
+    
+    public static function isOldCustomerV2($phone)
+    {
+        /*khách hàng có đơn và đã hoàn tất
+        * đã có data đổ về cskh -> old_customer = 1 
+        */
+        $saleCSKH = SaleCare::where('phone', $phone)
+            ->where('old_customer', 1)
             ->first();
 
         if ($saleCSKH) {
@@ -496,13 +558,60 @@ class Helper
 
         return $sale;
     }
+
+    public static function isSaleGroup($group, $sale)
+    {
+        $arr = $group->sales->pluck('id_user')->toArray();
+        return in_array($sale->id, $arr);
+    }
+
+    public static function assignSaleFB($hasOldOrder, $group, $phone, &$typeCSKH, &$isOldCustomer) 
+    {
+        /** nếu là khách cũ => kiểm tra có phải khách cũ thuộc nguồn gr hiện tại không
+         * đúng, lấy ra sale cskh => check sale còn trong nhóm ko => sai lấy cskh mới
+        */
+        $saleCareHasOrder =  Helper::isOldCustomerByGroup($phone, $group->id);
+
+        if ($hasOldOrder && $saleCareHasOrder) {
+            $isOldCustomer = 1;
+            // $typeCSKH = Helper::getTypeCSKH($saleCareHasOrder->order);     
+            $assignUser = $saleCareHasOrder->user;
+            
+            
+            if (!Helper::isSaleGroup($group, $assignUser) || !$assignUser->is_receive_data || !$assignUser->status) {
+
+                
+                if ($group->is_share_data_cskh) {
+                    $assignUser = Helper::getAssignCskhByGroup($group, 'cskh')->user;
+                } else {
+                    $assignUser = Helper::getAssignSaleByGroup($group)->user;
+                } 
+            }
+
+            return $assignUser;
+        } else {
+            $saleCare = SaleCare::where('phone', $phone)
+                ->where('group_id', $group->id)
+                ->first();
+            if ($saleCare) {
+                if (!$saleCare->user->is_receive_data || !$saleCare->user->status) {
+                    $assign = Helper::getAssignSaleByGroup($group)->user;
+                } else {
+                    $assign = $saleCare->user;
+                }
+                return $assign;
+            } else {
+                return Helper::getAssignSaleByGroup($group)->user;
+            }
+        }
+    }
     
     public static function getConfigLadiPage() 
     {
         return LadiPage::first();
     }
 
-    public static function isOldDataLadi($phone, &$assign, $group, &$has_old_order, &$is_duplicate) 
+    public static function isOldDataLadi($phone, &$assign, $group, &$has_old_order, &$is_duplicate, &$isOldOrder) 
     {
         $phone = trim($phone);
         $saleCare = SaleCare::where('phone', $phone)->first();
@@ -515,11 +624,23 @@ class Helper
             $saleCareByGroup = SaleCare::where('phone', $phone)
                 ->where('group_id', $group->id)->first();
                 
-            if ($saleCareByGroup && $isSaleCareCSKH = Helper::isOldCustomer($phone, $group->id)) {
+            // if ($saleCareByGroup && $isSaleCareCSKH = Helper::isOldCustomerV2($phone)) {
+            //     $assign = $isSaleCareCSKH->assign_user;
+            //     $has_old_order = 1;
+            // } else if ($saleCareByGroup && $user && $user->status == 1) {
+            //     $assign = $userAssign;
+            // }
+
+            $isSaleCareCSKH = Helper::isOldCustomerV2($phone);
+            if ($isSaleCareCSKH) {
                 $assign = $isSaleCareCSKH->assign_user;
                 $has_old_order = 1;
             } else if ($saleCareByGroup && $user && $user->status == 1) {
                 $assign = $userAssign;
+            }
+
+            if (Helper::isOldCustomerByGroup($phone, $group->id)) {
+                $isOldOrder = 1;
             }
 
             return true;
@@ -1008,9 +1129,14 @@ class Helper
         $type = 8; //hardcode cskh
         $listProduct = json_decode($order->id_product, true);
         
+        /** check gr tricho */
+        if ($order->saleCare->group_id == 5) {
+            $type = 17;
+            return $type;
+        }
+
         if ($listProduct) {
             foreach ($listProduct as $product) {
-
                 /** hardcode set cskh tricho */
                 if ($product['id'] == 56) {
                     $type = 17;

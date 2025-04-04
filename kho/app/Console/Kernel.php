@@ -54,10 +54,15 @@ class Kernel extends ConsoleKernel
       ->where('result_call', '!=', 0)
       ->where('result_call', '!=', -1)
       ->where('has_TN', 1)
+      ->where('created_at', '>' , '2024-12-01')
       ->get();
 
     foreach ($listSc as $sc) {
 
+      // if ($sc->id != '15967') {
+      //   continue;
+      // }
+      
       $call = $sc->call;
       if (empty($call->time)) {
         continue;
@@ -69,12 +74,16 @@ class Kernel extends ConsoleKernel
       $isRunjob   = $sc->is_runjob;
       $TNcan   = $sc->TN_can;
       $saleAssign   = $sc->user->real_name;
-      
+
+      if (!$sc->user->status || !$sc->user->is_receive_data) {
+        continue;
+      }
+
       if ($sc->listHistory->count()) {
         $sc->listHistory;
         $TNcan = $sc->listHistory[0]->note;
       }
-
+      
       if (!$call || !$time || !$updatedAt || $isRunjob || !$saleAssign) {
         continue;
       }
@@ -89,6 +98,7 @@ class Kernel extends ConsoleKernel
       if ($newDate <= time()) {
 
         $nextTN = $call->thenCall;
+
         if (!$nextTN) {
           continue;
         }
@@ -107,7 +117,11 @@ class Kernel extends ConsoleKernel
           $sc->result_call = 0;
         }
 
-        $sc->type_TN = $nextTN->id;
+        // 24 id: nhắc lại
+        if ($nextTN->id != 24) {
+          $sc->type_TN = $nextTN->id;
+        }
+        
         $sc->has_TN = 0;
         $sc->is_runjob = 1;
         $sc->save();
@@ -423,7 +437,7 @@ class Kernel extends ConsoleKernel
     }
   }
   public function crawlerPancakePage($page, $group)
-  {
+  { 
     $srcId = $page->id;
     $pIdPan = $page->id_page;
     $token  = $page->token;
@@ -446,8 +460,8 @@ class Kernel extends ConsoleKernel
         $content  = json_decode($response->body());
         if ($content->success) {
           $data     = $content->conversations;
-          
           foreach ($data as $item) {
+
             try {
               $recentPhoneNumbers = $item->recent_phone_numbers[0];
               $mId      = $recentPhoneNumbers->m_id;
@@ -455,33 +469,30 @@ class Kernel extends ConsoleKernel
               $phone    = isset($recentPhoneNumbers) ? $recentPhoneNumbers->phone_number : '';
               $name     = isset($item->customers[0]) ? $item->customers[0]->name : '';
               $messages = isset($recentPhoneNumbers) ? $recentPhoneNumbers->m_content : '';
-             
-              $assgin_user = 0;
-              $is_duplicate = false;
               $phone = Helper::getCustomPhoneNum($phone);
               
-              $hasOldOrder = 0;
-              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV4($phone, $mId, $is_duplicate, $assgin_user, $group, $hasOldOrder);
+              $is_duplicate = $hasOldOrder = $isOldCustomer = $assgin_user = 0;
+              $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV5($phone, $mId, $is_duplicate, $hasOldOrder);
+              $typeCSKH = 1;
 
-              if ($name && $checkSaleCareOld) {  
-                if ($assgin_user == 0) {
-
-                  $assignSale = Helper::getAssignSaleByGroup($group);
-                  if (!$assignSale) {
-                    break;
-                  }
-
-                  //assignSale: item in model detail_user_group
-                  $assgin_user = $assignSale->id_user;
+              if ($name && $checkSaleCareOld) {
+                $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeCSKH, $isOldCustomer);
+                if (!$assignSale) {
+                  break;
                 }
 
+                if ($isOldCustomer == 1) {
+                  $chatId = $group->tele_cskh_data;
+                }
+
+                $assgin_user = $assignSale->id;
                 $is_duplicate = ($is_duplicate) ? 1 : 0;
                 $sale = new SaleController();
                 $data = [
                   'page_link' => $linkPage,
                   'page_name' => $namePage,
                   'sex'       => 0,
-                  'old_customer' => 0,
+                  'old_customer' => $isOldCustomer,
                   'address'   => '',
                   'messages'  => $messages,
                   'name'      => $name,
@@ -495,19 +506,20 @@ class Kernel extends ConsoleKernel
                   'group_id'  => $group->id,
                   'has_old_order'  => $hasOldOrder,
                   'src_id'  => $srcId,
+                  'type_TN' => $typeCSKH, 
                 ];
-
+                
                 $request = new \Illuminate\Http\Request();
                 $request->replace($data);
                 $sale->save($request);
               }
             
-          } catch (\Exception $e) {
-            // return $e;
-            // echo '$phone: ' . $phone;
-            // dd($e);
-            // return redirect()->route('home');
-          }
+            } catch (\Exception $e) {
+              // return $e;
+              // echo '$phone: ' . $phone;
+              // dd($e);
+              // return redirect()->route('home');
+            }
           }
         }
       }           
@@ -583,7 +595,7 @@ class Kernel extends ConsoleKernel
              *  ngược lại ko tick thì đơn của sale nào người đó care
              * nếu chọn chia đều team CSKH thì mặc định luôn có sale nhận data
              */
-            if ($group->is_share_data_cskh) {
+            if ($group->is_share_data_cskh && $order->saleCare->old_customer != 1) {
               $assgin_user = Helper::getAssignCskhByGroup($group, 'cskh')->id_user;
             } else {
               $assgin_user = $order->saleCare->assign_user;
@@ -591,7 +603,7 @@ class Kernel extends ConsoleKernel
 
               //tài khoản đã khoá hoặc chặn nhận data => tìm sale khác trong nhóm
               if (!$user->is_receive_data || !$user->status) {
-                $assgin_user = Helper::getAssignSaleByGroup($group)->id_user;
+                $assgin_user = Helper::getAssignSaleByGroup($group, 'cskh')->id_user;
               }
             }
 
