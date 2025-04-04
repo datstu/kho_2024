@@ -75,7 +75,7 @@ class LadipageController  extends Controller
         $all = json_encode($r->all());
         Log::info($all);
 
-        $phone = $r->phone;
+        $phone = ($r->phone) ? $r->phone : $r->phone_number;
         $name = ($r->name) ?? 'Không để tên';
 
         $item = $r->form_item3209;
@@ -99,14 +99,23 @@ class LadipageController  extends Controller
         $listSrcLadi = SrcPage::where('type', 'ladi')
             ->whereNotNull("id_page")->get();
         
+        // Lấy phần path từ URL
+        $path = parse_url($linkPage, PHP_URL_PATH);
+
+        // Lấy phần cuối cùng của path
+        $slug = basename($path);
+        // dd($slug);
         foreach ($listSrcLadi as $src) {
-            if (str_contains($linkPage, $src->id_page)) {
+            echo $src->id_page . "<br>";
+            if ($slug && $slug == $src->id_page) {
+            // if (str_contains($linkPage, $src->id_page)) {
                 $group = $src->group;
                 break;
             }
         }
 
-        if (!$src) {
+        // dd('die');
+        if (!$src ) {
             return;
         }
         
