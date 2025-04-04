@@ -17,6 +17,7 @@
         background-color: inherit !important;
         /* border: none; */
     }
+    .error_msg {color: red;}
 
 </style>
 <?php 
@@ -52,7 +53,7 @@ if (isset($saleCare)) {
                             <div class="col-sm-12 col-lg-6">
                                 <label class="form-label" for="phoneFor">Số điện
                                     thoại</label>
-                                <input value="{{$order->phone}}" class="form-control"
+                                <input onkeyup="validatePhone()" required value="{{$order->phone}}" class="form-control"
                                     name="phone" id="phoneFor" type="text">
                                 <p class="error_msg" id="phone"></p>
                             </div>
@@ -65,8 +66,8 @@ if (isset($saleCare)) {
                             </div>
                             <div class="col-sm-6 col-md-6 form-group">
                                 <label class="form-label" for="distric-filter">Quận - Huyện<span class="required-input">(*)</span></label>
-                                <select name="district" id="distric-filter" class="form-control">       
-                                    <option value="-1">--Chọn quận/huyện--</option>
+                                <select required name="district" id="distric-filter" class="form-control">       
+                                    <option value="">--Chọn quận/huyện--</option>
                                     @foreach ($listProvince as $item)
                                     <option <?= ($item['id'] == $order->district) ? "selected" : '';?> value="{{$item['id']}}">{{$item['name']}}</option>
                                     @endforeach
@@ -279,7 +280,7 @@ if (isset($saleCare)) {
                                 <input value="<?= ($saleCareId) ?: $saleCareId ?>" class="hidden form-control" name="sale-care">
                                 <div class="col-sm-12 col-lg-6">
                                     <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
-                                    <input autofocus placeholder="0973409613" class="form-control" name="phone"
+                                    <input onkeyup="validatePhone()" placeholder="0973409613" class="form-control" name="phone"
                                         id="phoneFor" type="text" value="{{$phone}}">
                                     <p class="error_msg" id="phone"></p>
                                 </div>
@@ -292,8 +293,8 @@ if (isset($saleCare)) {
                                 
                                 <div class="col-xs-12 col-sm-6 col-md-6 form-group">
                                     <label class="form-label" for="distric-filter">Quận - Huyện<span class="required-input">(*)</span></label>
-                                    <select name="district" id="distric-filter" class="form-control">       
-                                        <option value="-1">--Chọn quận/huyện--</option>
+                                    <select required name="district" id="distric-filter" class="form-control">       
+                                        <option value="">--Chọn quận/huyện--</option>
                                         @foreach ($listProvince as $item)
                                         <option value="{{$item['id']}}">{{$item['name']}}</option>
 
@@ -435,7 +436,7 @@ if (isset($saleCare)) {
             </div>
             <div class="row">
                 <div class="col-sm-12" style="text-align: end;">
-                    <button id="submit" class="mb-1 btn btn-primary create-bill">Chốt đơn</button>
+                    <button onclick="validatePhone()" id="submit" class="mb-1 btn btn-primary create-bill">Chốt đơn</button>
                 </div>
             </div>
             @endif
@@ -664,9 +665,12 @@ function plus(id, price) {
     return false;
 }
 
+
+
 $(document).ready(function() {
 
     $("#submit").click(function(e) {
+        
         e.preventDefault();
 
         $('.body .loader').show();
@@ -687,6 +691,15 @@ $(document).ready(function() {
         var saleCareId  = $("input[name='sale-care']").val();
         var district  = $("select[name='district']").val();
         var ward  = $("select[name='ward']").val();
+
+        if (phone == '' || !validatePhone()) {
+            console.log('no')
+            $('.body .loader').hide();
+            $('.body .row').css("opacity", "1");
+            $('.body .row').css("position", "relative");
+
+           return false;
+        }
 
         let listProduct = [];
         $(".number input").each(function(index) {
@@ -1016,5 +1029,26 @@ $.urlParam = function(name){
             });
         })
     });
+</script>
+
+<script>
+    function validatePhone() {
+  const input = document.getElementById('phoneFor').value;
+  const message = document.getElementById('phone');
+
+  // Regex: bắt đầu bằng 0, theo sau là 9 số
+  const regex = /^(03[0-9]|05[0-9]|07[0-9]|08[0-9]|09[0-9])\d{7}$/;
+
+  if (regex.test(input)) {
+    
+    message.textContent = "✔️ Số điện thoại hợp lệ";
+    message.style.color = "green";
+    return true;
+  } else {
+    message.textContent = "❌ Số điện thoại không hợp lệ";
+    message.style.color = "red";
+    return false;
+  }
+}
 </script>
 @stop

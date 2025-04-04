@@ -37,5 +37,5 @@
             height: 40px;
         } */
         .hidden {display:none;}
-        .error_msg {color: red;}
+        
     </style>

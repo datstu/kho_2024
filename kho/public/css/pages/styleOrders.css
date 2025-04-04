@@ -171,12 +171,12 @@ span {
 }
 
 .error_msg {
-    animation-name: blink;
+    /* animation-name: blink;
     width: 280px;
     animation-duration: 7s;
     animation-timing-function: ease-in;
     animation-iteration-count: Infinite;
-    padding-left: 2px;
+    padding-left: 2px; */
 }
 
 @keyframes blink {
