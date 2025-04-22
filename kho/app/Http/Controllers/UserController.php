@@ -11,17 +11,6 @@ use Validator;
 class UserController extends Controller
 {
     public function login() {
-        //$pass = Hash::make('123456');
-        // try
-        // {
-        //     User::create([
-        //         'email' => 'admin-test@gmail.com',
-        //         'name'  => 'admin test',
-        //         'password' => $pass,
-        //     ]);
-        // } catch (\Throwable $th) {
-
-        // }
         if (Auth::check()) {
             return redirect()->route('home');
         } 
@@ -29,7 +18,6 @@ class UserController extends Controller
     }
 
     public function postLogin(Request $r) {
-        // dd($r->all());
         if (Auth::attempt(['name' => $r->name, 'password' => $r->password, 'status' => 1])) {
             return redirect()->route('home');
         } 
@@ -133,5 +121,11 @@ class UserController extends Controller
         } 
 
         return redirect('/danh-sach-san-pham') ->with('error', 'Đã xảy ra lỗi khi xoá thành viên!');
+    }
+
+    public function search(Request $str)
+    {
+        $list = User::where('real_name',  'like', '%' . $str->search . '%')->paginate(15);
+        return view('pages.users.index')->with('list', $list);
     }
 }
