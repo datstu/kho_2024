@@ -7,7 +7,7 @@
                             <a class="btn btn-primary" href="{{route('add-user')}}" role="button">+ Thêm thành viên</a>
                           </div>
                           <div class="col-8 ">
-                            <form class ="row tool-bar d-flex justify-content-end" action="{{route('search-product')}}" method="get">
+                            <form class ="row tool-bar d-flex justify-content-end" action="{{route('search-user')}}" method="get">
                               <div class="col-3">
                                 <input class="form-control" name="search" placeholder="Tìm thành viên..." type="text">
                               </div>
