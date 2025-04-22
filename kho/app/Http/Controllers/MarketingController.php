@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use App\Helpers\Helper;
 use App\Models\CallResult;
+use App\Models\GroupUser;
 use App\Models\SaleCare;
 use App\Models\SrcPage;
 
@@ -207,6 +208,11 @@ class MarketingController extends Controller
             $dataFilter['group'] = $group;
         }
 
+        $groupUser = $req->groupUser ;
+        if ($req->groupUser && $groupUser != 999) {
+            $dataFilter['groupUser'] = $groupUser;
+        }
+
         $type_customer = $req->type_customer;
         if (isset($type_customer) && $type_customer != 999 && $type_customer != -1) {
             $dataFilter['type_customer'] = $type_customer;
@@ -332,13 +338,8 @@ class MarketingController extends Controller
     }
     public function getListMktReportByListSrc($list, $req)
     {
-        // dd($req->all());
         $data = [];
         foreach ($list->get() as $item) {
-            // echo $item->id . "<br>";
-            // if ($item->id != 32) {
-            //     continue;
-            // }
             $dataReport = $this->getDataReportBySrcId($item, $req);
             $data[]= $dataReport;
         }
@@ -376,7 +377,14 @@ class MarketingController extends Controller
             $list = $list->where('group_id', $groupId);
         }
 
-        // dd($list->get());
+        if (isset($req['groupUser']) || !empty($req->groupUser)) {
+            $groupUS = GroupUser::find($req['groupUser']);
+            if ($groupUS) {
+                $listSale = $groupUS->users;
+                $list = $list->whereIn('assign_user', $listSale->pluck('id')->toArray());
+            }
+        }
+
         if (isset($req->type_customer) && (int)$req->type_customer != -1) {
             $list = $list->where('old_customer', $req->type_customer);
         }

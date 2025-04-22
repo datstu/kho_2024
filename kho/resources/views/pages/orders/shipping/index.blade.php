@@ -29,7 +29,7 @@ $orderId = $order->id;
             </a>
             <a href="">
                 <div class="card-shipping">
-                    <input type="radio" name="pricing" id="card2" checked>
+                    <input type="radio" name="pricing" id="card2" onclick="clickToHrefShippingBy('ghtk')">
                     <label for="card2">
                         <h5>Giao Hàng Tiết Kiệm</h5>
                         <img src="{{asset('public/images/ghtk.png')}}" class="card-img-top">
@@ -51,6 +51,8 @@ $orderId = $order->id;
 function clickToHrefShippingBy(e) {
     if (e === 'ghn') {
         window.location = "{{URL::to('tao-van-don-ghn/'. $orderId)}}";
+    } else if (e === 'ghtk') {
+        window.location = "{{URL::to('tao-van-don-ghtk/'. $orderId)}}";
     }
 }
 </script>

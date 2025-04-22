@@ -53,6 +53,7 @@
             <li class="nav-item"><a class="nav-link" href="{{route('sale-rank')}}"><span class="nav-icon"></span>Bảng xếp hạng </a></li>
         
             @if ($checkAll || $isLeadSale)
+            {{-- <li class="nav-item"><a class="nav-link" href="{{route('view-spam')}}"><span class="nav-icon"></span>Spam</a></li> --}}
             <li class="nav-item"><a class="nav-link" href="{{route('view-sale-report-effect-TN')}}"><span class="nav-icon"></span>Báo cáo Sale TN</a></li>
             @endif
         </ul>
@@ -71,25 +72,33 @@
     @endif
     
     @if ($checkAll || $isLeadSale)
+    <li class="nav-item"><a class="nav-link" href="{{route('manage-group')}}">
+        <svg class="nav-icon">
+            <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-chart-pie')}}"></use>
+        </svg> QL Nhóm</a></li>
+    @endif
+    
+    @if ($checkAll || $isLeadSale)
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-group')}}"></use>
-        </svg>QL Nhóm</a>
+        </svg>Nhân sự</a>
         <ul class="nav-group-items">
-            <li class="nav-item"><a class="nav-link" href="{{route('manage-group')}}"><span class="nav-icon"></span>Nhóm hàng</a></li>
-            {{-- <li class="nav-item"><a class="nav-link" href="{{route('group-sale-detail')}}"><span class="nav-icon"></span>Nhóm sale</a></li> --}}
-            <li class="nav-item"><a class="nav-link" href="{{route('group-sale')}}"><span class="nav-icon"></span>Nhóm sale</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{route('group-user')}}"><span class="nav-icon"></span>Nhóm sale</a></li>
+            @if ($checkAll)
+            <li class="nav-item"><a class="nav-link" href="{{route('manage-user')}}"><span class="nav-icon"></span>Thành viên</a></li>
+            @endif
         </ul>
     </li>
     @endif
     
-    @if ($checkAll)
-    <li class="nav-item"><a class="nav-link" href="{{route('manage-user')}}">
+    {{-- <li class="nav-item"><a class="nav-link" href="{{route('manage-user')}}">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-chart-pie')}}"></use>
         </svg> Thành viên</a>
-    </li>
+    </li> --}}
 
+    @if ($checkAll)
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-settings')}}"></use>

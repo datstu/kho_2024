@@ -18,6 +18,7 @@ use App\Models\CallResult;
 use App\Models\Group;
 use App\Models\Product;
 use App\Models\SaleCareHistoryTN;
+use App\Models\ShippingOrder;
 use App\Models\TypeDate;
 use PHPUnit\TextUI\Help;
 use Illuminate\Support\Facades\Route;
@@ -29,10 +30,15 @@ use Session;
 use Illuminate\Support\Facades\Log;
 class SaleController extends Controller
 {
+    public function listSpam()
+    {
+        return view('pages.sale.spam');
+    }
+
     public function ajaxViewRank(Request $r)
     {
         $dataFilter['daterange'] = $r->date;
-        $listSale = Helper::getListSale();
+        $listSale = Helper::getListSaleV2(Auth::user(), true);
         $list = $dataSort = [];
         $homeCtl = new HomeController();
         foreach ($listSale->get() as $sale) {
@@ -54,7 +60,7 @@ class SaleController extends Controller
         /**set tmp */
         // $toMonth = '01/12/2024';
 
-        $dataSale = $homeCtl->getReportHomeSale($toMonth, true);
+        $dataSale = $homeCtl->getReportHomeSale($toMonth, false, true);
         // dd($dataSale);
         $dataSort = $this->selection_sort($dataSale);
         return view('pages.sale.rank')->with('dataSort', $dataSort);
@@ -338,14 +344,14 @@ class SaleController extends Controller
     public function save(Request $req) 
     {
         $validator      = Validator::make($req->all(), [
-            'phone'     =>  ['required', 'regex:/^(032|033|034|035|036|037|038|039|096|097|098|086|083|084|085|081|082|088|091|094|070|079|077|076|078|090|093|089|056|052|058|092|059|099)[0-9]{7}$/']
+            'phone'     =>  ['required', 'regex:/^(03[0-9]|05[0-9]|07[0-9]|08[0-9]|09[0-9])\d{7}$/']
             
         ],[
             'phone.required' => 'Nhập số điện thoại',
             'phone.regex' => 'Định dạng số điện thoại chưa đúng',
         ]);
 
-        if ($validator->passes()) {
+        if ($validator->passes() && $req->phone != '0332876975' && $req->phone != '0384420899' && $req->phone != '0569800563' ) {
             if (isset($req->id)) {
                 $saleCare = SaleCare::find($req->id);
                 $text = 'Cập nhật tác nghiệp thành công.';
@@ -548,12 +554,13 @@ class SaleController extends Controller
 
     public function searchInSaleCare($dataFilter)
     {
+        $seach = $dataFilter['search'];
         $listIdHasHis   = SaleCareHistoryTN::join('sale_care', 'sale_care.id', '=', 'sale_care_history_tn.sale_id')
-            ->orwhere('sale_care_history_tn.note', 'like', '%' .  $dataFilter['search']. '%')
+            ->orwhere('sale_care_history_tn.note', 'like', '%' .  $seach. '%')
             ->pluck('sale_care.id')->toArray();
-        $listId   = SaleCare::orWhere('full_name', 'like', '%' . $dataFilter['search'] . '%')
-            ->orWhere('phone', 'like', '%' . $dataFilter['search'] . '%')
-            ->orWhere('full_name', 'like', '%' . $dataFilter['search'] . '%')
+        $listId   = SaleCare::orWhere('full_name', 'like', '%' . $seach . '%')
+            ->orWhere('phone', 'like', '%' . $seach . '%')
+            ->orWhere('full_name', 'like', '%' . $seach . '%')
             ->pluck('id')->toArray();
 
         $list   = SaleCare::orWhereIn('id', $listIdHasHis)
@@ -575,62 +582,27 @@ class SaleController extends Controller
             }
         }
 
-        $list = SaleCare::whereIn('id', $ids)->orderBy('id', 'desc');
-
-    
-        /*if (isset($dataFilter['group'])) {
-            if ($dataFilter['group'] == 1) {
-                $src = ['389136690940452', '378087158713964', '381180601741468', 'Hotline - Tricho', 'Khách Cũ Tricho'];
-                $list = $list->where(function($query) use ($src) {
-                    foreach ($src as $term) {
-                        if (is_numeric($term)) {
-                            $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        } else {
-                            $query->orWhere('page_link', 'like', '%' . $term . '%');
-                        }
-
-                        if (str_contains($term, 'Tricho') || str_contains($term, 'line')) {
-                            $query->orWhere('page_name', 'like', '%' . $term . '%');
-                        }
-                        // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                    }
-                });
-                // dd($list->get());
-
-            } else if ($dataFilter['group'] == 2){
-                $src = ['mua4-tang2', '335902056281917', '332556043267807', '318167024711625', '341850232325526', 'ruoc-dong', 'mua4tang2', 'giamgia45'];
-                $list = $list->where(function($query) use ($src) {
-                    foreach ($src as $term) {
-                        if (is_numeric($term)) {
-                            $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        } else {
-                            $query->orWhere('page_link', 'like', '%' . $term . '%');
-                        }
-                        // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                    }
-                });
-
+         /** tìm theo mã vận đợn nếu có */
+        $IdTrackings = ShippingOrder::where('order_code', 'like', '%' . $seach . '%');
+        foreach ($IdTrackings->get() as $track) {
+            if (!empty($track->order->saleCare->id)) {
+                $ids[] = $track->order->saleCare->id;
             }
         }
-        */
+ 
+        $ids = array_unique($ids);
+        $list = SaleCare::whereIn('id', $ids)->orderBy('id', 'desc');
 
         /** có chọn 1 nguồn */
         if (isset($dataFilter['src'])) {
-            /*if (is_numeric($dataFilter['src'])) {
-                $list->where('page_id', 'like', '%' . $dataFilter['src'] . '%');
-            } else {
-                $list->where('page_link', 'like', '%' . $dataFilter['src'] . '%');
-            }*/
 
             $srcType = [
                 'filterByIdSrc' => $dataFilter['src'],
                 'getAll'  => $dataFilter['src']
             ];
 
-            // dd($dataFilter['src']);
             $list = $list->where(function($query) use ($srcType) {
                 foreach ($srcType as $k => $term) {
-                    // dd($k);
                     if ($k == 'filterByIdSrc') {
                         $query->orWhere('src_id', $term);
                     } else {
@@ -640,7 +612,7 @@ class SaleController extends Controller
                         }
 
                         if ($src->type == 'pc') {
-                            $$query->orWhere('page_id', $src->id_page);
+                            $query->orWhere('page_id', $src->id_page);
                         } else if ($src->type == 'ladi') {
                             $query->orWhere('page_link', $src->link);
                         } else if ($src->type == 'hotline') {
@@ -654,24 +626,6 @@ class SaleController extends Controller
                     }
                 }
             });
-
-            // $src = SrcPage::find($dataFilter['src']);
-            // if (!$src) {
-            //     return ;
-            // }
-
-            // if ($src->type == 'pc') {
-            //     $list = $list->where('page_id', $src->id_page);
-            // } else if ($src->type == 'ladi') {
-            //     $list = $list->where('page_link', $src->link);
-            // } else if ($src->type == 'hotline') {
-            //     dd('aa');
-            //     $list = $list->where('page_id', 'like', '%' . $src->id_page .'%');
-            // } else if  ($src->type == 'old') {
-            //     $list = $list->where('page_name', $src->name);
-            // } else {
-            //     $list = $list->where('page_id', 'tricho');
-            // }
         }
 
         if (isset($dataFilter['type_customer'])) {
@@ -833,7 +787,7 @@ class SaleController extends Controller
                             }
 
                             if ($src->type == 'pc') {
-                                $$query->orWhere('page_id', $src->id_page);
+                                $query->orWhere('page_id', $src->id_page);
                             } else if ($src->type == 'ladi') {
                                 $query->orWhere('page_link', $src->link);
                             } else if ($src->type == 'hotline') {

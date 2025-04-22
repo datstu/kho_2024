@@ -28,7 +28,7 @@ class SaleCareCountActionController  extends Controller
     public function ajaxViewReportEffect(Request $r)
     {
         $dataFilter['daterange'] = $r->date;
-        $listSale = Helper::getListSale();
+        $listSale = Helper::getListSaleV2(Auth::user());
         $list = [];
 
         $listDataCount = $this->getListDataCount( $dataFilter['daterange']);
@@ -84,7 +84,7 @@ class SaleCareCountActionController  extends Controller
     public function getReportSaleEffect($time, $checkAll = false)
     {
         $dataFilter['daterange'] = "$time - $time";
-        $listSale = Helper::getListSale();
+        $listSale = Helper::getListSaleV2(Auth::user());
         $result = [];
 
         if (!$checkAll) {

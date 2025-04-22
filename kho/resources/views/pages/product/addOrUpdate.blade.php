@@ -40,6 +40,12 @@
                                                     <p class="error_msg" id="weight"></p>
                                                 </div>
                                                 <div class="mb-3 col-4">
+                                                    <label class="form-label" for="unitIP">Đơn vị tính</label>
+                                                    <input class="form-control" value="{{$product->unit}}" name="unit"
+                                                        id="unitIP">
+                                                    <p class="error_msg" id="unit"></p>
+                                                </div>
+                                                <div class="mb-3 col-4">
                                                     <label class="form-label" for="orderIP">Thứ tự</label>
                                                     <input class="form-control" value="{{$product->orderBy}}" name="orderBy"
                                                         id="orderIP">
@@ -142,6 +148,12 @@
                                             <input class="form-control" name="weight"
                                                 id="weightIP" >
                                             <p class="error_msg" id="weight"></p>
+                                        </div>
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label" for="unitIP">Đơn vị tính</label>
+                                            <input class="form-control" name="unit"
+                                                id="unitIP" >
+                                            <p class="error_msg" id="unit"></p>
                                         </div>
                                         <div class="mb-3 col-4">
                                             <label class="form-label" for="orderIP">Thứ tự</label>
@@ -275,8 +287,10 @@ $(document).ready(function() {
         var category_id = $("select[name='category_id']").val();
         var status = $("input[name='status']:checked").val();
         var weight = $("input[name='weight']").val();
+        var unit = $("input[name='unit']").val();
         var orderBy = $("input[name='orderBy']").val();
         let roles =  $("input[name='role']:checked").val();
+
         // $("input[name='roles[]']:checked").each(function() {
         //     roles.push($(this).val());
         // });
@@ -294,6 +308,7 @@ $(document).ready(function() {
                 category_id,
                 roles,
                 weight,
+                unit,
                 orderBy,
             },
             success: function(data) {

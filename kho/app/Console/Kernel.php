@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->call(function() {
           $this->updateStatusOrderGhnV2();
+          $this->updateStatusOrderGHTK();
+          
             Log::channel('new')->info('run updateStatusOrderGHN');
         })->everyMinute();
 
@@ -45,6 +47,163 @@ class Kernel extends ConsoleKernel
       $this->load(__DIR__.'/Commands');
 
       require base_path('routes/console.php');
+  }
+
+  public function updateStatusOrderGHTK() 
+  {
+    $orders = Orders::join('shipping_order', 'shipping_order.order_id', '=', 'orders.id')
+      ->whereNotIn('orders.status', [0,3])
+      ->where('shipping_order.vendor_ship', 'GHTK')
+      ->get('orders.*');
+
+    foreach ($orders as $order) {
+
+      $endpoint = "https://services.giaohangtietkiem.vn/services/shipment/v2/" . $order->shippingOrder->order_code;
+      $token = '1L0DDGVPfiJwazxVW0s7AQiUhRH1hb7E1s63rtd';
+      $response = Http::withHeaders(['token' => $token])->get($endpoint);
+      $response = $response->json();
+
+      if ($response['success']) {
+        $data     = $response['order'];
+        // dd($data);
+        switch ($data['status']) {
+          #chờ lây hàng
+          case 1:
+          case 2:
+          case 7:
+          case 12:
+          case 8:
+            $order->status = 1;
+            break;
+          #chờ lây hàng
+            
+
+          # đang giao
+          case 3:
+          case 10:
+          case 4:
+          case 9:
+            $order->status = 2;       
+            break;
+          # đang giao
+    
+          #thành công
+          case 5:
+          case 6:
+          case 11:
+            $order->status = 3;
+            break;
+
+          #hoàn/huỷ
+          case 20:
+          case 21:
+          case -1:
+            $order->status = 0;
+            break;
+          
+          default:
+            # đang giao
+            // $order->status = 2;
+            break;
+        }
+        
+        $order->save();
+        
+        /** ko gửi thông báo nếu đơn chỉ có sp paulo */
+        $notHasPaulo = Helper::hasAllPaulo($order->id_product);
+
+        //check đơn này đã có data chưa
+        $issetOrder = Helper::checkOrderSaleCare($order->id);
+
+        // status = 3 = 'hoàn tất', tạo data tác nghiệp sale
+        if ($order->status == 3 && $notHasPaulo) {
+
+          $orderTricho = $order->saleCare;
+          $chatId = $groupId = '';
+          $saleCare = $order->saleCare;
+
+          /** dành cho những data TN và đơn hàng khi chưa nhóm group */
+          if ($order->saleCare && $saleCare->group) {
+
+            $group = $saleCare->group;
+            $chatId = $group->tele_cskh_data;
+            $groupId = $group->id;
+            /** có tick chia đều team cskh thì chạy tìm người để phát data cskh
+             *  ngược lại ko tick thì đơn của sale nào người đó care
+             * nếu chọn chia đều team CSKH thì mặc định luôn có sale nhận data
+             */
+
+            // dd($group);
+            if ($group->is_share_data_cskh) {
+              
+              $assgin_user = Helper::getAssignCskhByGroup($group, 'cskh')->id_user;
+            } else {
+              $assgin_user = $order->saleCare->assign_user;
+              $user = $order->saleCare->user;
+
+              //tài khoản đã khoá hoặc chặn nhận data => tìm sale khác trong nhóm
+              if (!$user->is_receive_data || !$user->status) {
+                $assgin_user = Helper::getAssignSaleByGroup($group, 'cskh')->id_user;
+              }
+            }
+
+          } else if (!empty($orderTricho->group_id) && $orderTricho->group_id == 'tricho') {
+            $groupId = 'tricho';
+            
+            //id_CSKH_tricho 4234584362
+            $chatId = '-4286962864'; 
+            $assgin_user = $order->assign_user;
+          } else {
+            $assgin_user = 50;
+            //cskh 4128471334
+            $chatId = '-4558910780';
+            // $chatId = '-4128471334';
+          }
+          
+
+          $typeCSKH = Helper::getTypeCSKH($order);
+          $pageName = $order->saleCare->page_name;
+          $pageId = $order->saleCare->page_id;
+          $pageLink = $order->saleCare->page_link;
+
+          $sale = new SaleController();
+          $data = [
+            'id_order' => $order->id,
+            'sex' => $order->sex,
+            'name' => $order->name,
+            'phone' => $order->phone,
+            'address' => $order->address,
+            'assgin' => $assgin_user,
+            'page_name' => $pageName,
+            'page_id' => $pageId,
+            'page_link' => $pageLink,
+            'group_id' => $groupId,
+            'chat_id' => $chatId,
+            'type_TN' => $typeCSKH, 
+            // 'old_customer' => 1
+          ];
+
+          if ($order->saleCare->src_id) {
+            $data['src_id'] = $order->saleCare->src_id;
+          } else if ($order->saleCare->type != 'ladi') {
+            $pageSrc = SrcPage::where('id_page', $order->saleCare->page_id)->first();
+            if ($pageSrc) {
+              $data['src_id'] = $pageSrc->id;
+            }
+          }
+
+          // dd($data);
+
+          if ($issetOrder || $order->id) {
+            $data['old_customer'] = 1;
+          }
+
+          $request = new \Illuminate\Http\Request();
+          $request->replace($data);
+          $sale->save($request);
+        }
+      }
+    }
   }
 
   public function wakeUp()
@@ -475,6 +634,17 @@ class Kernel extends ConsoleKernel
               $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV5($phone, $mId, $is_duplicate, $hasOldOrder);
               $typeCSKH = 1;
 
+
+              /** kiểm tra thời gian insert tin nhắn => lâu hơn 3 ngày ko nhận lại */
+              $inputTime = strtotime($item->inserted_at);
+              $now = time();
+              $secondsIn3Days = 3 * 24 * 60 * 60;
+
+              if ($now - $inputTime >= $secondsIn3Days) {
+                  echo "Đã quá 3 ngày";
+                  continue;
+              } 
+
               if ($name && $checkSaleCareOld) {
                 $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeCSKH, $isOldCustomer);
                 if (!$assignSale) {
@@ -528,8 +698,11 @@ class Kernel extends ConsoleKernel
 
   public function updateStatusOrderGhnV2() 
   {
-    $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
-
+    // $orders = Orders::has('shippingOrder')->whereNotIn('status', [0,3])->get();
+    $orders = Orders::join('shipping_order', 'shipping_order.order_id', '=', 'orders.id')
+      ->whereNotIn('orders.status', [0,3])
+      ->where('shipping_order.vendor_ship', 'GHN')
+      ->get('orders.*');
     foreach ($orders as $order) {
 
       $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail" ;

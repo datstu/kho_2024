@@ -38,23 +38,20 @@ class AddressController extends Controller
         return [$districtName, $wardName];
     }
 
-    public function apiGetDistrictGHNByName(Request $req)
+    public function getDistrictGHNByName($id)
     {
-        $id = $req->id;
         $order = Orders::find($id);
-        /** danh sach quận huyện - ghn */
         $listDistricGhn = $this->getListDistrictGHN();
         $nameAddress = $this->getNameAddressSystem($order->district, $order->ward);
-        
         $nameDistrictSystem = $nameAddress[0];
         $nameWardSystem = $nameAddress[1];
         $idDistrictToGetWardsGHN = $idWardToGetWardsGHN = 0;
         $listWardGHN = [];
-        // dd($listDistricGhn);
+
         if ($listDistricGhn) {
             foreach ($listDistricGhn as $distric) {
-                if(strpos($distric->DistrictName, $nameDistrictSystem) !== FALSE) {  
-                    $idDistrictToGetWardsGHN = $distric->DistrictID;
+                if(strpos($distric['DistrictName'], $nameDistrictSystem) !== FALSE) {  
+                    $idDistrictToGetWardsGHN = $distric['DistrictID'];
                     break;
                 }
             }
@@ -64,15 +61,20 @@ class AddressController extends Controller
             }
 
             // dd($listWardGHN);
-            return response()->json([
+            return [
                 'idDistrictToGetWardsGHN' => $idDistrictToGetWardsGHN,
                 'idWardToGetWardsGHN' => $idWardToGetWardsGHN,
                 'nameWardSystem' => $nameWardSystem,
                 'nameDistrictSystem' => $nameDistrictSystem,
                 'listWardGHN' => $listWardGHN,
                 'listDistricGhn' => $listDistricGhn,
-            ]);
+            ];
         } 
+    }
+    public function apiGetDistrictGHNByName(Request $req)
+    {
+        $data = $this->getDistrictGHNByName($req->id);
+        return response()->json($data);
     }
     
     public function getWardByIdDicstricGHN(Request $req)
@@ -101,18 +103,35 @@ class AddressController extends Controller
 
     public function getListDistrictGHN()
     {
-        $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
-        $response = Http::withHeaders([
-            'token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55',
-        ])->get($endpoint);
+        // $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
+        // $response = Http::withHeaders([
+        //     'token' => '180d1134-e9fa-11ee-8529-6a2e06bbae55',
+        // ])->get($endpoint);
   
-        $districts  = [];
-        if ( $response->status() == 200) {
-            $content    = json_decode($response->body());
-            $districts  = $content->data;
+        // $districts  = [];
+        // if ( $response->status() == 200) {
+        //     $content    = json_decode($response->body());
+        //     $districts  = $content->data;
+        // }
+
+        $result = [];
+        $json = file_get_contents(public_path('json/district_ghn.json'));
+        $listDistrictGHN = json_decode($json, true);
+
+        $json = file_get_contents(public_path('json/province_ghn.json'));
+        $listProvinceGHN = json_decode($json, true);
+
+        foreach ($listDistrictGHN as $dis) {
+            foreach ($listProvinceGHN as $pro) {
+                if ($dis['ProvinceID'] == $pro['ProvinceID']) {
+                    $dis['DistrictName'] = $dis['DistrictName'] . ' - ' . $pro['ProvinceName'];
+                    $result[] = $dis;
+                    continue;
+                }
+            }
         }
 
-        return $districts;
+        return $result;
     }
 
     // /**

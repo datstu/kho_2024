@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Call;
 use App\Http\Controllers\ProductController;
 use App\Models\Group;
+use App\Models\GroupUser;
 use App\Models\Orders;
 use App\Models\SaleCare;
 use Illuminate\Support\Facades\Log;
@@ -194,6 +195,37 @@ class Helper
                 $query->orWhere('is_sale', $term)->orWhere('is_cskh', $term);
             }
         });
+    }
+
+    public static function getListSaleV2($user, $isLeadSaleX = false) {
+        //check full asset
+        $all = isFullAccess($user->role);
+        if ($all) {
+            return Helper::getListSale();
+        }
+
+        $idUserLead = 0;
+        $isLeadSale = Helper::isLeadSale($user->role);
+        if ($isLeadSale) {
+            $idUserLead = $user->id;
+        } else if ($isLeadSaleX) {
+            $gr = $user->groupUser;
+            if ($gr) {
+                $idUserLead = $gr->lead_team;
+            }
+        } 
+
+        if ($idUserLead != 0) {
+            $listSaleId = [];
+            $groupUs = GroupUser::where('lead_team', $idUserLead)->where('status', 1)->get();
+
+            foreach ($groupUs as $gr) {
+                $listSaleId[] = $gr->users->pluck('id')->toArray();
+            }
+
+            $listSaleId = array_merge(...$listSaleId);
+            return User::whereIn('id', $listSaleId);
+        }
     }
 
     public static function getListCall() {

@@ -31,6 +31,7 @@
 
 {{-- <div class="hidden-iframe"> </div> --}}
 
+<?php $orderCode  = $ship->order_code;?>
 <iFrame id="iFrame" src="https://donhang.ghn.vn/?order_code={{$orderCode}}" width="680" height="480" allowfullscreen></iFrame>
 
 <script>

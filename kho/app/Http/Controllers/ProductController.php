@@ -51,7 +51,7 @@ class ProductController extends Controller
             'qty.required' => 'Nhập số lượng',
             'qty.numeric' => 'Chỉ được nhập số',
         ]);
-       
+        
         if ($validator->passes()) {
             if(isset($request->id)){
                 $product        = Product::find($request->id);
@@ -67,6 +67,7 @@ class ProductController extends Controller
             $product->qty           = $request->qty;
             $product->price         = $request->price;
             $product->weight        = $request->weight;
+            $product->unit          = $request->unit;
             $product->orderBy       = $request->orderBy;
             $product->category_id   = $request->category_id;
             $product->roles         = $request->roles;

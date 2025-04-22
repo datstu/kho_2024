@@ -749,11 +749,11 @@
                                 <td class="text-center area5 result-TN-col">
                                     @if ($checkAll || $isLeadSale)
                                     <div class="text-right">
-                                        <a data-id="{{$item->id}}"
-                                        {{-- href="{{route('sale-delete',['id'=>$item->id])}}"  --}}
-                                        title="Xóa data" class="btn-icon aoh removeBtn">
+                                        @if ($checkAll)
+                                        <a data-id="{{$item->id}}" title="Xóa data" class="btn-icon aoh removeBtn">
                                             <i class="fa fa-trash"></i>
                                         </a>
+                                        @endif
                                         <a title="chỉ định Sale nhận data" data-id="{{$item->id}}" class="update-assign-TN-sale btn-icon aoh">
                                             <i class="fa fa-save"></i>
                                         </a>
@@ -1701,9 +1701,12 @@ function myFunc(id, type) {
 
                         if (checkAll || isLeadSale) {
                             rs += '<div class="text-right">';
-                            rs += '<a data-id="' + element.id +'" title="Xóa data" class="btn-icon aoh removeBtn">';
-                            rs += '<i class="fa fa-trash"></i>';
-                            rs += '</a>';
+                            if (checkAll) {
+                                rs += '<a data-id="' + element.id +'" title="Xóa data" class="btn-icon aoh removeBtn">';
+                                rs += '<i class="fa fa-trash"></i>';
+                                rs += '</a>';
+                            }
+                           
                             rs += '<a title="chỉ định Sale nhận data" data-id="' + element.id +'" class="update-assign-TN-sale btn-icon aoh">';
                             rs += '<i class="fa fa-save"></i>';
                             rs += '</a>';

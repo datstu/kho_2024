@@ -325,7 +325,7 @@
                 <td>
 
                   @if ($shippingOrderId)
-                  <a  title="sửa" class="" href="{{route('detai-shipping-order',['id'=>$shippingOrderId])}}" role="button">{{$orderCode}}</a>
+                  <a  title="sửa" target="_blank" href="{{route('detai-shipping-order',['id'=>$shippingOrderId])}}" role="button">{{$orderCode}}</a>
                   @endif
                 
                 </td>

@@ -212,15 +212,11 @@ $flagAccess = false;
             <div class="col-sm-6 col-md-6 form-group address-GHN">
               <label class="form-label" for="distric-filter-GHN"><b>Quận - Huyện GHN</b><span class="required-input">(*)</span></label>
               <select name="district" id="distric-filter-GHN" class="form-control" required>       
-                  <option value="">--Đang tải danh sách quận/huyện từ GHN--</option>
-                  @if (isset($listDistricGhn))
-                  @foreach ($listDistricGhn as $item)
+                  {{-- <option value="">--Đang tải danh sách quận/huyện từ GHN--</option> --}}
+                  @if (isset($listDistrictGhn))
+                  @foreach ($listDistrictGhn as $item)
 
-                  <option 
-                  <?php if(strpos($item->DistrictName, $nameProvinceSystem) !== FALSE) {  
-                    echo "selected";
-                  } ?>
-                    value="{{$item->DistrictID}}">{{$item->DistrictName}}</option>
+                  <option value="{{$item['DistrictID']}}">{{$item['DistrictName']}}</option>
                   @endforeach
                   @endif
               </select>
@@ -228,18 +224,7 @@ $flagAccess = false;
             <div class="col-sm-6 col-md-6 form-group address-GHN">
                 <label class="form-label" for="ward-filter-GHN"><b>Phường - xã GHN</b><span class="required-input">(*)</span></label>
                 <select name="ward" id="ward-filter-GHN" class="form-control" required>
-                    @if (isset($listWardGHN))
-                    @foreach ($listWardGHN as $ward)
-                    <option 
-                    <?php if(strpos($ward->WardName, $nameWardSystem) !== FALSE) {  
-                      echo "selected";
-                    } ?>
-                    value="{{$ward->WardName}}">{{$ward->WardName}}</option>
-                    @endforeach
                     
-                    @else
-                    <option value="-1">--Chọn phường/ xã--</option>
-                    @endif
                 </select>
             </div>
             <div class="col-12 form-group">

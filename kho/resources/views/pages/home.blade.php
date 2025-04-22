@@ -115,9 +115,22 @@
         <input id="daterange" class=" btn btn-outline-secondary" type="text" name="daterange"/>
       </div>
 
+      @if ($checkAll)
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <select name="groupUser" id="group-filter" class="form-select">
+          <option value="999">--Nhóm sale--</option>  
+            @if (isset($groupUser))
+                @foreach($groupUser as $group)
+                <option value="{{$group->id}}">{{$group->name}}</option>
+                @endforeach
+            @endif
+        </select>
+      </div>
+      @endif
+
       <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
         <select name="group" id="group-filter" class="form-select">
-          <option   value="999">--Chọn nhóm--</option>  
+          <option   value="999">--Nhóm hàng--</option>  
             @if (isset($groups))
                 @foreach($groups as $group)
                 <option value="{{$group->id}}">{{$group->name}}</option>
@@ -125,6 +138,7 @@
             @endif
         </select>
       </div>
+      
 
       <?php $isDigital = Auth::user()->is_digital;?>
       @if ($isDigital)
@@ -894,6 +908,7 @@ if ($dataSale && $enableSale) {
       var mkt       = $("select[name='mkt']").val();
       var src       = $("select[name='src']").val();
       var group     = $("select[name='group']").val();
+      var groupUser = $("select[name='groupUser']").val();
 
       if ($('.table_sale').length > 0) {
         $('.table_sale .loader').show();
@@ -912,7 +927,8 @@ if ($dataSale && $enableSale) {
                 sale,
                 mkt,
                 src,
-                group
+                group,
+                groupUser
             },
             success: function(data) {
                 if (data.data.length > 0) {
@@ -1044,7 +1060,8 @@ if ($dataSale && $enableSale) {
               sale,
               mkt,
               src,
-              group
+              group,
+              groupUser
             },
             success: function(data) {
 

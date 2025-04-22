@@ -136,7 +136,7 @@ $messages = Session::get('messages');
                             <div class="row mb-2" id="content-add">
                                 <div class="col-sm-12 col-lg-3">
                                     <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
-                                    <input pattern="^(\+84|0)(3[2-9]|5[689]|7[06789]|8[1-5]|9[0-9])[0-9]{7}$" required placeholder="Nhập số điện thoại" class="form-control" name="phone"
+                                    <input pattern="^(03[0-9]|05[0-9]|07[0-9]|08[0-9]|09[0-9])\d{7}$" required placeholder="Nhập số điện thoại" class="form-control" name="phone"
                                         id="phoneFor" type="text" value="{{$phone}}">
                                     <p class="error_msg" id="phone"></p>
                                 </div>

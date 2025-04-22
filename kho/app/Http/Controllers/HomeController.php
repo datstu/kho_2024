@@ -12,6 +12,7 @@ use App\Models\Category;
 use App\Models\SaleCare;
 use App\Helpers\Helper;
 use App\Models\Group;
+use App\Models\GroupUser;
 
 class HomeController extends Controller
 {
@@ -34,12 +35,14 @@ class HomeController extends Controller
         $dataDigital = $this->getReportHomeDigitalV2($toMonth);
 
         // dd($dataDigital);
-        $category   = Category::where('status', 1)->get();
-        $sales   = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
-        $groups     = Group::orderBy('id', 'desc')->get();
+        $category = Category::where('status', 1)->get();
+        $sales = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
+        $groups = Group::orderBy('id', 'desc')->get();
+        $groupUser = GroupUser::orderBy('id', 'desc')->get();
         return view('pages.home')->with('category', $category)->with('sales', $sales)
             ->with('dataSale', $dataSale)
             ->with('groups', $groups)
+            ->with('groupUser', $groupUser)
             ->with('dataDigital', $dataDigital);
     }
     
@@ -389,27 +392,24 @@ class HomeController extends Controller
         return $result;
     }
 
-    public function getReportHomeSale($time, $checkAll = false)
+    public function getReportHomeSale($time, $checkAll = false, $isLeadSale = false)
     {
         $dataFilter['daterange'] = [$time, $time];
-        $listSale = Helper::getListSale();
         $result = [];
 
         if (!$checkAll) {
             $checkAll = isFullAccess(Auth::user()->role);
         }
-       
-        // dd($checkAll);
-        $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+
+        $isLeadSale = $isLeadSale ? : Helper::isLeadSale(Auth::user()->role);
         if ($checkAll || $isLeadSale) {
 
+            $listSale = Helper::getListSaleV2(Auth::user(), $isLeadSale);
             foreach ($listSale->get() as $sale) {
-                // if ($sale->id != 57) {
-                //     continue;
-                // }
                 $data = $this->getReportUserSaleV2($sale, $dataFilter);
                 $result[] = $data;   
             }
+
         } else if (Auth::user()->is_CSKH || Auth::user()->is_sale) {
             $result[] = $this->getReportUserSaleV2(Auth::user(), $dataFilter);
         }
@@ -559,23 +559,35 @@ class HomeController extends Controller
             $dataFilter['group'] = $group;
         }
 
-        /**
-         * bắt đầu lọc 
-         * chọn 1 sale xxxxx
-        */
-        if (isset($dataFilter['sale'])) {
+        $groupUser = $req->groupUser;
+        $list = [];
+        
+        if ($groupUser && $groupUser != 999) {
+            $groupUs = GroupUser::find($groupUser);
+            
+            if ($groupUs) {
+                $listSale = $groupUs->users;
+                foreach ($listSale as $sale) {
+                    $data = $this->getReportUserSaleV2($sale, $dataFilter);
+                    $list[] = $data;
+                }
+            }
+        } else if (isset($dataFilter['sale'])) {
+             /**
+             * bắt đầu lọc 
+             * chọn 1 sale xxxxx
+            */
             $sale = Helper::getSaleById($dataFilter['sale']);
             $list[] = $this->getReportUserSaleV2($sale, $dataFilter);
         } else {
             /** chọn tất cả sale */
-            $listSale = Helper::getListSale();
+            // $listSale = Helper::getListSale();
+            
             $checkAll = isFullAccess(Auth::user()->role);
             $isLeadSale = Helper::isLeadSale(Auth::user()->role);
             if ($checkAll || $isLeadSale) {
+                $listSale = Helper::getListSaleV2(Auth::user());
                 foreach ($listSale->get() as $sale) {
-                    // if ($sale->id != 50) {
-                    //     continue;
-                    // }
                     $data = $this->getReportUserSaleV2($sale, $dataFilter);
                     $list[] = $data;
                 }
@@ -972,13 +984,13 @@ class HomeController extends Controller
             $dataFilter['group'] = $group;
         }
 
+        $groupUser = $req->groupUser;
+        if ($req->groupUser && $groupUser != 999) {
+            $dataFilter['groupUser'] = $groupUser;
+        }
+
         $checkAll = isFullAccess(Auth::user()->role);
         if (!$checkAll && Auth::user()->is_digital == 1) {
-            // if (Auth::user()->name == 'digital.tien') {
-            //     $dataFilter['mkt'] = 2;
-            // } else if (Auth::user()->name == 'digital.tien') {
-            //     $dataFilter['mkt'] = 3;
-            // } 
             $dataFilter['mkt'] = Auth::user()->id;
         } 
 
@@ -1070,6 +1082,9 @@ class HomeController extends Controller
             $req->merge(['group' => $dataFilter['group']]);
         }
 
+        if (isset($dataFilter['groupUser'])) {
+            $req->merge(['groupUser' => $dataFilter['groupUser']]);
+        }
         // dd($dataFilter);
         return $this->getDataDigitalV2($req);
     }

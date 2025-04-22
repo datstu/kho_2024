@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
 use App\Http\Controllers\SaleController;
 use App\Models\Group;
+use App\Models\GroupUser;
 use App\Models\SaleCare;
 use Faker\Core\File;
 use Faker\Provider\File as ProviderFile;
@@ -102,6 +103,14 @@ class OrdersController extends Controller
                         ->where('sale_care.group_id', $dataFilter['group'])
                         ->whereIn('orders.id', $listId);
                     $list = $list->whereIn('id', $listOrder->pluck('id')->toArray());
+                }
+            }
+
+            if (isset($dataFilter['groupUser'])) {
+                $groupUS = GroupUser::find($dataFilter['groupUser']);
+                if ($groupUS) {
+                    $listSale = $groupUS->users;
+                    $list = $list->whereIn('assign_user', $listSale->pluck('id')->toArray());
                 }
             }
 
@@ -412,20 +421,20 @@ class OrdersController extends Controller
             'price'     => 'required',
             'qty'       => 'required|numeric|min:1',
             'address'   => 'required',
-            'district'   => 'required|not_in:-1',
-            'ward'       => 'required|not_in:-1',
+            'district'   => 'required',
+            'ward'       => 'required',
             'phone'     => 'required',
         ],[
             'name.required' => 'Nhập tên khách hàng',
             'price.required' => 'Nhập tổng tiền',
             'qty.required' => 'Nhập số lượng',
             'address.required' => 'Nhập địa chỉ',
-            'district.not_in' => 'Chọn quận huyện',
-            'ward.not_in' => 'Chọn xã phường',
+            'district.required' => 'Chọn quận huyện',
+            'ward.required' => 'Chọn xã phường',
             'phone.required' => 'Nhập số lượng',
             'qty.min' => 'Vui lòng chọn sản phẩm',
         ]);
-        // dd($request->all());
+
         if ($validator->passes()) {
             if (isset($request->id)) {
                 $order = Orders::find($request->id);

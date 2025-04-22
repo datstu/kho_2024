@@ -18,7 +18,7 @@ use App\Http\Controllers\LadipageController;
 use App\Http\Controllers\SrcPageController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\CallResultController;
-use App\Http\Controllers\GroupSaleController;
+use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\GroupSaleDetailController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\SaleCareCountActionController;
@@ -92,7 +92,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/them-thanh-vien',  [UserController::class, 'add'])->name('add-user');
     Route::get('/quan-ly-thanh-vien',  [UserController::class, 'index'])->name('manage-user');
     Route::post('/save-user',[UserController::class,'save'])->name('save-user');
-
+    
     /** tạo vận đơn */
     Route::post('/create-order-GHN',  [ShippingOrderController::class, 'createOrderGHN'])->name('create-order-GHN');
     Route::get('/api-lay-ten-ghn',  [AddressController::class, 'apiGetDistrictGHNByName'])->name('api-district-by-name-to-GHN');
@@ -103,6 +103,11 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/chi-tiet-van-don/{id}',  [ShippingOrderController::class, 'detailShippingOrder'])->name('detai-shipping-order');
     Route::get('/go-van-don/{id}',  [ShippingOrderController::class, 'removeShipingOrderCode'])->name('remove-shipping-order');
     
+        /** tạo vận đơn GHTK */
+    Route::get('/tao-van-don-ghtk/{id}',  [ShippingOrderController::class, 'viewCreateShippingGHTK'])->name('view-create-shipping-GHTK');
+    Route::post('/save-shipping-has-ghtk',  [ShippingOrderController::class, 'createShippingHasGHTK'])->name('create-shipping-has-ghtk');
+    Route::post('/create-order-GHTK',  [ShippingOrderController::class, 'createOrderGHTK'])->name('create-order-GHTK');
+
     Route::get('/tac-nghiep-sale',  [SaleController::class, 'index'])->name('sale-index');
     Route::get('/tao-tac-nghiep-sale',  [SaleController::class, 'add'])->name('sale-add');
     Route::post('/tao-tac-nghiep-sale',  [SaleController::class, 'saveUI'])->name('sale-care-save');
@@ -125,6 +130,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/bao-cao-cong-viec',  [SaleCareCountActionController::class, 'viewReportEffectTN'])->name('view-sale-report-effect-TN');
     Route::get('/view-count-dataTN-ajax',  [SaleCareCountActionController::class, 'ajaxViewReportEffect'])->name('view-count-dataTN-ajax');
     
+    Route::get('/danh-sach-spam',  [SaleController::class, 'listSpam'])->name('view-spam');
 
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
     Route::get('/tao-loai-TN-sale',  [CategoryCallController::class, 'add'])->name('category-call-add');
@@ -163,11 +169,11 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/xoa-nhom/{id}',  [GroupController::class, 'delete'])->name('delete-group');
 
     /** nhóm sale */
-    Route::get('/quan-ly-nhom-sale',  [GroupSaleController::class, 'index'])->name('group-sale');
-    Route::get('/them-nhom-sale',  [GroupSaleController::class, 'add'])->name('add-group-sale');
-    Route::get('/cap-nhat-nhom-sale/{id}',  [GroupSaleController::class, 'update'])->name('update-group-sale');
-    Route::post('/luu-nhom-sale',  [GroupSaleController::class, 'save'])->name('save-group-sale');
-    Route::get('/xoa-nhom-sale/{id}',  [GroupSaleController::class, 'delete'])->name('delete-group-sale');
+    Route::get('/quan-ly-nhom-nhan-su',  [GroupUserController::class, 'index'])->name('group-user');
+    Route::get('/them-nhom-nhan-su',  [GroupUserController::class, 'add'])->name('add-group-user');
+    Route::get('/cap-nhat-nhom-nhan-su/{id}',  [GroupUserController::class, 'update'])->name('update-group-user');
+    Route::post('/luu-nhom-nhan-su',  [GroupUserController::class, 'save'])->name('save-group-user');
+    Route::get('/xoa-nhom-nhan-su/{id}',  [GroupUserController::class, 'delete'])->name('delete-group-user');
 
     // Route::get('/quan-ly-nhom-sale-detail',  [GroupSaleDetailController::class, 'index'])->name('group-sale-detail');
     // Route::get('/them-nhom-sale-detail',  [GroupSaleDetailController::class, 'add'])->name('add-group-sale-detail');
@@ -190,11 +196,10 @@ Route::post('/login',  [UserController::class, 'postLogin'])->name('login-post')
 Route::get('/log-out',  [UserController::class, 'logOut'])->name('log-out');
 
 Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filter-total');
-// Route::get('/filter-total-sales',  [HomeController::class, 'filterTotalSales'])->name('filter-total-sales');
 Route::get('/filter-total-sales',  [HomeController::class, 'ajaxFilterDashboar'])->name('filter-total-sales');
 Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboardDigitalV2'])->name('filter-total-digital');
 
-Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
+Route::get('/test',  [TestController::class, 'updateStatusOrderGHTK'])->name('test');
 
 
 Route::get('/hiep',  [TestController::class, 'saveDataHiep'])->name('hiep');
@@ -204,6 +209,7 @@ Route::get('/webhook', [FbWebHookController::class, 'verify']);
 Route::post('/webhook', [FbWebHookController::class, 'handle']);
 
 Route::get('/xuat-file', [TestController::class, 'export']);
+Route::get('/tax', [TestController::class, 'exportTax']);
 Route::get('/wake-up', [TestController::class, 'wakeUp']);
 
 Route::get('/fix', [TestController::class, 'fix']);
@@ -211,3 +217,4 @@ Route::get('/fix', [TestController::class, 'fix']);
 
 Route::get('/add-test', [TestController::class, 'addData']);
 
+Route::get('/nga', [TestController::class, 'nga']);
