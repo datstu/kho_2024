@@ -989,8 +989,9 @@ class HomeController extends Controller
             $dataFilter['groupUser'] = $groupUser;
         }
 
+        $isLeadDigital = Helper::isLeadDigital(Auth::user()->role);
         $checkAll = isFullAccess(Auth::user()->role);
-        if (!$checkAll && Auth::user()->is_digital == 1) {
+        if (!$checkAll && !$isLeadDigital && Auth::user()->is_digital == 1) {
             $dataFilter['mkt'] = Auth::user()->id;
         } 
 
@@ -1000,6 +1001,11 @@ class HomeController extends Controller
         if (isset($dataFilter['mkt']) ) {
             $listDigital = $listDigital->where('id', $dataFilter['mkt']);
         }
+   
+        if (!$checkAll && !$isLeadDigital) {
+            $listDigital = $listDigital->where('id', Auth::user()->id);
+        }
+
 
         foreach ($listDigital->get() as $digital) {
 
@@ -1052,8 +1058,9 @@ class HomeController extends Controller
 
         $checkAll = isFullAccess(Auth::user()->role);
         $listDigital = User::where('status', 1)->where('is_digital', 1)->orderBy('id', 'DESC');
-
-        if (!$checkAll) {
+        $isLeadDigital = Helper::isLeadDigital(Auth::user()->role);
+            
+        if (!$checkAll && !$isLeadDigital) {
             $listDigital = $listDigital->where('id', Auth::user()->id);
         }
 

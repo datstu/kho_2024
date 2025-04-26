@@ -92,6 +92,7 @@ class SaleController extends Controller
         $list = SaleCare::where('phone', $phone)->orderBy('id', 'desc');
         return view('pages.sale.duplicate')->with('list', $list);
     }
+
     public function saveBoxTN(Request $req)
     {
         $input = $req->all();
@@ -149,7 +150,6 @@ class SaleController extends Controller
             return back()->withErrors($validator->errors());
         }
     }
-
     public function saleViewSaveTNBox($id)
     {
         $saleCare = SaleCare::find($id);
@@ -564,8 +564,8 @@ class SaleController extends Controller
             ->pluck('id')->toArray();
 
         $list   = SaleCare::orWhereIn('id', $listIdHasHis)
-        ->orWhereIn('id', $listId)
-        ->orderBy('id', 'desc');
+            ->orWhereIn('id', $listId)
+            ->orderBy('created_at', 'desc');
 
         $ids = $newList = [];
         foreach ($list->get() as $sc) {
@@ -591,7 +591,7 @@ class SaleController extends Controller
         }
  
         $ids = array_unique($ids);
-        $list = SaleCare::whereIn('id', $ids)->orderBy('id', 'desc');
+        $list = SaleCare::whereIn('id', $ids)->orderBy('created_at', 'desc');
 
         /** có chọn 1 nguồn */
         if (isset($dataFilter['src'])) {
@@ -643,7 +643,7 @@ class SaleController extends Controller
                 }
             }
 
-            $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
+            $list   = SaleCare::orderBy('created_at', 'desc')->whereIn('id', $newSCare);
         }
         
         if (isset($dataFilter['sale'])) {
@@ -655,13 +655,12 @@ class SaleController extends Controller
     public function getListSalesByPermisson($user, $dataFilter = null) 
     {
         $roles  = $user->role;
-        $list   = SaleCare::orderBy('id', 'desc');
+        $list   = SaleCare::orderBy('created_at', 'desc');
 
         if (isset($dataFilter['search'])) {
             return $this->searchInSaleCare($dataFilter);
         } 
 
-        // dd($dataFilter);
         if ($dataFilter) {
             if (isset($dataFilter['typeDate'])) {
               
@@ -688,7 +687,7 @@ class SaleController extends Controller
                         $listIdSale[] = $order->sale_care;
                     }
 
-                    $list = SaleCare::orderBy('id', 'desc')
+                    $list = SaleCare::orderBy('created_at', 'desc')
                         ->whereIn('id', $listIdSale);
                 }
             }
@@ -720,48 +719,8 @@ class SaleController extends Controller
                 $listId = array_unique(array_merge($listIdSale, $listIdSale2));
                 sort($listId);
 
-                $list = SaleCare::orderBy('id', 'desc')->whereIn('id', $listId);
+                $list = SaleCare::orderBy('created_at', 'desc')->whereIn('id', $listId);
             }
-
-            /**
-             * 1: nhóm Tricho
-             * 2: nhóm Lúa
-             * */
-            /*if (isset($dataFilter['group'])) {
-                if ($dataFilter['group'] == 1) {
-                    $src = ['389136690940452', '378087158713964', '381180601741468', 'Hotline - Tricho', 'Khách Cũ Tricho'];
-                    $list = $list->where(function($query) use ($src) {
-                        foreach ($src as $term) {
-                            if (is_numeric($term)) {
-                                $query->orWhere('page_id', 'like', '%' . $term . '%');
-                            } else {
-                                $query->orWhere('page_link', 'like', '%' . $term . '%');
-                            }
-
-                            if (str_contains($term, 'Tricho') || str_contains($term, 'line')) {
-                                $query->orWhere('page_name', 'like', '%' . $term . '%');
-                            }
-                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        }
-                    });
-                    // dd($list->get());
-
-                } else if ($dataFilter['group'] == 2){
-                    $src = ['mua4-tang2', '335902056281917', '332556043267807', '318167024711625', '341850232325526', 'ruoc-dong', 'mua4tang2', 'giamgia45'];
-                    $list = $list->where(function($query) use ($src) {
-                        foreach ($src as $term) {
-                            if (is_numeric($term)) {
-                                $query->orWhere('page_id', 'like', '%' . $term . '%');
-                            } else {
-                                $query->orWhere('page_link', 'like', '%' . $term . '%');
-                            }
-                            // $query->orWhere('page_id', 'like', '%' . $term . '%');
-                        }
-                    });
-
-                }
-            }
-            */
 
             /** có chọn 1 nguồn */
             if (isset($dataFilter['src'])) {
@@ -853,7 +812,7 @@ class SaleController extends Controller
                 }
 
                 $newIdSaleCare = array_unique($newIdSaleCare);
-                $list = SaleCare::orderBy('id', 'desc')->whereIn('id', $newIdSaleCare);
+                $list = SaleCare::orderBy('created_at', 'desc')->whereIn('id', $newIdSaleCare);
             }
 
             if (isset($dataFilter['type_customer'])) {
@@ -896,7 +855,7 @@ class SaleController extends Controller
                  * 0961630479
                  */
                 $newPhone = $listInFilter->pluck('sale_care.phone')->toArray();
-                $list = SaleCare::whereIn('phone', $newPhone)->orderBy('id', 'desc');
+                $list = SaleCare::whereIn('phone', $newPhone)->orderBy('created_at', 'desc');
             }
 
             $routeName = Route::currentRouteName();
@@ -910,7 +869,7 @@ class SaleController extends Controller
                     }
                 }
 
-                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
+                $list   = SaleCare::orderBy('created_at', 'desc')->whereIn('id', $newSCare);
             }
 
             if (isset($dataFilter['cateCall']) ) {
@@ -923,7 +882,7 @@ class SaleController extends Controller
                         }
                     }
 
-                    $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $cancelSaleC);
+                    $list   = SaleCare::orderBy('created_at', 'desc')->whereIn('id', $cancelSaleC);
                 } else {
                     $list   = $list->where('type_TN', $dataFilter['cateCall']);
                 }
@@ -949,7 +908,7 @@ class SaleController extends Controller
                     }
                 }
 
-                $list   = SaleCare::orderBy('id', 'desc')->whereIn('id', $newSCare);
+                $list   = SaleCare::orderBy('created_at', 'desc')->whereIn('id', $newSCare);
             }
         }
             
@@ -999,7 +958,7 @@ class SaleController extends Controller
             $listCall   = $helper->getListCall()->get();
             $saleCare = SaleCare::where('full_name', 'like', '%' . $req->search . '%')
                 ->orWhere('phone', 'like', '%' . $req->search . '%')
-                ->orderBy('id', 'desc');
+                ->orderBy('created_at', 'desc');
             $count      = $saleCare->count();
             $saleCare   = $saleCare->paginate(10);
             return view('pages.sale.index')->with('count', $count)->with('sales', $sales)->with('saleCare', $saleCare)->with('listCall', $listCall);

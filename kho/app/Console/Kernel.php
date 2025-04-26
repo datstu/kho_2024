@@ -89,21 +89,21 @@ class Kernel extends ConsoleKernel
     
           #thành công
           case 5:
-          case 6:
-          case 11:
+          // case 6:
             $order->status = 3;
             break;
 
           #hoàn/huỷ
           case 20:
           case 21:
+          case 11:
           case -1:
             $order->status = 0;
             break;
           
           default:
             # đang giao
-            // $order->status = 2;
+            $order->status = 2;
             break;
         }
         
@@ -115,8 +115,9 @@ class Kernel extends ConsoleKernel
         //check đơn này đã có data chưa
         $issetOrder = Helper::checkOrderSaleCare($order->id);
 
+        //getOriginal lấy trực tiếp field từ db
         // status = 3 = 'hoàn tất', tạo data tác nghiệp sale
-        if ($order->status == 3 && $notHasPaulo) {
+        if ($order->getOriginal('status') == 3) {
 
           $orderTricho = $order->saleCare;
           $chatId = $groupId = '';
@@ -204,8 +205,8 @@ class Kernel extends ConsoleKernel
         }
       }
     }
-  }
-
+  } 
+  
   public function wakeUp()
   {
     $listSc = SaleCare::whereNotNull('result_call')

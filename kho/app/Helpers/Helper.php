@@ -725,6 +725,18 @@ class Helper
         return false;
     }
 
+    public static function isLeadDigital($role) 
+    {
+        $arr = json_decode($role);
+
+        /** 6: lead digital */
+        if (in_array(6, $arr)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static function isLeadSale($role) 
     {
         $arr = json_decode($role);

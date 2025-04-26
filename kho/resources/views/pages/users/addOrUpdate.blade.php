@@ -2,7 +2,7 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <?php 
-    $checkAll = $checkPaulo = $checkFertilizer = $checkLeadSale = $other = '';
+    $checkAll = $checkPaulo = $checkFertilizer = $checkLeadSale = $other = $checkLeadDigital = '';
 
     if (isset($user)) {
         $roles = json_decode($user->role, true);
@@ -11,7 +11,7 @@
             // dd($roles);
             foreach ($roles as $key => $value) {
                 if ($value == 1) {
-                    $checkAll = $checkPaulo = $checkFertilizer = $checkOther = 'checked';
+                    $checkAll = $checkPaulo = $checkFertilizer = $checkOther = $checkLeadSale = $checkLeadDigital = 'checked';
                     break;
                 } 
                 if ($value == 2) {
@@ -28,6 +28,10 @@
                 }
                 if ($value == 5) {
                     $other = 'checked';
+                    // break;
+                }
+                if ($value == 6) {
+                    $checkLeadDigital = 'checked';
                     // break;
                 }
             }
@@ -109,6 +113,12 @@
                                                 <input id="leadSale" {{$checkLeadSale}} name="roles[]" type="checkbox" class="form-check-input" value="4">
                                                 <label for="leadSale" class="form-check-label">
                                                 Lead Sale
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input id="leadDigital" {{$checkLeadDigital}} name="roles[]" type="checkbox" class="form-check-input" value="6">
+                                                <label for="leadDigital" class="form-check-label">
+                                                Lead Digital
                                                 </label>
                                             </div>
                                             <div class="form-check">
