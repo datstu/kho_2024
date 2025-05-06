@@ -63,7 +63,7 @@ class Kernel extends ConsoleKernel
       $response = Http::withHeaders(['token' => $token])->get($endpoint);
       $response = $response->json();
 
-      if ($response['success']) {
+      if (isset($response['success']) && $response['success']) {
         $data     = $response['order'];
         // dd($data);
         switch ($data['status']) {
