@@ -60,6 +60,7 @@
             'id' => 'mua4-tang2',
             // 'src' => 'https://www.nongnghiepsachvn.net/mua4-tang2'
         ],
+
     ];
 
     $listStatus = Helper::getListStatus();
@@ -70,7 +71,6 @@
         3 => 'green',
     ];
 ?>
-<link rel="stylesheet" href="{{asset('public/css/pages/call-hotline.css')}}">
 <style>
     .hidden {
         display: none;
@@ -385,42 +385,6 @@
                     </div>
                 </div>
             </div>
-
-            <div id="phoneModal" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header" style="border: none;">
-                            <h5 class="modal-title">Cuộc gọi đến</h5>
-                            <button type="button" class="close-main" class="close" data-dismiss="modal" aria-label="Close">
-                            <span>&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="phone-head">
-                                <p id="phone-title"></p>
-                                <p id="timing"></p>
-                            </div>
-                            
-                        </div>
-                        <div class="modal-footer" style="border: none; justify-content: space-around;">
-                            <button id="call-answer" type="button" class="btn btn-main phone" data-bs-dismiss="modal" style="font-size: 20px;">
-                                <i class="fa fa-phone" style="color:green"></i>
-            
-                                <div class="ring-circle"></div>
-                                <div class="ring-circle"></div>
-                            </button>
-                            <button id="call-hangup" type="button" class="btn phone" style="font-size: 20px;">
-                                <i class="fa fa-phone" style="rotate:140deg; color:red"></i> 
-                                <div class="ring-circle"></div>
-                                <div class="ring-circle"></div>
-                            </button>
-                        </div>
-
-                    {{-- <iframe src="{{route('view-call-voip')}}" frameborder="0"></iframe> --}}
-
-                    </div>
-                </div>
-            </div>
         
             {{-- <form action="{{route('sale-index')}}" class="mb-1"> --}}
                 {{ csrf_field() }}
@@ -561,6 +525,7 @@
                         <span class="flag" style="background-color:#00ff48;"></span>
                         <label class="text">Tổng TN: <span id="sum-TN">0</span></label><br>
                     </div>
+
                 </div>
                 @endif
             </div>
@@ -587,77 +552,7 @@
                 
             </div> --}}
         
-            <div id="createOrder" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-xl" role="document">
-                    <div class="modal-content ">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Thao tác đơn hàng</h5>
-                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-        
-                    <iframe src="{{route('add-orders')}}" frameborder="0"></iframe>
-        
-                    </div>
-                </div>
-            </div>
-
-            <div id="TN" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Tác nghiệp hôm nay {{date("d-m-Y")}}</h5>
-                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <iframe src="" frameborder="0"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <div id="listDuplicate" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-xl" role="document">
-                    <div class="modal-content ">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Danh sách data trùng số điện thoại</h5>
-                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <iframe src="" frameborder="0"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <div id="TNHistory" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content ">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Lịch sử Tác Nghiệp</h5>
-                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <iframe src="" frameborder="0"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <div id="updateCalendarTN" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content ">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Sửa lịch tác nghiệp</h5>
-                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <iframe frameborder="0"></iframe>
-                    </div>
-                </div>
-            </div>
+            
             <button class="hidden btn btn-sm btn-primary delete-data-SC" type="button">Xoá <span id="total-val" list_id="[]" data-total="0"></span></button>
             <div class="dragscroll1 tableFixHead" style="height: 819px; margin-top:15px;">
                 <div id="dnn_ctr1441_Main_SaleTacNghiep_UpdatePanel2">
@@ -713,11 +608,6 @@
                             {{ csrf_field() }}
                             <?php $i = 1; ?>
                             @foreach ($saleCare as $item)
-                            <?php if ($item->phone != '0347932920') {
-                                // continue;
-                            }
-                            
-                            ?>
                             <tr class="contact-row tr_{{$item->id}}">
                                 <td class="text-center">
 
@@ -783,15 +673,13 @@
                                     </div>
                                     @endif
                                 </td>
-                                <td class="area1">
+                                <td class="area1" title="FROM_FACEBOOK_MESSAGE">
                                     <?php
                                         if ($item->assign_user == Auth::user()->id) {
                                             $flagAccess = true;
                                         } 
-                                        // dd($checkAll || $isLeadSale || $flagAccess);
                                     ?>
                                     @if ($checkAll || $isLeadSale || $flagAccess)
-                                        
                                     <?php $flagAccess = false; ?>
                                     <div class="text-right">
                                         {{-- <a title="Thông tin khách hàng" class="btn-icon aoh">
@@ -810,32 +698,10 @@
                                         {{$item->full_name}}
                                     </div>
                                     {{-- <span class="nha-mang">[VIETTEL]</span> --}}
-                                    <div class="phone-popup" data-id="{{$item->id}}" data-name="{{$item->full_name}}" data-phone="{{$item->phone}}">
-                                        <span title="Gọi ngay!" class="span-col  btn-icon init"  style="color:blue; width: calc(100% - 90px);">
-                                            <i class="fa fa-phone" style="color:green"></i> <i style="display:none; color:rgb(235, 252, 0)" class="call-process fa fa-volume-control-phone"></i> {{$item->phone}} 
-                                            
-                                        </span>
-                                        <span title="Đang gọi..." class="span-col btn-icon aoh call-process hidden" style="width: calc(100% - 90px);">
-                                            <i style="color:rgb(235, 252, 0)" class=" fa fa-volume-control-phone"></i> {{$item->phone}} 
-                                            <br>
-                                            <span>Đang gọi...</span>
-
-                                            
-                                        </span>
+                                    <a href="tel:{{$item->phone}}" class="span-col" style="width: calc(100% - 90px);">
+                                        {{$item->phone}}
                                         
-                                        <span title="Cúp máy." class="span-col btn-icon call-accepted hidden" style="width: calc(100% - 90px);">
-                                            {{$item->phone}} <br>
-
-                                            <span id="timing_{{$item->id}}"></span> <i class="fa fa-phone" style="rotate:140deg; color:red"></i> 
-                                            
-                                        </span>
-                                    </div>
-                                    
-                                    <span id="volume_{{$item->id}}" class="hidden">
-                                        <i  class="hidden toggleVolume fas fa-volume-up icon"></i>
-                                    </span>
-                                    
-    
+                                    </a>
                                     <span class="span-col text-right" style="width: 85px;">
 
                                         <?php 
@@ -861,6 +727,12 @@
                                         </a>
                                         @endif
                                     </span>
+                                    <div class="text-left khkn sline">
+                                        
+                                    </div>
+                                    <div class="small-tip">
+                                        
+                                    </div>
                                 </td>
                                 <td class="area1 hidden-xs td-5055" style="max-width: 100px;">
                                     <span style="cursor: pointer; overflow: hidden; max-height: 100px; display: block;">
@@ -885,32 +757,19 @@
                                         <a style="color: rgb(64, 11, 209) !important; text-decoration: underline rgb(64, 11, 209) !important; font-style:italic !important;" class="TNHistoryModal" data-target="#TNHistory" data-tnsale_id="{{$item->id}}" data-toggle="modal" title="Lịch Sử TN">
                                             <i class="fa fa-history" style="color:rgb(64, 11, 209);"></i></a>
                                     </span>
-                                    <div class="mof-container TNModal"  data-target="#TN" data-tnsale_id="{{$item->id}}" title="Tác Nghiệp Ngay">
-                                        <textarea data-id="{{$item->id}}" id="TNSale_{{$item->id}}" rows="2" cols="20" class="form-control txt-mof txt-dotted"
-                                            data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" title="TN Hôm nay"> <?php if ($item->listHistory->count() > 0) {
-                                                echo $item->listHistory[0]->note;
-                                            } else {
-                                                echo $item->TN_can;
-                                            }
-                                            ?></textarea>
-                                    </div>
-                                    <div style="clear: both;"></div>
-                                    <div class="item-noidung-other">
-                                        <div class="text">
-                                            <?php if ($item->listHistory->count() > 0) {
-                                                
+                                    <div class="mof-container TNModal"  data-target="#TN" data-tnsale_id="{{$item->id}}" data-toggle="modal" title="Tác Nghiệp Ngay">
+                                        <div data-id="{{$item->id}}" id="TNSale_{{$item->id}}" rows="2" cols="20" class="form-control txt-mof txt-dotted"
+                                            data-content="Tối đa 500 ký tự" data-trigger="focus" data-toggle="popover" data-original-title="" title=""><?php if ($item->listHistory->count() > 0) {
                                                 foreach ($item->listHistory as $key => $value) {
-                                                    if ($key === 0) {
-                                                        continue;
-                                                    }
                                                     echo date_format($value->created_at,"d/m") . ' ' . $value->note . "<br>";
                                                 } 
                                             } else {
                                                 echo $item->TN_can;
                                             }
-                                            ?>
-                                        </div>
+                                            ?></div>
                                     </div>
+                                    <div style="clear: both;"></div>
+                                    <span class="item-noidung-other"></span>
                                 </td>
 
                                 <?php $order = $item->orderNew ?>
@@ -1052,9 +911,81 @@
 
     </form>
 </div>
+<div style="height: 100px;"></div>
 {{-- end update filter --}}
 
 {{-- thông báo --}}
+<div id="createOrder" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content ">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Thao tác đơn hàng</h5>
+                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+        
+                    <iframe src="{{route('add-orders')}}" frameborder="0"></iframe>
+        
+                    </div>
+                </div>
+            </div>
+
+            <div id="TN" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Tác nghiệp hôm nay {{date("d-m-Y")}}</h5>
+                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <iframe src="" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div id="listDuplicate" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content ">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Danh sách data trùng số điện thoại</h5>
+                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <iframe src="" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div id="TNHistory" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content ">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Lịch sử Tác Nghiệp</h5>
+                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <iframe src="" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div id="updateCalendarTN" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content ">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Sửa lịch tác nghiệp</h5>
+                        <button type="button" id="close-main" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <iframe frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
 <div class="modal fade" id="notify-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -1067,9 +998,6 @@
         </div>
     </div>
 </div>
-
-<audio  id="audio-player" src="{{asset('public/files/mp3/nokia-1280.mp3')}}" type="audio/mpeg">
-
 <script>
     $('.orderModal').on('click', function () {
         var idOrderNew = $(this).data('id_order_new');
@@ -1140,11 +1068,11 @@
         $("#myModal iframe").attr("src", link + '/' + myBookId);
     });
 
-    // $('.TNModal').on('click', function () {
-    //     var saleId = $(this).data('tnsale_id');
-    //     var link = "{{URL::to('/sale-view-luu-TN-box')}}";
-    //     $("#TN iframe").attr("src", link + '/' + saleId);
-    // });
+    $('.TNModal').on('click', function () {
+        var saleId = $(this).data('tnsale_id');
+        var link = "{{URL::to('/sale-view-luu-TN-box')}}";
+        $("#TN iframe").attr("src", link + '/' + saleId);
+    });
 
     $('.TNHistoryModal').on('click', function () {
         var saleId = $(this).data('tnsale_id');
@@ -1405,8 +1333,8 @@
 </script>
 
 <script>
-
-function myFunc(id, type) {
+    $.fn.myFunc = function(id, type){
+        
         if (type == 1) {
             $('.body').css("opacity", '0.5');
             $('.loader').show();
@@ -1454,7 +1382,6 @@ function myFunc(id, type) {
             }
         });
     }
-
     $('.result-TN').on('change', function() {
         var  id = $(this).data("id");
         var value = this.value;
@@ -1543,19 +1470,17 @@ function myFunc(id, type) {
     $('.update-TN-sale').click(function(){
         var id = $(this).data("id");
         var type = 1
-        myFunc(id, type); 
+        $('.body').myFunc(id, type); 
     });
 
     $("textarea.txt-mof").keyup(function(){
         var id = $(this).data("id");
-        var type = 2;
-        myFunc(id, type); 
+        var type = 2
+        $('.body').myFunc(id, type); 
     });
     $('#daterange').click(function(){
         $("input[name='search']").val('');
     })
-
-
 </script>
 
 <script type="text/javascript">
@@ -1575,7 +1500,31 @@ function myFunc(id, type) {
 </script>
 
 {{-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> --}}
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+<script>
+    $(function() {
+        $('#sale-filter').select2();
+        $('#typeData').select2();
+        $('#careOrder').select2();
+        $('#srcData').select2();
+        $('#productFilter').select2();
+        $('#statusTN').select2();
+        $('#resultTN').select2();
+        $('#statusOrderShip').select2();
+        $('#statusDeal').select2();
+        $('.result-TN').select2();
+        $('#src-filter').select2();
+        $('#mkt-filter').select2();
+        $('#status-filter').select2();
+        $('#type_customer-filter').select2();
+        $('#resultTN-filter').select2();
+        $('#typeDate-filter').select2();
+        $('#statusTN-filter').select2();
+        $('#product-filter').select2();
+        $('#group-filter').select2();
+        
+    });
+</script>
 
 <script>
     $("input[name='cateCall']") // select the radio by its id
@@ -1701,12 +1650,16 @@ function myFunc(id, type) {
 
                         if (checkAll || isLeadSale) {
                             rs += '<div class="text-right">';
+                            
                             if (checkAll) {
                                 rs += '<a data-id="' + element.id +'" title="Xóa data" class="btn-icon aoh removeBtn">';
                                 rs += '<i class="fa fa-trash"></i>';
                                 rs += '</a>';
                             }
-                           
+                            
+                            // rs += '<a data-id="' + element.id +'" title="Xóa data" class="btn-icon aoh removeBtn">';
+                            // rs += '<i class="fa fa-trash"></i>';
+                            // rs += '</a>';
                             rs += '<a title="chỉ định Sale nhận data" data-id="' + element.id +'" class="update-assign-TN-sale btn-icon aoh">';
                             rs += '<i class="fa fa-save"></i>';
                             rs += '</a>';
@@ -2179,14 +2132,9 @@ function myFunc(id, type) {
         }
     });
 </script>
+
 <script>
-$(document).ready(function () {
-      $('.item-noidung-other').on('click', function () {
-        $(this).toggleClass('open');
-      });
-    });
-</script>
-<script>
+
     var daterange = $("input[name='daterange']").val();
     var _token   = $("input[name='_token']").val();
     $.ajax({
@@ -2199,242 +2147,5 @@ $(document).ready(function () {
         success: function (data) {
             $('#sum-TN').html(data.count);
         }
-    });
-</script>
-
-
-<!-- hotline call-->
-<script type="text/javascript" src="https://sipgetway.voip24h.vn/public/js/voip24hlibrary.min.js"></script>
-<script type="text/javascript" src="https://sipgetway.voip24h.vn/public/js/voip24hgateway.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/adapterjs/0.15.5/adapter.min.js"></script>
-<script>
-    const config = {
-        active: true,
-        ipServer: '222.255.115.80',
-        extension: '615',
-        password: 'grsder6e@voih.vn'
-    }
-    let flagCall, dataCall;
-    let intervalIds = [];
-    const audioPlayer = $('#audio-player')[0];
-    var originTitle = $('title').text();
-
-    initGateWay(function(event, data) {
-        console.log('event: ', event)
-        if (event === 'init') {
-            flagCall = 'init';
-        } else if (event === 'register') {
-            flagCall = 'register';
-        } else if (event === 'incomingcall') {
-            flagCall = 'incomingcall';
-
-            phone = data[0].phonenumber;
-
-            var flagTitle = true;
-            
-            var newTitle = phone +' Cuộc gọi đến...';
-            var strTitle;
-            const timerIntervalTitle = setInterval(() => {
-
-                if (flagTitle) {
-                    strTitle = newTitle;
-                    flagTitle = false;
-                } else {
-                    strTitle = originTitle;
-                    flagTitle = true;
-                }
-
-                $('title').text(strTitle);
-                
-            }, 1000);
-            intervalIds.push(timerIntervalTitle);
-
-            try {
-                audioPlayer.muted = false;
-                audioPlayer.play();
-            } catch (error) {
-                console.error("Autoplay failed:", error);
-            }
-
-            $('#phoneModal').modal('show');
-            $('#phone-title').text(phone)
-            
-        } else if (event === 'progress') {
-            flagCall = 'progress';
-        } else if (event === 'accepted') {
-            flagCall = 'accepted';
-            audioPlayer.pause();
-            audioPlayer.muted = true;
-            var id;
-
-            if($('#calling').length > 0) {
-                var x = $('#calling');
-                id = x.data('id');
-                x.children('.call-accepted').show();
-                x.children('.call-process').hide();
-            } else {
-                id = null;
-            }
-
-            startTime = Date.now();
-            const timerInterval = setInterval(() => {
-                const currentTime = Date.now();
-                const elapsedMilliseconds = currentTime - startTime;
-                const minutes = Math.floor((elapsedMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((elapsedMilliseconds % (1000 * 60)) / 1000);
-                const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-                if (id) {
-                    $('#timing_' + id).text(formattedTime);
-                    $('#volume_' + id).show();
-                    
-                } else {
-                    $('#timing').text(formattedTime);
-                }
-                
-            }, 1000);
-            intervalIds.push(timerInterval);
-
-        } else if (event === 'hangup' || event === 'missed' || event === 'reject'){
-            flagCall = 'register';
-            audioPlayer.muted = true;
-            audioPlayer.pause();
-
-            if ($('#calling').length > 0) {
-                var x = $('#calling');
-                id = x.data('id');
-                $('#timing_' + id).text('');
-                $('#volume_' + id).hide();
-
-                x.children('.call-accepted').hide();
-                x.children('.init').show();
-                $('.phone-popup').removeAttr('id');
-            }
-
-            for (let i = 0; i < intervalIds.length; i++) {
-                console.log('i: ', intervalIds[i])
-                clearInterval(intervalIds[i]);
-            }
-
-            $('title').text(originTitle);
-            $('#timing').text('');
-            $('#phoneModal').modal('hide');
-            $('#call-answer').show();
-        }
-    });
-
-$(document).ready(function() {
-
-    if (config.active) {
-        let mediaStream = intervalId = null;
-
-        setTimeout(function() { 
-            registerSip(config.ipServer, config.extension,config.password);
-        }, 5000);
-
-        
-        $('.toggleVolume').on('click', function () {
-            $(this).toggleClass('fa-volume-up fa-volume-mute');
-            toggleMute();
-        });
-
-        $('#call-hangup').on('click', function () {
-            $('#phoneModal').modal('hide');
-            $('#call-answer').show();
-
-            audioPlayer.pause();
-            audioPlayer.muted = true;
-
-            if (flagCall == 'incomingcall') {
-                reject();
-            } else {
-                hangUp();
-            }  
-        });
-
-        $('#call-answer').on('click', function () {
-            answer();
-            $(this).hide();
-            $('title').text(originTitle);
-        });
-        
-        $('.phone-popup').on('click', function () {
-            var seft = $(this);
-            var phone = seft.data('phone');
-            var name = seft.data('name');
-            var id = seft.data('id');
-            var str = '';
-            /* chưa gọi*/
-            console.log(flagCall);
-            if (flagCall == 'register') {
-                if (confirm('Thực hiện cuộc gọi đến ' + phone + '?')) {
-
-                    /* call(phone)*/
-                    // call('0393493160')
-                    call('0961113397')
-                    seft.attr('id', 'calling');
-                    seft.children('.init').hide();
-                    seft.children('.call-process').show();
-
-                }
-            } else {
-
-                /** đang gọi */
-                if (confirm('Bạn muốn tắt máy?')) {
-                    hangUp();
-                    for (let i = 0; i < intervalIds.length; i++) {
-                        clearInterval(intervalIds[i]);
-                    }
-
-                    $('#timing_' + id).text('');
-
-                    seft.children('.call-accepted').hide();
-                    seft.children('.init').show();
-                    seft.removeAttr('calling');
-
-                    if (isRegistered()) {
-                        flagCall = 'register';
-                    }
-                }
-            }
-            
-        });
-        $('.close-main').on('click', function () {
-            $('#phoneModal').modal('hide');
-            for (let i = 0; i < intervalIds.length; i++) {
-                clearInterval(intervalIds[i]);
-            }
-            audioPlayer.pause();
-            audioPlayer.muted = true;
-        });
-    }
-    
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
-<script>
-    $(function() {
-        $('#sale-filter').select2();
-        $('#typeData').select2();
-        $('#careOrder').select2();
-        $('#srcData').select2();
-        $('#productFilter').select2();
-        $('#statusTN').select2();
-        $('#resultTN').select2();
-        $('#statusOrderShip').select2();
-        $('#statusDeal').select2();
-        $('.result-TN').select2();
-        $('#src-filter').select2();
-        $('#mkt-filter').select2();
-        $('#status-filter').select2();
-        $('#type_customer-filter').select2();
-        $('#resultTN-filter').select2();
-        $('#typeDate-filter').select2();
-        $('#statusTN-filter').select2();
-        $('#product-filter').select2();
-        $('#group-filter').select2();
-        
     });
 </script>

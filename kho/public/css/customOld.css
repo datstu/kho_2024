@@ -473,7 +473,12 @@ input[type=file]+label{min-width:100px;border:1px solid #ddd;display:inline-bloc
 .dragscroll1{overflow: hidden; overflow-x: auto; position: relative; min-height:0px;}
 .dragscroll1.dragscroll{cursor:grab;}
 @media (max-width: 768px) {
-    .dragscroll1{overflow-x: auto;}   
+       .dragscroll1{
+           overflow-x: auto;
+        height: 620px !important;
+    }  
+    
+   
 }
 .drags-area{cursor:grab;}
 
@@ -544,21 +549,7 @@ tr.contact-row { transition: ease 3s all; }
 a, a:visited { color: #3c8dbc;}
 
 .item-noidung {color: #00a65a;}
-.item-noidung-other {
-    max-height: 50px; /* Initial height showing only a snippet */
-    overflow-y: hidden;
-    transition: max-height 0.3s ease;
-    cursor: pointer; /* Indicates that the text is clickable */
-    color: darkorange;
-}
-.item-noidung-other.open {
-    max-height: 200px; /* Adjust as needed for expanded height */
-  }
-
-.item-noidung-other:hover {
-    background-color: #f9f9f9;
-}
-
+.item-noidung-other {color: darkorange;}
 /* width */
 ::-webkit-scrollbar { width: 7px; cursor: pointer; height: 7px; }
 
