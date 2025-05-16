@@ -270,6 +270,10 @@ class Kernel extends ConsoleKernel
         if ($group) {
           $chatId = $group->tele_nhac_TN;
           $tokenGroupChat =  $group->tele_bot_token;
+
+          if ($sc->old_customer && $sc->old_customer == 1 && $group->tele_nhac_TN_CSKH) {
+            $chatId = $group->tele_nhac_TN_CSKH;
+          }
         }
 
         //set lần gọi tiếp theo
@@ -636,6 +640,10 @@ class Kernel extends ConsoleKernel
               $typeCSKH = 1;
 
 
+              if (Helper::isSeeding($phone)) {
+                Log::channel('new')->info('Số điện thoại đã nằm trong danh sách spam/seeding..');
+                continue;
+              }
               /** kiểm tra thời gian insert tin nhắn => lâu hơn 3 ngày ko nhận lại */
               $inputTime = strtotime($item->inserted_at);
               $now = time();

@@ -128,7 +128,12 @@ class LadipageController  extends Controller
             $hasOldOrder = $isOldOrder = 0;
             $typeCSKH = 1;
             $isOldDataLadi = Helper::isOldDataLadi($phone, $assgin_user, $group, $hasOldOrder, $is_duplicate, $isOldOrder);
-            // dd(!$isOldDataLadi || $assgin_user == 0);
+            
+            if (Helper::isSeeding($phone)) {
+                Log::channel('ladi')->info('Số điện thoại đã nằm trong danh sách spam/seeding ladi..' . $phone);
+                return;
+            }
+
             if (!$isOldDataLadi || $assgin_user == 0) {
                 /** khách mới hoàn toàn */
                 $assignSale = Helper::getAssignSaleByGroup($group)->user;

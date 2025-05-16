@@ -17,14 +17,25 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Telegram;
 use App\Models\Pancake;
 use App\Models\LadiPage;
+use App\Models\Spam;
 use PHPUnit\TextUI\Help;
 use App\Models\SrcPage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
 setlocale(LC_TIME, 'vi_VN.utf8');
 
 class Helper
 {
+    public static function isSeeding($phone)
+    {
+        $patern = "/^(03[0-9]|05[0-9]|07[0-9]|08[0-9]|09[0-9])\d{7}$/";
+        if (!preg_match($patern, $phone)) {
+            return true;
+        } 
+
+        return Spam::where('phone', $phone)->first();
+    }
     /**
      * 
      * 0: khách mới
@@ -956,6 +967,8 @@ class Helper
      */
     public static function getAssignSaleByGroup($group)
     {
+        $routeName = Route::currentRouteName();
+        Log::channel('ladi')->info('$routeName: ' . $routeName);
         $saleOfGroup = $group->sales->where('type_sale', 1);
 
         /**lấy user chỉ định bằng 1 trong list sale của group*/

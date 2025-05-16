@@ -75,6 +75,10 @@ class FbWebHookController extends Controller
         $srcId = $pageSrc->id;
         $group = $pageSrc->group;
         $phone = Helper::getCustomPhoneNum($phone);
+        if (Helper::isSeeding($phone)) {
+            Log::channel('ladi')->info('Số điện thoại đã nằm trong danh sách spam/seeding fb..');
+            return;
+        }
         if ($name && $checkSaleCareOld) {
             $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeCSKH, $isOldCustomer);
             if (!$assignSale) {
@@ -197,6 +201,10 @@ class FbWebHookController extends Controller
                 $name = "Anh 3";
             }
 
+            if (Helper::isSeeding($phone)) {
+                Log::channel('ladi')->info('Số điện thoại đã nằm trong danh sách spam/seeding fb..' . $phone);
+                return;
+            }
             // $this->saveDataWebhookFB($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
             $this->saveDataWebhookFBV2($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
         }
