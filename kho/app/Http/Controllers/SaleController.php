@@ -30,10 +30,6 @@ use Session;
 use Illuminate\Support\Facades\Log;
 class SaleController extends Controller
 {
-    public function listSpam()
-    {
-        return view('pages.sale.spam');
-    }
 
     public function ajaxViewRank(Request $r)
     {
@@ -276,6 +272,9 @@ class SaleController extends Controller
             $namePage = $srcPage->name;
             $id_page = $srcPage->id_page;
             $group = $srcPage->group;
+            if (!$group) {
+                return back();
+            }
         }
         
         if (SaleCare::where('phone', $phone)->first()) {
@@ -351,7 +350,12 @@ class SaleController extends Controller
             'phone.regex' => 'Định dạng số điện thoại chưa đúng',
         ]);
 
-        if ($validator->passes() && $req->phone != '0332876975' && $req->phone != '0384420899' && $req->phone != '0569800563' ) {
+        if (Helper::isSeeding($req->phone)) {
+            notify()->error('Số điện thoại đã nằm trong danh sách spam/seeding..', 'Thất bại!');
+            return back();
+        }
+
+        if ($validator->passes()) {
             if (isset($req->id)) {
                 $saleCare = SaleCare::find($req->id);
                 $text = 'Cập nhật tác nghiệp thành công.';
@@ -656,12 +660,14 @@ class SaleController extends Controller
     {
         $roles  = $user->role;
         $list   = SaleCare::orderBy('created_at', 'desc');
-
+        $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+        $checkAllAdmin = isFullAccess(Auth::user()->role);
+        $isLeadDigital = Helper::isLeadDigital(Auth::user()->role);
         if (isset($dataFilter['search'])) {
             return $this->searchInSaleCare($dataFilter);
         } 
 
-        if ($dataFilter) {
+         if ($dataFilter) {
             if (isset($dataFilter['typeDate'])) {
               
                 /* 
@@ -780,40 +786,55 @@ class SaleController extends Controller
                 // }
             }
 
-            if (isset($dataFilter['mkt'])) {
-                $listIDSaleCare = $newIdSaleCare = [];
+
+            /* mkt ko có quyền admin, lead mkt => gán thêm lọc theo mkt */
+            if (!$checkAllAdmin && !$isLeadDigital && Auth::user()->is_digital) {
+                $dataFilter['mkt'] = Auth::user()->id;
+            }
+
+             if (isset($dataFilter['mkt'])) {
                 $listSrcByMkt = SrcPage::orderBy('id', 'desc')->where('user_digital', $dataFilter['mkt']);
 
-                foreach ($listSrcByMkt->get() as $src) {
-                    $mktContronler = new MarketingController();
-                    $listSC = $mktContronler->getListSaleCareBySrcId($src, $dataFilter);
-
-                    if ($listSC->count() > 0) {
-                        $listIDSaleCare[] = $listSC->pluck('id')->toArray();
-                    }
+                $srcIDs = $listSrcByMkt->get()->pluck('id')->toArray();
+                if ($srcIDs) {
+                    $list->whereIn('src_id', $srcIDs);
                 }
-
-                //gộp mảng
-                /* array:3 [
-                  0 => [
-                    0 => 9752
-                    1 => 9733
-                    2 => 9731
-                  ]
-                  1 => array:29 [▶]
-                  2 => array:5 [▶]
-                ]
-                */
-                if ($listIDSaleCare) {
-                    foreach ($listIDSaleCare as $ids) {
-                        foreach ($ids as $id)
-                        $newIdSaleCare[] = $id;
-                    }
-                }
-
-                $newIdSaleCare = array_unique($newIdSaleCare);
-                $list = SaleCare::orderBy('created_at', 'desc')->whereIn('id', $newIdSaleCare);
             }
+
+        //    if (isset($dataFilter['mkt'])) {
+            //     $listIDSaleCare = $newIdSaleCare = [];
+            //     $listSrcByMkt = SrcPage::orderBy('id', 'desc')->where('user_digital', $dataFilter['mkt']);
+
+            //     foreach ($listSrcByMkt->get() as $src) {
+            //         $mktContronler = new MarketingController();
+            //         $listSC = $mktContronler->getListSaleCareBySrcId($src, $dataFilter);
+
+            //         if ($listSC->count() > 0) {
+            //             $listIDSaleCare[] = $listSC->pluck('id')->toArray();
+            //         }
+            //     }
+
+            //     //gộp mảng
+            //     /* array:3 [
+            //       0 => [
+            //         0 => 9752
+            //         1 => 9733
+            //         2 => 9731
+            //       ]
+            //       1 => array:29 [▶]
+            //       2 => array:5 [▶]
+            //     ]
+            //     */
+            //     if ($listIDSaleCare) {
+            //         foreach ($listIDSaleCare as $ids) {
+            //             foreach ($ids as $id)
+            //             $newIdSaleCare[] = $id;
+            //         }
+            //     }
+
+            //     $newIdSaleCare = array_unique($newIdSaleCare);
+            //     $list = SaleCare::orderBy('created_at', 'desc')->whereIn('id', $newIdSaleCare);
+            // }
 
             if (isset($dataFilter['type_customer'])) {
 
@@ -931,7 +952,7 @@ class SaleController extends Controller
             }
         }
 
-        $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+        
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $sale = Helper::getSaleById($dataFilter['sale']);
@@ -969,7 +990,6 @@ class SaleController extends Controller
 
     public function filterSalesByDate(Request $req) 
     {
-        // dd('hihi');
         $dataFilter = [];
         if ($req->search) {
             $dataFilter['search'] = $req->search;
