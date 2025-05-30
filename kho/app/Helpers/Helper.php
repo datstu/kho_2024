@@ -843,11 +843,22 @@ class Helper
                 $avgSum = round(($totalSum / ($oldOrder + $newOrder)), 0);
             }
 
+            $rateSum = 0;
+            $contactSum = $sumNewCustomer['contact'];
+            $orderSum = $sumNewCustomer['order'] + $sumOldCustomer['order'];
+            if ($contactSum > 0) {
+                $rateSum = $orderSum / $contactSum * 100;
+            } else {
+                $rateSum = $orderSum * 100;
+            }
+
+            $rateSum = round($rateSum, 2);
             $result['sum_new_customer'] = $sumNewCustomer;
             $result['sum_old_customer'] = $sumOldCustomer;
             $result['summary'] = [
                 'total' => $totalSum,
                 'avg' => $avgSum,
+                'rate' => $rateSum
             ];
         }
 
