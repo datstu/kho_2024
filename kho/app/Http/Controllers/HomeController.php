@@ -23,13 +23,51 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $toMonth      = date("d/m/Y", time());
-
+        $toMonth = date("d/m/Y", time());
+        $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+        $isCskhDt = Helper::isCskhDt(Auth::user());
+        $isDigital = Auth::user()->is_digital;
+        $checkAll = isFullAccess(Auth::user()->role);
+        $isLeadDigital = Helper::isLeadDigital(Auth::user()->role);
         /**set tmp */
-        // $toMonth = '29/05/2025';
+        // $toMonth = '10/05/2025';
 
-        $dataSale = $this->getReportHomeSale($toMonth);
-        $dataDigital = $this->getReportHomeDigitalV2($toMonth);
+        $dataSale = $dataSaleCSKH = $dataDigital = [];
+        
+        $groupSale = GroupUser::where('status', 1)->get();
+        if (!$isCskhDt && !$isDigital) {
+            if (($checkAll || $isLeadSale)) {
+                foreach ($groupSale as $gr) {
+                    if ($gr->id != 5) {
+                        $listIdSale[] = $gr->users->pluck('id')->toArray();
+                    }
+                }
+                $listIdSale = array_merge(...$listIdSale);
+                foreach ($listIdSale as $sale) {
+                    $dataSale[] = User::find($sale);
+                }
+
+            } else {
+                $dataSale[] = User::find(Auth::user()->id);   
+            }
+        }
+        
+
+        if ($checkAll || ($isLeadSale && $isCskhDt)) {
+                // id cskh đạm tôm - team Trinh
+            $dataSaleCSKH = GroupUser::find(5)->users;
+        } else if ($isCskhDt) {
+            $dataSaleCSKH[] = User::find(Auth::user()->id);   
+        }
+        
+
+        if ($isDigital) {
+            if (($checkAll || $isLeadDigital)) {
+                $dataDigital = Helper::getListDigital()->get();
+            } else {
+                $dataDigital[] = User::find(Auth::user()->id);   
+            }
+        }
 
         $category = Category::where('status', 1)->get();
         $sales = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
@@ -39,7 +77,133 @@ class HomeController extends Controller
             ->with('dataSale', $dataSale)
             ->with('groups', $groups)
             ->with('groupUser', $groupUser)
+            ->with('dataSaleCSKH', $dataSaleCSKH)
             ->with('dataDigital', $dataDigital);
+    }
+
+    public function index2()
+    {
+        $toMonth      = date("d/m/Y", time());
+
+        /**set tmp */
+        $toMonth = '10/05/2025';
+
+        $dataSaleCSKH = $this->getReportCskhDamTom($toMonth);
+        // dd($dataSaleCSKH);
+        $category = Category::where('status', 1)->get();
+        $sales = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
+        $groups = Group::orderBy('id', 'desc')->get();
+        $groupUser = GroupUser::orderBy('id', 'desc')->get();
+        return view('pages.home2')->with('category', $category)->with('sales', $sales)
+            ->with('dataSaleCSKH', $dataSaleCSKH)
+            ->with('groups', $groups)
+            ->with('groupUser', $groupUser);
+    }
+
+    public function getReportCskhDamTom($time, $checkAll = false, $isLeadSale = false)
+    {
+        $dataFilter['daterange'] = [$time, $time];
+        $result = [];
+        if (!$checkAll) {
+            $checkAll = isFullAccess(Auth::user()->role);
+        }
+
+        $isLeadSale = $isLeadSale ? : Helper::isLeadSale(Auth::user()->role);
+        
+        if ($checkAll || $isLeadSale) {
+            
+            $listSale =  Helper::getListSaleV3(Auth::user(), $isLeadSale, 5);
+            foreach ($listSale as $sale) {
+                $data = $this->getReportUserCskhDT($sale, $dataFilter);
+                $result[] = $data;   
+            }
+
+        } else if ((Auth::user()->is_CSKH || Auth::user()->is_sale) && Helper::isCskhDt(Auth::user())){
+            $result[] = $this->getReportUserCskhDT(Auth::user(), $dataFilter);
+        }
+       
+        return $result;
+    
+        // $dataFilter['daterange'] = [$time, $time];
+        // $result = [];
+
+        // if (!$checkAll) {
+        //     $checkAll = isFullAccess(Auth::user()->role);
+        // }
+
+        // $isLeadSale = $isLeadSale ? : Helper::isLeadSale(Auth::user()->role);
+        // if ($checkAll || $isLeadSale) {
+
+        //     //id group cskh đạm tôm = 5
+        //     $listSale = Helper::getListSaleByGroupWork(5);
+        //     foreach ($listSale as $sale) {
+        //         $data = $this->getReportUserCskhDT($sale, $dataFilter);
+        //         $result[] = $data;   
+        //     }
+
+        // } else if (Auth::user()->is_CSKH) {
+        //     $result[] = $this->getReportUserCskhDT(Auth::user(), $dataFilter);
+        // }
+       
+        // return $result;
+    }
+
+    public function getReportUserCskhDT($user, $dataFilter)
+    {
+        $rate = $avgOrders = 0;
+        $result = ['name' => ($user->real_name) ?: ''];
+        $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
+        $dataFilter['sale'] = $user->id;
+        $dataFilter['typeDate'] = 1; //ngày data vè hệ thống
+   
+        $saleCare = SaleCare::where('assign_user', $user->id)
+            ->where('is_duplicate', 0)->get();
+        $listPhone = $saleCare->pluck('phone')->toArray();
+        $contactCount = array_unique($listPhone);
+        $contactCount = count($contactCount);
+        
+        $ordersCtl = new OrdersController();
+        $orders = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter, true);
+        $orderCount = $orders->count();
+        $sumProduct = $orders->sum('qty');
+        $ordersSumTotal = $orders->sum('total');
+        $ordersSumTotal = round($ordersSumTotal, 0);
+
+        if ($orderCount > 0) {
+            $avgOrders = round($ordersSumTotal / $orderCount, 0);
+        }
+
+        if ($contactCount != 0) {
+            $rate = $orderCount / $contactCount * 100;
+            $rate = round($rate, 2);
+        } else {
+            $rate =  $orderCount * 100;
+        }
+        
+        $time       = $dataFilter['daterange'];
+        $timeBegin  = str_replace('/', '-', $time[0]);
+        $timeEnd    = str_replace('/', '-', $time[1]);
+        $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+        $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+        $saleByTime = SaleCare::whereDate('created_at', '<=', $dateEnd)
+            ->whereDate('created_at', '>=', $dateBegin)
+            ->where('assign_user', $user->id)
+            ->where( 'is_duplicate', 0)->get();
+        $listPhoneByTime = $saleByTime->pluck('phone')->toArray();
+        $contactCountByTime = array_unique($listPhoneByTime);
+        $contactCountByTime = count($contactCountByTime);
+
+        $result['old_customer'] = $result['summary_total']= [
+            'contact' => $contactCount,
+            'order' => $orderCount,
+            'rate' =>$rate,
+            'product' => $sumProduct,
+            'total' => $ordersSumTotal,
+            'avg' => $avgOrders,
+            'contactByTime' => $contactCountByTime,
+        ];
+
+        return $result;
     }
     
     public function getReportHomeDigital($time)
@@ -391,6 +555,36 @@ class HomeController extends Controller
     {
         $dataFilter['daterange'] = [$time, $time];
         $result = [];
+        if (!$checkAll) {
+            $checkAll = isFullAccess(Auth::user()->role);
+        }
+
+        $isLeadSale = $isLeadSale ? : Helper::isLeadSale(Auth::user()->role);
+        
+        if ($checkAll || $isLeadSale) {
+            $listGroup = GroupUser::where('status', 1)->get();
+            foreach ($listGroup as $gr) {
+                if ($gr->id == 5) {
+                    continue;
+                }
+                $listSale =  Helper::getListSaleV3(Auth::user(), $isLeadSale, $gr->id);
+                foreach ($listSale as $sale) {
+                    $data = $this->getReportUserSaleV2($sale, $dataFilter);
+                    $result[] = $data;   
+                }
+            }
+
+        } else if ((Auth::user()->is_CSKH || Auth::user()->is_sale) && !Helper::isCskhDt(Auth::user())) {
+            $result[] = $this->getReportUserSaleV2(Auth::user(), $dataFilter);
+        }
+       
+        return $result;
+    }
+
+    public function getReportHomeSale2($time, $checkAll = false, $isLeadSale = false)
+    {
+        $dataFilter['daterange'] = [$time, $time];
+        $result = [];
 
         if (!$checkAll) {
             $checkAll = isFullAccess(Auth::user()->role);
@@ -521,6 +715,141 @@ class HomeController extends Controller
         return response()->json($this->filterByDate($req->type, $req->date));
     }
 
+     public function ajaxFilterDashboardCskhDT(Request $req) 
+    {
+        $resultDigital = $result =  $dataFilter = $list = [];
+        $dataFilter['daterange'] = $req->date;
+
+        if ($req->status != 999) {
+            $dataFilter['status'] = $req->status;
+            $newFilter['status'] = $req->status;
+        }
+
+        $category = $req->category;
+        if ($category != 999) {
+            $dataFilter['category'] = $category;
+        }
+
+        $product = $req->product;
+        if ($req->product && $product != 999) {
+            $dataFilter['product'] = $product;
+        }
+
+        $sale = $req->sale;
+        if ($sale && $sale != 999) {
+            $dataFilter['sale'] = $req->sale;
+        }
+
+        $mkt = $req->mkt;
+        if ($mkt != 999) {
+            $dataFilter['mkt'] = $mkt;
+            $newFilter['mkt'] = $mkt;
+        }
+
+        $src = $req->src;
+        if ($src != 999) {
+            $dataFilter['src'] = $src;
+            $newFilter['src'] = $src;
+        } 
+
+        $group = $req->group;
+        if ($group != 999) {
+            $dataFilter['group'] = $group;
+        }
+
+        $groupUser = $req->groupUser;
+        $list = [];
+        
+        if ($groupUser && $groupUser != 999) {
+            $groupUs = GroupUser::find($groupUser);
+            
+            if ($groupUs) {
+                $listSale = $groupUs->users;
+                foreach ($listSale as $sale) {
+                    $data = $this->getReportUserCskhDT($sale, $dataFilter);
+                    $list[] = $data;
+                }
+            }
+        } else if (isset($dataFilter['sale'])) {
+             /**
+             * bắt đầu lọc 
+             * chọn 1 sale xxxxx
+            */
+            $sale = Helper::getSaleById($dataFilter['sale']);
+            $list[] = $this->getReportUserCskhDT($sale, $dataFilter);
+        } else {
+            /** chọn tất cả sale */
+            // $listSale = Helper::getListSale();
+            
+            $checkAll = isFullAccess(Auth::user()->role);
+            $isLeadSale = Helper::isLeadSale(Auth::user()->role);
+            if ($checkAll || $isLeadSale) {
+                $listSale = Helper::getListSaleByGroupWork(5);
+                foreach ($listSale as $sale) {
+                    $data = $this->getReportUserCskhDT($sale, $dataFilter);
+                    $list[] = $data;
+                }
+            } else {
+                /**sale đang xem thông tin */
+                $list[] = $this->getReportUserCskhDT(Auth::user(), $dataFilter);
+            }
+        }
+
+        $result['data'] = $list;
+        
+        $oldContactByTime = $totalSum = $avgSum = $newContact = $newOrder = $newRate = $newProduct = $newTotal = $oldAvg = $oldTotal = $oldProduct = $oldRate = $newAvg = $oldContact = $oldOrder= 0;
+        $sumNewCustomer = $sumOldCustomer = [
+            'contact' => 0,
+            'order' => 0,
+            'rate' => 0,
+            'product' => 0,
+            'total' => 0,
+            'avg' => 0,
+            'contactByTime' => 0,
+        ];
+        
+        foreach ($list as $data) {
+            if (isset($data['old_customer'])) {
+                $oldContact += $data['old_customer']['contact'];
+                $oldOrder += $data['old_customer']['order'];
+                $oldRate += $data['old_customer']['rate'];
+                $oldProduct += $data['old_customer']['product'];
+                $oldTotal += ($data['old_customer']['total']);
+                $oldContactByTime += ($data['old_customer']['contactByTime']);
+            }
+        }
+
+        $sumOldCustomer['contact'] = $oldContact;
+        $sumOldCustomer['contactByTime'] = $oldContactByTime;
+        $sumOldCustomer['order'] = $oldOrder;
+        if ($oldContact > 0) {
+            $oldRate = $oldOrder / $oldContact * 100;
+            $sumOldCustomer['rate'] = round($oldRate, 2);
+        }
+    
+        $sumOldCustomer['rate'] = round($oldRate, 2);
+        $sumOldCustomer['product'] = $oldProduct;
+        $sumOldCustomer['total'] = $oldTotal;
+        $sumOldCustomer['avg'] = ($oldOrder != 0) ?  round($oldTotal/$oldOrder, 0) : 0;
+        $totalSum = $oldTotal + $newTotal;
+        if ($oldOrder + $newOrder) {
+            $avgSum = round(($totalSum / ($oldOrder + $newOrder)), 0);
+        }
+
+        $rateSumX = 0;
+        $sumContactX =  $sumNewCustomer['contact'];
+        $sumOrderX =  $sumNewCustomer['order'] + $sumOldCustomer['order'];
+        if ($sumContactX > 0) {
+            $rateSumX = $sumOrderX / $sumContactX * 100;
+        } else {
+            $rateSumX = $sumOrderX * 100;
+        }
+       
+        $rateSumX = round($rateSumX, 2);
+        $result['trSum'] = $sumOldCustomer;
+        return $result;
+    }
+
     public function ajaxFilterDashboar(Request $req) 
     {
         $resultDigital = $result =  $dataFilter = $list = [];
@@ -590,17 +919,29 @@ class HomeController extends Controller
             $checkAll = isFullAccess(Auth::user()->role);
             $isLeadSale = Helper::isLeadSale(Auth::user()->role);
             if ($checkAll || $isLeadSale) {
-                $listSale = Helper::getListSaleV2(Auth::user());
-                foreach ($listSale->get() as $sale) {
-                    $data = $this->getReportUserSaleV2($sale, $dataFilter);
-                    $list[] = $data;
+                // $listSale = Helper::getListSaleV2(Auth::user());
+                // foreach ($listSale->get() as $sale) {
+                //     $data = $this->getReportUserSaleV2($sale, $dataFilter);
+                //     $list[] = $data;
+                // }
+                $listGroup = GroupUser::where('status', 1)->get();
+                foreach ($listGroup as $gr) {
+                    if ($gr->id == 5) {
+                        continue;
+                    }
+                    $listSale =  Helper::getListSaleV3(Auth::user(), $isLeadSale, $gr->id);
+                    foreach ($listSale as $sale) {
+                        $data = $this->getReportUserSaleV2($sale, $dataFilter);
+                        $list[] = $data;   
+                    }
                 }
-            } else {
+                // dd($list);
+            } else if ((Auth::user()->is_CSKH || Auth::user()->is_sale) && !Helper::isCskhDt(Auth::user())){
                 /**sale đang xem thông tin */
                 $list[] = $this->getReportUserSaleV2(Auth::user(), $dataFilter);
             }
         }
-
+  
         $result['data'] = $list;
         
         $totalSum = $avgSum = $newContact = $newOrder = $newRate = $newProduct = $newTotal = $oldAvg = $oldTotal = $oldProduct = $oldRate = $newAvg = $oldContact = $oldOrder= 0;

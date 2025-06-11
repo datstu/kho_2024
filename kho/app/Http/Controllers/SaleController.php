@@ -16,6 +16,7 @@ use App\Models\SaleCare;
 use App\Helpers\Helper;
 use App\Models\CallResult;
 use App\Models\Group;
+use App\Models\GroupUser;
 use App\Models\Product;
 use App\Models\SaleCareHistoryTN;
 use App\Models\ShippingOrder;
@@ -30,6 +31,17 @@ use Session;
 use Illuminate\Support\Facades\Log;
 class SaleController extends Controller
 {
+    public function seachSaleCareAPi(Request $request)
+    {
+        $search = $request->q;
+        $list  = SaleCare::orWhere('full_name', 'like', '%' . $search . '%')
+            ->orWhere('phone', 'like', '%' . $search . '%')
+            ->orWhere('full_name', 'like', '%' . $search . '%')
+            ->get();
+
+        // dd($list);
+        return response()->json($list);
+    }
 
     public function ajaxViewRank(Request $r)
     {
@@ -50,14 +62,35 @@ class SaleController extends Controller
 
     public function viewRankSale()
     {
+        $isMkt = Helper::isMkt(Auth::user());
+        if ($isMkt) {
+            return redirect()->route('home');
+        }
+
         $toMonth      = date("d/m/Y", time());
 
         $homeCtl = new HomeController();
         /**set tmp */
         // $toMonth = '01/12/2024';
+       
+        $checkAll = isFullAccess(Auth::user()->role);
+        if ($checkAll) {
+            $listGroup = GroupUser::where('status', 1)->get();
+            $dataFilter['daterange'] = [$toMonth, $toMonth];
+            foreach ($listGroup as $gr) {
+                $listSale =  Helper::getListSaleV3(Auth::user());
+                foreach ($listSale as $sale) {
+                    $data = $homeCtl->getReportUserSaleV2($sale, $dataFilter);
+                    $result[] = $data;   
+                }
+            }
+            $dataSale = $result;
+        } else if (Helper::isCskhDT(Auth::user())) {
+            $dataSale = $homeCtl->getReportCskhDamTom($toMonth, false, true);
+        } else {
+            $dataSale = $homeCtl->getReportHomeSale($toMonth, false, true);
+        }
 
-        $dataSale = $homeCtl->getReportHomeSale($toMonth, false, true);
-        // dd($dataSale);
         $dataSort = $this->selection_sort($dataSale);
         return view('pages.sale.rank')->with('dataSort', $dataSort);
     }
@@ -85,8 +118,17 @@ class SaleController extends Controller
 
     public function viewlistDuplicateByPhone($phone)
     {
-        $list = SaleCare::where('phone', $phone)->orderBy('id', 'desc');
-        return view('pages.sale.duplicate')->with('list', $list);
+        $result = [];
+        $list = SaleCare::where('phone', $phone)
+            ->orderBy('id', 'desc');
+        foreach ($list->get() as $item) {
+            if ($item->issetDuplicate && $item->duplicate_id) {
+                $result[] = SaleCare::find($item->duplicate_id);
+            }
+            $result[] = $item;
+        }
+        
+        return view('pages.sale.duplicate')->with('list', $result);
     }
 
     public function saveBoxTN(Request $req)
@@ -350,7 +392,7 @@ class SaleController extends Controller
             'phone.regex' => 'Định dạng số điện thoại chưa đúng',
         ]);
 
-        if (Helper::isSeeding($req->phone)) {
+        if (!$req->access && Helper::isSeeding($req->phone)) {
             notify()->error('Số điện thoại đã nằm trong danh sách spam/seeding..', 'Thất bại!');
             return back();
         }
@@ -521,14 +563,46 @@ class SaleController extends Controller
         return back();
     }
 
-    public function update($id) {
-        $saleCare   = SaleCare::find($id);
-        $helper     = new Helper();
-        $listSale   = $helper->getListSale()->get();
+    public function update(Request $request)
+    {
+        $saleCare = SaleCare::find($request->id);
+        if ($saleCare) {
+            $saleCare->phone = $request->phone;
+            $saleCare->full_name = $request->name;
+            $saleCare->address = $request->address;
+            $saleCare->messages = $request->note_info_customer;
+            $saleCare->issetDuplicate = ($request->issetDuplicate) ? 1 : 0;
+            if ($request->issetDuplicate) {
+                $saleCare->duplicate_id = $request->duplicate_id;
 
+                if (!$saleCare->is_duplicate) {
+                    $saleCare->is_duplicate = 1;
+                }
+            } else {
+                $isOldCustomer = Helper::isOldCustomerV2($saleCare->phone);
+                if (!$isOldCustomer) {
+                    $saleCare->is_duplicate = 0;
+                }
+
+                $saleCare->duplicate_id = null;
+            }
+            
+            $saleCare->save();
+            notify()->success('Lưu Data thành công', 'Thành công!');
+           
+        } else {
+           notify()->error('Đã xảy ra lỗi khi lưu data', 'Thất bại!');
+        }
+
+        return redirect()->back();
+    }
+
+    public function updateView($id) {
+        $saleCare   = SaleCare::find($id);
+      
         if($saleCare) {
-            return view('pages.sale.add')->with('saleCare', $saleCare)
-                ->with('listSale', $listSale);
+            return view('pages.sale.update')
+                ->with('saleCare', $saleCare);
         } 
 
         return redirect('/');

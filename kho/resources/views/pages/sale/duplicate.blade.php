@@ -55,7 +55,7 @@
                     <tbody>
                         @if ($list)
                         <?php $i = 1; ?>
-                        @foreach ($list->get() as $dup)
+                        @foreach ($list as $dup)
 
                         <tr>
                             <td class="text-center">{{$i}}</td>
