@@ -131,12 +131,12 @@ $messages = Session::get('messages');
          
                 @else
                     <div class="card-body card-orders">
-                        <form method="post" action="{{route('sale-care-save')}}" >
+                        <form method="post" action="{{route('sale-care-save')}}" onsubmit="return validatePhoneNumber()">
                             {{ csrf_field() }}
                             <div class="row mb-2" id="content-add">
                                 <div class="col-sm-12 col-lg-3">
                                     <label class="form-label" for="phoneFor">Số điện thoại<span class="required-input">(*)</span></label>
-                                    <input  required placeholder="Nhập số điện thoại" class="form-control" name="phone"
+                                    <input pattern="^(03[0-9]|05[0-9]|07[0-9]|08[0-9]|09[0-9])\d{7}$" required placeholder="Nhập số điện thoại" class="form-control" name="phone"
                                         id="phoneFor" type="text" value="{{$phone}}">
                                     <p class="error_msg" id="phone"></p>
                                 </div>
@@ -207,7 +207,7 @@ $messages = Session::get('messages');
                             </div>
 
                             <div class="row mb-2">
-                                <div class="col-sm-12 col-lg-4 mb-2">
+                                <div class="col-xs-12 col-sm-6 col-md-4 form-group">
                                     <label class="form-label">Nguồn Data:</label>
                                     <select style="width:100%;" name="src_id" id="src-filter" class="form-control">       
                                             
@@ -224,7 +224,7 @@ $messages = Session::get('messages');
                                 <img src="{{asset('public/images/loader.gif')}}" alt="">
                             </div> --}}
                             {{-- <button id="add" type="button" class="btn btn-danger text-white">Thêm lần gọi</button> --}}
-                            <button id="submit" class="btn btn-primary" >Tạo</button>
+                            <button id="submit" class="btn btn-primary" onclick="validatePhoneNumber()">Tạo</button>
                             
                         </form>
                     </div>
@@ -297,10 +297,10 @@ $( document ).ready(function() {
         $phone = $("input[name='phone']").val();
         $name = $("input[name='name']").val();
         $address = $("input[name='address']").val();
-        // if ( $phone != '' && validatePhoneNumber()) {
-        //     $('.loader').show();
-        //     $('.body form').css("opacity", '0.5');
-        // }
+        if ( $phone != '' && validatePhoneNumber()) {
+            $('.loader').show();
+            $('.body form').css("opacity", '0.5');
+        }
     });
 
     
@@ -346,7 +346,18 @@ function deleteCall(val) {
 </script>
 
 <script>
-   
+    function validatePhoneNumber() {
+        const phoneInput = document.getElementById('phoneFor');
+        const errorElement = document.getElementById('phone');
+        if (phoneInput.validity.valid) {
+            errorElement.textContent = '';
+            
+            return true; // Form will submit
+        } else {
+            errorElement.textContent = 'Số điện thoại chưa đúng';
+            return false; // Prevent form submission
+        }
+    }
 </script>
 </body>
 </html>
