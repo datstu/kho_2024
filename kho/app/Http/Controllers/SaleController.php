@@ -524,12 +524,12 @@ class SaleController extends Controller
                         $notiText .= "\nSale nhận data: " . $name;
                     }
 
-                    if ($chatId) {
-                        $response = $client->request('GET', $endpoint, ['query' => [
-                            'chat_id' => $chatId, 
-                            'text' => $notiText,
-                        ]]);
-                    } 
+                    // if ($chatId) {
+                    //     $response = $client->request('GET', $endpoint, ['query' => [
+                    //         'chat_id' => $chatId, 
+                    //         'text' => $notiText,
+                    //     ]]);
+                    // } 
                 }
             }
             $routeName = \Request::route();
