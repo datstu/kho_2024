@@ -4,6 +4,56 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
 <style>
+    .text-left.row {
+        padding-left:0 !important;
+    }
+    /* .total-header, .line-total, #sub-total {
+        width:100px;
+    } */
+    .name-product {
+        font-weight: bold;
+    }
+    .select-attribute {
+        padding: 5px;
+        padding-left: 10px;
+    }
+    .select-attribute label {
+        padding-bottom: 5px;
+        font-weight: 600;
+    }
+
+    tr {
+        transition: opacity 0.4s ease;
+    }
+    input.qty  {
+        width: 54px; height: 27px; padding: 2px;
+    }
+
+    .readonly {
+      color: #999999;
+      font-weight: bold;
+    }
+
+    .editable {
+      font-weight: bold;
+      color: #d20000;
+      font-size: 16px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    .promo-option {
+        text-align: right;
+    }
+
+    #final-total[readonly] {
+      background-color: #eee;
+      color: #999;
+    }
     .row {
         margin: unset;
     }
@@ -18,14 +68,19 @@
         /* border: none; */
     }
     .error_msg {color: red;}
+    .btn-submit {
+        position: relative;
+        margin: 10px 0;
+    }
 
 </style>
 <?php 
+use App\Helpers\HelperProduct;
 $listStatus = Helper::getListStatus();
 $isLeadSale = Helper::isLeadSale(Auth::user()->role);
 $checkAll = isFullAccess(Auth::user()->role);
 $flagAccess = false;
-
+$listAttribute = Helper::getListAttributes();
 $name = $phone = '';
 if (isset($saleCare)) {
     $name = $saleCare->full_name;
@@ -121,11 +176,9 @@ if (isset($saleCare)) {
                             <label for="note" class="form-label">Ghi chú:</label>
                             <textarea name="note" class="form-control" id="note" rows="4">{{$order->note}} </textarea>
                         </div>
-                        <div class="col-6">
+                        <div class="col-6 pb-1">
                             <label class="form-label" for="status">Trạng thái:</label>
-                            
-                            <select name="status" id="status"
-                                class="form-control">
+                            <select name="status" id="status" class="form-control">
                             
                                 @foreach ($listStatus as $k => $val)
                                 <option <?= (int)$order->status == (int)$k ? 'selected' : ''; ?> value="{{$k}}">{{$val}}</option>
@@ -137,138 +190,134 @@ if (isset($saleCare)) {
                     </div>
                     <div class="col-sm-12 col-lg-8">
                         <div class="row product-list-order">
-                            <div class=" col-8">
-                                <input class="hidden" name="products[]">
-                                <div type="button" onclick="myFunction()" class=" btn btn-outline-secondary">Sản phẩm</div>
-                                @if(isset($listProduct))
+                            <div class="col-xs-12 col-sm-6 col-md-4 form-group" style="text-align:center; margin-bottom: 20px;">
+                                <select id="product-select" style="display: none;">
+                                    <option value="">-- Chọn sản phẩm --</option>
 
-                                <div id="myDropdown"
-                                    class="position-absolute dropdown-content">
-                                    <input type="text" placeholder="Search.." id="myInput"
-                                        onkeyup="filterFunction()">
+                                    @if(isset($listProduct))
                                     @foreach ($listProduct as $value)
-                                    <a class="option-product"
-                                        data-product-price="{{$value->price}}"
-                                        data-product-name="{{$value->name}}"
-                                        data-product-id="{{$value->id}}">{{$value->name}}</a>
-
+                                    <option data-product_type="{{$value->type}}" value="{{$value->id}}|{{$value->price}}|{{$value->name}}">{{$value->name}}</option>
                                     @endforeach
-                                </div>
+                                    @endif
 
-                                @endif
-                                <p class="error_msg" id="qty"></p>
+                                </select>
+                               <p class="error_msg" id="qty"></p>
                             </div>
-                            
                         </div>
                                 
                         <div class="row">
                             <div class="col-12">
-                                <div id="list-product-choose"></div>
                                 <table class="table table-bordered table-line" style="margin-bottom:15px; font-size: 13px; ">
                                     <thead>
                                         <tr>
-                                            
                                             <th colspan="1" class="text-center no-wrap col-spname" style="min-width: 155px">Tên sản phẩm</th>           
                                             <th colspan="1" class="text-center no-wrap">Đơn giá</th>
-                                            <th colspan="1" class="text-center no-wrap">SL Tổng</th>
-                                            <th colspan="1" class="text-center no-wrap">Thành tiền</th>
+                                            <th colspan="1" class="text-center no-wrap">Số lượng</th>
+                                            <th colspan="1" class="text-center no-wrap total-header">Thành tiền</th>
                                             <th colspan="1" class="text-center no-wrap"></th>
                                         </tr>
                                     </thead>
-                                    <tbody class="list-product-choose">
+                                    <tbody id="cart-body">
                                         <?php $sumQty = $totalTmp = 0;
-                                foreach (json_decode($order->id_product) as $item) {
-                                    $product = getProductByIdHelper($item->id);
-                                    
-                                    if ($product) {
-                                        $sumQty += $item->val;
-                                        $totalTmp += $item->val * $product->price;
-                            ?>
-
-                <tr class="number dh-san-pham product-{{$product->id}}">
-                    <td class="text-left">
-                        <span class="no-combo">{{$product->name}}</span><br>
-                    </td>
-                    <td class="no-wrap" style="width: 80px">{{number_format($product->price)}}</td>
-                    <td class="no-wrap" style="width: 45px">
-                        <button onclick="minus({{$product->id}}, {{$product->price}})" type="button" class=" minus">-</button>
-                    
-                    <input class="qty-input" name="product-{{$product->id}}" data-product_id="{{$product->id}}" readonly type="text" value="{{$item->val}}"/>
-                    <button onclick="plus({{$product->id}}, {{$product->price}})" type="button" class="plus">+</button>
-                    </td>
-                    <td class="no-wrap totalPriceProduct-{{$product->id}}" style="width: 30px">{{number_format($item->val * $product->price)}}</td>
-                    <td class="text-center" style="width: 50px;">
-                        <button onclick="deleteProduct({{$product->id}}, {{$product->price}})" type="button" class="col-2" ><i class="fa fa-trash"></i></button>
-                    </td>
-                </tr>
-                            
-                            <?php
+                                        if ($order->id_product) {
                                         
-                                    }
-                                    
-                                }
-                            ?>
+                                        foreach (json_decode($order->id_product) as $item) {
+                                            $product = getProductByIdHelper($item->id);
+                                        
+                                            if ($product) {
+                                                $rowClass = '';
+                                                $type = $product->type;
+                                                
+                                                $price = $product->price;
+                                                $variantId = 0;
+                                                $listAttributeOfItem = [];
+                                                if ($type == 2 && !empty($item->variantId)) {
+                                                    $rowClass = 'row';
+                                                   
+                                                    $variantId = $item->variantId;
+                                                    $variant = HelperProduct::getProductVariantById($variantId);
+                                                    $price = $variant->price;
+                                                    if ($variant) {
+                                                        foreach ($variant->attributeValues as $attribute) {
+                                                            $listAttributeOfItem[] = $attribute->attribute_value_id;
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                $sumQty += $item->val;
+                                                $totalTmp += $item->val * $price;
+                                                $tmp = $item->val * $price;
+                                                
+                                        ?>
+
+                                        <tr data-price="{{$price}}" data-type="{{$type}}"  data-variant-id="{{$variantId}}" class="number dh-san-pham" data-id="{{$product->id}}">
+                                            <td class="text-left {{$rowClass}}">
+                                                <h5 class="name-product">{{$product->name}}</h5>
+
+                                                <?php if ($product->type == 2) {
+                                                    
+                                                    foreach ($listAttribute as $attribute) {
+                                                ?>
+                                                <div class="select-attribute col-sm-12 col-lg-6" data-id="{{$product->id}}">
+                                                    <label class="" for="{{$attribute->id}}-filter">{{$attribute->name}}:</label>
+                                                    <select name="attribute-{{$attribute->id}}" id="{{$attribute->id}}-filter" class="slb-attribute form-control">       
+                                                        
+                                                        @foreach ($attribute->values as $value)
+                                                        <option <?php echo (in_array($value->id, $listAttributeOfItem)) ? 'selected' : ''; ?>
+                                                        value="{{$value->id}}">{{$value->value}}</option>
+
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <?php }   
+                                                }
+
+                                                ?>
+                                            </td>
+                                            <td class="no-wrap unit-price" style="width: 80px">{{number_format($price)}}</td>
+                                            <td style="text-align: left;" class="number">
+                                                <input data-product_id="{{$product->id}}" type="number" class="qty" value="{{$item->val}}" min="1">
+                                            </td>
+                                            <td class="line-total no-wrap " style="width: 30px">xx {{number_format($tmp)}}</td>
+                                            <td><button type="button" class="delete-btn">🗑️</button></td>
+                                        </tr>
+                            
+                                        <?php }   
+                                            }
+                                        }
+                                        ?>
                                     </tbody>
                                     <tfoot>
                                         <tr>
                                             <td class="no-wrap text-right" colspan="2">Tạm tính:</td>
-                                            <td class="no-wrap text-center" colspan="1">
-                                                <input style="text-align: right;" value="{{$sumQty}}" name="sum-qty" class="form-control" readonly
-                                                type="number"></td>
-                                            <td colspan="1" class="no-wrap total-tmp">{{number_format($totalTmp)}}</td>
+                                            <td style="width: 54px;" class="readonly" id="total-qty" data-total-qty="0">0</td>
+                                            <td class="readonly" id="sub-total">{{number_format(num: $order->total)}}</td>
                                             <td colspan="1"></td>
                                         </tr>
-                                    
                                         <tr>
-                                            <td class="no-wrap text-right" colspan="3">Tổng đơn:
-                                                {{-- <br> --}}
-                                                <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="xxx" class="form-check-input">
-                                                <label class="form-label" for="xxx">Khuyến mãi</label>
+                                            <td class="no-wrap text-right promo-option" colspan="3">Tổng đơn: <br>
+                                                <input {{ $order->is_price_sale ? 'checked' : '' }} name="priceSale" type="checkbox" id="promo-checkbox" class="form-check-input">
+                                                <label class="form-label" for="promo-checkbox">Khuyến mãi</label>
                                             </td>
                                             <td class="no-wrap" colspan="1">
-                                                <input {{ $order->is_price_sale ? '' : 'readonly' }} value="{{number_format($order->total)}}"
-                                                    class="price_class form-control" name="price"
-                                                    id="priceFor"
-                                                    type="text"
-                                                    data-product-price={{$totalTmp}} /> 
+                                                <input {{ $order->is_price_sale ? '' : 'readonly' }}
+                                                data-product-price="{{$totalTmp}}" type="text"  name="price" id="final-total" class="editable price_class" value="{{number_format($order->total)}}">
                                             </td>
                                             <td></td>
                                         </tr>
-                                        
                                     </tfoot>
                                 </table>
-                            
                             </div>
-                    <div class="col-12">
-                        <div id="list-product-choose">
-
-                            <?php 
-                                foreach (json_decode($order->id_product) as $item) {
-                                    $product = getProductByIdHelper($item->id);
-                                    if ($product) {
-                            ?>
-
-                            
-                            <?php
-                                        
-                                    }
-                                    
-                                }
-                            ?>
-                            
-                        </div>
-                    </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-12" style="text-align: end;">
+            <div class="row btn-submit">
+                <div class="col-sm-12 col-lg-12" style="text-align: end;">
                     <button id="submit" class="mb-1 btn btn-primary create-bill">Lưu</button>
                 </div>
             </div>
             @else
-            {{-- <div class=""><strong>Thêm đơn hàng mới</strong></div> --}}
 
             <div class="card-body card-orders" style="padding:10px 0;">
                 <div class="body flex-grow-1">
@@ -346,7 +395,7 @@ if (isset($saleCare)) {
                                     <p></p>
                                 </div>
 
-                                <div class="col-lg-6 col-sm-12">
+                                <div class="col-lg-6 col-sm-12 pb-1">
                                     <label class="form-label" for="statusFor">Trạng thái:</label>
                                     <select name="status" id="statusFor"
                                         class="form-control">
@@ -362,95 +411,75 @@ if (isset($saleCare)) {
                         </div>
                         <div class="col-sm-12 col-lg-8">
                             <div class="row product-list-order">
-                                <div class="col-8">
-                                    <input class="hidden" name="products[]">
-                                    <div type="button" onclick="myFunction()" class="btn btn-outline-secondary">--Chọn sản phẩm--<span class="required-input">(*)</span> ⮟</div>
-                                    @if(isset($listProduct))
+                                <div class="col-xs-12 col-sm-6 col-md-4 form-group" style="text-align:center; margin-bottom: 20px;">
+                                    <select id="product-select" style="display: none;">
+                                        <option value="">-- Chọn sản phẩm --</option>
 
-                                    <div id="myDropdown" class="position-absolute dropdown-content">
-                                        <input type="text" placeholder="--Tìm sản phẩm--" id="myInput"
-                                            onkeyup="filterFunction()">
+                                        @if(isset($listProduct))
                                         @foreach ($listProduct as $value)
-                                        <a class="option-product" data-product-name="{{$value->name}}"
-                                            data-product-id="{{$value->id}}"
-                                            data-product-price="{{$value->price}}"
-                                            >{{$value->name}}</a>
-
+                                        <option data-product_type="{{$value->type}}" value="{{$value->id}}|{{$value->price}}|{{$value->name}}">{{$value->name}}</option>
                                         @endforeach
-                                    </div>
+                                        @endif
 
-                                    @endif
+                                    </select>
                                     <p class="error_msg" id="qty"></p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-12">
-                                    <div id="list-product-choose"></div>
-                                    <table class="table table-bordered table-line" style="margin-bottom:15px; font-size: 13px; ">
+                                    <table class="table table-bordered table-line" style="width:100%;margin-bottom:15px; font-size: 13px; ">
                                         <thead>
                                             <tr>
                                                 <th colspan="1" class="text-center no-wrap col-spname" style="min-width: 155px">Tên sản phẩm</th>           
                                                 <th colspan="1" class="text-center no-wrap">Đơn giá</th>
-                                                <th colspan="1" class="text-center no-wrap">SL Tổng</th>
-                                                <th colspan="1" class="text-center no-wrap">Thành tiền</th>
+                                                <th colspan="1" class="text-center no-wrap">Số lượng</th>
+                                                <th colspan="1" class="total-header text-center no-wrap" style="width:10%">Thành tiền</th>
                                                 <th colspan="1" class="text-center no-wrap"></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="list-product-choose">
-                                            
-                                        </tbody>
+                                        <tbody id="cart-body"></tbody>
                                         <tfoot>
                                             <tr>
                                                 <td class="no-wrap text-right" colspan="2">Tạm tính:</td>
-                                                <td class="no-wrap text-center" colspan="1">
-                                                    <input style="text-align: right;" value="0" name="sum-qty" class="form-control" readonly
-                                                    type="number"></td>
-                                                <td class="no-wrap total-tmp" colspan="1">0</td>
+                                                <td style="width: 54px;" class="readonly" id="total-qty" data-total-qty="0">0</td>
+                                                <td class="readonly" id="sub-total"></td>
                                                 <td colspan="1"></td>
                                             </tr>
                                         
                                             <tr>
-                                                <td class="no-wrap text-right" colspan="3">Tổng đơn:
-                                                    {{-- <br> --}}
-                                                    <input name="priceSale" type="checkbox" id="xxx" class="form-check-input">
-                                                    <label class="form-label" for="xxx">Khuyến mãi</label>
+                                                <td class="no-wrap text-right promo-option" colspan="3">Tổng đơn: <br>
+                                                    <input name="priceSale" type="checkbox" id="promo-checkbox" class="form-check-input">
+                                                    <label class="form-label" for="promo-checkbox">Khuyến mãi</label>
                                                 </td>
                                                 <td class="no-wrap" colspan="1">
-                                                    <input readonly value="0"
-                                                        class="price_class form-control" name="price"
-                                                        id="priceFor"
-                                                        type="text"
-                                                        data-product-price=0 /> 
+                                                    <input readonly data-product-price="0" type="text"  name="price" id="final-total" 
+                                                    class="editable price_class" value="0">
                                                 </td>
-                                                <td colspan="1"></td>
+                                                <td></td>
                                             </tr>
-                                            
                                         </tfoot>
                                     </table>
-                                
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-12" style="text-align: end;">
+            <div class="row btn-submit">
+                <div class="col-sm-12 col-lg-12" style="text-align: end;">
                     <button onclick="validatePhone()" id="submit" class="mb-1 btn btn-primary create-bill">Chốt đơn</button>
                 </div>
             </div>
             @endif
             
         </div>
-
     </form>
-    {{-- <div class="row text-right">
-        <div><button class="refresh btn btn-info">Refresh</button></div>
-    </div> --}}
     <span class="loader hidden">
         <img src="{{asset('public/images/rocket.svg')}}" alt="">
     </span>
 
+    <input type="hidden" id="list_variants"/>
+    <input type="hidden" id="list_all_attribute" value="{{$listAttribute}}"/>
 </div>
 <script type="text/javascript">
 
@@ -548,7 +577,6 @@ $(".option-product-province").click(function() {
         },
         success: function(data) {
             if (data.length > 0) {
-                // console.log(data);
                 let str = '';
 
                 $.each(data, function(index, value) {
@@ -563,114 +591,11 @@ $(".option-product-province").click(function() {
             }
         }
     });
-
 });
-/* When the user clicks on the button,
-toggle between hiding and showing the dropdown content */
-function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
-}
-
-
-function filterFunction() {
-    var input, filter, ul, li, a, i;
-    input = document.getElementById("myInput");
-    filter = input.value.toUpperCase();
-    div = document.getElementById("myDropdown");
-    a = div.getElementsByTagName("a");
-    for (i = 0; i < a.length; i++) {
-        txtValue = a[i].textContent || a[i].innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            a[i].style.display = "";
-        } else {
-            a[i].style.display = "none";
-        }
-    }
-}
-
-function deleteProduct(id, price) {
-    var $input = $('input[name="product-' + id + '"');
-    var count = parseInt($input.val());
-
-    var $inputQty = $('input[name="sum-qty"');
-    $inputQty.val(parseInt($inputQty.val()) - count);
-    $inputQty.change();
-    $('#product-' + id).parent().remove();
-    $('tr.product-' + id).remove();
-    let priceOld = +$("input[name='price']").attr("data-product-price");
-        newPrice = priceOld - price*count;
-        if (newPrice <= 0) {
-            newPrice = 0
-        }
-
-        newPriceFormat = new Intl.NumberFormat().format(newPrice,);
-        $("input[name='price']").val(newPriceFormat);
-        $("input[name='price']").attr('data-product-price', newPrice);
-        $('.total-tmp').html(newPriceFormat);
-    return false;
-}
-
-function minus(id, price) {
-
-    var $input = $('input[name="product-' + id + '"');
-    var count = parseInt($input.val()) - 1;
-    // count = count < 1 ? 1 : count;
-
-
-    if (count >= 1) {
-        $input.val(count);
-        $input.change();
-
-        var $inputQty = $('input[name="sum-qty"');
-        $inputQty.val(parseInt($inputQty.val()) - 1);
-        $inputQty.change();
-
-        let priceOld = +$("input[name='price']").attr("data-product-price");
-        newPrice = priceOld - price;
-        newPriceFormat = new Intl.NumberFormat().format(newPrice,);
-        $("input[name='price']").val(newPriceFormat);
-        $("input[name='price']").attr('data-product-price', newPrice);
-        $('.total-tmp').html(newPriceFormat);
-
-        var qty = $input.val();
-        totalPriceByProduct = price * qty;
-        totalPriceByProductFM = new Intl.NumberFormat().format(totalPriceByProduct,);
-        $('.totalPriceProduct-' + id).html(totalPriceByProductFM);
-    }
-
-    return false;
-}
-
-function plus(id, price) {
-    event.preventDefault();
-    var $input = $('input[name="product-' + id + '"');
-    $input.val(parseInt($input.val()) + 1);
-    $input.change();
-
-    var $inputQty = $('input[name="sum-qty"');
-    $inputQty.val(parseInt($inputQty.val()) + 1);
-    $inputQty.change();
-    
-    let priceOld = +$("input[name='price']").attr("data-product-price");
-    newPrice = priceOld + price;
-    newPriceFormat = new Intl.NumberFormat().format(newPrice,);
-    $("input[name='price']").val(newPriceFormat);
-    $("input[name='price']").attr('data-product-price', newPrice);
-    $('.total-tmp').html(newPriceFormat);
-
-    var qty = $input.val();
-    totalPriceByProduct = price * qty;
-    totalPriceByProductFM = new Intl.NumberFormat().format(totalPriceByProduct,);
-    $('.totalPriceProduct-' + id).html(totalPriceByProductFM);
-    return false;
-}
-
-
 
 $(document).ready(function() {
 
     $("#submit").click(function(e) {
-        
         e.preventDefault();
 
         $('.body .loader').show();
@@ -683,7 +608,7 @@ $(document).ready(function() {
         var sex         = $("select[name='sex']").val();
         var ward        = $("input[name='ward']").attr('data-ward-id');
         var address     = $("input[name='address']").val();
-        var qty         = $("input[name='sum-qty']").val();
+        var qty         = $("#total-qty").attr('data-total-qty');
         var assignSale  = $("select[name='assign-sale']").val();
         var note        = $("#note").val();
         var id          = $("input[name='id']").val();
@@ -691,40 +616,35 @@ $(document).ready(function() {
         var saleCareId  = $("input[name='sale-care']").val();
         var district  = $("select[name='district']").val();
         var ward  = $("select[name='ward']").val();
+        
+        var productCart = getListProductCart();
 
         if (phone == '' || !validatePhone()) {
-            console.log('no')
             $('.body .loader').hide();
             $('.body .row').css("opacity", "1");
             $('.body .row').css("position", "relative");
-
            return false;
         }
 
-        let listProduct = [];
-        $(".number input").each(function(index) {
-            let productId = $(this).data("product_id");
-            let val = Number($(this).val());
-            listProduct.push({
-                id: productId,
-                val: val
-            });
-        });
+        // let listProduct = [];
+        // $(".number input").each(function(index) {
+        //     let productId = $(this).data("product_id");
+        //     let val = Number($(this).val());
+        //     listProduct.push({
+        //         id: productId,
+        //         val: val
+        //     });
+        // });
 
         var isPriceSale = $("input[name='priceSale']:checked").val();
         var price = $("input[name='price']").val();
-
+        price = price.replace(/[^0-9]+/g, "");
         if (isPriceSale == 'on') {
             isPriceSale = 1;
-            price = price.replace(/[^0-9]+/g, "")
         } else {
             isPriceSale = 0;
-            price = $("input[name='price']").attr("data-product-price");
         }
 
-        // saleCare  = saleCare ? saleCare : 0;
-        // var url = "<?php echo URL::to('/save-orders/" + saleCare + "'); ?>";
-        console.log(assignSale)
         $.ajax({
             url: "{{route('save-orders')}}",
             type: 'POST',
@@ -737,7 +657,8 @@ $(document).ready(function() {
                 qty: qty,
                 id,
                 sex,
-                products: JSON.stringify(listProduct),
+                // products: JSON.stringify(listProduct),
+                products: productCart,
                 qty,
                 price,
                 address,
@@ -751,10 +672,11 @@ $(document).ready(function() {
             success: function(data) {
                 console.log(data);
                 if ($.isEmptyObject(data.errors)) {
+                    window.parent.postMessage('mess-success', '*');
                     $(".error_msg").html('');
-                    $("#notifi-box").show();
-                    $("#notifi-box").html(data.success);
-                    $("#notifi-box").slideDown('fast').delay(5000).hide(0);
+                    // $("#notifi-box").show();
+                    // $("#notifi-box").html(data.success);
+                    // $("#notifi-box").slideDown('fast').delay(5000).hide(0);
                     if (data.link) {
                         window.location.href = data.link;
                     }
@@ -762,14 +684,9 @@ $(document).ready(function() {
                     $('.error_msg').text('');
                     let resp = data.errors;
                     for (index in resp) {
-                        // console.log(index);
-                        // console.log(resp[index]);
                         $("#" + index).html(resp[index]);
                     }
                 }
-
-                // $('.body').css("opacity", '1');
-                // $('.loader').hide();
 
                 $('.body .loader').hide();
                 $('.body .row').css("opacity", "1");
@@ -854,100 +771,11 @@ $(document).ready(function() {
         input[0].setSelectionRange(caret_pos, caret_pos);
     }
 
-    $(".option-product").click(function() {
-        let id = $(this).data("product-id");
-        let name = $(this).data("product-name");
-        let productPrice = $(this).data("product-price");
-        productPriceFM = new Intl.NumberFormat().format(productPrice,);
-
-        $("input[name='products[]']").val(id);
-
-        $("#myDropdown").removeClass('show');
-        $("#myDropdown").addClass('hidden');
-    
-        var inputQty = $('input[name="sum-qty"');
-        inputQty.val(parseInt(inputQty.val()) + 1);
-        inputQty.change();
-
-        var totalPriceByProduct = 0;
-
-        if ($('.product-' + id).length <= 0) {
-            var newStr = '';
-            newStr += `
-                <tr class="number dh-san-pham product-` + id +`">
-                    
-                    <td class="text-left">
-                        <span class="no-combo">` + name + `</span><br>
-                    </td>
-                    <td class="no-wrap" style="width: 80px">` + productPriceFM + `</td>
-                    <td class="no-wrap" style="width: 45px">
-                        <button onclick="minus(` + id +
-                    ', ' + productPrice + `)" type="button" class=" minus">-</button>
-                    
-                    <input class="qty-input" name="product-` + id + `" data-product_id="` +
-                    id + `" readonly type="text" value="1"/>
-                    <button onclick="plus(` + id +
-                    ', ' + productPrice + `)" type="button" class="plus">+</button>
-                    </td>
-                    <td class="no-wrap totalPriceProduct-` + id + `" style="width: 30px">` + productPriceFM + `</td>
-                    <td class="text-center" style="width: 50px;">
-                        <button onclick="deleteProduct(` + id +
-                    ', ' + productPrice + `)" type="button" class="col-2" ><i class="fa fa-trash"></i></button>
-                    </td>
-                    </tr>`;
-            $(".list-product-choose").append(newStr);
-
-            // let str = '<div class="text-right col-4 number product-' + id +
-            //     '"><button onclick="minus(' + id +
-            //     ', ' + price +
-            //     ')" type="button" class=" minus">-</button><input class="qty-input" name="product-' + id + '" data-product_id="' +
-            //     id + '" readonly type="text" value="1"/><button onclick="plus(' + id +
-            //     ', ' + price +
-            //     ')" type="button" class="plus">+</button></div>';
-            // str += '<button onclick="deleteProduct(' + id +
-            //     ', ' + price +
-            //     ')" type="button" class="col-2 del" >X</button>';
-            // $("#list-product-choose").append('<div class="row product mb-0">' +
-            //     '<div class="col-6 name">' + name +
-            //     '</div>' + str + '</div>');
-            totalPriceByProduct = productPrice;
-        } else {
-            var $input = $('input[name="product-' + id + '"');
-            $input.val(parseInt($input.val()) + 1);
-            $input.change();
-
-            var qty = $input.val();
-            totalPriceByProduct = productPrice * qty;
-            totalPriceByProductFM = new Intl.NumberFormat().format(totalPriceByProduct,);
-            $('.totalPriceProduct-' + id).html(totalPriceByProductFM);
-
-        }
-
-        priceOld = $("input[name='price']").attr("data-product-price");
-        
-        // console.log('priceOld', priceOld)
-        // console.log('productPrice', productPrice)
-        newPrice = parseInt(priceOld) + productPrice;
-        newPriceFormat = new Intl.NumberFormat().format(newPrice,);
-            // newPriceFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
-            // .format(newPrice,);
-        $("input[name='price']").val(newPriceFormat);
-       
-        $("input[name='price']").attr('data-product-price', newPrice);
-        
-        $('.total-tmp').html(newPriceFormat);
- 
-    });
-
-    // $("priceSaleFor").click(function() {
-        $("input[name='priceSale']").click(function() {
-        
-        console.log('is clicked')
+    $("input[name='priceSale']").click(function() {
         if ($(this).is(':checked')) {
             $("input[name='price']").prop("readonly", false);
             $("input[name='price']").focus();
         } else {
-            // $("input[name='promotion']").hide();
             $("input[name='price']").prop("readonly", true);
             let price           = $("input[name='price']").attr("data-product-price");
             console.log(price);
@@ -960,7 +788,6 @@ $(document).ready(function() {
     $('.refresh').click(function() {
         location.reload(true)
     });
-
 });
 
 document.querySelectorAll('.price_class').forEach(inp => new Cleave(inp, {
@@ -977,7 +804,6 @@ $.urlParam = function(name){
     }
     return 0;
 }
-
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
@@ -985,22 +811,28 @@ $.urlParam = function(name){
     $(function() {
         $('#distric-filter').select2();
         $('#ward-filter').select2();
+        $('#product-select').select2({
+            placeholder: "Chọn sản phẩm...",
+            allowClear: true,
+            width: 'resolve'
+        });
+
+
+ 
     });
 </script>
-
 <script>
     $(document).ready(function() {
-        var baseLink = location.href.slice(0,location.href.lastIndexOf("/"));
-        // var link = baseLink + '/public/json/simplified_json_generated_data_vn_units.json';
-        var link = baseLink + '/public/json/local.json';
-        var listProvince = fetch(link)
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error
-                        (`HTTP error! Status: ${res.status}`);
-                }
-                return res.json();
-            });
+        // var baseLink = location.href.slice(0,location.href.lastIndexOf("/"));
+        // var link = baseLink + '/public/json/local.json';
+        // var listProvince = fetch(link)
+        //     .then((res) => {
+        //         if (!res.ok) {
+        //             throw new Error
+        //                 (`HTTP error! Status: ${res.status}`);
+        //         }
+        //         return res.json();
+        //     });
 
         $('#distric-filter').on('change', function() {
             var id = this.value;
@@ -1017,9 +849,7 @@ $.urlParam = function(name){
                         
                         let str = '';
                         $.each(data, function(index, value) {
-                            console.log(value);
                             str += `<option value="` +value.id+ `">` + value.name + `</option>`;
-                            
                         });
 
                         $('#ward-filter').html(str);
@@ -1030,25 +860,303 @@ $.urlParam = function(name){
         })
     });
 </script>
+<script type="text/javascript">
+  $(document).ready(function() {
+  $(window).keydown(function(event){
+    if(event.keyCode == 13) {
+      event.preventDefault();
+      return false;
+    }
+  });
+});
+</script>
+<script>
+function validatePhone() {
+    const input = document.getElementById('phoneFor').value;
+    const message = document.getElementById('phone');
+
+    // Regex: bắt đầu bằng 0, theo sau là 9 số
+    const regex = /^(03[0-9]|05[0-9]|07[0-9]|08[0-9]|09[0-9])\d{7}$/;
+
+    if (regex.test(input)) {
+        
+        message.textContent = "✔️ Số điện thoại hợp lệ";
+        message.style.color = "green";
+        return true;
+    } else {
+        message.textContent = "❌ Số điện thoại không hợp lệ";
+        message.style.color = "red";
+        return false;
+    }
+}
+</script>
+ <script>
+    const cartBody = document.getElementById('cart-body');
+    const subTotal = document.getElementById('sub-total');
+    const totalQtyElem = document.getElementById('total-qty');
+    const finalTotal = document.getElementById('final-total');
+    const promoCheckbox = document.getElementById('promo-checkbox');
+
+    function formatVND(number) {
+        return Number(number).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function parseVND(str) {
+      return parseInt(str.replace(/\D/g, '')) || 0;
+    }
+
+    function updateSubtotal() {
+      let total = 0;
+      let totalQty = 0;
+      const rows = cartBody.querySelectorAll('tr');
+
+      rows.forEach(row => {
+        const price = parseInt(row.dataset.price);
+        const qty = parseInt(row.querySelector('.qty').value) || 0;
+        const lineTotal = price * qty;
+
+        row.querySelector('.line-total').textContent = formatVND(lineTotal);
+        total += lineTotal;
+        totalQty += qty;
+      });
+
+      subTotal.textContent = formatVND(total);
+      totalQtyElem.textContent = totalQty;
+      totalQtyElem.dataset.totalQty = totalQty;
+
+      if (!promoCheckbox.checked) {
+        finalTotal.value = formatVND(total);
+      }
+    }
+
+    function bindDeleteButtons() 
+    {
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.removeEventListener('click', btn._deleteHandler); // gỡ handler cũ nếu có
+
+            btn._deleteHandler = function () {
+                const row = this.closest('tr');
+
+                // Optional: Xác nhận trước khi xoá
+                if (!confirm("Bạn có chắc chắn muốn xoá sản phẩm này?")) return;
+
+                // Thêm hiệu ứng mờ dần rồi xoá
+                row.style.transition = 'opacity 0.4s ease';
+                row.style.opacity = 0;
+
+                setTimeout(() => {
+                    row.remove();
+                    updateSubtotal();
+                }, 400);
+            };
+
+            btn.addEventListener('click', btn._deleteHandler);
+        });
+    }
+
+    // Gắn sự kiện khi thay đổi số lượng
+    function bindQtyInputs() {
+      document.querySelectorAll('.qty').forEach(input => {
+        input.addEventListener('input', updateSubtotal);
+      });
+    }
+
+    promoCheckbox.addEventListener('change', function () {
+      const isChecked = this.checked;
+      finalTotal.readOnly = !isChecked;
+
+      if (!isChecked) {
+        finalTotal.value = subTotal.textContent;
+      }
+    });
+
+    function bindSelectAttr()
+    {
+        const rows = cartBody.querySelectorAll('tr');
+        rows.forEach(row => {
+            const selects = row.querySelectorAll('.slb-attribute');
+            selects.forEach(function(selectElement) {
+                selectElement.addEventListener('change', function(e) {
+
+                    var values = Array.from(selects).map(select => Number(select.value));
+                    var listVariants = $('#list_variants').val();
+
+                    listVariants = JSON.parse(listVariants);
+                    // console.log('Các giá trị đang chọn là:', values);
+
+                    const variant = listVariants.find(v =>
+                        areArraysEqual(v.list_attribute, values)
+                    );
+
+                    // console.log('variant đc chọn là: ', variant)
+                    const idProduct = this.parentElement.getAttribute('data-id');
+                    if (variant != undefined && idProduct != undefined) {
+                        // var trProduct = document.querySelector(`tr[data-id="${idProduct}"]`); 
+                        trProduct = row;
+                        priceVariant = variant.price;
+                        trProduct.querySelector('.unit-price').textContent = formatVND(priceVariant);
+                        trProduct.querySelector('.line-total').textContent = formatVND(priceVariant);
+                        trProduct.querySelector('.number input.qty').value = 1;
+
+                        const priceVariantInt = parseInt(priceVariant);
+                        trProduct.dataset.price = priceVariantInt;
+                        trProduct.dataset.variantId = variant.id;
+                        updateSubtotal();
+                    }
+                });
+             });
+        }); 
+    }
+
+    // Khởi tạo
+    updateSubtotal();
+    bindDeleteButtons();
+    bindQtyInputs();
+    bindSelectAttr()
+</script>
+<script>
+    $('#product-select').on('select2:select', function (e) {
+        const selected = $(this).val();
+        const type = $(this).find(':selected').data('product_type');
+        
+        if (!selected) return;
+
+        const [id, price, name] = selected.split('|');
+        const priceInt = parseInt(price);
+        const productId = parseInt(id);
+        const productType = parseInt(type);
+
+        const existingRow = cartBody.querySelector(`tr[data-id="${productId}"]`);
+
+        if (existingRow && productType != 2) {
+            const qtyInput = existingRow.querySelector('.qty');
+            qtyInput.value = parseInt(qtyInput.value) + 1;
+        } else {
+            var strVariants = '';
+             const tr = document.createElement('tr');
+            tr.dataset.price = priceInt;
+            tr.dataset.id = productId;
+            tr.dataset.type = productType;
+            var rowClass = values = '';
+            if (productType == 2) {
+                rowClass = 'row';
+                strVariants = `
+                    @foreach ($listAttribute as $attribute) 
+                    <div class="select-attribute col-sm-12 col-lg-6" data-id="${productId}}">
+                        <label class="" for="{{$attribute->id}}-filter">{{$attribute->name}}:</label>
+                        <select data-attribute="{{$attribute->id}}" name="attribute-{{$attribute->id}}" id="{{$attribute->id}}-filter" class="slb-attribute form-control">       
+                            
+                            @foreach ($attribute->values as $value)
+                            <option value="{{$value->id}}">{{$value->value}}</option>
+
+                            @endforeach
+                        </select>
+                    </div>
+                    @endforeach`;
+
+                values = `<?php $values = [];
+                    foreach ($listAttribute as $attribute) {
+                        $values[] = $attribute->values[0]->id;
+                    } 
+                    echo json_encode($values);
+                ?>`;
+
+                var listVariants = $('#list_variants').val();
+                listVariants = JSON.parse(listVariants);
+                // console.log('Các giá trị đang chọn là:', values);
+
+                const variant = listVariants.find(v =>
+                    areArraysEqual(v.list_attribute, values)
+                );
+                
+                if (variant != undefined) { 
+                    tr.dataset.variantId = variant.id;
+                }
+            }
+           
+            tr.innerHTML = `
+            <td class="text-left ${rowClass}"><h5 class="name-product">${name}</h5>${strVariants}</td>
+            <td class="price unit-price">${formatVND(priceInt)}</td>
+            <td class="number"><input data-product_id="${productId}" type="number" class="qty" value="1" min="0"></td>
+            <td class="line-total">${formatVND(priceInt)}</td>
+            <td><button type="button" class="delete-btn">🗑️</button></td>
+            `;
+            cartBody.appendChild(tr);
+            bindQtyInputs();
+            bindDeleteButtons();
+            
+            // if (values != '') {
+            //     values = JSON.parse(values);
+            //     values.forEach(function(number, index) {
+            //         console.log(`Element at index ${index}: ${number}`);
+            //         $("#" + number + "-filter").select2();
+            //     });
+            // }
+            
+        }
+        updateSubtotal();
+        bindSelectAttr();
+       
+        // Reset Select2 dropdown sau khi thêm
+        $(this).val(null).trigger('change');
+    });
+</script>
 
 <script>
-    function validatePhone() {
-  const input = document.getElementById('phoneFor').value;
-  const message = document.getElementById('phone');
 
-  // Regex: bắt đầu bằng 0, theo sau là 9 số
-  const regex = /^(03[0-9]|05[0-9]|07[0-9]|08[0-9]|09[0-9])\d{7}$/;
+    $.ajax({
+        url: "{{ url('/api/variants-by-id-product') }}",
+        type: 'GET',
+        data: {
+            id : 83 //npk
+        },
+        success: function(data) {
+            if (data.length > 0) {
+                $('#list_variants').val(JSON.stringify(data));
+            }
+        }
+    });
 
-  if (regex.test(input)) {
-    
-    message.textContent = "✔️ Số điện thoại hợp lệ";
-    message.style.color = "green";
-    return true;
-  } else {
-    message.textContent = "❌ Số điện thoại không hợp lệ";
-    message.style.color = "red";
-    return false;
-  }
-}
+    function arraysEqual(a, b) {
+        if (a.length !== b.length) return false;
+        return a.every((val, index) => val === b[index]);
+    }
+
+    function areArraysEqual(arr1, arr2) {
+        // Nếu độ dài hai mảng không bằng nhau, chúng không thể giống nhau
+        if (arr1.length !== arr2.length) {
+            return false;
+        }
+
+        // Sắp xếp hai mảng và so sánh từng phần tử
+        const sortedArr1 = arr1.slice().sort((a, b) => a - b);
+        const sortedArr2 = arr2.slice().sort((a, b) => a - b);
+
+        return sortedArr1.every((value, index) => value === sortedArr2[index]);
+    }
+
+    function getListProductCart()
+    {
+        const cartBody = document.querySelector("#cart-body");
+        const cartData = att = [];
+
+        cartBody.querySelectorAll("tr").forEach((row) => {
+            const name = row.querySelector(".name-product")?.textContent.trim() || "N/A";
+            const productId = row.dataset.id || "N/A";
+            const quantity = row.querySelector(".qty")?.value || 0;
+            const type = row.dataset.type || 1;
+            
+            var data;
+            const variantId = row.dataset.variantId || 0;
+            data = {
+                id: parseInt(productId),
+                val: parseInt(quantity),
+                variantId: parseInt(variantId),
+                type: parseInt(type)
+            }
+            cartData.push(data);
+        });
+        return cartData;
+    }
 </script>
 @stop

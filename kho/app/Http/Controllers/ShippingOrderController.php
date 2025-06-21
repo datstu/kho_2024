@@ -50,93 +50,87 @@ class ShippingOrderController extends Controller
 
             foreach ($dataReq['products'] as $product) {
                 $weight = (int) str_replace(",", "", $product['weight']);
+                $weight = $weight / 1000; //đổi ra kg
                 $totalWeight += $weight;
                 
                 $items[] = [
-                        "name" => $product['name'],
-                        "quantity" => 1,
-                        "length" => 20,
-                        "width" => 20,
-                        "height" =>20,
-                        "weight" => $weight
+                    "name" => $product['name'],
+                    "quantity" => 1,
+                    "length" => 20,
+                    "width" => 20,
+                    "height" =>20,
+                    "weight" => $weight
                 ];
-                
             }
 
-            /* service_type_id 
-                5: hàng nặng
-                2: hàng nhẹ
-
-                shopID:
-                4298110: shop 2kg
-                5187355: shop 5kg
-                5187357: shop 10kg
-                190998: test
-             */
-            $serviceTypeId = 5;
-            $shopId = '5187357';
-            if ($totalWeight < 5000) {
-                //set cho shop 2kg
-                $shopId = '4298110';
-                $serviceTypeId = 2;
-            } elseif ($totalWeight < 10000) {
-                //set cho shop 5kg
-                $shopId = '5187355';
-                $serviceTypeId = 2;
-            } else if ($totalWeight < 15000) {
-                $serviceTypeId = 2;
-            }
+            $cutStringProvince = explode('-', $dataReq['district_label']);
+            $district = trim($cutStringProvince[0]);
+            $province = trim($cutStringProvince[1]);
+            $ward = $dataReq['ward_label'];
 
             $codAmount = (int) str_replace(",", "", $dataReq['cod_amount']);
 
             $data = [
-                "payment_type_id" => 1, //người bán thanh toán phí ship
-                "note" => $dataReq['note'],
-                "required_note" => "CHOXEMHANGKHONGTHU",
-                "to_name" => $dataReq['name'],
-                "to_phone" => $dataReq['phone'],
-                "to_address" => $dataReq['address'],
-                "to_ward_code" =>  $dataReq['ward'],
-                "to_district_id" => $dataReq['district'],
-                "cod_amount" => $codAmount,
-                "weight" => $totalWeight,
-                "cod_failed_amount" => 50000, 
-                // "deliver_station_id" => null,
-                "service_type_id" => $serviceTypeId,
-                // "coupon" => null,
-                // "pick_shift" => [2],
-                "items" => $items,
-            ];
+                'products' => $items,
+                'order' => [
+                    'id' => $orderId,
+                    "pick_name" => "Phân bón MN",
+                    "pick_tel" =>  "0986987791",
+                    "pick_address" =>  "19/1c Nguyễn Thị Chiên",
+                    "pick_province" =>  "TP Hồ Chí Minh",
+                    "pick_district" =>  "Huyện Củ Chi",
+                    "pick_ward" =>  "Xã Tân An Hội",
 
-            /* token test
-            * $shopId = '190998';
-            * token 
-            */
-            // $shopId = '190998';
-            $token = '180d1134-e9fa-11ee-8529-6a2e06bbae55';
-            $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create";
+                    "tel" => $dataReq['phone'],
+                    "name" => $dataReq['name'],
+                    "address" => $dataReq['address'],
+                    "province" => $province,
+                    "district" => $district,
+                    "ward" => $ward,
+
+                    "hamlet" => "Khác",
+                    "is_freeship" => "1",
+                    "value" => $codAmount,
+                    "transport" => "road",
+                    "pick_option" => 'cod',
+                    "pick_money" => $codAmount,
+                    // "customer_ship_money" => $codAmount,
+                    "total_weight" => $totalWeight,
+                    "total_box" => count($items)
+                    // "tags" => [
+                    //     10, //cho xem hàng
+                    //     // 11, //cho thử hàng, đồng kiểm
+                    //     // 13, //Gọi cho shop khi không giao được, //Gọi cho shop khi khách không nhận được hàng, không liên lạc được, sai thông tin 
+                    // ]
+                ]
+            ];
+            
+            if ($totalWeight >= 20) {
+                $data['order']['3pl'] = 1;
+            }
+
+            // dd(json_encode($data));
+            $token = '1L0DDGVPfiJwazxVW0s7AQiUhRH1hb7E1s63rtd';
+            $endpoint = "https://services.giaohangtietkiem.vn/services/shipment/order";
             $response = Http::withHeaders([
                 'token' => $token,
-                'ShopId' => $shopId,
+                'X-Client-Source' => 'S21178843',
+                'Content-Type' => 'application/json'
             ])->withBody(
                 json_encode($data)
             )->post($endpoint);
 
-            // dd($response->body());
-            if ($response->status() == 200) {
-                $content  = json_decode($response->body());
-                $mess = $content->message_display;
-                $data = $content->data;
-                $orderCode = $data->order_code;
-                $this->saveShippingCodeGHN($orderCode, $orderId);
-                notify()->success($mess, 'Thành công!');
+            $response = $response->json();
+            if (isset($response['success']) && $response['success']) {
+                $orderCode = $response['order']['tracking_id'];
+                $this->saveShippingCodeGHTK($orderCode, $orderId);
+                notify()->success('Thêm vận đơn thành công', 'Thành công!');
                 
             } else {
-                // dd($response);
                 notify()->error('Đã xảy ra lỗi!', 'Thất bại!');
-                
+                notify()->error($response['message'], 'Thất bại!');
+                return back();
             }
-            return back();
 
         } else {
             foreach ($validator->errors()->messages() as $mes) {
@@ -282,29 +276,33 @@ class ShippingOrderController extends Controller
             * token 
             */
             // $shopId = '190998';
-            $token = '180d1134-e9fa-11ee-8529-6a2e06bbae55';
-            $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create";
-            $response = Http::withHeaders([
-                'token' => $token,
-                'ShopId' => $shopId,
-            ])->withBody(
-                json_encode($data)
-            )->post($endpoint);
-
-            // dd($response->body());
-            if ($response->status() == 200) {
-                $content  = json_decode($response->body());
-                $mess = $content->message_display;
-                $data = $content->data;
-                $orderCode = $data->order_code;
-                $this->saveShippingCodeGHN($orderCode, $orderId);
-                notify()->success($mess, 'Thành công!');
-                
-            } else {
-                // dd($response);
+            try {
+                $token = '180d1134-e9fa-11ee-8529-6a2e06bbae55';
+                $endpoint = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create";
+                $response = Http::timeout(30)->withHeaders([
+                    'token' => $token,
+                    'ShopId' => $shopId,
+                ])->withBody(
+                    json_encode($data)
+                )->post($endpoint);
+    
+                // dd($response->body());
+                if ($response->status() == 200) {
+                    $content  = json_decode($response->body());
+                    $mess = $content->message_display;
+                    $data = $content->data;
+                    $orderCode = $data->order_code;
+                    $this->saveShippingCodeGHN($orderCode, $orderId);
+                    notify()->success($mess, 'Thành công!');
+                    
+                } else {
+                    // dd($response);
+                    notify()->error('Đã xảy ra lỗi!', 'Thất bại!');
+                }
+            } catch (Exception $e) {
                 notify()->error('Đã xảy ra lỗi!', 'Thất bại!');
-                
             }
+            
             return back();
 
         } else {
@@ -748,11 +746,11 @@ class ShippingOrderController extends Controller
     public function detailDataGHTK($orderCode)
     {
         $result = $deliveryLog = $package = [];
-        $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzaG9wX2NvZGUiOiJTMjExNzg4NDMiLCJzaG9wX2lkIjoiNjIyODc1ZTktNjMyMC00ZTlhLTljY2MtNGJlYzBhNmU0ZDU5Iiwic2hvcF9vcmRlciI6MjExNzg4NDMsInN0YWZmX2lkIjoxNzY2Nzg0LCJzb3VyY2UiOiJwbGF0Zm9ybSIsInJvbGUiOiJhZG1pbiIsInNob3Bfc3RhdHVzX2lkIjoxLCJzaG9wX3R5cGUiOjEsImFjY2Vzc190b2tlbiI6IjA0N2MyMjQ2LTBjZDgtNDFhOC1iM2U5LWFlNDk2ZmY1NDU3OCIsImp3dCI6bnVsbCwiaW52YWxpZF9hdCI6eyJkYXRlIjoiMjAyNS0wNS0wNiAxNzoxMDoxNi4wMDAwMDAiLCJ0aW1lem9uZV90eXBlIjozLCJ0aW1lem9uZSI6IkFzaWFcL0hvX0NoaV9NaW5oIn0sImxvZ2luX2FzX2lkIjpudWxsLCJsb2dpbl9hc19zZXNzaW9uX2lkIjpudWxsLCJsb2dpbl9hc190eXBlIjpudWxsLCJzZXNzaW9uIjpudWxsLCJtb3Nob3BfdXNlcl9pZCI6bnVsbCwic2hvcF90b2tlbiI6ImJkMTkzRTkyMGI3RTQwM2U4ZDVFNUI3Qzk5YkFiQWJjY2MyMjQzQ2YiLCJjcmVhdGVkX2F0Ijp7ImRhdGUiOiIyMDI1LTA0LTA3IDE1OjI5OjE5LjA4MTYzNyIsInRpbWV6b25lX3R5cGUiOjMsInRpbWV6b25lIjoiQXNpYVwvSG9fQ2hpX01pbmgifSwic2NvcGVzIjpbInNob3AudmlldyIsInNob3AudGVsLnZpZXcuIiwic2hvcC5lbWFpbC52aWV3Iiwic2hvcC5pZF9jYXJkLnZpZXciLCJzaG9wLnBpY2tfYWRkcmVzc2VzLnZpZXciLCJzaG9wLmJhbmtfYWNjb3VudC52aWV3Iiwic2hvcC51cGRhdGUiLCJzaG9wLmJhc2ljX2luZm8udXBkYXRlIiwic2hvcC5hdmF0YXIudXBkYXRlIiwic2hvcC5waWNrX2FkZHJlc3Nlcy51cGRhdGUiLCJzaG9wLnRlbC51cGRhdGUiLCJzaG9wLmVtYWlsLnVwZGF0ZSIsInNob3AuYmFua19hY2NvdW50LnVwZGF0ZSIsInNob3AuaWRfY2FyZC51cGRhdGUiLCJzaG9wLnN0YWZmLnZpZXciLCJzaG9wLnN0YWZmLmNyZWF0ZSIsInNob3Auc3RhZmYudXBkYXRlIiwic2hvcC5zdGFmZi5kZWxldGUiLCJzaG9wLmJyYW5jaC52aWV3Iiwic2hvcC5icmFuY2gubGlzdCIsInNob3AuYnJhbmNoLmNyZWF0ZSIsInNob3AuYnJhbmNoLnVwZGF0ZSIsInNob3AuYnJhbmNoLmRlbGV0ZSIsImNvbmZpZy5hcGlfdG9rZW4udmlldyIsImNvbmZpZy5hcGlfdG9rZW4ucmVxdWVzdCIsImNvbmZpZy5zeXN0ZW0udXBkYXRlIiwiY29uZmlnLmF1ZGl0X3RpbWUudmlldyIsImNvbmZpZy5hdWRpdF90aW1lLnVwZGF0ZSIsImNvbmZpZy5zaG9wLnVwZGF0ZSIsInNob3AuZGFzaGJvYXJkIiwic2hvcC5yZXBvcnQubW9uZXlfZmxvdyIsInNob3AucmVwb3J0LmRhaWx5LnZpZXciLCJzaG9wLnJlcG9ydC5kYWlseS5kb3dubG9hZCIsIm9yZGVyLmxpc3QiLCJvcmRlci5leHBvcnRfZmlsZSIsIm9yZGVyLmRldGFpbCIsIm9yZGVyLmNyZWF0ZSIsIm9yZGVyLmV4Y2hhbmdlLmNyZWF0ZSIsIm9yZGVyLmRlbGl2ZXJ5LmNyZWF0ZSIsIm9yZGVyLnVwZGF0ZSIsIm9yZGVyLnJlcXVlc3RfY2FuY2VsIiwib3JkZXIucHJpbnQiLCJvcmRlci5kcmFmdC52aWV3Iiwib3JkZXIuZHJhZnQubGlzdCIsIm9yZGVyLmRyYWZ0LmNyZWF0ZSIsIm9yZGVyLmRyYWZ0LnVwZGF0ZSIsIm9yZGVyLmRyYWZ0LmRlbGV0ZSIsInRpY2tldC5hZGQiLCJ0aWNrZXQub3JkZXIucGlja190ZWwudXBkYXRlIiwidGlja2V0Lm9yZGVyLnBpY2tfYWRkcmVzcy51cGRhdGUiLCJ0aWNrZXQub3JkZXIuY3VzdG9tZXJfdGVsLnVwZGF0ZSIsInRpY2tldC5vcmRlci5jdXN0b21lcl9hZGRyZXNzLnVwZGF0ZSIsInRpY2tldC5vcmRlci5waWNrX21vbmV5LnVwZGF0ZSIsImN1c3RvbWVyLnZpZXciLCJjdXN0b21lci51cGRhdGUiLCJjdXN0b21lci5uYW1lLnZpZXciLCJjdXN0b21lci50ZWwudmlldyIsInByb2R1Y3Quc2VhcmNoIiwicHJvZHVjdC52aWV3IiwicHJvZHVjdC5jcmVhdGUiLCJwcm9kdWN0LnVwZGF0ZSIsInByb2R1Y3QuZGVsZXRlIiwid2FsbGV0LmxvZ2luIiwicmV2aWV3LnZpZXciLCJyZXZpZXcudXBkYXRlIiwiY2hhdC5jdXN0b21lciIsInNob3AuZGlzYWJsZSJdLCJkZXZpY2UiOm51bGwsImlzX3dlYWtfcHciOmZhbHNlfQ.N79fM08z6LjpS4tYh-K6OpTvvotBANoAdxXoPijXvvM';
+        $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzaG9wX2NvZGUiOiJTMjExNzg4NDMiLCJzaG9wX2lkIjoiNjIyODc1ZTktNjMyMC00ZTlhLTljY2MtNGJlYzBhNmU0ZDU5Iiwic2hvcF9vcmRlciI6MjExNzg4NDMsInN0YWZmX2lkIjoxNzY2Nzg0LCJzb3VyY2UiOiJwbGF0Zm9ybSIsInJvbGUiOiJhZG1pbiIsInNob3Bfc3RhdHVzX2lkIjoxLCJzaG9wX3R5cGUiOjEsImFjY2Vzc190b2tlbiI6IjQxZTIwNWIyLTAxZTktNDgwZC1hMDNiLTk0Zjg2ZTk1MTRhMiIsImp3dCI6bnVsbCwiaW52YWxpZF9hdCI6eyJkYXRlIjoiMjAyNS0wNy0wNSAyMTozNjowMy4wMDAwMDAiLCJ0aW1lem9uZV90eXBlIjozLCJ0aW1lem9uZSI6IkFzaWFcL0hvX0NoaV9NaW5oIn0sImxvZ2luX2FzX2lkIjpudWxsLCJsb2dpbl9hc19zZXNzaW9uX2lkIjpudWxsLCJsb2dpbl9hc190eXBlIjpudWxsLCJzZXNzaW9uIjpudWxsLCJtb3Nob3BfdXNlcl9pZCI6bnVsbCwic2hvcF90b2tlbiI6ImJkMTkzRTkyMGI3RTQwM2U4ZDVFNUI3Qzk5YkFiQWJjY2MyMjQzQ2YiLCJjcmVhdGVkX2F0Ijp7ImRhdGUiOiIyMDI1LTA2LTA2IDE0OjU4OjA2LjU1NzcwNiIsInRpbWV6b25lX3R5cGUiOjMsInRpbWV6b25lIjoiQXNpYVwvSG9fQ2hpX01pbmgifSwic2NvcGVzIjpbInNob3AudmlldyIsInNob3AudGVsLnZpZXcuIiwic2hvcC5lbWFpbC52aWV3Iiwic2hvcC5pZF9jYXJkLnZpZXciLCJzaG9wLnBpY2tfYWRkcmVzc2VzLnZpZXciLCJzaG9wLmJhbmtfYWNjb3VudC52aWV3Iiwic2hvcC51cGRhdGUiLCJzaG9wLmJhc2ljX2luZm8udXBkYXRlIiwic2hvcC5hdmF0YXIudXBkYXRlIiwic2hvcC5waWNrX2FkZHJlc3Nlcy51cGRhdGUiLCJzaG9wLnRlbC51cGRhdGUiLCJzaG9wLmVtYWlsLnVwZGF0ZSIsInNob3AuYmFua19hY2NvdW50LnVwZGF0ZSIsInNob3AuaWRfY2FyZC51cGRhdGUiLCJzaG9wLnN0YWZmLnZpZXciLCJzaG9wLnN0YWZmLmNyZWF0ZSIsInNob3Auc3RhZmYudXBkYXRlIiwic2hvcC5zdGFmZi5kZWxldGUiLCJzaG9wLmJyYW5jaC52aWV3Iiwic2hvcC5icmFuY2gubGlzdCIsInNob3AuYnJhbmNoLmNyZWF0ZSIsInNob3AuYnJhbmNoLnVwZGF0ZSIsInNob3AuYnJhbmNoLmRlbGV0ZSIsImNvbmZpZy5hcGlfdG9rZW4udmlldyIsImNvbmZpZy5hcGlfdG9rZW4ucmVxdWVzdCIsImNvbmZpZy5zeXN0ZW0udXBkYXRlIiwiY29uZmlnLmF1ZGl0X3RpbWUudmlldyIsImNvbmZpZy5hdWRpdF90aW1lLnVwZGF0ZSIsImNvbmZpZy5zaG9wLnVwZGF0ZSIsInNob3AuZGFzaGJvYXJkIiwic2hvcC5yZXBvcnQubW9uZXlfZmxvdyIsInNob3AucmVwb3J0LmRhaWx5LnZpZXciLCJzaG9wLnJlcG9ydC5kYWlseS5kb3dubG9hZCIsIm9yZGVyLmxpc3QiLCJvcmRlci5leHBvcnRfZmlsZSIsIm9yZGVyLmRldGFpbCIsIm9yZGVyLmNyZWF0ZSIsIm9yZGVyLmV4Y2hhbmdlLmNyZWF0ZSIsIm9yZGVyLmRlbGl2ZXJ5LmNyZWF0ZSIsIm9yZGVyLnVwZGF0ZSIsIm9yZGVyLnJlcXVlc3RfY2FuY2VsIiwib3JkZXIucHJpbnQiLCJvcmRlci5kcmFmdC52aWV3Iiwib3JkZXIuZHJhZnQubGlzdCIsIm9yZGVyLmRyYWZ0LmNyZWF0ZSIsIm9yZGVyLmRyYWZ0LnVwZGF0ZSIsIm9yZGVyLmRyYWZ0LmRlbGV0ZSIsInRpY2tldC5hZGQiLCJ0aWNrZXQub3JkZXIucGlja190ZWwudXBkYXRlIiwidGlja2V0Lm9yZGVyLnBpY2tfYWRkcmVzcy51cGRhdGUiLCJ0aWNrZXQub3JkZXIuY3VzdG9tZXJfdGVsLnVwZGF0ZSIsInRpY2tldC5vcmRlci5jdXN0b21lcl9hZGRyZXNzLnVwZGF0ZSIsInRpY2tldC5vcmRlci5waWNrX21vbmV5LnVwZGF0ZSIsImN1c3RvbWVyLnZpZXciLCJjdXN0b21lci51cGRhdGUiLCJjdXN0b21lci5uYW1lLnZpZXciLCJjdXN0b21lci50ZWwudmlldyIsInByb2R1Y3Quc2VhcmNoIiwicHJvZHVjdC52aWV3IiwicHJvZHVjdC5jcmVhdGUiLCJwcm9kdWN0LnVwZGF0ZSIsInByb2R1Y3QuZGVsZXRlIiwid2FsbGV0LmxvZ2luIiwicmV2aWV3LnZpZXciLCJyZXZpZXcudXBkYXRlIiwiY2hhdC5jdXN0b21lciIsInNob3AuZGlzYWJsZSJdLCJkZXZpY2UiOm51bGwsImlzX3dlYWtfcHciOmZhbHNlLCJ1bmlxX2RldmljZSI6IjRjODViNzBiMTA1ODgwNjc2MzE3Nzk0MzBiY2U3MzU1In0.hCsC8_fESL7hSixu2fJ2zx1NG4y_P9gZuPx7W3c-33E';
         $link = 'https://web.giaohangtietkiem.vn/api/v1/package/package-detail?alias=' . $orderCode;
         $response = Http::withToken($token)
             ->get($link);
-
+        // dd($link);
         $response = $response->json();
         if ($response['success']) {
             $data = $response['data'];

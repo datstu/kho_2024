@@ -16,7 +16,7 @@
 </style>
 
 <?php $teleNhacTN = $leadSale = $id = $name = $member = $membersStr = $teleCskhData = $teleCreateOder = $teleHotData 
-    = $teleBotToken ='';
+    = $teleBotToken = $teleCreateOderByCSKH = $teleNotifyCSKH = '';
     $status = 1;
     $isShareDataCSKH = 0;
     $members = $memberCskh = $srcs = $products = [];
@@ -33,6 +33,7 @@
         $teleCreateOder = $group->tele_create_order;
         $teleCskhData = $group->tele_cskh_data;
         $teleNhacTN = $group->tele_nhac_TN;
+        $teleNhacTNCskh = $group->tele_nhac_TN_CSKH;
         $teleBotToken = $group->tele_bot_token;
         $isShareDataCSKH = $group->is_share_data_cskh;
         $leadSale =$group->lead_sale;
@@ -132,6 +133,11 @@
                                         <label class="form-label" for="teleChatCskh">Chat Id Nhắc TN</label>
                                         <input <?= !$checkAll ? 'readonly' : ''; ?> value="{{$teleNhacTN}}" class="form-control" name="teleNhacTN" id="teleNhacTN" type="text" required>
                                         <p class="error_msg" id="teleNhacTN"></p>
+                                    </div>
+                                    <div class="col-3 form-group">
+                                        <label class="form-label" for="teleNhacTNCskh">Chat Id Nhắc TN CSKH</label>
+                                        <input <?= !$checkAll ? 'readonly' : ''; ?> value="{{$teleNhacTNCskh}}" class="form-control" name="teleNhacTNCskh" id="teleNhacTNCskh" type="text">
+                                        <p class="error_msg" id="teleNhacTNCskh"></p>
                                     </div>
                                     
                                     <div class="mb-3 col-4">

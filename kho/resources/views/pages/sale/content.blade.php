@@ -298,7 +298,6 @@
 
 {{-- update filter --}}
 
-
     <form action="{{route('sale-index')}}" method="get" class="pb-4">
     
         <div class="maintain-filter-main">
@@ -805,16 +804,25 @@
                             </td>
 
                             <td class="text-left area3 hidden-xs">
-                                <span id="dnn_ctr1441_Main_SaleTacNghiep_rptData__DonhangTenSanPhams_0">
+                                <span>
                                     <table class="tb-in-sp">
                                         <tbody>
                                             
                                             @if ($order)
                                             @foreach (json_decode($order->id_product) as $product)
-                                            <?php $productModel = getProductByIdHelper($product->id)?>
+                                                <?php $productModel = getProductByIdHelper($product->id);
+                                                $price = $productModel->price;
+                                                $name = $productModel->name;
+                                                if ($productModel->type == 2 && !empty($product->variantId)) {
+                                                    $variantId = $product->variantId;
+                                                    $variant = HelperProduct::getProductVariantById($variantId);
+                                                    $price = $variant->price;
+                                                    $name .= HelperProduct::getNameAttributeByVariantId($variantId);  
+                                                }
+                                                ?>
                                                 @if ($productModel)
-                                                <tr><td><span class="ten-sp" style="text-overflow:ellipsis">{{$productModel->name}}</span></td>
-                                                    <td class="text-center no-wrap">&nbsp; x{{$product->val}} &nbsp;</td><td class="text-right">{{number_format($productModel->price)}}</td>
+                                                <tr><td><span class="ten-sp" style="text-overflow:ellipsis">{{$name}}</span></td>
+                                                    <td class="text-center no-wrap">&nbsp; x{{$product->val}} &nbsp;</td><td class="text-right">{{number_format($price)}}</td>
                                                 </tr>
                                                 @endif
                                             @endforeach
@@ -980,7 +988,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h6 class="modal-title" style="color: seagreen;"><p style="margin:0">Cập nhật kết quả thành công</p></h6>
+            <h6 class="modal-title" style="color: seagreen;"><p style="margin:0">Lưu data thành công</p></h6>
             <button style="border: none;" type="button" id="close-modal-notify" class="close" data-dismiss="modal" >
               <span aria-hidden="true">&times;</span>
             </button>
@@ -988,6 +996,7 @@
         </div>
     </div>
 </div>
+
 <script>
     $('.orderModal').on('click', function () {
         var idOrderNew = $(this).data('id_order_new');
@@ -2142,4 +2151,21 @@
         $("#updateData iframe").attr("src", link + '/' + TNSaleId);
 
     });
+</script>
+<script type="text/javascript" src="{{ asset('public/js/notify.js'); }}"></script>
+<script>
+window.addEventListener('message', function (event) {
+    if (event.data === 'mess-success') {
+        setTimeout(function() { 
+            $('#notify-modal').modal('show');
+            // if ($('.modal-backdrop-notify').length === 0) {
+            //     // $('.modal-backdrop').addClass('modal-backdrop-notify');
+            //     $('#notify-modal .modal-title').html('Lưu đơn hàng thành công!');
+            // }
+            setTimeout(function() { 
+                $('#notify-modal').modal("hide");
+            }, 2000);
+        }, 3000);
+    }
+});
 </script>

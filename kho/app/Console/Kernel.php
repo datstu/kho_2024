@@ -33,10 +33,13 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(function() {
           $this->wakeUp();
-          $this->crawlerGroup();
           Log::channel('new')->info('run craw pancake tricho');
         })->everyMinute();
         
+        $schedule->call(function() {
+          $this->crawlerGroup();
+          Log::channel('new')->info('run craw pancake tricho');
+        })->cron('*/15 * * * *');
     }
 
   /**
@@ -300,12 +303,12 @@ class Kernel extends ConsoleKernel
           . "\nGhi chú trước: $TNcan"
           . "\nSale tác nghiệp: $saleAssign"; 
 
-        if ($chatId) {
-          $client->request('GET', $endpoint, ['query' => [
-            'chat_id' => $chatId, 
-            'text' => $notiText,
-          ]]);
-        }
+        // if ($chatId) {
+        //   $client->request('GET', $endpoint, ['query' => [
+        //     'chat_id' => $chatId, 
+        //     'text' => $notiText,
+        //   ]]);
+        // }
         
       }
     }

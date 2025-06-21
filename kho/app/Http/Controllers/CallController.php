@@ -16,6 +16,16 @@ use App\Models\CategoryCall;
 
 class CallController extends Controller
 {
+    public function search(Request $request)
+    {
+        $search = $request->search;
+        $callResultIds = CategoryCall::where('name', 'like', '%'. $search . '%')->pluck('id')->toArray();
+        $calls = Call::whereIn('if_call', $callResultIds)
+            // ->orWhereIn('then_call', $callResultIds)
+        ->paginate(50);
+        return view('pages.call.index')->with('call', $calls);
+    }
+
     /**
      * Display a listing of the resource.
      *

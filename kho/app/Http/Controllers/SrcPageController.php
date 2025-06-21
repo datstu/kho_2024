@@ -123,10 +123,10 @@ class SrcPageController extends Controller
                     // dd ($chatId);
                     // . ($req->text) ? $req->text : "\nĐã nhận được hàng."
                    
-                    $response = $client->request('GET', $endpoint, ['query' => [
-                        'chat_id' => $chatId, 
-                        'text' => $notiText,
-                    ]]);
+                    // $response = $client->request('GET', $endpoint, ['query' => [
+                    //     'chat_id' => $chatId, 
+                    //     'text' => $notiText,
+                    // ]]);
                 }
             }
             $routeName = \Request::route();

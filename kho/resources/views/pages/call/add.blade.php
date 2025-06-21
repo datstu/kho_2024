@@ -1,7 +1,7 @@
 <link href="{{ asset('public/css/pages/notify.css'); }}" rel="stylesheet">
 @extends('layouts.default')
 @section('content')
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 @include('notify::components.notify')
 <style>
     #laravel-notify .notify {
@@ -34,7 +34,7 @@
                                     <label class="form-label" for="ifCallIP">Nếu</label>
                                     {{-- <input required class="form-control" value="{{$call->if_call}}" name="if_call" id="ifCallIP" type="text"> --}}
                                     
-                                    <select name="if_call" class="form-select" aria-label="Loại TN Sale">
+                                    <select id="if_call" name="if_call" class="form-select" aria-label="Loại TN Sale">
                                             
                                         @if (isset($categoryCall))
                                             @foreach ($categoryCall as $category)
@@ -47,7 +47,7 @@
                                 </div>
                                 <div class="mb-3 col-8">
                                     <label class="form-label" for="rsCallIP">Kết quả</label>
-                                    <select required name="result_call" class="form-select" id="rsCallIP">
+                                    <select id="result_call" required name="result_call" class="form-select" id="rsCallIP">
                                            
                                         @if (isset($callResult))
                                             @foreach ($callResult as $result)
@@ -60,7 +60,7 @@
                                 </div>
                                 <div class="mb-3 col-8">
                                     <label class="form-label" for="thenCallIP">Thì</label>
-                                    <select name="then_call" class="form-select" id="thenCallIP">
+                                    <select id="then_call" name="then_call" class="form-select" id="thenCallIP">
                                            
                                         @if (isset($categoryCall))
                                             @foreach ($categoryCall as $category)
@@ -111,7 +111,7 @@
                                             <label class="form-label" for="ifCallIP">Nếu</label>
                                             {{-- <input required class="form-control" name="if_call" id="ifCallIP" type="text"> --}}
                                             
-                                            <select name="if_call" class="form-select" aria-label="Loại TN Sale">
+                                            <select id="if_call" name="if_call" class="form-select" aria-label="Loại TN Sale">
                                                 
                                                 @if (isset($categoryCall))
                                                     @foreach ($categoryCall as $category)
@@ -124,7 +124,7 @@
                                         <div class="mb-3 col-8">
                                             <label class="form-label" for="rsCallIP">Kết quả</label>
 
-                                            <select required name="result_call" class="form-select" id="rsCallIP">
+                                            <select id="result_call" required name="result_call" class="form-select" id="rsCallIP">
                                            
                                                 @if (isset($callResult))
                                                     @foreach ($callResult as $result)
@@ -144,7 +144,7 @@
                                             <label class="form-label" for="thenCallIP">Thì</label>
                                             {{-- <input required class="form-control" name="if_call" id="ifCallIP" type="text"> --}}
                                             
-                                            <select name="then_call" class="form-select" id="thenCallIP">
+                                            <select id="then_call" name="then_call" class="form-select" id="thenCallIP">
                                                 
                                                 @if (isset($categoryCall))
                                                     @foreach ($categoryCall as $category)
@@ -173,4 +173,12 @@
     </div>
 </div>
 <script type="text/javascript" src="{{ asset('public/js/notify.js'); }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+<script>
+    $(function() {
+        $('#then_call').select2();
+        $('#if_call').select2();
+        $('#result_call').select2();
+    });
+</script>
 @stop

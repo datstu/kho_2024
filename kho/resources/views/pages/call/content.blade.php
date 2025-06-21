@@ -13,6 +13,17 @@
             <div class="col col-4">
                 <a href="{{route('call-add')}}" class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm TN</a>   
             </div>
+            <div class="col-8">
+                <form class ="row tool-bar d-flex justify-content-end" action="{{route('call-search')}}" method="get">
+                  <div class="col-3">
+                    <input class="form-control" name="search" placeholder="Tìm kết quả..." type="text">
+                  </div>
+                  <div class="col-3 " style="padding-left:0;">
+                    <button type="submit" class="btn btn-primary"><svg class="icon me-2">
+                                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-search')}}"></use>
+                              </svg>Tìm</button>
+                </form>
+            </div>
         </div>
         <div class="tab-content rounded-bottom">
             <div style="overflow-x: auto;" class="tab-pane p-0 pt-1 active preview" role="tabpanel">
@@ -63,7 +74,7 @@
 
                     </tbody>
                 </table>
-                {!! $call->links() !!}
+                {!! $call->appends(request()->input())->links() !!}
                 @endif
 
             </div>

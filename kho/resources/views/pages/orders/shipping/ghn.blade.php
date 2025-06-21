@@ -3,6 +3,10 @@ $listStatus = Helper::getListStatus();
 $isLeadSale = Helper::isLeadSale(Auth::user()->role);
 $checkAll = isFullAccess(Auth::user()->role);
 $flagAccess = false;
+$name = '';
+if (Helper::isOldCustomerV2($order->phone)) {
+  $name .= '❤️ ';
+}
 ?>
 @extends('layouts.default')
 @section('content')
@@ -154,11 +158,16 @@ $flagAccess = false;
                   if ($product) {
                       $sumQty += $item->val;
                       $totalTmp += $item->val * $product->price;
+                      $nameProduct = $product->name;
+                      if ($product->type == 2 && !empty($item->variantId)) {
+                        $variantID = $item->variantId;
+                        $nameProduct .= HelperProduct::getNameAttributeByVariantId($variantID);
+                      }
                     ?>
 
                   <tr class="number dh-san-pham product-{{$product->id}}">
                       <td class="text-left">
-                          <span class="no-combo">{{$product->name}}</span><br>
+                          <span class="no-combo">{{$nameProduct}}</span><br>
                       </td>
                       <td class="no-wrap" style="width: 45px">
                         {{$item->val}}
@@ -188,8 +197,7 @@ $flagAccess = false;
     <input value="{{$order->sale_care}}" class="hidden form-control" name="sale-care">
 
       <div  style="opacity: 0.9; box-shadow: 0 .7699px 2.17382px 0 rgba(0, 71, 111, .02), 0 2.12866px 6.01034px 0 rgba(0, 71, 111, .04), 0 5.125px 14.4706px 0 rgba(0, 71, 111, .05), 0 17px 48px 0 rgba(0, 71, 111, .07);
-          
-    background: aliceblue;">
+        background: aliceblue;">
         <div class="row" >
           <div class="border-top-info"></div>
             <div class="col-sm-12 col-lg-6  form-group">
@@ -201,7 +209,7 @@ $flagAccess = false;
             <div class="col-sm-12 col-lg-6  form-group">
                 <label class="form-label" for="nameFor">Tên khách
                     hàng</label>
-                <input required value="{{$order->name}}" class="form-control" 
+                <input required value="{{$name .= $order->name}}" class="form-control" 
                     name="name" id="nameFor" type="text">
             </div>
             <div class="col-12  form-group">
@@ -248,21 +256,29 @@ $flagAccess = false;
                     $product = getProductByIdHelper($item->id);
                     
                     if ($product) {
+                      $nameProduct = $product->name;
+                      $weight = $product->weight;
+                      if ($product->type == 2 && !empty($item->variantId)) {
+                        $variantID = $item->variantId;
+                        $nameProduct .= HelperProduct::getNameAttributeByVariantId($variantID);
+                        $variant = HelperProduct::getProductVariantById($variantID);
+                        $weight = $variant->weight;
+                      }
                       $sumQty += $item->val;
                       $totalTmp += $item->val * $product->price;
                       $totalWeight += $product->weight;
                     ?>
 
-                    @if ($item->val > 1 && $product->weight > 10000)
-                    <input name="bigCart[]" type="hidden" value="{{$item->val}} {{$product->name}}">
+                    @if ($item->val > 1 && $weight > 10000)
+                    <input name="bigCart[]" type="hidden" value="{{$item->val}} {{$nameProduct}}">
                       <?php 
                       for ($i; $i < $item->val; $i++) {
                       ?>
                       <tr class="number dh-san-pham product-{{$product->id}}">
                                             
-                        <td colspan="7" class="text-left"> <input required name="products[{{$i}}][name]" type="text" style="width: 100%;" value="{{$product->name}}"><br>
+                        <td colspan="7" class="text-left"> <input required name="products[{{$i}}][name]" type="text" style="width: 100%;" value="{{$nameProduct}}"><br>
                         </td>
-                        <td colspan="1"><input required class="text-right price_class" required name="products[{{$i}}][weight]" type="text" style="width: 100%;" value="<?php if ($product->weight > 0) { echo number_format($product->weight);} ?>"></td>
+                        <td colspan="1"><input required class="text-right price_class" required name="products[{{$i}}][weight]" type="text" style="width: 100%;" value="<?php if ($weight > 0) { echo number_format($weight);} ?>"></td>
                         <td class="no-wrap" style="width: 45px">
                           <input class="text-center" required name="products[{{$i}}][qty]" type="text" style="width: 100%;" value="1">
                         </td>
@@ -274,9 +290,9 @@ $flagAccess = false;
                     @else
                     <tr class="number dh-san-pham product-{{$product->id}}">
                       
-                      <td colspan="7" class="text-left"> <input required name="products[{{$i}}][name]" type="text" style="width: 100%;" value="{{$product->name}}"><br>
+                      <td colspan="7" class="text-left"> <input required name="products[{{$i}}][name]" type="text" style="width: 100%;" value="{{$nameProduct}}"><br>
                       </td>
-                      <td colspan="1"><input required class="text-right price_class" name="products[{{$i}}][weight]" type="text" style="width: 100%;" value="<?php if ($product->weight > 0) { echo number_format($product->weight);} ?>"></td>
+                      <td colspan="1"><input required class="text-right price_class" name="products[{{$i}}][weight]" type="text" style="width: 100%;" value="<?php if ($weight > 0) { echo number_format($weight);} ?>"></td>
                       <td class="no-wrap" style="width: 45px">
                         <input class="text-center" required name="products[{{$i}}][qty]" type="text" style="width: 100%;" value="{{$item->val}}">
                       </td>

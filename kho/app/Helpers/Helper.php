@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Telegram;
 use App\Models\Pancake;
 use App\Models\LadiPage;
+use App\Models\ProductAttributes;
 use App\Models\Spam;
 use PHPUnit\TextUI\Help;
 use App\Models\SrcPage;
@@ -27,6 +28,98 @@ setlocale(LC_TIME, 'vi_VN.utf8');
 
 class Helper
 {
+    public static function getListAttributes()
+    {
+        return ProductAttributes::where('status', 1)->get();
+    }
+
+    public static function getDataSaleById($id)
+    {
+        return SaleCare::find($id);
+    }
+
+    public static function isCskhDt($user)
+    {
+        $result = false;
+
+        //id = 5, cskh ĐT
+        $group = GroupUser::find(5);
+        if ($group && $group->users && $group->users->count() > 0) {
+            $listIdUser = $group->users->pluck('id')->toArray();
+
+            if (in_array($user->id, $listIdUser)) {
+                return true;
+            }
+        }
+
+        return $result;
+    }
+
+    public static function getSumCustomerCskhDT($list)
+    {
+        $totalSum = $avgSum = $newContact = $newOrder = $newRate = $newProduct = $newTotal = $oldAvg = $oldTotal = $oldProduct = $oldRate = $newAvg = $oldContact = $oldOrder= 0;
+        $result = [];
+
+        $result = [
+            'contact' => 0,
+            'order' => 0,
+            'rate' => 0,
+            'product' => 0,
+            'total' => 0,
+            'avg' => 0,
+        ];
+
+        if (isset($list)) {
+            // dd($list);
+            foreach ($list as $data) {
+                if (isset($data['old_customer'])) {
+                    $oldContact += $data['old_customer']['contact'];
+                    $oldOrder += $data['old_customer']['order'];
+                    $oldRate += $data['old_customer']['rate'];
+                    $oldProduct += $data['old_customer']['product'];
+                    $oldTotal += ($data['old_customer']['total']);
+                }
+            }
+
+            $result['contact'] = $oldContact;
+            $result['order'] = $oldOrder;
+            if ($oldContact > 0) {
+                $oldRate = $oldOrder / $oldContact * 100;
+                $result['rate'] = round($oldRate, 2);
+            }
+
+            $result['product'] = $oldProduct;
+            $result['total'] = round($oldTotal, 0);
+            $result['avg'] = round((($oldOrder != 0) ? $oldTotal/$oldOrder : 0), 0);
+
+            $rateSum = 0;
+            $contactSum = $result['contact'];
+            $orderSum = $result['order'];
+
+            if ($contactSum > 0) {
+                $rateSum = $orderSum / $contactSum * 100;
+            } else {
+                $rateSum = $orderSum * 100;
+            }
+
+            $rateSum = round($rateSum, 2);
+        }
+
+        return $result;
+    }
+
+    public static function getListSaleByGroupWork($idGroup)
+    {
+        $result = [];
+
+        $gr = GroupUser::find($idGroup);
+        if ($gr) {
+            $result = $gr->users;
+        }
+
+        return $result;
+    }
+
     public static function isSeeding($phone)
     {
         $patern = "/^(03[0-9]|05[0-9]|07[0-9]|08[0-9]|09[0-9])\d{7}$/";
@@ -237,6 +330,53 @@ class Helper
             $listSaleId = array_merge(...$listSaleId);
             return User::whereIn('id', $listSaleId);
         }
+    }
+
+    public static function getListSaleV3($user, $isLeadSaleX = false, $idGroup = 0) 
+    {
+        // $result = [];
+        //check full asset
+        $all = isFullAccess($user->role);
+        if ($all) {
+            if ($idGroup != 0) {
+                $result = Helper::getListSaleByGroupWork($idGroup);
+                return $result;
+            } else {
+                $result = Helper::getListSale();
+                return $result->get();
+            }   
+        }
+
+        $idUserLead = 0;
+        $isLeadSale = Helper::isLeadSale($user->role);
+        if ($isLeadSale) {
+            $idUserLead = $user->id;
+        } else if ($isLeadSaleX) {
+            $gr = $user->groupUser;
+            if ($gr) {
+                $idUserLead = $gr->lead_team;
+            }
+        } 
+
+        if ($idUserLead != 0) {
+            $listSaleId = [];
+            $groupUs = GroupUser::where('lead_team', $idUserLead)->where('status', 1);
+            if ($idGroup != 0) {
+                $groupUs->where('id', $idGroup);
+            }
+
+            foreach ($groupUs->get() as $gr) {
+                $listSaleId[] = $gr->users->pluck('id')->toArray();
+            }
+
+            $listSaleId = array_merge(...$listSaleId);
+            $result = User::whereIn('id', $listSaleId);
+            return $result->get();
+        } else if ($user->is_CSKH || $user->is_sale){
+            return [User::find($user->id)];
+        }
+
+        return [];
     }
 
     public static function getListCall() {
@@ -794,12 +934,8 @@ class Helper
         ];
 
         if (isset($dataSale)) {
-            // dd($dataSale);
             foreach ($dataSale as $data) {
-            // echo "<pre>";
-            // print_r($data);
-            // echo "</pre>";
-            // die();
+
                 if (isset($data['new_customer'])) {
                     $newContact += $data['new_customer']['contact'];
                     $newOrder += $data['new_customer']['order'];
@@ -815,7 +951,6 @@ class Helper
                 }
             }
 
-           
             $sumNewCustomer['contact'] = $newContact;
             $sumNewCustomer['order'] = $newOrder;
             if ($newContact > 0) {
@@ -846,6 +981,7 @@ class Helper
             $rateSum = 0;
             $contactSum = $sumNewCustomer['contact'];
             $orderSum = $sumNewCustomer['order'] + $sumOldCustomer['order'];
+
             if ($contactSum > 0) {
                 $rateSum = $orderSum / $contactSum * 100;
             } else {
@@ -1236,5 +1372,14 @@ class Helper
     {
         $list = Group::where('status', 1)->orderBy('id','DESC');;
         return $list;
+    }
+
+    public static function isSale($user)
+    {
+        if ($user->is_sale || $user->is_cskh) {
+            return true;
+        }
+
+        return false;
     }
 }

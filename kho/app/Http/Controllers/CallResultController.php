@@ -17,6 +17,13 @@ use App\Models\SaleCare;
 
 class CallResultController extends Controller
 {
+    public function search(Request $req)
+    {
+        $search = $req->search;
+        $callResult = CallResult::where('name', 'like', '%' . $search .'%')->paginate(15);
+        return view('pages.call.result.index')->with('callResult', $callResult);
+    }
+
     public function saveUpdateCalendarTN(Request $req)
     {
         $saleCare = SaleCare::find($req->id);

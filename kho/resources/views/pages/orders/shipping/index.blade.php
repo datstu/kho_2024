@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>tao don</title>
+        <title>Tạo Vận Đơn</title>
         <!--Google Font-->
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
         <!--Linking Stylesheet-->

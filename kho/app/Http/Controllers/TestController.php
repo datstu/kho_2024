@@ -29,42 +29,46 @@ class TestController extends Controller
 
   public function nga()
   {
+    $page = 21; // Page number
+    $perPage = 10; // Records per page
     $products = DB::table('tbl_product')
+      ->join('tbl_category_product', 'tbl_product.catID', '=', 'tbl_category_product.category_id')
       // ->limit(5)
-      ->get();
-
+      ->select('tbl_product.*','tbl_category_product.category_name as category_name')
+      ->paginate($perPage, ['*'], 'page', $page);
+    // dd($products);
     $dataExport[] = [
       // 'Tên' , 'mã', 'Đã đăng', 'còn hàng', 'Gía bán thường', 'Mô tả ngắn', 'Mô tả', 'Hình ảnh'
-      'post_title','sku', 'post_content','post_excerpt', 'regular_price','stock_status','type','images'
+      'post_title','sku', 'Categories', 'post_content','post_excerpt', 'regular_price','stock_status','type',
     ];
       
       // dd($products);
     foreach ($products as $product)
     {
       // $listImg = '';
-      $listImg = 'http://localhost/ngaWP/wp-content/uploads/2025/products/' . $product->image. ',';
-      // $listImg .= 'http://localhost/ngaWP/wp-content/uploads/2025/' . $product->image;
-      $productImgs = DB::table('tbl_images')->where('productID', $product->productID)->get();
-      if ($productImgs->count() > 0) {
-        foreach ($productImgs as $img) {
-          $listImg .= 'http://localhost/ngaWP/wp-content/uploads/2025/products/' . $img->imgName . ',';
-        }
-      }
+      // $listImg = 'https://ngathinkpad.com/wp-content/uploads/2025/' . $product->image;
+      // // $listImg .= 'http://localhost/ngaWP/wp-content/uploads/2025/' . $product->image;
+      // $productImgs = DB::table('tbl_images')->where('productID', $product->productID)->get();
+      // if ($productImgs->count() > 0) {
+      //   foreach ($productImgs as $img) {
+      //     $listImg .= ',https://ngathinkpad.com/wp-content/uploads/2025/05/' . $img->imgName;
+      //   }
+      // }
 
       $dataExport[] = [
         $product->productName,
         $product->sku,
+        'Laptop,' . $product->category_name,
         $product->product_desc,
         $product->moTaNgan,
         $product->price,
         'instock',
         'simple',
-        $listImg
+        // $listImg
       ];
     }
-    // dd($dataExport);
-      
 
+    // dd($dataExport);
 
   // print_r($dataExport);
   // dd($dataExport);
@@ -605,7 +609,7 @@ class TestController extends Controller
 
       $endpoint = "https://pancake.vn/api/v1/pages/$pIdPan/conversations";
       $today    = strtotime(date("Y/m/d H:i"));
-      $before   = strtotime ( '-10 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
+      $before   = strtotime ( '-5 hour' , strtotime ( date("Y/m/d H:i") ) ) ;
       $before   = date ( 'Y/m/d H:i' , $before );
       $before   = strtotime($before);
 
@@ -741,21 +745,21 @@ class TestController extends Controller
     
           #thành công
           case 5:
-          case 6:
-          case 11:
+          // case 6:
             $order->status = 3;
             break;
 
           #hoàn/huỷ
           case 20:
           case 21:
+          case 11:
           case -1:
             $order->status = 0;
             break;
           
           default:
             # đang giao
-            // $order->status = 2;
+            $order->status = 2;
             break;
         }
         
@@ -767,8 +771,9 @@ class TestController extends Controller
         //check đơn này đã có data chưa
         $issetOrder = Helper::checkOrderSaleCare($order->id);
 
+        //getOriginal lấy trực tiếp field từ db
         // status = 3 = 'hoàn tất', tạo data tác nghiệp sale
-        if ($order->status == 3 && $notHasPaulo) {
+        if ($order->getOriginal('status') == 3) {
 
           $orderTricho = $order->saleCare;
           $chatId = $groupId = '';
@@ -1007,6 +1012,7 @@ class TestController extends Controller
 
   public function parseProductString($str) 
   {
+    // dd($str);
     $products = [];
     
     // Tách ra theo dấu +
@@ -1037,12 +1043,29 @@ class TestController extends Controller
         }
     }
 
+    $newProduct = [];
+    // foreach ($products as $k => $product) {
+    //   echo $k . '<br>';
+    //   if ($k == '')
+    // }
+    // dd($products);
     return $products;
   }
 
   public function listProductTmp()
   {
     $list = [
+      
+      'xô tricho 10kg' => [
+        'price' => 1440000,
+        'unit' => 'Xô',
+        'real_name' => 'Phân bón VL Vinakom Bomix - Tricho Bacillus Xô 10Kg'
+      ],
+      'xô tricho' => [
+        'price' => 1440000,
+        'unit' => 'Xô',
+        'real_name' => 'Phân bón VL Vinakom Bomix - Tricho Bacillus Xô 10Kg'
+      ],
       'tricho 10kg' => [
         'price' => 1440000,
         'unit' => 'Xô',
@@ -1543,6 +1566,28 @@ class TestController extends Controller
     return $phones_array;
   }
 
+  public function parseProductComboTricho($productName)
+  {
+    $arr = explode("+", $productName);
+    // dd($arr);
+    $newName = '';
+    foreach ($arr as $el) {
+      if ($newName != '') {
+        $newName .= ' + ';
+      }
+
+      if (strpos($el, '3 xô tricho 10kg tặng 1 xô tricho 10kg') > -1) {
+        $name = '4 xô tricho 10kg';
+        $newName .= $name;
+      } else {
+        $newName .= $el;
+      }
+      
+    }
+    
+    return $newName;
+  }
+
   public function phoneNhattin()
   {
     $arr = '0328497759
@@ -1658,41 +1703,37 @@ class TestController extends Controller
     $sale     = new OrdersController();
 
     // $req = new Request();
-    $time = ['01/03/2025', '31/03/2025'];
-    // $req['sale'] = '79';
-    // $req['typeDate'] = '2';
-    // $sales = ['77','78','79','74'];
-    // $req['status'] = 3;
-    // orderBy('orders.id', 'desc')
+    $time = ['01/01/2024', '30/06/2025'];
 
     $timeBegin  = str_replace('/', '-', $time[0]);
     $timeEnd    = str_replace('/', '-', $time[1]);
     $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
     $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
 
-    // $list = Orders::join('shipping_order', 'shipping_order.order_id', '=', 'orders.id')
+    $list = Orders::join('shipping_order', 'shipping_order.order_id', '=', 'orders.id')
      
-    //   ->where('shipping_order.vendor_ship', 'GHN')
-    //   ->where('orders.status', 3)
-    //   // ->where('orders.status', 3)
-    //   // ->where('orders.status', 3)
-    //   ->whereDate('orders.created_at', '>=', $dateBegin)
-    //   ->whereDate('orders.created_at', '<=', $dateEnd)
-    //   ->orderBy('orders.id', 'desc')
-    //   // ->where('phone', '0971724878')
-    //   // ->limit(7)
-    //   ->get('orders.*');
+      ->where('shipping_order.vendor_ship', 'GHN')
+      ->where('orders.status', 3)
+      // ->where('orders.status', 3)
+      // ->where('orders.status', 3)
+      ->whereDate('orders.created_at', '>=', $dateBegin)
+      ->whereDate('orders.created_at', '<=', $dateEnd)
+      ->orderBy('orders.id', 'desc')
+      // ->where('phone', '0971724878')
+      // ->limit(7)
+      ->get('orders.*');
+      // ->sum('orders.total');;
 
     // $phoneNhatin = $this->phoneNhattin();
-    $phoneGHTK = $this->phoneGHTK();
+    // $phoneGHTK = $this->phoneGHTK();
     
-    $listPhone = $this->getPhoneArray($phoneGHTK);
-    $list = Orders::whereIn('phone', $listPhone)
-      // ->whereDate('orders.created_at', '>=', $dateBegin)
-      // ->whereDate('orders.created_at', '<=', $dateEnd)
-      // ->limit(17)
-      ->get();
-    // dd($phoneGHTK);
+    // $listPhone = $this->getPhoneArray($phoneGHTK);
+    // $list = Orders::whereIn('phone', $listPhone)
+    //   // ->whereDate('orders.created_at', '>=', $dateBegin)
+    //   // ->whereDate('orders.created_at', '<=', $dateEnd)
+    //   // ->limit(17)
+    //   ->get();
+    // dd($list);
     $dataExport[] = [
       'Số thứ tự hóa đơn (*)' , 'Ngày hóa đơn', 'Tên đơn vị mua hàng', 'Mã khách hàng', 'Địa chỉ', 'Mã số thuế', 'Người mua hàng',
       'Email', 'Hình thức thanh toán', 'Loại tiền', 'Tỷ giá', 'Tỷ lệ CK(%)', 'Tiền CK', 'Tên hàng hóa/dịch vụ (*)', 'Mã hàng', 
@@ -1709,32 +1750,14 @@ class TestController extends Controller
      
       //ghtk ko lấy
       /** nếu có thì bỏ qa */
-      if ($data->shippingOrder && $data->shippingOrder->vendor_ship == 'GHN') {
-        continue;
-      }
+      // if ($data->shippingOrder && $data->shippingOrder->vendor_ship == 'GHN') {
+      //   continue;
+      // }
       // dd($data);
       $timeday = new DateTime($data->created_at);
       $begin = new DateTime("2025-01-01 00:00:00");
       $end = new DateTime("2025-03-31 00:00:00");
       $orderTmp[] = $data->id;
-      // dd($data->created_at);
-      // if ($timeday < $begin || $timeday > $end) {
-      //   // $orderTmp[] = $data->id;
-      // }
-      // if ($data->id != '4905') {
-      //   continue;
-      // }
-
-      // if ($data->name != 'Di Em K Lan') {
-      //   continue;
-      // }
-
-      
-
-      // dd( $data->shippingOrder->vendor_ship == 'GHN');
-
-      // dd($data);
-     
       $listProduct = json_decode($data->id_product,true);
       // dd($listProduct);
       // if ($i == 4) {
@@ -1768,6 +1791,10 @@ class TestController extends Controller
         if (strpos($productName, '+') !== false) {
         //  dd('hi');
           $tmp = [];
+          if (strpos($productName, '3 xô tricho 10kg tặng 1 xô tricho 10kg') !== false) {
+            $productName = $this->parseProductComboTricho($productName);
+          }
+
           $items = $this->parseProductString($productName);
           $productTmp = [];
           
@@ -1779,12 +1806,19 @@ class TestController extends Controller
             //   dd($items);
             // }
             $list = $this->listProductTmp();
+
+            if ($key == 'xô tricho 10kg tặng 1 xô tricho 10kg') {
+              dd($productName);
+            }
+            if (!isset($list[$key])) {
+              continue;
+            }
+
             $productTmp = $list[$key];
             $percenTax = 'KCT';
             $totalGTGT = '';
             $total = 0;
-            
-            // dd('yau');
+
             if (!$productTmp) {
               continue;
             }
@@ -1953,6 +1987,9 @@ class TestController extends Controller
           // dd($product);
           if (strpos($productName, '+') !== false) {
 
+            if (strpos($productName, '3 xô tricho 10kg tặng 1 xô tricho 10kg') !== false) {
+              $productName = $this->parseProductComboTricho($productName);
+            }
             $items = $this->parseProductString($productName);
             $productTmp = [];
             foreach ($items as $key => $val)
@@ -2133,52 +2170,37 @@ class TestController extends Controller
     // echo "<pre>";
     // print_r($dataExport);
     // echo "</pre>";
-    return Excel::download(new UsersExport($dataExport), 'GHTK.xlsx');
-
+    return Excel::download(new UsersExport($dataExport), 'GHN-thang-03.xlsx');
   }
 
 
   public function export()
   {
     $sale     = new SaleController();
-
-    // $req = new Request();
-    $req['daterange'] = ['01/02/2025', '28/02/2025'];
-    // $req['sale'] = '79';
+    $req = new Request();
+    $req['daterange'] = ['01/03/2025', '31/03/2025'];
+    // $req['sale'] = '97';
     // $req['typeDate'] = '2';
 
-    $sales = ['77','78','79','74'];
+    // $sales = ['50','74'];
 
     $list =  $sale->getListSalesByPermisson(Auth::user(), $req);
-    // $list->whereNull('id_order_new');
-    // $list->whereNull('id_order');
-    $list->where('old_customer', 1);
-    // // $list->where('is_duplicate', 0);
+    $list->whereNull('id_order_new');
+    $list->whereNull('id_order');
+    $list->where('old_customer', 0);
+    $list->where('is_duplicate', 0);
     $list->where('group_id', '9');
-    $list->whereIn('assign_user', $sales);
+    $list->paginate(300, ['*'], 'page', 2);
+    // $list->whereIn('assign_user', $sales);
+    dd($list->get());
     $dataExport[] = [
       'Tên' , 'Số điện thoại', 'Tin nhắn khách để lại', 'Note TN trước đó', 'Ngày nhận'
     ];
 
-    // echo "<pre>";
-    // print_r($list->get());
-    // echo "</pre>";
-    // die();
-    // dd($list->get());
     foreach ($list->get() as $data) {
-      // echo 'name: ' . $data->full_name . '<br>';
-      // echo 'phone: ' . $data->phone . '<br>';
-      // echo 'gr: ' . $data->group_id . '<br>';
-      // echo 'message: : ' . $data->TN_can . '<br>';
-      // echo 'date: ' . $data->created_at . '<br>';
-
-      // if (Helper::isOldCustomer($data->phone, $data->group_id)) {
-      //   continue;
-      // }
 
       $tnCan = $data->TN_can;
       if ($data->listHistory) {
-        // dd($data->listHistory);
         foreach ($data->listHistory as $his) {
           $tnCan .= date_format($his->created_at,"d-m-Y ") . ': ' . $his->note . ', ';
         }
@@ -2193,11 +2215,7 @@ class TestController extends Controller
       ];
     }
 
- 
-    // print_r($dataExport);
-    // dd($dataExport);
     return Excel::download(new UsersExport($dataExport), 'thang02.xlsx');
-
   }
 
   public function fix()
@@ -2287,14 +2305,16 @@ WHERE  NOT EXISTS
 
   public function wakeUp()
   {
-    $listSc = SaleCare::whereNotNull('result_call')
-      ->whereNotNull('type_TN')
-      ->where('result_call', '!=', 0)
-      ->where('result_call', '!=', -1)
-      ->where('has_TN', 1)
-      ->where('created_at', '>' , '2024-12-01')
-      ->get();
+    // $listSc = SaleCare::whereNotNull('result_call')
+    //   ->whereNotNull('type_TN')
+    //   ->where('result_call', '!=', 0)
+    //   ->where('result_call', '!=', -1)
+    //   ->where('has_TN', 1)
+    //   ->where('created_at', '>' , '2025-04-30')
+    //   ->get();
 
+      
+  $listSc = SaleCare::where('phone', '0979410529')->get();
     foreach ($listSc as $sc) {
 
       // if ($sc->id != '15967') {
@@ -2347,6 +2367,10 @@ WHERE  NOT EXISTS
         if ($group) {
           $chatId = $group->tele_nhac_TN;
           $tokenGroupChat =  $group->tele_bot_token;
+
+          if ($sc->old_customer && $sc->old_customer == 1 && $group->tele_nhac_TN_CSKH) {
+            $chatId = $group->tele_nhac_TN_CSKH;
+          }
         }
 
         //set lần gọi tiếp theo

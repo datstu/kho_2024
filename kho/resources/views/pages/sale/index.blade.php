@@ -147,11 +147,7 @@
 
     <div class="card mb-4">
         <div class="card-body p-0">
-            <div class="example mt-0">
-
             @include('pages.sale.content')
-
-            </div>
         </div>
     </div>
 </div>

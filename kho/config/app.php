@@ -186,6 +186,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'Helper'=> App\Helpers\Helper::class,
+        'HelperProduct'=> App\Helpers\HelperProduct::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         // 'Example' => App\Facades\Example::class,
         'Image' => 'Intervention\Image\Facades\Image'

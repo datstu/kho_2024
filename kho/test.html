@@ -1,11 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>test voip</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ Hàng</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    th {
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+
+    .text-left {
+      text-align: left;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    pre {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border: 1px solid #ddd;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-	
+  <h1>Giỏ Hàng</h1>
+  <table class="table table-bordered table-line">
+    <thead>
+      <tr>
+        <th>Tên sản phẩm</th>
+        <th>Đơn giá</th>
+        <th>Số lượng</th>
+        <th>Thành tiền</th>
+      </tr>
+    </thead>
+    <tbody id="cart-body">
+      <tr data-id="83">
+        <td class="text-left">
+          <h5 class="name-product">NPK</h5>
+        </td>
+        <td class="unit-price">1,350,000</td>
+        <td>
+          <input type="number" class="qty" value="2" min="0">
+        </td>
+        <td class="line-total">2,700,000</td>
+      </tr>
+      <tr data-id="84">
+        <td class="text-left">
+          <h5 class="name-product">Ure</h5>
+        </td>
+        <td class="unit-price">500,000</td>
+        <td>
+          <input type="number" class="qty" value="1" min="0">
+        </td>
+        <td class="line-total">500,000</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button id="get-cart-info" class="btn">Lấy thông tin giỏ hàng</button>
+  <pre id="cart-info-output"></pre>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const getCartInfoButton = document.querySelector("#get-cart-info");
+      const cartBody = document.querySelector("#cart-body");
+      const output = document.querySelector("#cart-info-output");
+
+      getCartInfoButton.addEventListener("click", function () {
+        const cartData = [];
+
+        cartBody.querySelectorAll("tr").forEach((row) => {
+          const name = row.querySelector(".name-product")?.textContent.trim() || "N/A";
+          const productId = row.dataset.id || "N/A";
+          const quantity = row.querySelector(".qty")?.value || 0;
+
+          cartData.push({
+            productName: name,
+            productId: productId,
+            quantity: parseInt(quantity),
+          });
+        });
+
+        // Hiển thị thông tin giỏ hàng dưới dạng JSON
+        output.textContent = JSON.stringify(cartData, null, 2);
+      });
+    });
+  </script>
 </body>
 </html>

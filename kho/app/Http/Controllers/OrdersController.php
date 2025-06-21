@@ -12,6 +12,7 @@ use App\Http\Controllers\AddressController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
+use App\Helpers\HelperProduct;
 use App\Http\Controllers\SaleController;
 use App\Models\Group;
 use App\Models\GroupUser;
@@ -24,6 +25,11 @@ use Illuminate\Validation\Rule;
 
 class OrdersController extends Controller
 {
+    public function empty()
+    {
+        return view('pages.empty');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -324,9 +330,6 @@ class OrdersController extends Controller
             if ($group = $saleCare->group) {
                 $products    = $group->products;
 
-                // foreach ($products as $item) {
-                //     $listProduct[] = $item->product;
-                // }
                 foreach ($products as $item) {
                     $listProductIds[] = $item->id_product;
                 }
@@ -341,6 +344,10 @@ class OrdersController extends Controller
         }
 
         $listProvince = $this->getListProvince();
+
+        if (!$listProduct) {
+            return redirect()->route('empty');
+        }
 
         return view('pages.orders.addOrUpdate')->with('listProduct', $listProduct)
             // ->with('provinces', $provinces)
@@ -416,6 +423,7 @@ class OrdersController extends Controller
      */
     public function save(Request $request)
     {
+                    // dd($request->all());
         $validator      = Validator::make($request->all(), [
             'name'      => 'required',
             'price'     => 'required',
@@ -431,7 +439,7 @@ class OrdersController extends Controller
             'address.required' => 'Nhập địa chỉ',
             'district.required' => 'Chọn quận huyện',
             'ward.required' => 'Chọn xã phường',
-            'phone.required' => 'Nhập số lượng',
+            'phone.required' => 'Nhập số điện thoại',
             'qty.min' => 'Vui lòng chọn sản phẩm',
         ]);
 
@@ -439,14 +447,15 @@ class OrdersController extends Controller
             if (isset($request->id)) {
                 $order = Orders::find($request->id);
                 $text = 'Cập nhật đơn hàng thành công.';
-                
-                $oldPro = json_decode($order->id_product);
-                $newPro = json_decode($request->products);
 
+                $oldPro = json_decode($order->id_product);
+                $newPro = $request->products;
+
+                // dd($oldPro);
                 foreach ($oldPro as $oldItem) {
                     $flag = false;
                     foreach ($newPro as $key => $newItem) {
-                        if ($newItem->id == $oldItem->id) {
+                        if ($newItem['id'] == $oldItem->id) {
                             $flag = true;
                             unset($newPro[$key]);
                             break;
@@ -454,7 +463,7 @@ class OrdersController extends Controller
                     }
                     
                     if ($flag) {
-                        $oldItem->val = (int)$newItem->val - (int)$oldItem->val;
+                        $oldItem->val = (int)$newItem['val'] - (int)$oldItem->val;
                     } else {
                         $oldItem->val = -(int)$oldItem->val;
                     }
@@ -469,8 +478,8 @@ class OrdersController extends Controller
 
                 /** cập nhật số lượng khi new nhiều hơn old: new đã trừ, còn lại chưa update  */
                 foreach ($newPro as $item) {
-                    $product        = Product::find($item->id);
-                    $product->qty   = (int)$product->qty - (int)$item->val;
+                    $product        = Product::find($item['id']);
+                    $product->qty   = (int)$product->qty - (int)$item['val'];
                     $product->save();
                 }
 
@@ -479,13 +488,14 @@ class OrdersController extends Controller
                 $text = 'đã tạo đơn hàng.';
 
                 $listProductName = $tProduct = '';
-                foreach (json_decode($request->products) as $item) {
+
+                foreach ($request->products as $item) {
                     if ($tProduct != '') {
                         $tProduct .= ', ';
                     }
-                    $product        = Product::find($item->id);
-                    $tProduct       .= "\n$product->name: $item->val";
-                    $product->qty   = (int)$product->qty - (int)$item->val;
+                    $product        = Product::find($item['id']);
+                    $tProduct       .= "\n$product->name: " . $item['val'];
+                    $product->qty   = (int)$product->qty - (int)$item['val'];
     
                     if ($listProductName != "") {
                         $listProductName    .= ' + ';
@@ -495,7 +505,7 @@ class OrdersController extends Controller
                 }
             }
 
-            $order->id_product      = $request->products;
+            $order->id_product      = json_encode($request->products);
             $order->phone           = $request->phone;
             $order->address         = $request->address;
             $order->name            = $request->name;
@@ -562,14 +572,14 @@ class OrdersController extends Controller
                     }
 
                     //tạo mới order
-                    try {
-                        $client->request('GET', $endpoint, ['query' => [
-                            'chat_id' => $chatId, 
-                            'text' => $userAssign . ' ' . $text . $notiText,
-                        ]]);
-                    } catch (\Exception $e) {
-                        return $e;
-                    }
+                    // try {
+                    //     $client->request('GET', $endpoint, ['query' => [
+                    //         'chat_id' => $chatId, 
+                    //         'text' => $userAssign . ' ' . $text . $notiText,
+                    //     ]]);
+                    // } catch (\Exception $e) {
+                    //     return $e;
+                    // }
                 }
                 
             } else {
@@ -663,21 +673,24 @@ class OrdersController extends Controller
                     //data TN cũ chưa có group => hiển thị toàn bộ list ban đầu
                     $listProduct    = Helper::getListProductByPermisson(Auth::user()->role)->get();
                 }
-            }
-            // $listProduct    =  Product::all();
-            $listSale       = Helper::getListSale()->get();
-            $listProvince = $this->getListProvince();
-            $addressCtl = new AddressController();
-            $listWard = $addressCtl->getListWardById($order->district);
             
-            return view('pages.orders.addOrUpdate')->with('order', $order)
-                ->with('listSale', $listSale)
-                ->with('listWard', $listWard)
-                ->with('listProvince', $listProvince)
-                ->with('listProduct', $listProduct);
+                // $listProduct    =  Product::all();
+                $listSale       = Helper::getListSale()->get();
+                $listProvince = $this->getListProvince();
+                $addressCtl = new AddressController();
+                $listWard = $addressCtl->getListWardById($order->district);
+                if (!$listProduct) {
+                    return redirect()->route('empty');
+                }
+                return view('pages.orders.addOrUpdate')->with('order', $order)
+                    ->with('listSale', $listSale)
+                    ->with('listWard', $listWard)
+                    ->with('listProvince', $listProvince)
+                    ->with('listProduct', $listProduct);
+            }
         } 
 
-        return redirect('/');
+        return redirect()->route('empty');
     }
 
     public function getListDistrictByProvinceId($id) {

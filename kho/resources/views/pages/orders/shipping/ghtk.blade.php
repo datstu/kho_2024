@@ -3,6 +3,10 @@ $listStatus = Helper::getListStatus();
 $isLeadSale = Helper::isLeadSale(Auth::user()->role);
 $checkAll = isFullAccess(Auth::user()->role);
 $flagAccess = false;
+$name = '';
+if (Helper::isOldCustomerV2($order->phone)) {
+  $name .= '❤️ ';
+}
 ?>
 @extends('layouts.default')
 @section('content')
@@ -215,7 +219,7 @@ $flagAccess = false;
             <div class="col-sm-12 col-lg-6  form-group">
                 <label class="form-label" for="nameFor">Tên khách
                     hàng</label>
-                <input required value="{{$order->name}}" class="form-control" 
+                <input required value="{{$name .= $order->name}}" class="form-control" 
                     name="name" id="nameFor" type="text">
             </div>
             <div class="col-12  form-group">
@@ -238,6 +242,7 @@ $flagAccess = false;
                   @endforeach
                   @endif
               </select>
+              <input type="hidden" name="district_label" id="districtLabel">
             </div>
             <div class="col-sm-6 col-md-6 form-group address-GHN">
                 <label class="form-label" for="ward-filter-GHN"><b>Phường - xã GHTK</b><span class="required-input">(*)</span></label>
@@ -248,13 +253,14 @@ $flagAccess = false;
                     <?php if(strpos($ward->WardName, $nameWardSystem) !== FALSE) {  
                       echo "selected";
                     } ?>
-                    value="{{$ward->WardName}}">{{$ward->WardName}}</option>
+                    value="{{$ward->WardCode}}">{{$ward->WardName}}</option>
                     @endforeach
                     
                     @else
                     <option value="-1">--Chọn phường/ xã--</option>
                     @endif
                 </select>
+                <input type="hidden" name="ward_label" id="wardLabel">
             </div>
 
             <div class="col-12 form-group">
@@ -283,14 +289,21 @@ $flagAccess = false;
                       $sumQty += $item->val;
                       $totalTmp += $item->val * $product->price;
                       $totalWeight += $product->weight;
+                      $nameProduct = $product->name;
+                      $weight = $product->weight;
+                      if ($product->type == 2 && !empty($item->variantId)) {
+                        $variantID = $item->variantId;
+                        $nameProduct .= HelperProduct::getNameAttributeByVariantId($variantID);
+                        $variant = HelperProduct::getProductVariantById($variantID);
+                        $weight = $variant->weight;
+                      }
                     ?>
 
-                    
                     <tr class="number dh-san-pham product-{{$product->id}}">
                       <td><input type="checkbox" class="checkbox-merge form-check-input"></td>   
-                      <td colspan="7" class="text-left"> <input required name="products[{{$i}}][name]" type="text" style="width: 100%;" value="{{$product->name}}"><br>
+                      <td colspan="7" class="text-left"> <input required name="products[{{$i}}][name]" type="text" style="width: 100%;" value="{{$nameProduct}}"><br>
                       </td>
-                      <td colspan="1"><input required class="text-right price_class" name="products[{{$i}}][weight]" type="text" style="width: 100%;  padding: 10px;" value="<?php if ($product->weight > 0) { echo number_format($product->weight);} ?>"></td>
+                      <td colspan="1"><input required class="text-right price_class" name="products[{{$i}}][weight]" type="text" style="width: 100%;  padding: 10px;" value="<?php if ($weight > 0) { echo number_format($weight);} ?>"></td>
                       <td class="no-wrap" style="width: 45px">
                         <input class="text-center" required name="products[{{$i}}][qty]" type="text" style="width: 100%;" value="{{$item->val}}">
                       </td>
@@ -411,7 +424,7 @@ $flagAccess = false;
     if ($('.flex.items-start').length) {
         setTimeout(function() { 
             $('.notify.fixed').hide();
-        }, 3000);
+        }, 5000);
     }
 
   });
@@ -483,8 +496,21 @@ document.querySelectorAll('.price_class').forEach(inp => new Cleave(inp, {
       alert('Vui lòng đợi quận huyện!');
       e.preventDefault();
       console.log($('#distric-filter-GHN').val());
+      e.preventDefault();
       return false;
     }
+
+    const select = document.getElementById('distric-filter-GHN');
+    const selectedOption = select.options[select.selectedIndex];
+    document.getElementById('districtLabel').value = selectedOption.text;
+
+    const selectWard = document.getElementById('ward-filter-GHN');
+    const selectedWardOption = selectWard.options[selectWard.selectedIndex];
+    document.getElementById('wardLabel').value = selectedWardOption.text;
+
+    // console.log();
+    // alert(selectedWardOption.text);
+    // e.preventDefault(); // 👉 Ngăn không cho form submit
   });
 </script>
 
@@ -563,6 +589,12 @@ document.addEventListener('change', function (e) {
     document.getElementById('checkAllProducts').checked = (all.length === checked.length);
   }
 });
+  </script>
+
+<script>
+  // document.getElementById('form-create-order-ghn').addEventListener('submit', function() {
+   
+  // });
   </script>
   
   

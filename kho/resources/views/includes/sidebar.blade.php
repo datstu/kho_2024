@@ -10,23 +10,8 @@
 <?php $checkAll = isFullAccess(Auth::user()->role);
     $isLeadSale = Helper::isLeadSale(Auth::user()->role);
     $isMkt = Helper::isMkt(Auth::user());
+    $isSale = Helper::isSale(Auth::user());
 ?>
-
-    @if ($checkAll)
-
-    {{-- <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
-            <svg class="nav-icon">
-                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-puzzle')}}"></use>
-            </svg> Robot</a>
-        <ul class="nav-group-items">
-            <li class="nav-item"><a class="nav-link" href="robot.phtml"><span class="nav-icon"></span> Dạy Robot</a>
-            </li>
-            <li class="nav-item"><a class="nav-link" href="base/breadcrumb.html"><span class="nav-icon"></span> Cấu hình
-                    FB</a></li>
-        </ul>
-    </li> --}}
-
-    @endif
 
     @if ($checkAll)
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
@@ -50,8 +35,11 @@
         </svg>TeleSale</a>
         <ul class="nav-group-items">
             <li class="nav-item"><a class="nav-link" href="{{route('sale-index')}}"><span class="nav-icon"></span>Tác nghiệp Sale</a></li>
+            @if ($checkAll || $isLeadSale || $isSale)
             <li class="nav-item"><a class="nav-link" href="{{route('sale-rank')}}"><span class="nav-icon"></span>Bảng xếp hạng </a></li>
-        
+            @endif
+            <li class="nav-item"><a class="nav-link" href="{{route('spam')}}"><span class="nav-icon"></span>Seeding/Spam</a></li>
+
             @if ($checkAll || $isLeadSale)
             {{-- <li class="nav-item"><a class="nav-link" href="{{route('view-spam')}}"><span class="nav-icon"></span>Spam</a></li> --}}
             <li class="nav-item"><a class="nav-link" href="{{route('view-sale-report-effect-TN')}}"><span class="nav-icon"></span>Báo cáo Sale TN</a></li>
@@ -112,7 +100,6 @@
                     <li class="nav-item"><a class="nav-link" href="{{route('call-index')}}"><span class="nav-icon"></span>Thiết lập TN Sale</a></li>
                 </ul>
             </li>
-            <li class="nav-item"><a href="{{route('manage-src')}}" class="nav-link">QL Nguồn data</a></li>
         </ul>
     </li>
     @endif

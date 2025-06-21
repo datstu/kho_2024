@@ -3,6 +3,10 @@
 
 <?php
 $checkAll = isFullAccess(Auth::user()->role);
+$name = '';
+if (Helper::isOldCustomerV2($order->phone)) {
+    $name .= '❤️ ';
+}
 ?>
 <style>
     #laravel-notify .notify {
@@ -93,7 +97,7 @@ $checkAll = isFullAccess(Auth::user()->role);
                 </tr>
                 <tr>
                     <td class="first-col">Tên khách hàng</td>
-                    <td>{{$order->name}}</td>
+                    <td>{{$name .= $order->name}}</td>
                 </tr>
                 <tr>
                     <td class="first-col">Giới tính</td>
@@ -137,10 +141,15 @@ $checkAll = isFullAccess(Auth::user()->role);
                     foreach (json_decode($order->id_product) as $item) {
                         $product = getProductByIdHelper($item->id);
                         if ($product) {
+                            $name = $product->name;
+                            if ($product->type == 2 && !empty($item->variantId)) {
+                                $variantID = $item->variantId;
+                                $name .= HelperProduct::getNameAttributeByVariantId($variantID);
+                            }
                     ?>
                    
                 <tr>
-                    <td class="first-col">{{$product->name}}</td>
+                    <td class="first-col">{{$name}}</td>
                     <td>{{$item->val}}</td>
                 </tr>
                 <?php }} ?>

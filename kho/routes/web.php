@@ -22,6 +22,7 @@ use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\GroupSaleDetailController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\SaleCareCountActionController;
+use App\Http\Controllers\SpamController;
 use App\Http\Controllers\VoipController;
 
 
@@ -37,6 +38,11 @@ use App\Http\Controllers\VoipController;
 */
 Route::middleware('admin-auth')->group(function () {
 
+    Route::get('/danh-sach-spam',  [SpamController::class, 'index'])->name('spam');
+    Route::get('/them-spam',  [SpamController::class, 'viewAddUpdate'])->name('add-spam');
+    Route::post('/luu-spam',  [SpamController::class, 'save'])->name('save-spam');
+    Route::get('/xoa-spam/{id}',  [SpamController::class, 'delete'])->name('delete-spam');
+    Route::get('/tim-spam',  [SpamController::class, 'search'])->name('search-spam');
     /** call voip */
     
     Route::get('view-call-voip', [VoipController::class, 'index'])->name('view-call-voip');
@@ -84,7 +90,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/chi-tiet-don-hang/{id}',  [OrdersController::class, 'view'])->name('view-order');
     Route::get('/loc-don-hang',  [OrdersController::class, 'filterOrderByDate'])->name('filter-order');
     Route::get('/get-products-by-category-id',  [ProductController::class, 'getProductsByCategoryId'])->name('get-products-by-category-id');
-    
+    Route::get('/empty',  [OrdersController::class, 'empty'])->name('empty');
 
     Route::get('/cap-nhat-thanh-vien/{id}',[UserController::class,'viewUpdate'])->name('update-user');
     Route::get('/delete-user/{id}',  [UserController::class, 'delete'])->name('delete-user');
@@ -111,7 +117,7 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/tac-nghiep-sale',  [SaleController::class, 'index'])->name('sale-index');
     Route::get('/tao-tac-nghiep-sale',  [SaleController::class, 'add'])->name('sale-add');
     Route::post('/tao-tac-nghiep-sale',  [SaleController::class, 'saveUI'])->name('sale-care-save');
-    Route::get('/cap-nhat-tac-nghiep-sale/{id}',  [SaleController::class, 'update'])->name('sale-care-update');
+    Route::get('/cap-nhat-tac-nghiep-sale/{id}',  [SaleController::class, 'updateView'])->name('sale-care-update');
     Route::post('/cap-nhat-sale-ajax',  [SaleController::class, 'saveAjax'])->name('sale-save-ajax');
     Route::get('/tim-tac-nghiep-sale',  [SaleController::class, 'search'])->name('search-sale-care');
     Route::post('/cap-nhat-TNcan',  [SaleController::class, 'updateTNcan'])->name('update-salecare-TNcan');
@@ -129,9 +135,9 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/api-sum-TN',  [SaleCareCountActionController::class, 'apiSumTN'])->name('api-sum-TN');
     Route::get('/bao-cao-cong-viec',  [SaleCareCountActionController::class, 'viewReportEffectTN'])->name('view-sale-report-effect-TN');
     Route::get('/view-count-dataTN-ajax',  [SaleCareCountActionController::class, 'ajaxViewReportEffect'])->name('view-count-dataTN-ajax');
+    Route::post('/cap-nhat-sale',  [SaleController::class, 'update'])->name('update-sale-care');
+  
     
-    Route::get('/danh-sach-spam',  [SaleController::class, 'listSpam'])->name('view-spam');
-
     Route::get('/loai-TN-sale',  [CategoryCallController::class, 'index'])->name('category-call'); 
     Route::get('/tao-loai-TN-sale',  [CategoryCallController::class, 'add'])->name('category-call-add');
     Route::post('/save-loai-TN-sale',  [CategoryCallController::class, 'save'])->name('category-call-save');
@@ -146,13 +152,14 @@ Route::middleware('admin-auth')->group(function () {
     Route::get('/delete-result-call/{id}',  [CallResultController::class, 'delete'])->name('call-result-delete');
     Route::get('/view-hen-lich-TN/{id}',  [CallResultController::class, 'viewCalendarTN'])->name('view-calendar-TN');
     Route::post('/update-calendar-TN',  [CallResultController::class, 'saveUpdateCalendarTN'])->name('update-calendar-TN');
-    
+    Route::get('/tim-ket-qua-tac-nghiep',  [CallResultController::class, 'search'])->name('call-result-search'); 
     
     Route::get('/call',  [CallController::class, 'index'])->name('call-index');
     Route::get('/tao-call',  [CallController::class, 'add'])->name('call-add');
     Route::post('/luu-call',  [CallController::class, 'save'])->name('call-save');
     Route::get('/cap-nhat-call/{id}',  [CallController::class, 'update'])->name('call-update');
     Route::get('/call-delete/{id}',  [CallController::class, 'delete'])->name('call-delete');
+    Route::get('/tim-tac-nghiep',  [CallController::class, 'search'])->name('call-search');
 
     Route::get('/cai-dat-chung',  [SettingController::class, 'index'])->name('setting-general');
     Route::post('/telegram-save',  [SettingController::class, 'telegramSave'])->name('telegram-save');
@@ -197,9 +204,10 @@ Route::get('/log-out',  [UserController::class, 'logOut'])->name('log-out');
 
 Route::get('/filter-total',  [HomeController::class, 'filterTotal'])->name('filter-total');
 Route::get('/filter-total-sales',  [HomeController::class, 'ajaxFilterDashboar'])->name('filter-total-sales');
+Route::get('/filter-total-cskh-dt',  [HomeController::class, 'ajaxFilterDashboardCskhDT'])->name('filter-total-cskh-dt');
 Route::get('/filter-total-digital',  [HomeController::class, 'ajaxFilterDashboardDigitalV2'])->name('filter-total-digital');
 
-Route::get('/test',  [TestController::class, 'updateStatusOrderGHTK'])->name('test');
+Route::get('/test',  [TestController::class, 'crawlerGroup'])->name('test');
 
 
 Route::get('/hiep',  [TestController::class, 'saveDataHiep'])->name('hiep');

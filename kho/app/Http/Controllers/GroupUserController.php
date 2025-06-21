@@ -73,8 +73,10 @@ class GroupUserController extends Controller
         ]);
 
         if ($validator->passes()) {
+            $membersOld = [];
             if(isset($req->id)){
                 $gr = GroupUser::find($req->id);
+                $membersOld = User::where('group_user', $gr->id)->pluck('id')->toArray();
             } else {
                 $gr = new GroupUser();
             }
@@ -86,9 +88,15 @@ class GroupUserController extends Controller
                 
                 $gr->save();
 
-                /** lưu thôn tin user trong nhóm */
                 $members = $req->member;
-                User::whereIn('id', $members)->update(['group_user' => $gr->id]);
+                $diff1 = array_diff($membersOld, $members);
+
+                /** lưu thôn tin user trong nhóm */
+                if ($diff1) {
+                    User::whereIn('id', $diff1)->update(['group_user' => null]);
+                } else {
+                    User::whereIn('id', $members)->update(['group_user' => $gr->id]);
+                }
 
             } catch (\Throwable $th) {
                 dd($th);

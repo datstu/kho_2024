@@ -12,6 +12,18 @@
         <div class="row ">
             <div class="col col-4">
                 <a href="{{route('call-result-add')}}" class="btn btn-primary" data-toggle="modal" data-target="#myModal" role="button">+ Thêm Kết Quả TN</a>   
+            
+            </div>
+            <div class="col-8">
+                <form class ="row tool-bar d-flex justify-content-end" action="{{route('call-result-search')}}" method="get">
+                  <div class="col-3">
+                    <input class="form-control" name="search" placeholder="Tìm kết quả..." type="text">
+                  </div>
+                  <div class="col-3 " style="padding-left:0;">
+                    <button type="submit" class="btn btn-primary"><svg class="icon me-2">
+                                <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-search')}}"></use>
+                              </svg>Tìm</button>
+                </form>
             </div>
         </div>
         <div class="tab-content rounded-bottom">

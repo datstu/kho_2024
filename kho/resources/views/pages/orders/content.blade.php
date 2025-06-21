@@ -305,8 +305,11 @@
             <tbody>
 
             @foreach ($list as $item)
-            
-            <?php 
+            <?php $name = '';
+            if (Helper::isOldCustomerV2($item->phone)) {
+                $name .= '❤️ ';
+            }
+
             $shippingOrder    = $item->shippingOrder()->get()->first();
             // dd($item->id);
             $orderCode        = $shippingOrder->order_code ?? '';
@@ -316,7 +319,7 @@
                 
                 <th onclick="window.location='{{route('view-order', $item->id)}}';" style='cursor: pointer;'>{{ $item->id }}</th>
                 <td style='cursor: pointer;'> <a class="link-name" target="blank" href="{{route('view-order', $item->id)}}">{{ $item->phone }}</a> </td>
-                <td style='cursor: pointer;' class="mobile-col-tbl"> <a class="link-name" target="blank" href="{{route('view-order', $item->id)}}">{{ $item->name }}</a></td>
+                <td style='cursor: pointer;' class="mobile-col-tbl"> <a class="link-name" target="blank" href="{{route('view-order', $item->id)}}">{{$name .= $item->name }}</a></td>
                 <td class="text-center">  {{ $item->qty }} </td>
                 <td >  {{ number_format($item->total) }}đ</td>
                 <td >  {{ getSexHelper($item->sex) }} </td>
@@ -362,6 +365,19 @@
     </div>
 </div>
   
+<div class="modal fade" id="notify-modal" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title" style="color: seagreen;"><p style="margin:0">thành công</p></h6>
+            <button style="border: none;" type="button" id="close-modal-notify" class="close" data-dismiss="modal" >
+              <span>&times;</span>
+            </button>
+          </div>
+        </div>
+    </div>
+</div>
+
 <script>
   $.urlParam = function(name){
     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
