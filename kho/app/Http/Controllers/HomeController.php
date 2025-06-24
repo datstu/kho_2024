@@ -59,7 +59,6 @@ class HomeController extends Controller
         } else if ($isCskhDt) {
             $dataSaleCSKH[] = User::find(Auth::user()->id);   
         }
-        
 
         if ($isDigital) {
             if (($checkAll || $isLeadDigital)) {
@@ -148,7 +147,7 @@ class HomeController extends Controller
         // return $result;
     }
 
-    public function getReportUserCskhDT($user, $dataFilter)
+    public function getReportUserCskhDTOld($user, $dataFilter)
     {
         $rate = $avgOrders = 0;
         $result = ['name' => ($user->real_name) ?: ''];
@@ -203,6 +202,88 @@ class HomeController extends Controller
             'contactByTime' => $contactCountByTime,
         ];
 
+        return $result;
+    }
+
+    public function getReportUserCskhDT($user, $dataFilter)
+    {
+        $rate = $avgOrders = 0;
+        $result = ['name' => ($user->real_name) ?: ''];
+        $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
+        $dataFilter['sale'] = $user->id;
+        $dataFilter['typeDate'] = 1; //ngày data vè hệ thống
+   
+        $saleCare = SaleCare::where('assign_user', $user->id)
+            ->where('is_duplicate', 0);
+        // $routeName = \Route::currentRouteName();
+        // if (isset($dataFilter['status']) && $routeName != 'filter-total-sales') {
+        //     $saleCare->whereNotNull('id_order_new');
+        //     $newSCare = [];
+        //     foreach ($saleCare->get() as $scare) {
+        //         $order = $scare->orderNew;
+        //         if ($order && $order->status == $dataFilter['status']) {
+        //             $newSCare[] = $scare->id;
+        //         }
+        //     }
+        //     $saleCare   = SaleCare::orderBy('created_at', 'desc')->whereIn('id', $newSCare);
+        // }
+
+        if (isset($dataFilter['group'])) {
+            $saleCare   = $saleCare->where('group_id', $dataFilter['group']);
+        }
+        $saleCare = $saleCare->get();
+        // dd($saleCare);
+        $listPhone = $saleCare->pluck('phone')->toArray();
+        $contactCount = array_unique($listPhone);
+        $contactCount = count($contactCount);
+        
+        $ordersCtl = new OrdersController();
+        $orders = $ordersCtl->getListOrderByPermisson(Auth::user(), $dataFilter, true);
+        $orderCount = $orders->count();
+        $sumProduct = $orders->sum('qty');
+        $ordersSumTotal = $orders->sum('total');
+        $ordersSumTotal = round($ordersSumTotal, 0);
+
+        if ($orderCount > 0) {
+            $avgOrders = round($ordersSumTotal / $orderCount, 0);
+        }
+
+        if ($contactCount != 0) {
+            $rate = $orderCount / $contactCount * 100;
+            $rate = round($rate, 2);
+        } else {
+            $rate =  $orderCount * 100;
+        }
+        
+        // $time       = $dataFilter['daterange'];
+        // $timeBegin  = str_replace('/', '-', $time[0]);
+        // $timeEnd    = str_replace('/', '-', $time[1]);
+        // $dateBegin  = date('Y-m-d',strtotime("$timeBegin"));
+        // $dateEnd    = date('Y-m-d',strtotime("$timeEnd"));
+        
+        $saleCtl = new SaleController();
+        $saleByTime  = $saleCtl->getListSalesByPermisson(Auth::user(), $dataFilter)
+            ->where( 'is_duplicate', 0);   
+        // $saleByTime = SaleCare::whereDate('created_at', '<=', $dateEnd)
+        //     ->whereDate('created_at', '>=', $dateBegin)
+        //     ->where('assign_user', $user->id)
+        //     ->where( 'is_duplicate', 0)->get();
+        // dd($dataFilter);
+        $listPhoneByTime = $saleByTime->pluck('phone')->toArray();
+        $contactCountByTime = array_unique($listPhoneByTime);
+        $contactCountByTime = count($contactCountByTime);
+        // dd($saleByTime->get());
+        $result['old_customer'] = $result['summary_total']= [
+            'contact' => $contactCount,
+            'order' => $orderCount,
+            'rate' =>$rate,
+            'product' => $sumProduct,
+            'total' => $ordersSumTotal,
+            'avg' => $avgOrders,
+            'contactByTime' => $contactCountByTime,
+        ];
+      
+        // dd($result);
         return $result;
     }
     
@@ -847,6 +928,7 @@ class HomeController extends Controller
        
         $rateSumX = round($rateSumX, 2);
         $result['trSum'] = $sumOldCustomer;
+        // dd($result);
         return $result;
     }
 
