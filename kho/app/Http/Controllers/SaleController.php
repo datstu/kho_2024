@@ -273,7 +273,7 @@ class SaleController extends Controller
             ->join('detail_product_group','detail_product_group.id_product', '=', 'product.id')
             ->where('product.status', 1)->distinct()->get();
         $dataCountByType = $this->getReportCountTNByType($saleCare, $listTypeTN);
-        $saleCare   = $saleCare->paginate(50);
+        $saleCare   = $saleCare->paginate(perPage: 50);
         
         // $groups = Group::orderBy('id', 'desc')->get();
         return view('pages.sale.index')->with('listSrc', $listSrc)
@@ -288,7 +288,6 @@ class SaleController extends Controller
 
     public function add()
     { 
-        
         $helper = new Helper();
         $listSale = $helper->getListSale()->get();
 
@@ -308,7 +307,8 @@ class SaleController extends Controller
         $typeTN = $r->old_customer;
         $src_id = $r->src_id;
         $srcPage = SrcPage::find($src_id);
-        
+        $shareDataSale = $r->shareDataSale;
+        // dd($name);
         if ($srcPage) {
             $linkPage = $srcPage->link;
             $namePage = $srcPage->name;
@@ -333,16 +333,19 @@ class SaleController extends Controller
             $isOldOrder = 1;
         }
 
-        if (!$is_duplicate) {
-            /** khách mới hoàn toàn */
-            $assignSale = Helper::getAssignSaleByGroup($group)->user;
-            
+        if (!$shareDataSale){
+            if (!$is_duplicate) {
+                /** khách mới hoàn toàn */
+                $assignSale = Helper::getAssignSaleByGroup($group)->user;
+            } else {
+                /** khách cũ */
+                $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeTN, $isOldOrder);
+            }
+            $assgin_user = $assignSale->id;
         } else {
-            /** khách cũ */
-            $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeTN, $isOldOrder);
+            $assgin_user = $r->assgin;
         }
-
-        $assgin_user = $assignSale->id;
+        
         $chatId = $group->tele_hot_data;
         if ($isOldOrder == 1) {
             $chatId = $group->tele_cskh_data;
@@ -355,7 +358,7 @@ class SaleController extends Controller
             'old_customer' => $isOldOrder,
             'address'   => '',
             'messages'  => $messages,
-            'name'      => 'Không để tên',
+            'name'      => $name,
             'phone'     => $phone,
             'page_id'   => $id_page,
             'text'      => $messages,
@@ -371,7 +374,6 @@ class SaleController extends Controller
 
         $r->replace($data);
         $save = $this->save($r);
-        // dd($save);
         return back();
     }
 
@@ -632,6 +634,7 @@ class SaleController extends Controller
 
     public function searchInSaleCare($dataFilter)
     {
+        // dd('ac');
         $seach = $dataFilter['search'];
         $listIdHasHis   = SaleCareHistoryTN::join('sale_care', 'sale_care.id', '=', 'sale_care_history_tn.sale_id')
             ->orwhere('sale_care_history_tn.note', 'like', '%' .  $seach. '%')
@@ -737,11 +740,13 @@ class SaleController extends Controller
         $isLeadSale = Helper::isLeadSale(Auth::user()->role);
         $checkAllAdmin = isFullAccess(Auth::user()->role);
         $isLeadDigital = Helper::isLeadDigital(Auth::user()->role);
+        // dd($dataFilter);
         if (isset($dataFilter['search'])) {
             return $this->searchInSaleCare($dataFilter);
         } 
 
-         if ($dataFilter) {
+        // dd($dataFilter);
+        if ($dataFilter) {
             if (isset($dataFilter['typeDate'])) {
               
                 /* 
@@ -1026,7 +1031,7 @@ class SaleController extends Controller
             }
         }
 
-        
+        // dd((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale));
         if ((isset($dataFilter['sale']) && $dataFilter['sale'] != 999) && ($checkAll || $isLeadSale)) {
             /** user đang login = full quyền và đang lọc 1 sale */
             $sale = Helper::getSaleById($dataFilter['sale']);
@@ -1036,12 +1041,13 @@ class SaleController extends Controller
             // } else {
             //     $list = $list->where('old_customer', 0);
             // }
+            // dd($list->get());
             $list = $list->where('assign_user', $dataFilter['sale']);
            
         } else if ((!$checkAll || !$isLeadSale ) && !$user->is_digital) {
             $list = $list->where('assign_user', $user->id);
         }
-
+        // dd($list->get());
         return $list;
     }
 

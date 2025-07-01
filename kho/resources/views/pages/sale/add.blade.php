@@ -195,7 +195,7 @@ $messages = Session::get('messages');
                                     <p class="error_msg" id="name"></p> --}}
                                     {{-- <label for="like-color">Sale Data nóng</label> --}}
                                     <div class="" >
-                                        <select name="assgin" id="assgin-filter" class="custom-select">
+                                        <select style="width:50%;" name="assgin" id="assgin-filter" class="custom-select">
                                             @if (isset($listSale))
                                             @foreach ($listSale as $item)
                                                 <option value="{{$item->id}}">{{$item->real_name}}</option>
