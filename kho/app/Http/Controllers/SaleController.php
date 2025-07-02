@@ -333,7 +333,7 @@ class SaleController extends Controller
             $isOldOrder = 1;
         }
 
-        if (!$shareDataSale){
+        if ($shareDataSale && $shareDataSale == 2){
             if (!$is_duplicate) {
                 /** khách mới hoàn toàn */
                 $assignSale = Helper::getAssignSaleByGroup($group)->user;
@@ -346,6 +346,7 @@ class SaleController extends Controller
             $assgin_user = $r->assgin;
         }
         
+        // dd($assgin_user);
         $chatId = $group->tele_hot_data;
         if ($isOldOrder == 1) {
             $chatId = $group->tele_cskh_data;
