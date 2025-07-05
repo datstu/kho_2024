@@ -21,6 +21,17 @@ use App\Models\SrcPage;
 use Validator;
 class GroupUserController extends Controller
 {
+    public function indexDigital()
+    {
+        $checkAll = isFullAccess(Auth::user()->role);
+        if ($checkAll) {
+            $list = GroupUser::where('type', 'mkt')->get();
+        } else {
+            $list = GroupUser::where('type', 'mkt')->where('lead_team', Auth::user()->id)->get();
+        }
+       
+        return view('pages.groupUser.index')->with('list', $list);
+    }
     public function getListSaleGroup()
     {
         return User::where('status', 1)->where('is_sale', 1)
@@ -30,9 +41,9 @@ class GroupUserController extends Controller
     {
         $checkAll = isFullAccess(Auth::user()->role);
         if ($checkAll) {
-            $list = GroupUser::get();
+            $list = GroupUser::where('type', 'sale')->get();
         } else {
-            $list = GroupUser::where('lead_team', Auth::user()->id)->get();
+            $list = GroupUser::where('type', 'sale')->where('lead_team', Auth::user()->id)->get();
         }
        
         return view('pages.groupUser.index')->with('list', $list);
@@ -82,9 +93,10 @@ class GroupUserController extends Controller
             }
 
             try {
-                $gr->name   = $req->name;
+                $gr->name = $req->name;
                 $gr->status = $req->status; 
-                $gr->lead_team   = $req->leadSale;
+                $gr->lead_team = $req->leadSale;
+                $gr->type = $req->type;
                 
                 $gr->save();
 
@@ -104,7 +116,8 @@ class GroupUserController extends Controller
 
             notify()->success('Lưu thông tin nhóm thành công', 'Thành công!');
             // return redirect()->route('update-group', $gr->id);
-            return redirect()->route('group-user');
+            // return redirect()->route('group-user');
+            return back();
         }
      
         return response()->json(['errors'=>$validator->errors()]);
@@ -176,6 +189,6 @@ class GroupUserController extends Controller
             notify()->error('Xoá nhóm thất bại', 'Thất bại!');
         }
 
-        return redirect()->route('group-user');
+        return back();
     }
 }

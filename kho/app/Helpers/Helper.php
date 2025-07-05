@@ -28,6 +28,28 @@ setlocale(LC_TIME, 'vi_VN.utf8');
 
 class Helper
 {
+    public static function getListUser()
+    {
+        $list = User::where('status', 1)->get();
+        return $list;
+    }
+    public static function getListLead()
+    {
+        $list = User::where('status', 1);
+        $result = [];
+
+        /** lấy ra danh sách lead sale */
+        foreach ($list->get() as $user) {
+            if (in_array(4, json_decode($user->role, true))
+            || in_array(6, json_decode($user->role, true))
+            ) {
+                $result[] = $user;
+            }
+        }
+
+        return $result;
+    }
+
     public static function getListAttributes()
     {
         return ProductAttributes::where('status', 1)->get();
@@ -123,7 +145,10 @@ class Helper
     public static function isSeeding($phone)
     {
         $patern = "/^(03[0-9]|05[0-9]|07[0-9]|08[0-9]|09[0-9])\d{7}$/";
-        if (!preg_match($patern, $phone)) {
+        if (!preg_match($patern, $phone)
+            || $phone == '0914541203'
+            || $phone == '0973414636'
+        ) {
             return true;
         } 
 

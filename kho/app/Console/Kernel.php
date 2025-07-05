@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function() {
           $this->crawlerGroup();
           Log::channel('new')->info('run craw pancake tricho');
-        })->cron('*/15 * * * *');
+        })->cron('*/3 * * * *');
     }
 
   /**
@@ -642,7 +642,6 @@ class Kernel extends ConsoleKernel
               $checkSaleCareOld = Helper::checkOrderSaleCarebyPhoneV5($phone, $mId, $is_duplicate, $hasOldOrder);
               $typeCSKH = 1;
 
-
               if (Helper::isSeeding($phone)) {
                 Log::channel('new')->info('Số điện thoại đã nằm trong danh sách spam/seeding..');
                 continue;
@@ -660,7 +659,7 @@ class Kernel extends ConsoleKernel
               if ($name && $checkSaleCareOld) {
                 $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeCSKH, $isOldCustomer);
                 if (!$assignSale) {
-                  break;
+                  continue;
                 }
 
                 if ($isOldCustomer == 1) {

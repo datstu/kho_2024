@@ -33,8 +33,8 @@ class HomeController extends Controller
         // $toMonth = '10/05/2025';
 
         $dataSale = $dataSaleCSKH = $dataDigital = [];
-        
-        $groupSale = GroupUser::where('status', 1)->get();
+        $groupSale = GroupUser::where('status', 1)
+            ->where('type', 'sale')->get();
         if (!$isCskhDt && !$isDigital) {
             if (($checkAll || $isLeadSale)) {
                 foreach ($groupSale as $gr) {
@@ -50,8 +50,7 @@ class HomeController extends Controller
             } else {
                 $dataSale[] = User::find(Auth::user()->id);   
             }
-        }
-        
+        }        
 
         if ($checkAll || ($isLeadSale && $isCskhDt)) {
                 // id cskh đạm tôm - team Trinh
@@ -63,6 +62,14 @@ class HomeController extends Controller
         if ($isDigital) {
             if (($checkAll || $isLeadDigital)) {
                 $dataDigital = Helper::getListDigital()->get();
+                $isLeadDigital = Helper::isLeadDigital(Auth::user()->role);
+                if ($isLeadDigital) {
+                    $groupDi = GroupUser::where('lead_team', Auth::user()->id)->first();
+                    if ($groupDi) {
+                        $dataDigital = $groupDi->users;
+                    }
+                }
+                
             } else {
                 $dataDigital[] = User::find(Auth::user()->id);   
             }
@@ -71,11 +78,15 @@ class HomeController extends Controller
         $category = Category::where('status', 1)->get();
         $sales = User::where('status', 1)->where('is_sale', 1)->orWhere('is_cskh', 1)->get();
         $groups = Group::orderBy('id', 'desc')->get();
-        $groupUser = GroupUser::orderBy('id', 'desc')->get();
+        $groupUser = GroupUser::orderBy('id', 'desc')
+            ->where('type', 'sale')->get();
+        $groupDigital = GroupUser::orderBy('id', 'desc')
+            ->where('type', 'mkt')->get();
         return view('pages.home')->with('category', $category)->with('sales', $sales)
             ->with('dataSale', $dataSale)
             ->with('groups', $groups)
             ->with('groupUser', $groupUser)
+            ->with('groupDigital', $groupDigital)
             ->with('dataSaleCSKH', $dataSaleCSKH)
             ->with('dataDigital', $dataDigital);
     }
@@ -982,6 +993,7 @@ class HomeController extends Controller
             
             if ($groupUs) {
                 $listSale = $groupUs->users;
+                // dd($listSale);
                 foreach ($listSale as $sale) {
                     $data = $this->getReportUserSaleV2($sale, $dataFilter);
                     $list[] = $data;
@@ -1006,7 +1018,8 @@ class HomeController extends Controller
                 //     $data = $this->getReportUserSaleV2($sale, $dataFilter);
                 //     $list[] = $data;
                 // }
-                $listGroup = GroupUser::where('status', 1)->get();
+                $listGroup = GroupUser::where('status', 1)
+                    ->where('type', 'sale')->get();
                 foreach ($listGroup as $gr) {
                     if ($gr->id == 5) {
                         continue;
@@ -1423,8 +1436,23 @@ class HomeController extends Controller
             $listDigital = $listDigital->where('id', Auth::user()->id);
         }
 
+        $listDigital = $listDigital->get();
+        $groupDigital = $req->groupDigital;
+        if ($req->groupDigital && $groupDigital != 999) {
+            $groupDi = GroupUser::find($groupDigital);
+            if ($groupDi) {
+                $listDigital = $groupDi->users;
+            }
+        }
 
-        foreach ($listDigital->get() as $digital) {
+        $isLeadDigital = Helper::isLeadDigital(Auth::user()->role);
+        if ($isLeadDigital) {
+            $groupDi = GroupUser::where('lead_team', Auth::user()->id)->first();
+            if ($groupDi) {
+                $listDigital = $groupDi->users;
+            }
+        }
+        foreach ($listDigital as $digital) {
 
             $newTotal = $oldTotal = $avgSum = $oldCountOrder= $newCountOrder = 0;
             $data = ['name' => $digital->real_name];

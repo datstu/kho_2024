@@ -108,6 +108,7 @@
   $enableDigital = ($checkAll || Auth::user()->is_digital);
   $isCskhDt = Helper::isCskhDt(Auth::user());
   $isDigital = Auth::user()->is_digital;
+  $isLeadDigital = Helper::isLeadDigital(Auth::user()->role);
 ?>
 
 <div class="body flex-grow-1 px-3">
@@ -293,6 +294,19 @@
           @endif
         </select>
       </div>
+
+      @if ($checkAll)
+      <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
+        <select name="groupDigital" id="group-digital-filter" class="form-select">
+          <option value="999">--Nhóm digital--</option>  
+            @if (isset($groupDigital))
+                @foreach($groupDigital as $group)
+                <option value="{{$group->id}}">{{$group->name}}</option>
+                @endforeach
+            @endif
+        </select>
+      </div>
+      @endif
     </div>
     <div class="row mb-1">
       <div class="col-xs-12 col-sm-6 col-md-2 form-group mb-1">
@@ -639,6 +653,7 @@
       var src       = $("select[name='src']").val();
       var group     = $("select[name='group']").val();
       var groupUser = $("select[name='groupUser']").val();
+      var groupDigital = $("select[name='groupDigital']").val();
       
       data = {
         _token: _token,
@@ -651,7 +666,8 @@
         mkt,
         src,
         group,
-        groupUser
+        groupUser,
+        groupDigital
       };
       ajaxGetListCskhDt(data);
       ajaxGetListSale(data);
@@ -951,7 +967,7 @@ if (src) {
     if ($('.table_sale').length == 0) {
       return;
     }
-    console.log($('.table_sale').length);
+
     $('.table_sale .loader').show();
     $('.table_sale .table-multi-select').css("opacity", "0.5");
     $('.table_sale .table-multi-select').css("position", "relative");

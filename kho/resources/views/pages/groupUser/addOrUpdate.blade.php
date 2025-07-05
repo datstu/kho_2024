@@ -20,16 +20,19 @@
     $status = 1;
     $isShareDataCSKH = 0;
     $members = $memberCskh = $srcs = $products = [];
+    $type = 'sale';
     if (isset($group)) {
         $id = $group->id;
         $name = $group->name;
         $status = $group->status;
         $members = $group->users->pluck('id')->toArray();
         $leadSale = $group->lead_team;
+        $type = $group->type;
     }
     $listLeadSale = Helper::getListLeadSale();
-
+    $listLead = Helper::getListLead();
     $checkAll = isFullAccess(Auth::user()->role);
+    $listUser = Helper::getListUser();
 ?>
 <div class="body flex-grow-1 px-3">
     <div class="container-lg">
@@ -56,9 +59,17 @@
                                         <p class="error_msg" id="name"></p>
                                     </div>
                                     <div class="mb-3 col-4">
+                                        <label class="form-label" for="nameIP">Phòng bàn (mkt/sale)</label>
+                                        <input <?= !$checkAll ? 'readonly' : ''; ?> value="{{$type}}" class="form-control" name="type" id="typeIP" type="text" required>
+                                        <p class="error_msg" id="name"></p>
+                                    </div>
+                                    <div class="mb-3 col-4">
                                         <label for="leadSale">Trưởng nhóm</label>
+                                        <?php
+                                        // dd($listLead);
+                                        ?>
                                         <select <?= !$checkAll ? 'readonly' : ''; ?>  required name="leadSale" id="list-leadSale" class="custom-select">    
-                                            @foreach($listLeadSale as $sale) 
+                                            @foreach($listLead as $sale) 
                                                 <option <?= $sale->id == $leadSale ? 'selected' : ''; ?> value="{{$sale->id}}">{{$sale->real_name}}</option>
                                             @endforeach
                                         </select>
@@ -66,10 +77,10 @@
                                 </div>
                                 <div class="row">
                                     <div class="mb-3 col-12">
-                                        <label for="like-color">Chọn Sale</label>
+                                        <label for="like-color">Nhân sự</label>
                                         <select required name="member[]" id="list-sale" class="custom-select" multiple>
                                             
-                                            @foreach($listSale as $sale) 
+                                            @foreach($listUser as $sale) 
                                                 <option <?= (in_array($sale->id, $members)) ? 'selected' : ''; ?> value="{{$sale->id}}">{{$sale->real_name}}</option>
                                             @endforeach
                                         </select>
