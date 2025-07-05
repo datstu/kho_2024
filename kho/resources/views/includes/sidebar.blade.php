@@ -66,16 +66,15 @@
         </svg> QL Nhóm</a></li>
     @endif
     
-    @if ($checkAll || $isLeadSale)
+    @if ($checkAll)
     <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
         <svg class="nav-icon">
             <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-group')}}"></use>
         </svg>Nhân sự</a>
         <ul class="nav-group-items">
             <li class="nav-item"><a class="nav-link" href="{{route('group-user')}}"><span class="nav-icon"></span>Nhóm sale</a></li>
-            @if ($checkAll)
+            <li class="nav-item"><a class="nav-link" href="{{route('group-digital')}}"><span class="nav-icon"></span>Nhóm digital</a></li>
             <li class="nav-item"><a class="nav-link" href="{{route('manage-user')}}"><span class="nav-icon"></span>Thành viên</a></li>
-            @endif
         </ul>
     </li>
     @endif
