@@ -343,7 +343,7 @@
                 <th class="text-center">Theo ngày</th>
               </tr>
                 
-              <tr class="rowSum drags-area" id="tr-sum-cskh-DT" style="cursor: grab;">
+              <tr class="rowSum" id="tr-sum-cskh-DT" style="cursor: grab;">
                 <td colspan="2" class="text-center" style="font-weight: bold">Tổng:</td>
                 <td></td>
               </tr>
@@ -431,7 +431,7 @@
                 <th class="text-center" style="width: 5%;">Giá trị TB đơn</th>
               </tr>
                 
-              <tr class="rowsum drags-area t72" id="tr-sum-sale" style="cursor: grab;">
+              <tr class="rowsum t72" id="tr-sum-sale" style="cursor: grab;">
               </tr>
             </thead>
             
@@ -518,7 +518,7 @@
                   <th class="text-center">Giá trị đơn</th>
                   
               </tr>
-              <tr class="rowsum drags-area t72" id="tr-sum-digital" style="cursor: grab;">
+              <tr class="rowsum t72" id="tr-sum-digital" style="cursor: grab;">
               </tr> 
             </thead>
             
