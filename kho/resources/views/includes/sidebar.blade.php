@@ -3,9 +3,7 @@
     <li class="nav-item"><a class="nav-link" href="{{route('home')}}">
             <svg class="nav-icon">
                 <use xlink:href="{{asset('public/vendors/@coreui/icons/svg/free.svg#cil-speedometer')}}"></use>
-            </svg> Dashboard</a></li>
-
-    <li class="nav-title">Development</li>
+            </svg>Tổng quan</a></li>
 
 <?php $checkAll = isFullAccess(Auth::user()->role);
     $isLeadSale = Helper::isLeadSale(Auth::user()->role);
