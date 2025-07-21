@@ -8,19 +8,6 @@ use Illuminate\Support\Facades\Log;
 
 class FbWebHookController extends Controller
 {
-    //
-    public function webhook(Request $req) 
-    {
-        $data = $req->all();
- 
-        Log::channel('a')->info('api run webhook');
-        Log::channel('a')->info($data);
-        if ($data) {
-            sleep(seconds: 5);
-            $this->callDataPc($data);
-        }
-    }
-
     // Hàm gửi tin nhắn sử dụng Facebook Send API
     function sendTextMessage($senderPsid, $message)
     {
@@ -75,10 +62,11 @@ class FbWebHookController extends Controller
         $srcId = $pageSrc->id;
         $group = $pageSrc->group;
         $phone = Helper::getCustomPhoneNum($phone);
-        if (Helper::isSeeding($phone)) {
-            Log::channel('ladi')->info('Số điện thoại đã nằm trong danh sách spam/seeding fb..');
-            return;
-        }
+        
+         if (Helper::isSeeding($phone)) {
+                Log::channel('ladi')->info('Số điện thoại đã nằm trong danh sách spam/seeding fb..' . $phone);
+                return;
+              }
         if ($name && $checkSaleCareOld) {
             $assignSale = Helper::assignSaleFB($hasOldOrder, $group, $phone, $typeCSKH, $isOldCustomer);
             if (!$assignSale) {
@@ -132,8 +120,8 @@ class FbWebHookController extends Controller
         $linkPage = $pageSrc->link;
         $srcId = $pageSrc->id;
         $namePage = $pageSrc->name;
-        Log::channel('a')->info('$namePage' . $namePage);
-        if ($checkSaleCareOld) {  
+        // Log::channel('a')->info('$namePage' . $namePage);
+        if ($checkSaleCareOld && $phone != '0335784214') {  
             if ($assgin_user == 0) {
                 // dd($group);
                 $assignSale = Helper::getAssignSaleByGroup($group);
@@ -173,43 +161,76 @@ class FbWebHookController extends Controller
 
 
     // Xử lý sự kiện webhook
-    public function handle($data)
+    public function handle(Request $request)
     {
-        Log::channel('new')->info('run webhook googogo ');
-        Log::channel('new')->info(($data) ? 'true' : 'false');
-          
-        if ($data) {
-            $phone = $data['phone'];
-            $receivedMessage = $data['receivedMessage'];
-            $mid = $data['mid'];
-            $name = $data['name'];
-            $pageId = $data['pageId'];
-            $group = Helper::getGroupByPageId($pageId);
-
-            if (!$group) {
-                return;
+        if ($request->isMethod('get')) {
+            if ($request->get('hub_verify_token') === 'dat1shot') {
+                return response($request->get('hub_challenge'), 200);
             }
-            
-            $pageSrc = Helper::getPageSrcByPageId($pageId);
-            Log::channel('new')->info( $pageSrc ? 'có pageSrc' : 'nono');
-            if (!$pageSrc) {
-                return;
-            }
-
-            $tokenPage = $pageSrc->token;
-            if (!$name) {
-                $name = "Anh 3";
-            }
-
-            if (Helper::isSeeding($phone)) {
-                Log::channel('ladi')->info('Số điện thoại đã nằm trong danh sách spam/seeding fb..' . $phone);
-                return;
-            }
-            // $this->saveDataWebhookFB($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
-            $this->saveDataWebhookFBV2($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
+            return response('Invalid token', 403);
         }
 
-        return response('Sự kiện đã nhận', 200);
+        // Log message
+        // Log::channel('daily')->info('Webhook received: ', $request->all());
+        // $data = $request->all();
+        // if ($data) {
+        //     sleep(5);
+        //     $this->callDataPc($data);
+        // }
+         $input = $request->all();
+        // Log::channel('daily')->info('get type received: ', $input);
+        
+        // $input = json_decode($request->all(), true);
+        if ($input['object'] === 'page') {
+            //  Log::channel('daily')->info('input '. $input['object'] );
+            foreach ($input['entry'] as $entry) {
+                // Log::channel('daily')->info('$entry ', $entry );
+                $webhookEvent = $entry['messaging'][0];
+    // Log::channel('daily')->info('Webhook $senderPsid: ', $webhookEvent);
+                // Lấy ID người gửi
+                $senderPsid = $webhookEvent['sender']['id'];
+                
+                // Kiểm tra nếu có tin nhắn văn bản
+                if (isset($webhookEvent['message']['text'])) {
+                    $receivedMessage = $webhookEvent['message']['text'];
+                    // Kiểm tra nội dung tin nhắn có chứa số điện thoại không
+                    $phoneRegex = '/(?:\D|^)(\d{10,15})(?=\D|$)/'; // Biểu thức regex cho số điện thoại
+    
+                    if (preg_match_all($phoneRegex, $receivedMessage, $matches)) {
+                        $phoneNumbers = $matches[1]; // Mảng chứa các số điện thoại tìm thấy
+                        // Xử lý số điện thoại (lưu trữ, gửi thông báo, v.v.)
+                        
+                        // Log::channel('daily')->info('xử lý  $phoneNumber: ' , $phoneNumbers);
+                        // file_put_contents("text.txt", json_encode($phoneNumbers),  FILE_APPEND);
+                        foreach ($phoneNumbers as $phoneNumber) {
+                            // Ví dụ: gửi tin nhắn phản hồi với số điện thoại nhận được
+                            $response = "Chúng tôi đã nhận được số điện thoại của bạn: $phoneNumber";
+                            // sendTextMessage($senderPsid, $response);
+                            
+                            $mid = $webhookEvent['message']['mid'];
+                            $pageId = $entry['id'];
+                            // Log::channel('daily')->info('xử lý  $phoneNumber: ' . $phoneNumber);
+                            $dataParam = [
+                                'pageId' => $pageId,
+                                'phone' => $phoneNumber,
+                                'mid' => $mid,
+                                'receivedMessage' => $receivedMessage
+                            ];
+                            
+                            sleep(35);
+                            $this->callDataPc($dataParam);
+                            
+                        }
+                    } else {
+                        // Trả lời khi không tìm thấy số điện thoại
+                        $response = $userName ." Không tìm ppp thấy số điện thoại trong tin nhắn của bạn.";
+                        // sendTextMessage($senderPsid, $response);
+                    }
+                }
+            }
+          return response('EVENT_RECEIVED', 200);
+        } 
+      
     }
 
     public function callDataPc($data)
@@ -221,18 +242,17 @@ class FbWebHookController extends Controller
         //     'name' => 'Dat Dinh',
         //     'pageId' => '381180601741468'
         // );
-    Log::channel('a')->info('run callDataPc');
+
         $pageId =  $data['pageId'];
         $phone =  $data['phone'];
+        $phone = Helper::getCustomPhoneNum($phone);
         $mid =  $data['mid'];
         $receivedMessage = $data['receivedMessage'];
-        
         $str  = 'pageId: ' . $pageId . '<br>';
         $str  .= 'phone: ' . $phone . '<br>';
         $str  .= 'mid: ' . $mid . '<br>';
         $str  .= 'receivedMessage: ' . $receivedMessage . '<br>';
-        Log::channel('a')->info($str);
-        Log::channel('a')->info('run callDataPc');
+
         
         $group = Helper::getGroupByPageId($pageId);
              
@@ -243,7 +263,7 @@ class FbWebHookController extends Controller
         
         $pageSrc = Helper::getPageSrcByPageId($pageId);
         if (!$pageSrc) {
-                        Log::channel('a')->info('no pageSrc');
+            Log::channel('a')->info('no pageSrc');
             return;
         }
 
@@ -256,17 +276,19 @@ class FbWebHookController extends Controller
         $name = 'Loading';
         if ($response) {
             if (!$response['success'] || !$response['conversations']) {
-                Log::channel('a')->info('success repssont is not');
-                Log::channel('a')->info($response);
                 $name = 'Loading';
             } else {
                 $data = $response['conversations'][0];
                 $name = $data['customers'][0]['name'];
-                $this->saveDataWebhookFBV2($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
+                
             }
         }
-        // Log::channel('a')->info('name: ' . $name);
-        
-        
+        if (Helper::isSeeding($phone)) {
+                Log::channel('new')->info('Số điện thoại đã nằm trong danh sách spam/seeding fb..' . $phone);
+                return;
+        }
+        // $name= 'check event fb1090';
+        $this->saveDataWebhookFBV2($group, $pageId, $phone, $name, $mid, $receivedMessage, $pageSrc);
     }
+    
 }
