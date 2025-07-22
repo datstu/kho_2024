@@ -37,23 +37,31 @@ class UserController extends Controller
     }
 
     public function add() {
+        $checkAll = isFullAccess(Auth::user()->role);
+        if (!$checkAll) {
+            return redirect('/');
+        }
+
         return view('pages.users.addOrUpdate');
     }
 
     public function save(Request $req) {
-        // dd($req->all());
+        $checkAll = isFullAccess(Auth::user()->role);
         $validator = Validator::make($req->all(), [
             'name' => 'required',
             'password' => 'required',
+            'image' => 'image|mimes:jpg,jpeg,png,gif|max:2048'
         ],[
             'name.required' => 'Nhập tên thành viên',
             'password.required' => 'Nhập mật khẩu',
         ]);
-       
+
         if ($validator->passes()) {
-            if(isset($req->id)){
+            if(isset($req->id)) {
                 $user           = User::find($req->id);
-                $user->status   = $req->status;
+                if ($checkAll)  {
+                    $user->status   = $req->status;
+                }
 
                 // dd( $req->status);
                 if ($user->password != $req->password) {
@@ -64,6 +72,32 @@ class UserController extends Controller
                 }
                
                 $text = 'Cập nhật thành viên thành công.';
+
+                // dd($req->all());
+                if ($req->file('image')) {
+                    $file = $req->file('image');
+                    $filename = time().'_'.$file->getClientOriginalName();
+                    $newFilePath = 'uploads/'.$filename;
+
+                    $oldFilePath = $user->profile_image; 
+
+                    // Nếu đã có ảnh
+                    if ($oldFilePath && \Storage::disk('public')->exists($oldFilePath)) {
+                        // So sánh file mới và file cũ theo checksum/md5
+                        $newFileHash = md5_file($file->getRealPath());
+                        $oldFileHash = md5_file(storage_path('app/public/'.$oldFilePath));
+
+                        if ($newFileHash !== $oldFileHash) {
+                            // Ảnh mới khác ảnh cũ => xoá ảnh cũ
+                            \Storage::disk('public')->delete($oldFilePath);
+                            $file->storeAs('uploads', $filename, 'public');
+                        }
+                    } else {
+                        $file->storeAs('uploads', $filename, 'public');
+                    }
+
+                    $user->profile_image = $newFilePath;
+                }
             } else{
                 $user = new User();
                 // $user->status = 1;
@@ -72,25 +106,31 @@ class UserController extends Controller
                 
                 $text = 'Tạo thành viên thành công.';
             }
-           
+
             try {
-                // dd($req->all());
                 $user->name         = $req->name;
                 $user->real_name    = $req->real_name;
                 $user->email        = $req->email;
-                $user->is_sale      = $req->is_sale;
-                $user->is_digital   = $req->is_digital;
-                $user->is_CSKH      = $req->is_CSKH;
-                
-                $user->is_receive_data = ($req->is_receive_data) ? $req->is_receive_data : 0 ;
-                $user->role         = json_encode($req->roles);
+
+                if ($checkAll) {
+                    $user->is_sale      = $req->is_sale;
+                    $user->is_digital   = $req->is_digital;
+                    $user->is_CSKH      = $req->is_CSKH;
+                    $user->is_receive_data = ($req->is_receive_data) ? $req->is_receive_data : 0 ;
+                    $user->role = $req->roles;
+                }
+
                 $user->save();
+
             } catch (\Throwable $th) {
                 dd($th);
                 $text = 'Đã có lỗi xảy ra. Vui lòng thử lại sau.';
                 return response()->json(['error'=>$text]);
             }
-            return response()->json(['success'=> $text]);
+
+            return response()->json([
+                'success'=> $text
+            ]);
         }
      
         return response()->json(['errors'=>$validator->errors()]);
@@ -104,7 +144,9 @@ class UserController extends Controller
     public function viewUpdate($id)
     {
         $user = User::find($id);
-        if($user){
+        $checkAll = isFullAccess(Auth::user()->role);
+        $allow = $id == Auth::user()->id;
+        if($allow || $checkAll){
             return view('pages.users.addOrUpdate')->with('user', $user);
         } 
 

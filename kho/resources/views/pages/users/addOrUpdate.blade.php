@@ -1,14 +1,13 @@
 @extends('layouts.default')
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link href="{{ asset('public/css/pages/sale.css'); }}" rel="stylesheet">
 <?php 
     $checkAll = $checkPaulo = $checkFertilizer = $checkLeadSale = $other = $checkLeadDigital = '';
-
+    $checkAll = isFullAccess(Auth::user()->role);
     if (isset($user)) {
         $roles = json_decode($user->role, true);
-            // dd($user->role);
         if ( is_array($roles)) {
-            // dd($roles);
             foreach ($roles as $key => $value) {
                 if ($value == 1) {
                     $checkAll = $checkPaulo = $checkFertilizer = $checkOther = $checkLeadSale = $checkLeadDigital = 'checked';
@@ -38,7 +37,53 @@
         }
     }
 ?>
+<style>
+    #loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* màu nền mờ */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* nằm trên cùng */
+        display: none; /* ẩn mặc định */
+    }
+    .loader {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db; /* màu loading */
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+    }
 
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+     .modal-backdrop-notify.show {
+        opacity: 0;
+    }
+    #notify-modal .modal-header {
+        border: unset;
+        border-radius: unset;
+        background: #4df54dcc;
+    }
+
+    #notify-modal .modal-content  {
+        background: none;
+        border: unset;
+        border-radius: unset;
+    }
+
+    #notify-modal .modal-dialog {
+        margin-right: 10px;
+        width: 300px;
+    }
+</style>
 <div class="body flex-grow-1 px-3">
     <div class="container-lg">
         <div class="row">
@@ -50,51 +95,52 @@
                 <div class="card mb-4">
                     
             @if(isset($user))
-            <div class="card-header"><strong>Cập nhật thành viên: {{$user->name}} #{{$user->id}}</span></div>
+            <div class="card-header"><strong>Cập nhật thành viên: {{$user->real_name}} #{{$user->id}}</span></div>
                 <div class="card-body">
-                    <div class="example">
-                        <div class="body flex-grow-1">
-                            <div class="tab-content rounded-bottom">
-                                <form>
-                                    {{ csrf_field() }}
-                                    <input value="{{$user->id}}" name="id" type="hidden">
-                                    <div class="tab-pane p-3 active preview" role="tabpanel">
-                                        <div class="row">
-                                            <div class="mb-3 col-4">
-                                                <label class="form-label" for="emailIP">Email</label>
-                                                <input value="{{$user->email}}" class="form-control" name="email" id="emailIP" type="email">
-                                                <p class="error_msg" id="email"></p>
-                                            </div>
-                                            <div class="mb-3 col-4">
-                                                <label class="form-label" for="nameIP">Tên đăng nhập</label>
-                                                <input value="{{$user->name}}" class="form-control" name="name" id="nameIP" type="text">
-                                                <p class="error_msg" id="name"></p>
-                                            </div>
+                    <div class="body flex-grow-1">
+                        <div class="tab-content rounded-bottom">
+                            <form>
+                                {{ csrf_field() }}
+                                <input value="{{$user->id}}" name="id" type="hidden">
+                                <div class="tab-pane p-3 active preview" role="tabpanel">
+                                    <div class="row">
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label" for="emailIP">Email</label>
+                                            <input <?php if (!$checkAll) echo "readonly"; ?> value="{{$user->email}}" class="form-control" name="email" id="emailIP" type="email">
+                                            <p class="error_msg" id="email"></p>
                                         </div>
-                                        <div class="row">
-                                            <div class="mb-3 col-4">
-                                                <label class="form-label" for="passwwordlIP">Mật khẩu</label>
-                                                <input value="{{$user->password}}" class="form-control" name="password" id="passwwordlIP" type="password">
-                                                <p class="error_msg" id="password"></p>
-                                            </div>
-                                            <div class="mb-3 col-4">
-                                                <label class="form-label" for="rePasswwordIP">Nhập lại Mật khẩu</label>
-                                                <input value="{{$user->password}}" class="form-control" name="rePassword" id="rePasswwordIP" type="password">
-                                            </div>
-                                            
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label" for="nameIP">Tên đăng nhập</label>
+                                            <input <?php if (!$checkAll) echo "readonly"; ?> value="{{$user->name}}" class="form-control" name="name" id="nameIP" type="text">
+                                            <p class="error_msg" id="name"></p>
                                         </div>
-                                        <div class="row">
-                                            <div class="mb-3 col-4">
-                                                <label class="form-label" for="realNameIP">Tên</label>
-                                                <input value="{{$user->real_name}}" class="form-control" name="real_name" id="realNameIP" type="text">
-                                                <p class="error_msg" id="real_name"></p>
-                                            </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label" for="passwwordlIP">Mật khẩu</label>
+                                            <input value="{{$user->password}}" class="form-control" name="password" id="passwwordlIP" type="password">
+                                            <p class="error_msg" id="password"></p>
+                                        </div>
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label" for="rePasswwordIP">Nhập lại Mật khẩu</label>
+                                            <input value="{{$user->password}}" class="form-control" name="rePassword" id="rePasswwordIP" type="password">
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="row">
+                                        <div class="mb-3 col-4">
+                                            <label class="form-label" for="realNameIP">Tên</label>
+                                            <input value="{{$user->real_name}}" class="form-control" name="real_name" id="realNameIP" type="text">
+                                            <p class="error_msg" id="real_name"></p>
+                                        </div>
+
+                                        @if ($checkAll)
                                         <div class="mb-3 col-4">
                                             <label class="form-label" for="qtyIP">Quyền truy cập</label>
                                             <div class="form-check">
                                                 <input {{$checkAll}} id="role-all" name="roles[]" type="checkbox" class="form-check-input" value="1">
                                                 <label class="form-check-label" for="role-all">
-                                               Tất cả
+                                                Tất cả
                                                 </label>
                                             </div>
                                             <div class="form-check">
@@ -214,15 +260,41 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        </div>
-                                        
-                                        <div class="loader hidden">
-                                            <img src="{{asset('public/images/loader.gif')}}" alt="">
-                                        </div>
-                                        <button id="submit" class="btn btn-primary">Cập nhật</button>
+                                        @endif
                                     </div>
-                                </form>
-                            </div>
+                                    <div class="row">
+                                        <div class="mb-3 col-4">
+                                            
+                                            <label class="form-label" for="passwwordlIP">Hình ảnh</label>
+                                            <div class="profile-picture"
+                                                @if ($user->profile_image) 
+                                                style="background-image: url('{{ asset('storage/app/public/'.$user->profile_image) }}');"
+                                                @endif
+                                                
+                                            >
+                                                <h1 class="upload-icon">
+                                                    <i class="fa fa-plus fa-2x" aria-hidden="true"></i>
+                                                </h1>
+                                                <input
+                                                    id="image"
+                                                    class="file-uploader"
+                                                    type="file"
+                                                    onchange="upload()"
+                                                    accept="image/*"
+                                                    enctype="multipart/form-data"
+                                                />
+                                               
+                                            </div>
+                                             <div style="padding: 5px;">(jpg, jpeg, png, gif)</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="loader-overlay">
+                                        <div class="loader"></div>
+                                    </div>
+                                    <button id="submit" class="btn btn-primary">Cập nhật</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -374,12 +446,26 @@
 </div>
 </div>
 </div>
+
+<div class="modal fade" id="notify-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title" style="color: seagreen;"><p style="margin:0">Lưu data thành công</p></h6>
+            <button style="border: none;" type="button" id="close-modal-notify" class="close" data-dismiss="modal" >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="{{ asset('public/js/page/uploadPicture.js')}}"></script>
 <script>
 $(document).ready(function() {
     $("#submit").click(function(e) {
         e.preventDefault();
-        $('.loader').show();
-
+        $('#loader-overlay').show();
+        $('#loader-overlay').css('display','flex')
         var _token      = $("input[name='_token']").val();
         var name        = $("input[name='name']").val();
         var real_name   = $("input[name='real_name']").val();
@@ -392,53 +478,86 @@ $(document).ready(function() {
         var is_receive_data     = $("input[name='is_receive_data']:checked").val();
         var is_digital  = $("input[name='is_digital']:checked").val();
         var is_CSKH     = $("input[name='is_CSKH']:checked").val();
-        
-        console.log('is sale',is_sale);
+
         let roles = [];
         $("input[name='roles[]']:checked").each(function() {
             roles.push($(this).val());
         });
-
-        console.log(roles);
         
         if (password != rePassword) {
             var err = 'Mật khẩu không khớp';
             $('#password').text(err);
-            $('.loader').hide();
+            $('#loader-overlay').hide();
         } else {
+           
+            var file = $('#image')[0].files[0];
+            var formData = new FormData();
+            if (file) {
+                formData.append('image', file);
+            }
+
+            formData.append('_token', _token);
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('password', password);
+            formData.append('id', id);
+            formData.append('roles', JSON.stringify(roles));
+            formData.append('status', status);
+            formData.append('is_sale', is_sale);
+            formData.append('real_name', real_name);
+            formData.append('is_receive_data', is_receive_data);
+            formData.append('is_digital', is_digital);
+            formData.append('is_CSKH', is_CSKH);
+
             $.ajax({
                 url: "{{ route('save-user') }}",
                 type: 'POST',
-                data: {
-                    _token: _token,
-                    name,
-                    email,
-                    password,
-                    id,
-                    roles,
-                    status,
-                    is_sale,
-                    real_name,
-                    is_receive_data,
-                    is_digital,
-                    is_CSKH
+                headers: {
+                    'X-CSRF-TOKEN': _token
                 },
+                contentType: false,
+                processData: false,
+                data: formData,
                 success: function(data) {
                     console.log(data);
                     if (!$.isEmptyObject(data.error)) {
-                        $("#notifi-box").removeClass('alert-success'); 
-                        $("#notifi-box").addClass('alert-danger');
-                        $(".error_msg").html('');
-                        $("#notifi-box").show();
-                        $("#notifi-box").html(data.error);
-                        $("#notifi-box").slideDown('fast').delay(5000).hide(0);
+                        // $("#notifi-box").removeClass('alert-success'); 
+                        // $("#notifi-box").addClass('alert-danger');
+                        // $(".error_msg").html('');
+                        // $("#notifi-box").show();
+                        // $("#notifi-box").html(data.error);
+                        // $("#notifi-box").slideDown('fast').delay(5000).hide(0);
+
+                        $('#notify-modal').modal('show');
+                        if ($('.modal-backdrop-notify').length === 0) {
+                            $('.modal-backdrop').addClass('modal-backdrop-notify');  
+                        } 
+
+                        $('#notify-modal .modal-title').text('Cập nhật hồ sơ thất bại!');
+
+                        setTimeout(function() {
+                            $('#notify-modal .modal-title').text('');
+                            $('#notify-modal').modal("hide");
+                        }, 2000);
                     } else if ($.isEmptyObject(data.errors)) {
-                        $("#notifi-box").addClass('alert-success'); 
-                        $("#notifi-box").removeClass('alert-danger');
-                        $(".error_msg").html('');
-                        $("#notifi-box").show();
-                        $("#notifi-box").html(data.success);
-                        $("#notifi-box").slideDown('fast').delay(5000).hide(0);
+                        if (data.link) {
+                            $('#avatar img').attr('src', data.link);
+                        }
+                        
+
+                        // $("#notifi-box").addClass('alert-success'); 
+                        // $("#notifi-box").removeClass('alert-danger');
+                        // $(".error_msg").html('');
+                        // $("#notifi-box").show();
+                        // $("#notifi-box").html(data.success);
+                        // $("#notifi-box").slideDown('fast').delay(5000).hide(0);
+
+                        $('#notify-modal').modal('show');
+                        if ($('.modal-backdrop-notify').length === 0) {
+                            $('.modal-backdrop').addClass('modal-backdrop-notify');  
+                        } 
+
+                        $('#notify-modal .modal-title').text('Cập nhật  hồ sơ thành công!');
                     } else {
                         let resp = data.errors;
                         console.log(resp);
@@ -446,7 +565,8 @@ $(document).ready(function() {
                             $("#" + index).html(resp[index]);
                         }
                     }
-                    $('.loader').hide();
+                    location.reload();
+                    // $('#loader-overlay').hide();
                 }
             });
         }
@@ -454,8 +574,6 @@ $(document).ready(function() {
     });
 
     $("input[name='roles[]']").click(function () {
-        // console.log($(this).val());
-        // $("input[name='roles[]']").val();
         var values = [];
         
         if ($(this).val() == 1) {
@@ -484,5 +602,8 @@ $(document).ready(function() {
     });
 
 });
+    $("#close-modal-notify").click(function() {
+        $('#notify-modal').modal("hide");
+    });
 </script>
 @stop
